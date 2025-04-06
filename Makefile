@@ -10,7 +10,7 @@ DEBUG_SUFFIX = -pg -g -O0 -DDEBUG
 RELEASE_SUFFIX = -O3 -fno-gcse
 
 SRCS = $(wildcard $(SDST)*.cpp)
-OBJS = $(SRCS:%.cpp=%.o)
+OBJS = $(SRCS:$(SDST)%.cpp=$(LDST)%.o)
 MAIN = main.cpp
 
 CXXFLAGS =
@@ -25,7 +25,7 @@ release: CXXFLAGS = $(RELEASE_SUFFIX)
 release: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) $(MAIN) $(OBJS) -o $@ $(LINKER)
+	$(CC) $(MAIN) $(OBJS) -o $@ $(LINKER) $(CXXFLAGS)
 
 $(LDST)%.o: $(SDST)%.cpp $(SDST)%.h
-	$(CC) $< -o $@ -c
+	$(CC) $< -o $@ -c $(CXXFLAGS)
