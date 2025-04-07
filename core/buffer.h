@@ -1,4 +1,4 @@
-#ifndef CORE_BUFFER_HEADER
+ #ifndef CORE_BUFFER_HEADER
 #define CORE_BUFFER_HEADER
 
 

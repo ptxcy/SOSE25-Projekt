@@ -130,6 +130,24 @@ void ShaderPipeline::upload(const char* varname,s32 value)
 	{ glUniform1i(glGetUniformLocation(m_ShaderProgram,varname),value); }
 void ShaderPipeline::upload(const char* varname,f32 value)
 	{ glUniform1f(glGetUniformLocation(m_ShaderProgram,varname),value); }
+void ShaderPipeline::upload(const char* varname,vec2 value)
+	{ glUniform2f(glGetUniformLocation(m_ShaderProgram,varname),value.x,value.y); }
+void ShaderPipeline::upload(const char* varname,vec3 value)
+	{ glUniform3f(glGetUniformLocation(m_ShaderProgram,varname),value.x,value.y,value.z); }
+void ShaderPipeline::upload(const char* varname,vec4 value)
+	{ glUniform4f(glGetUniformLocation(m_ShaderProgram,varname),value.x,value.y,value.z,value.w); }
+void ShaderPipeline::upload(const char* varname,mat4 value)
+	{ glUniformMatrix4fv(glGetUniformLocation(m_ShaderProgram,varname),1,GL_FALSE,glm::value_ptr(value)); }
+
+/**
+ *	automatically upload the global 2D coordinate system to the shader
+ *	the coordinate system is uploaded to uniforms view = "view", proj = "proj"
+ */
+void ShaderPipeline::upload_coordinate_system()
+{
+	upload("view",g_CoordinateSystem.view);
+	upload("proj",g_CoordinateSystem.proj);
+}
 
 /**
  *	input attribute name and receive the attribute id

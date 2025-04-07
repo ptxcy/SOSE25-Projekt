@@ -34,8 +34,19 @@ alongside the usual c/c++ datatypes the n64 conventions can (and should) be used
 |double precision|f64|double|
 
 
+## Vector
+
+| Type | Syntax | Correlation |
+|-|-|-|
+|2D single precision vector|vec2|Vector2f|
+|3D single precision vector|vec3|Vector3f|
+|4D single precision vector|vec4|Vector4f|
+|hamilton quaternion|quat|Quaternion|
+|4x4 matrix|mat4|Matrix4x4f|
+
+
 ## Complex Data
 
 | Type | Syntax | Correlation |
 |-|-|-|
-|strings|string|std::string|
+|character string|string|std::string|

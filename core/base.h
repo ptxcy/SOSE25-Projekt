@@ -16,6 +16,12 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 
+// math
+#include <glm/glm.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 
 // ----------------------------------------------------------------------------------------------------
 // basetype definitions to n64 standard
@@ -35,11 +41,20 @@ typedef int64_t s64;
 typedef float f32;
 typedef double f64;
 
+// vectors
+typedef glm::vec2 vec2;
+typedef glm::vec3 vec3;
+typedef glm::vec4 vec4;
+typedef glm::quat quat;
+typedef glm::mat4 mat4;
+
 // basic stringamagickgg
 typedef std::string string;
 
 
 // constants
+constexpr f32 MATH_CARTESIAN_XRANGE = 1280.f;
+constexpr f32 MATH_CARTESIAN_YRANGE = 720.f;
 constexpr f64 MATH_PI = 3.141592653;
 constexpr f64 MATH_E = 2.7182818284;
 
@@ -111,6 +126,19 @@ static inline void produce_timestamp(bool padding=true)
 #define COMM_ERR_FALLBACK(...)
 
 #endif
+
+
+class CoordinateSystem2D
+{
+public:
+	CoordinateSystem2D(f32 xaxis,f32 yaxis);
+
+public:
+	mat4 view;
+	mat4 proj;
+};
+
+inline CoordinateSystem2D g_CoordinateSystem = CoordinateSystem2D(MATH_CARTESIAN_XRANGE,MATH_CARTESIAN_YRANGE);
 
 
 #endif

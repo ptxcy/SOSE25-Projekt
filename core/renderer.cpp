@@ -22,7 +22,7 @@ Renderer::Renderer()
 	// Sprite Pipeline
 	COMM_LOG("assembling pipelines:");
 	COMM_LOG("sprite pipeline");
-	m_SpritePipeline.assemble(__SpriteVertexShader,__DirectFragmentShader,4,0,"sprite");
+	m_SpritePipeline.assemble(__SpriteVertexShader,__DirectFragmentShader,4,5,"sprite");
 	m_SpriteVertexArray.bind();
 	m_SpriteVertexBuffer.bind();
 	m_SpriteVertexBuffer.upload_vertices(__QuadVertices,24);
@@ -31,7 +31,13 @@ Renderer::Renderer()
 	m_SpritePipeline.define_attribute("position",2);
 	m_SpritePipeline.define_attribute("edge_coordinates",2);
 
-	m_SpritePipeline.upload("texture",0);
+	m_SpriteInstanceBuffer.bind();
+	m_SpritePipeline.define_index_attribute("offset",2);
+	m_SpritePipeline.define_index_attribute("scale",2);
+	m_SpritePipeline.define_index_attribute("rotation",1);
+
+	m_SpritePipeline.upload("tex",0);
+	m_SpritePipeline.upload_coordinate_system();
 
 	// ----------------------------------------------------------------------------------------------------
 	// End Pipelines
@@ -45,5 +51,14 @@ void Renderer::update()
 {
 	m_SpriteVertexArray.bind();
 	m_SpritePipeline.enable();
-	glDrawArrays(GL_TRIANGLES,0,6);
+	glDrawArraysInstanced(GL_TRIANGLES,0,6,sprites.size());
+}
+
+/**
+ *	load all stored sprites
+ */
+void Renderer::load_sprites()
+{
+	m_SpriteInstanceBuffer.bind();
+	m_SpriteInstanceBuffer.upload_vertices(sprites,GL_DYNAMIC_DRAW);
 }
