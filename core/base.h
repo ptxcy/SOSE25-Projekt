@@ -49,7 +49,7 @@ constexpr f64 MATH_E = 2.7182818284;
 #ifdef DEBUG
 
 // text colour
-constexpr const char* LOG_WHITE = "\e[0;30m";
+constexpr const char* LOG_WHITE = "\e[1;30m";
 constexpr const char* LOG_RED = "\e[1;31m";
 constexpr const char* LOG_GREEN = "\e[1;32m";
 constexpr const char* LOG_YELLOW = "\e[1;33m";

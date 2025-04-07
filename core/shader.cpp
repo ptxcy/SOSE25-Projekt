@@ -67,13 +67,17 @@ Shader::Shader(const char* path,GLenum type)
  */
 void ShaderPipeline::assemble(const Shader& vs,const Shader& fs,u8 vertex_width,u8 index_width,const char* name)
 {
+	// setup target width for vertex and index buffer
 	m_VertexWidth = vertex_width*SHADER_UPLOAD_VALUE_SIZE;
 	m_IndexWidth = index_width*SHADER_UPLOAD_VALUE_SIZE;
+
+	// assemble program
 	m_ShaderProgram = glCreateProgram();
 	glAttachShader(m_ShaderProgram,vs.shader);
 	glAttachShader(m_ShaderProgram,fs.shader);
 	glBindFragDataLocation(m_ShaderProgram,0,"pixelColour");
 	glLinkProgram(m_ShaderProgram);
+
 	COMM_MSG(LOG_YELLOW,"%s -> Shader ID = %d",name,m_ShaderProgram);
 }
 
@@ -91,6 +95,9 @@ void ShaderPipeline::disable() { glUseProgram(0); }
  */
 void ShaderPipeline::define_attribute(const char* varname,u8 dim)
 {
+	COMM_ERR_COND(m_VertexCursor+dim*SHADER_UPLOAD_VALUE_SIZE>m_VertexWidth,
+				  "attribute dimension violates upload width");
+
 	s32 __Attribute = _handle_attribute_location_by_name(varname);
 	glVertexAttribPointer(__Attribute,dim,GL_FLOAT,GL_FALSE,m_VertexWidth,(void*)m_VertexCursor);
 	m_VertexCursor += dim*SHADER_UPLOAD_VALUE_SIZE;
@@ -104,6 +111,9 @@ void ShaderPipeline::define_attribute(const char* varname,u8 dim)
  */
 void ShaderPipeline::define_index_attribute(const char* varname,u8 dim)
 {
+	COMM_ERR_COND(m_IndexCursor+dim*SHADER_UPLOAD_VALUE_SIZE>m_IndexWidth,
+				  "index dimension violates upload width");
+
 	s32 __Attribute = _handle_attribute_location_by_name(varname);
 	glVertexAttribPointer(__Attribute,dim,GL_FLOAT,GL_FALSE,m_IndexWidth,(void*)m_IndexCursor);
 	glVertexAttribDivisor(__Attribute,1);

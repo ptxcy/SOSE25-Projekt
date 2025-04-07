@@ -32,6 +32,7 @@ public:
 	 *	\param size: array size, not necessary when using a vector
 	 *	\param memtype: GL_(STREAM+STATIC+DYNAMIC)_(DRAW+READ+COPY)
 	 *	NOTE vertex buffer has to be bound beforehand
+	 *	NOTE do not use in combination with upload_elements(...)
 	 */
 	template<typename T> inline void upload_vertices(T* vertices,size_t size,GLenum memtype=GL_STATIC_DRAW)
 	{ glBufferData(GL_ARRAY_BUFFER,size*sizeof(T),vertices,memtype); }

@@ -1,5 +1,6 @@
 #include "core/blitter.h"
 #include "core/input.h"
+#include "core/renderer.h"
 
 
 s32 main(s32 argc,char** argv)
@@ -10,6 +11,7 @@ s32 main(s32 argc,char** argv)
 		g_Frame.clear();
 
 		Input::update(running);
+		g_Renderer.update();
 
 		g_Frame.update();
 	}

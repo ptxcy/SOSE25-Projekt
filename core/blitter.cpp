@@ -70,7 +70,7 @@ Frame::Frame(const char* title,u16 width,u16 height,bool vsync)
 	// standard settings
 	glClearColor(0,0,0,0);
 
-	COMM_SCC("blitter ready");
+	COMM_SCC("blitter ready.");
 }
 
 /**
