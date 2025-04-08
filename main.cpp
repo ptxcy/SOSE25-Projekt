@@ -9,6 +9,7 @@ s32 main(s32 argc,char** argv)
 	Sprite* smaller = g_Renderer.register_sprite(vec2(100,100),vec2(100,100),-30.f);
 	Sprite* intermediate = nullptr;
 	bool loaded_new = false;
+	bool deleted_old = false;
 
 	bool running = true;
 	while(running)
@@ -22,10 +23,20 @@ s32 main(s32 argc,char** argv)
 			intermediate = g_Renderer.register_sprite(vec2(500,500),vec2(150,150),20.f);
 			loaded_new = true;
 		}
+		if (!deleted_old&&g_Input.keyboard.keys[SDL_SCANCODE_O])
+		{
+			Renderer::delete_sprite(smaller);
+			deleted_old = true;
+		}
+
+		// sample cased update
 		if (loaded_new) intermediate->rotation
 							+= (g_Input.keyboard.keys[SDL_SCANCODE_D]-g_Input.keyboard.keys[SDL_SCANCODE_A])*4.f;
-		smaller->rotation -= 2.f;
-		smaller->rotation = fmod(smaller->rotation,360.f);
+		if (!deleted_old)
+		{
+			smaller->rotation -= 2.f;
+			smaller->rotation = fmod(smaller->rotation,360.f);
+		}
 		bigger->rotation += 3.5f;
 		bigger->rotation = fmod(bigger->rotation,360.f);
 

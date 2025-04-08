@@ -74,7 +74,20 @@ Sprite* Renderer::register_sprite(vec2 position,vec2 size,f32 rotation)
 	return &m_Sprites[i];
 };
 
-// TODO allow to delete sprites and overwrite with next registration
+/**
+ *	remove sprite from render list. quickly moved out of viewport in main thread, later collected automatically
+ *	\param sprite: reference to sprite, being removed
+ */
+void Renderer::delete_sprite(Sprite* sprite)
+{
+	sprite->offset.x = RENDERER_POSITIONAL_DELETION_CODE;
+}
+// TODO allow to overwrite deleted sprites with next registration
+//		background checker for positional codes (scale and alpha does not make sense for animation reasons)
+//		then after deletion code setting set a flag to search for removable sprites
+//		a thread will then be unleashed while this flag is active, starting with setting the flag inactive
+//		then the thread proceeds with removal, should another removal take place during the search
+//		the flag will be active again and the loop wont be exited. abusing race conditions to our advantage.
 
 /**
  *	helper to unclutter the update to all sprites

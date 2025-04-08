@@ -6,6 +6,7 @@
 #include "shader.h"
 
 
+constexpr f32 RENDERER_POSITIONAL_DELETION_CODE = -1247.f;
 constexpr u16 RENDERER_MAXIMUM_SPRITE_COUNT = 512;
 
 
@@ -25,9 +26,11 @@ public:
 	void update();
 
 	Sprite* register_sprite(vec2 position,vec2 size,f32 rotation=.0f);
+	static void delete_sprite(Sprite* sprite);
 
 private:
 	void _update_sprites();
+	// TODO static void _sprite_collector(Sprite* sprites,u16& range); multithreaded
 
 private:
 
