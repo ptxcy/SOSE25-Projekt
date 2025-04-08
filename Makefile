@@ -24,7 +24,7 @@ debug: $(TARGET)
 release: CXXFLAGS = $(RELEASE_SUFFIX)
 release: $(TARGET)
 
-$(TARGET): $(OBJS)
+$(TARGET): $(OBJS) $(MAIN)
 	$(CC) $(MAIN) $(OBJS) -o $@ $(LINKER) $(CXXFLAGS)
 
 $(LDST)%.o: $(SDST)%.cpp $(SDST)%.h

@@ -49,16 +49,43 @@ Renderer::Renderer()
  */
 void Renderer::update()
 {
-	m_SpriteVertexArray.bind();
-	m_SpritePipeline.enable();
-	glDrawArraysInstanced(GL_TRIANGLES,0,6,sprites.size());
+	_update_sprites();
 }
 
 /**
- *	load all stored sprites
+ *	register a new sprite instance for rendering
+ *	\param position: 2-dimensional position of sprite on screen, bounds defined by coordinate system
+ *	\param size: width and height of the sprite
+ *	\param rotation: (default .0f) rotation of the sprite in degrees
+ *	\returns sprite render registration id
  */
-void Renderer::load_sprites()
+Sprite* Renderer::register_sprite(vec2 position,vec2 size,f32 rotation)
 {
+	COMM_LOG("sprite register at: (%f,%f), %fx%f, %f°",position.x,position.y,size.x,size.y,rotation);
+	COMM_ERR_COND(RENDERER_MAXIMUM_SPRITE_COUNT<=m_ActiveRange+1,
+				  "sprite registration violates maximum range, consider adjusting the respective constant");
+
+	u16 i = m_ActiveRange++;
+	m_Sprites[i] = {
+		.offset = position,
+		.scale = size,
+		.rotation = rotation
+	};
+	return &m_Sprites[i];
+};
+
+// TODO allow to delete sprites and overwrite with next registration
+
+/**
+ *	helper to unclutter the update to all sprites
+ */
+void Renderer::_update_sprites()
+{
+	m_SpriteVertexArray.bind();
+	m_SpritePipeline.enable();
 	m_SpriteInstanceBuffer.bind();
-	m_SpriteInstanceBuffer.upload_vertices(sprites,GL_DYNAMIC_DRAW);
+	m_SpriteInstanceBuffer.upload_vertices(m_Sprites,RENDERER_MAXIMUM_SPRITE_COUNT,GL_DYNAMIC_DRAW);
+	glDrawArraysInstanced(GL_TRIANGLES,0,6,m_ActiveRange);
 }
+// TODO dynamic vs static reloading with/without flags (and is it even necessary)
+// TODO profile consistent upload expense

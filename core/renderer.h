@@ -6,11 +6,14 @@
 #include "shader.h"
 
 
+constexpr u16 RENDERER_MAXIMUM_SPRITE_COUNT = 512;
+
+
 struct Sprite
 {
-	vec2 offset;
-	vec2 scale;
-	f32 rotation;
+	vec2 offset = vec2(0,0);
+	vec2 scale = vec2(0,0);
+	f32 rotation = .0f;
 };
 
 
@@ -21,13 +24,10 @@ public:
 
 	void update();
 
-	void load_sprites();
+	Sprite* register_sprite(vec2 position,vec2 size,f32 rotation=.0f);
 
-public:
-
-	// ----------------------------------------------------------------------------------------------------
-	// Render Object Information
-	std::vector<Sprite> sprites = std::vector<Sprite>();
+private:
+	void _update_sprites();
 
 private:
 
@@ -39,6 +39,11 @@ private:
 	VertexBuffer m_SpriteInstanceBuffer;
 
 	ShaderPipeline m_SpritePipeline;
+
+	// ----------------------------------------------------------------------------------------------------
+	// Render Object Information
+	u16 m_ActiveRange = 0;
+	Sprite m_Sprites[RENDERER_MAXIMUM_SPRITE_COUNT];
 };
 
 inline Renderer g_Renderer = Renderer();
