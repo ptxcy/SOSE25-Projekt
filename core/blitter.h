@@ -22,7 +22,7 @@ private:
 	SDL_GLContext m_Context;
 };
 
-inline Frame g_Frame = Frame("BHT Projekt",1600,900);
+inline Frame g_Frame = Frame("BHT Projekt",FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y);
 
 
 #endif

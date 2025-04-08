@@ -57,7 +57,7 @@ void Renderer::update()
  *	\param position: 2-dimensional position of sprite on screen, bounds defined by coordinate system
  *	\param size: width and height of the sprite
  *	\param rotation: (default .0f) rotation of the sprite in degrees
- *	\returns sprite render registration id
+ *	\returns pointer to sprite data for modification purposes
  */
 Sprite* Renderer::register_sprite(vec2 position,vec2 size,f32 rotation)
 {
