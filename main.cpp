@@ -44,6 +44,7 @@ s32 main(s32 argc,char** argv)
 		g_Frame.update();
 	}
 
+	g_Renderer.exit();
 	g_Frame.close();
 	return 0;
 }

@@ -1,6 +1,19 @@
 #include "renderer.h"
 
 
+std::mutex mutex_sprite;
+std::condition_variable cv_sprite;
+bool collect_sprites = false;
+void _signal_sprite_collector()
+{
+	{
+		std::lock_guard<std::mutex> lock(mutex_sprite);
+		collect_sprites = true;
+	}
+	cv_sprite.notify_one();
+}
+
+
 /**
  *	setup renderer
  */
@@ -40,7 +53,12 @@ Renderer::Renderer()
 	m_SpritePipeline.upload_coordinate_system();
 
 	// ----------------------------------------------------------------------------------------------------
-	// End Pipelines
+	// End Pipelines, Start Subprocesses
+	std::thread __SpriteCollector(Renderer::_sprite_collector,
+								  m_Sprites,&m_SpriteOverwrite,&m_ActiveRange,&m_HelpersActive);
+	__SpriteCollector.detach();
+	// TODO unsafe, but it will probably work 99% of the time in normal use cases. still improve safety
+
 	COMM_SCC("render system ready.");
 }
 
@@ -53,6 +71,15 @@ void Renderer::update()
 }
 
 /**
+ *	exit renderer and end all it's subprocesses
+ */
+void Renderer::exit()
+{
+	m_HelpersActive = false;
+	_signal_sprite_collector();
+}
+
+/**
  *	register a new sprite instance for rendering
  *	\param position: 2-dimensional position of sprite on screen, bounds defined by coordinate system
  *	\param size: width and height of the sprite
@@ -61,18 +88,27 @@ void Renderer::update()
  */
 Sprite* Renderer::register_sprite(vec2 position,vec2 size,f32 rotation)
 {
-	COMM_LOG("sprite register at: (%f,%f), %fx%f, %f°",position.x,position.y,size.x,size.y,rotation);
-	COMM_ERR_COND(RENDERER_MAXIMUM_SPRITE_COUNT<=m_ActiveRange+1,
+	// determine memory location, overwrite has priority over appending
+	std::cout << (u32)m_ActiveRange << '\n';
+	u16 i;
+	if (m_SpriteOverwrite.size())
+	{
+		i = m_SpriteOverwrite.front();
+		m_SpriteOverwrite.pop();
+	}
+	else i = m_ActiveRange++;
+	COMM_LOG("sprite register at: i: %d -> (%f,%f), %fx%f, %f°",i,position.x,position.y,size.x,size.y,rotation);
+	COMM_ERR_COND(i>=RENDERER_MAXIMUM_SPRITE_COUNT,
 				  "sprite registration violates maximum range, consider adjusting the respective constant");
 
-	u16 i = m_ActiveRange++;
+	// write information to memory
 	m_Sprites[i] = {
 		.offset = position,
 		.scale = size,
 		.rotation = rotation
 	};
 	return &m_Sprites[i];
-};
+}
 
 /**
  *	remove sprite from render list. quickly moved out of viewport in main thread, later collected automatically
@@ -80,14 +116,11 @@ Sprite* Renderer::register_sprite(vec2 position,vec2 size,f32 rotation)
  */
 void Renderer::delete_sprite(Sprite* sprite)
 {
+	// signal sprite removal
 	sprite->offset.x = RENDERER_POSITIONAL_DELETION_CODE;
+	sprite->scale = vec2(0,0);
+	_signal_sprite_collector();
 }
-// TODO allow to overwrite deleted sprites with next registration
-//		background checker for positional codes (scale and alpha does not make sense for animation reasons)
-//		then after deletion code setting set a flag to search for removable sprites
-//		a thread will then be unleashed while this flag is active, starting with setting the flag inactive
-//		then the thread proceeds with removal, should another removal take place during the search
-//		the flag will be active again and the loop wont be exited. abusing race conditions to our advantage.
 
 /**
  *	helper to unclutter the update to all sprites
@@ -102,3 +135,49 @@ void Renderer::_update_sprites()
 }
 // TODO dynamic vs static reloading with/without flags (and is it even necessary)
 // TODO profile consistent upload expense
+
+
+// ----------------------------------------------------------------------------------------------------
+// Background Processes
+
+/**
+ *	automatically collecting deleted sprites and assign memory space for override
+ *	\param sprites: storage array for registered arrays
+ *	\param overwrites: pointer to queue, listing the memory indices to overwrite in future registrations
+ *	\param range: pointer to active range towards furthest address of registered sprites
+ *	\param active: reference to background process active flag
+ */
+void Renderer::_sprite_collector(Sprite* sprites,std::queue<u16>* overwrites,u16* range,volatile bool* active)
+{
+	COMM_SCC("started sprite collector background process");
+
+	// main loop
+	while (*active)
+	{
+		std::unique_lock<std::mutex> lock(mutex_sprite);
+		cv_sprite.wait(lock,[]{ return collect_sprites; });
+		collect_sprites = false;
+		if (!*active) break;
+		COMM_LOG("sprite collector is searching for removed objects...");
+
+		// iterate active sprite memory
+		(*overwrites) = std::queue<u16>();
+		u16 __Streak = 0;
+		for (int i=0;i<(*range);i++)
+		{
+			// sprite marked to be removed
+			if (sprites[i].offset.x==RENDERER_POSITIONAL_DELETION_CODE)
+			{
+				COMM_MSG(LOG_PURPLE,"marked sprite found at memory index %d and scheduled to overwrite",i);
+				__Streak++;
+				if (i==(*range)-1) (*range) -= __Streak;
+				else overwrites->push(i);
+			}
+
+			// end removal streak
+			else __Streak = 0;
+		}
+	}
+
+	COMM_LOG("sprite collector background process finished");
+}

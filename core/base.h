@@ -10,6 +10,9 @@
 #include <queue>
 #include <map>
 #include <chrono>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
 
 // ogl
 #include <GL/glew.h>

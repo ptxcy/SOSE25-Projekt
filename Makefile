@@ -4,7 +4,7 @@ SDST = core/
 LDST = core/lib/
 TARGET = build
 
-LINKER = -lGL -lGLEW -lSDL2
+LINKER = -lGL -lGLEW -lSDL2 -lpthread
 
 DEBUG_SUFFIX = -pg -g -O0 -DDEBUG
 RELEASE_SUFFIX = -O3 -fno-gcse

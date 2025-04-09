@@ -24,15 +24,19 @@ public:
 	Renderer();
 
 	void update();
+	void exit();
 
 	Sprite* register_sprite(vec2 position,vec2 size,f32 rotation=.0f);
 	static void delete_sprite(Sprite* sprite);
 
 private:
 	void _update_sprites();
-	// TODO static void _sprite_collector(Sprite* sprites,u16& range); multithreaded
+
+	// background procedures
+	static void _sprite_collector(Sprite* sprites,std::queue<u16>* overwrites,u16* range,volatile bool* active);
 
 private:
+	volatile bool m_HelpersActive = true;
 
 	// ----------------------------------------------------------------------------------------------------
 	// Data Management & Pipelines
@@ -45,8 +49,11 @@ private:
 
 	// ----------------------------------------------------------------------------------------------------
 	// Render Object Information
+
+	// sprites
 	u16 m_ActiveRange = 0;
 	Sprite m_Sprites[RENDERER_MAXIMUM_SPRITE_COUNT];
+	std::queue<u16> m_SpriteOverwrite = std::queue<u16>();
 };
 
 inline Renderer g_Renderer = Renderer();
