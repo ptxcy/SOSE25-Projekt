@@ -1,3 +1,4 @@
 # core
+core/include/*
 *.o
 gmon.out

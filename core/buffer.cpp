@@ -74,3 +74,23 @@ void VertexBuffer::upload_elements(std::vector<u32> elements)
 {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,elements.size()*sizeof(u32),&elements[0],GL_STATIC_DRAW);
 }
+
+
+// ----------------------------------------------------------------------------------------------------
+// Video Buffers
+
+/**
+ *	ready pixel buffer to receive texture data
+ */
+GPUPixelBuffer::GPUPixelBuffer()
+{
+	glGenTextures(1,&m_Memory);
+}
+
+/**
+ *	bind pixel buffer for allocation and reading
+ */
+void GPUPixelBuffer::bind()
+{
+	glBindTexture(GL_TEXTURE_2D,m_Memory);
+}

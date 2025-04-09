@@ -1,5 +1,5 @@
-#ifndef CORE_TOOLBOX_HEADER
-#define CORE_TOOLBOX_HEADER
+#ifndef CORE_BASE_HEADER
+#define CORE_BASE_HEADER
 
 
 // basics
@@ -24,6 +24,13 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+// texture
+#ifndef STBI_INCLUDE_STB_IMAGE_H
+#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_STATIC
+#include "include/stb_image.h"
+#endif
 
 
 // ----------------------------------------------------------------------------------------------------

@@ -1,6 +1,10 @@
 #include "renderer.h"
 
 
+// ----------------------------------------------------------------------------------------------------
+// Background Process Signals
+
+// sprite collector signals
 std::mutex mutex_sprite;
 std::condition_variable cv_sprite;
 bool collect_sprites = false;
@@ -13,6 +17,9 @@ void _signal_sprite_collector()
 	cv_sprite.notify_one();
 }
 
+
+// ----------------------------------------------------------------------------------------------------
+// Renderer Main Features
 
 /**
  *	setup renderer
@@ -89,7 +96,6 @@ void Renderer::exit()
 Sprite* Renderer::register_sprite(vec2 position,vec2 size,f32 rotation)
 {
 	// determine memory location, overwrite has priority over appending
-	std::cout << (u32)m_ActiveRange << '\n';
 	u16 i;
 	if (m_SpriteOverwrite.size())
 	{
@@ -119,6 +125,7 @@ void Renderer::delete_sprite(Sprite* sprite)
 	// signal sprite removal
 	sprite->offset.x = RENDERER_POSITIONAL_DELETION_CODE;
 	sprite->scale = vec2(0,0);
+	sprite = nullptr;
 	_signal_sprite_collector();
 }
 

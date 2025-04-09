@@ -47,7 +47,23 @@ private:
 };
 
 
-// TODO texture buffer / VRAM buffer
+class GPUPixelBuffer
+{
+public:
+	GPUPixelBuffer();
+
+	void bind();
+
+	void singular_write();
+	// TODO allocate & write for statically written texture atlas
+	// TODO allocate & write for dynamically written texture atlas
+
+private:
+	u32 m_Memory;
+};
+
+
+// TODO single texture buffer (is this even necessary)
 // TODO framebuffer
 
 
