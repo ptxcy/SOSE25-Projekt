@@ -36,13 +36,13 @@ Renderer::Renderer()
 
 	COMM_LOG("compiling shaders");
 	Shader __SpriteVertexShader = Shader("core/shader/sprite.vert",GL_VERTEX_SHADER);
-	Shader __DirectFragmentShader = Shader("core/shader/direct.frag",GL_FRAGMENT_SHADER);
+	Shader __DirectFragmentShader = Shader("core/shader/sprite.frag",GL_FRAGMENT_SHADER);
 
 	// ----------------------------------------------------------------------------------------------------
 	// Sprite Pipeline
 	COMM_LOG("assembling pipelines:");
 	COMM_LOG("sprite pipeline");
-	m_SpritePipeline.assemble(__SpriteVertexShader,__DirectFragmentShader,4,5,"sprite");
+	m_SpritePipeline.assemble(__SpriteVertexShader,__DirectFragmentShader,4,6,"sprite");
 	m_SpriteVertexArray.bind();
 	m_SpriteVertexBuffer.bind();
 	m_SpriteVertexBuffer.upload_vertices(__QuadVertices,24);
@@ -55,6 +55,7 @@ Renderer::Renderer()
 	m_SpritePipeline.define_index_attribute("offset",2);
 	m_SpritePipeline.define_index_attribute("scale",2);
 	m_SpritePipeline.define_index_attribute("rotation",1);
+	m_SpritePipeline.define_index_attribute("alpha",1);
 
 	m_SpritePipeline.upload("tex",0);
 	m_SpritePipeline.upload_coordinate_system();
@@ -91,9 +92,10 @@ void Renderer::exit()
  *	\param position: 2-dimensional position of sprite on screen, bounds defined by coordinate system
  *	\param size: width and height of the sprite
  *	\param rotation: (default .0f) rotation of the sprite in degrees
+ *	\param alpha: (default 1.f) transparency of sprite clamped between 0 and 1. 0 = invisible -> 1 = opaque
  *	\returns pointer to sprite data for modification purposes
  */
-Sprite* Renderer::register_sprite(vec2 position,vec2 size,f32 rotation)
+Sprite* Renderer::register_sprite(vec2 position,vec2 size,f32 rotation,f32 alpha)
 {
 	// determine memory location, overwrite has priority over appending
 	u16 i;
@@ -111,7 +113,8 @@ Sprite* Renderer::register_sprite(vec2 position,vec2 size,f32 rotation)
 	m_Sprites[i] = {
 		.offset = position,
 		.scale = size,
-		.rotation = rotation
+		.rotation = rotation,
+		.alpha = alpha
 	};
 	return &m_Sprites[i];
 }

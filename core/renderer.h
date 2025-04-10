@@ -15,6 +15,7 @@ struct Sprite
 	vec2 offset = vec2(0,0);
 	vec2 scale = vec2(0,0);
 	f32 rotation = .0f;
+	f32 alpha = 1.f;
 };
 
 
@@ -26,7 +27,8 @@ public:
 	void update();
 	void exit();
 
-	Sprite* register_sprite(vec2 position,vec2 size,f32 rotation=.0f);
+	// sprite
+	Sprite* register_sprite(vec2 position,vec2 size,f32 rotation=.0f,f32 alpha=1.f);
 	static void delete_sprite(Sprite* sprite);
 
 private:

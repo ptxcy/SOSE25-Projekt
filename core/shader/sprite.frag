@@ -2,6 +2,7 @@
 
 
 in vec2 EdgeCoordinates;
+in float Alpha;
 
 out vec4 pixelColour;
 
@@ -10,5 +11,5 @@ uniform sampler2D tex;
 
 void main()
 {
-	pixelColour = vec4(EdgeCoordinates,.0,1.);
+	pixelColour = vec4(EdgeCoordinates,.0,Alpha);
 }

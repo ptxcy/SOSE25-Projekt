@@ -47,24 +47,65 @@ private:
 };
 
 
-class GPUPixelBuffer
+class TextureData
 {
 public:
-	GPUPixelBuffer();
+	TextureData(string path,bool corrected=false);
+
+	void load();
+	void gpu_upload();
+	// TODO overload gpu_upload(...) for subtextures
+
+private:
+	string m_Path;
+	s32 m_Width,m_Height;
+	s32 m_Format;
+	void* m_Data;
+};
+
+
+class Texture
+{
+public:
+	Texture();
 
 	void bind();
+	static void unbind();
 
-	void singular_write();
-	// TODO allocate & write for statically written texture atlas
-	// TODO allocate & write for dynamically written texture atlas
+	void set_texture_parameter_linear_mipmap();
+	void set_texture_parameter_nearest_mipmap();
+	void set_texture_parameter_linear_unfiltered();
+	void set_texture_parameter_nearest_unfiltered();
+	void set_texture_parameter_clamp_to_edge();
+	void set_texture_parameter_clamp_to_border();
+	void set_texture_parameter_repeat();
+	void set_texture_parameter_filter_bias(float bias=.0f);
+	void set_texture_parameter_border_colour(vec4 colour);
+	void generate_mipmap();
 
 private:
 	u32 m_Memory;
 };
 
 
-// TODO single texture buffer (is this even necessary)
-// TODO framebuffer
+struct PixelBufferComponent
+{
+	u32 x,y;
+	u32 width,height;
+};
 
+class GPUPixelBuffer
+{
+public:
+
+	// TODO allocate & write for statically written texture atlas
+	// TODO allocate & write for dynamically written texture atlas
+	// TODO when allocating, rotation boolean can be stored in alpha by signing the float
+
+public:
+	Texture texture;
+};
+
+// TODO framebuffer
 
 #endif
