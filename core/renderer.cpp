@@ -62,11 +62,20 @@ Renderer::Renderer()
 
 	// testing remoev later
 	PixelBufferComponent __TrashStateRemoveLater;
-	TextureData __TextureData = TextureData("./res/test.png");
-	__TextureData.load();
+	TextureData __TextureData0 = TextureData("./res/test.png");
+	TextureData __TextureData1 = TextureData("./res/kek.png");
+	TextureData __TextureData2 = TextureData("./res/maps.png");
+	TextureData __TextureData3 = TextureData("./res/kid.png");
+	__TextureData0.load();
+	__TextureData1.load();
+	__TextureData2.load();
+	__TextureData3.load();
 	m_SpriteTextures.atlas.bind();
-	m_SpriteTextures.allocate(1000,1000,GL_RGBA);
-	m_SpriteTextures.write(&__TrashStateRemoveLater,&__TextureData);
+	m_SpriteTextures.allocate(1500,1500,GL_RGBA);
+	m_SpriteTextures.write(&__TrashStateRemoveLater,&__TextureData3);
+	m_SpriteTextures.write(&__TrashStateRemoveLater,&__TextureData1);
+	m_SpriteTextures.write(&__TrashStateRemoveLater,&__TextureData0);
+	m_SpriteTextures.write(&__TrashStateRemoveLater,&__TextureData2);
 	Texture::set_texture_parameter_linear_mipmap();
 	Texture::set_texture_parameter_clamp_to_edge();
 	Texture::generate_mipmap();
@@ -88,7 +97,7 @@ Renderer::Renderer()
  */
 void Renderer::update()
 {
-	//m_Texture.bind();
+	glEnable(GL_BLEND);
 	m_SpriteTextures.atlas.bind();
 	_update_sprites();
 }

@@ -68,7 +68,7 @@ Frame::Frame(const char* title,u16 width,u16 height,bool vsync)
 	else gpu_vsync_off();
 
 	// standard settings
-	glClearColor(0,0,0,0);
+	glClearColor(BLITTER_CLEAR_COLOUR.r,BLITTER_CLEAR_COLOUR.g,BLITTER_CLEAR_COLOUR.b,0);
 
 	COMM_SCC("blitter ready.");
 }

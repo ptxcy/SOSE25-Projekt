@@ -5,6 +5,9 @@
 #include "base.h"
 
 
+constexpr vec3 BLITTER_CLEAR_COLOUR = vec3(0);
+
+
 class Frame
 {
 public:
