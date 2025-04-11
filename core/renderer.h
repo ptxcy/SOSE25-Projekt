@@ -52,6 +52,9 @@ private:
 	// ----------------------------------------------------------------------------------------------------
 	// Render Object Information
 
+	// textures
+	GPUPixelBuffer m_SpriteTextures;
+
 	// sprites
 	u16 m_ActiveRange = 0;
 	Sprite m_Sprites[RENDERER_MAXIMUM_SPRITE_COUNT];

@@ -3,6 +3,7 @@
 
 
 // basics
+#include <sys/stat.h>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -140,6 +141,9 @@ static inline void produce_timestamp(bool padding=true)
 #define COMM_ERR_FALLBACK(...)
 
 #endif
+
+
+bool check_file_exists(const char* path);
 
 
 class CoordinateSystem2D

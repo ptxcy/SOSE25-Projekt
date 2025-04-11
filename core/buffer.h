@@ -54,7 +54,9 @@ public:
 
 	void load();
 	void gpu_upload();
-	// TODO overload gpu_upload(...) for subtextures
+	void gpu_upload(u32 x,u32 y);
+
+	vec2 calculate_relative_dimensions(vec2 idim);
 
 private:
 	string m_Path;
@@ -72,16 +74,16 @@ public:
 	void bind();
 	static void unbind();
 
-	void set_texture_parameter_linear_mipmap();
-	void set_texture_parameter_nearest_mipmap();
-	void set_texture_parameter_linear_unfiltered();
-	void set_texture_parameter_nearest_unfiltered();
-	void set_texture_parameter_clamp_to_edge();
-	void set_texture_parameter_clamp_to_border();
-	void set_texture_parameter_repeat();
-	void set_texture_parameter_filter_bias(float bias=.0f);
-	void set_texture_parameter_border_colour(vec4 colour);
-	void generate_mipmap();
+	static void set_texture_parameter_linear_mipmap();
+	static void set_texture_parameter_nearest_mipmap();
+	static void set_texture_parameter_linear_unfiltered();
+	static void set_texture_parameter_nearest_unfiltered();
+	static void set_texture_parameter_clamp_to_edge();
+	static void set_texture_parameter_clamp_to_border();
+	static void set_texture_parameter_repeat();
+	static void set_texture_parameter_filter_bias(float bias=.0f);
+	static void set_texture_parameter_border_colour(vec4 colour);
+	static void generate_mipmap();
 
 private:
 	u32 m_Memory;
@@ -90,20 +92,27 @@ private:
 
 struct PixelBufferComponent
 {
-	u32 x,y;
-	u32 width,height;
+	vec2 position;
+	vec2 dimensions;
 };
 
 class GPUPixelBuffer
 {
 public:
+	void allocate(u32 width,u32 height,u32 format);
+	void write(PixelBufferComponent* comp,TextureData* data);
 
 	// TODO allocate & write for statically written texture atlas
 	// TODO allocate & write for dynamically written texture atlas
 	// TODO when allocating, rotation boolean can be stored in alpha by signing the float
 
 public:
-	Texture texture;
+	Texture atlas;
+
+private:
+	u32 m_Format;
+	vec2 m_Dimensions;
+	vec2 m_InvDimensions;
 };
 
 // TODO framebuffer

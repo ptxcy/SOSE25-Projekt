@@ -95,6 +95,7 @@ TextureData::TextureData(string path,bool corrected)
  */
 void TextureData::load()
 {
+	COMM_ERR_COND(!check_file_exists(m_Path.c_str()),"texture %s could not be found",m_Path.c_str());
 	m_Data = stbi_load(m_Path.c_str(),&m_Width,&m_Height,0,STBI_rgb_alpha);
 }
 // TODO multithread by default and forget about it
@@ -102,7 +103,7 @@ void TextureData::load()
 /**
  *	upload data to gpu
  *	NOTE has to be uploaded on main thread
- *	NOTE target texture has to be bound when uploading
+ *	NOTE target texture has to be bound before uploading
  */
 void TextureData::gpu_upload()
 {
@@ -110,6 +111,29 @@ void TextureData::gpu_upload()
 	stbi_image_free(m_Data);
 }
 // TODO move pixel free from gpu upload to reduce weight on main thread occupied by context
+
+/**
+ *	upload data as subtexture to atlas on gpu
+ *	TODO
+ *	NOTE has to be uploaded in main thread
+ *	NOTE target texture has to be bound before uploading
+ */
+void TextureData::gpu_upload(u32 x,u32 y)
+{
+	glTexSubImage2D(GL_TEXTURE_2D,0,x,y,m_Width,m_Height,m_Format,GL_UNSIGNED_BYTE,m_Data);
+	stbi_image_free(m_Data);
+}
+// TODO move pixel free from gpu upload to reduce weight on main thread occupied by context
+
+/**
+ *	calculate relative dimensions towards the given pixel buffer atlas
+ *	\param idim: inverted atlas dimensions
+ *	\returns dimensions clamped between 0,1 as edges of the pixel buffer
+ */
+vec2 TextureData::calculate_relative_dimensions(vec2 idim)
+{
+	return vec2(m_Width,m_Height)*idim;
+}
 
 
 /**
@@ -237,3 +261,46 @@ void Texture::generate_mipmap()
 {
 	glGenerateMipmap(GL_TEXTURE_2D);
 }
+
+
+/**
+ *	allocate video memory to use as we, the programmers please
+ *	\param width: buffer width
+ *	\param height: buffer height
+ *	\param format: colourspace format of pixels
+ *	NOTE cannot be executed in subthread, uses context bound to main thread
+ */
+void GPUPixelBuffer::allocate(u32 width,u32 height,u32 format)
+{
+	// store info
+	m_Format = format;
+	m_Dimensions = vec2(width,height);
+	m_InvDimensions = vec2(1.f/width,1.f/height);
+
+	// allocate memory
+	glTexImage2D(GL_TEXTURE_2D,0,format,width,height,0,format,GL_UNSIGNED_BYTE,0);
+}
+// FIXME in case of sRGB colourspace for example the format in internalformat and format won't be the same
+//		furthermore this is absolutely necessary to be of dynamic nature, due to monocrome buffers being a thing
+
+/**
+ *	write texture buffer to preallocated gpu memory
+ *	\param comp: pixel buffer component data, will be uploaded to gpu, to locate correct position on atlas
+ *	\param data: texture data holding pixel buffer to write to subtexture as well as dimensions
+ *	NOTE related texture has to be bound beforehand
+ */
+void GPUPixelBuffer::write(PixelBufferComponent* comp,TextureData* data)
+{
+	u32 x = 0;
+	u32 y = 0;
+	// TODO actually calculate position of new texture based on the current atlas state
+
+	// write subtexture info
+	comp->position = vec2(x,y)*m_InvDimensions;
+	comp->dimensions = data->calculate_relative_dimensions(m_InvDimensions);
+
+	// write buffer
+	data->gpu_upload(x,y);
+}
+// TODO create a gpu_write and only upload (& bind) in that function, then do the location code in threadable
+//		capsulated method, storing all necessary information in the pixel buffer component

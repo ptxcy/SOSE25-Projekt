@@ -2,6 +2,19 @@
 
 
 /**
+ *	check if a file can be found at given location
+ *	\param path: path to check
+ *	\returns true if file could be accessed
+ *	NOTE for use in debug cases only, in release checking for data that is guaranteed is not good practice
+ */
+bool check_file_exists(const char* path)
+{
+	struct stat tf;
+	return stat(path,&tf)==0;
+}
+
+
+/**
  *	coordinate system setup for 2D objects
  *	\param xaxis: maximum range for visible geometry on x-axis
  *	\param yaxis: maximum range for visible geometry on y-axis

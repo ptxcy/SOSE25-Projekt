@@ -60,6 +60,19 @@ Renderer::Renderer()
 	m_SpritePipeline.upload("tex",0);
 	m_SpritePipeline.upload_coordinate_system();
 
+	// testing remoev later
+	PixelBufferComponent __TrashStateRemoveLater;
+	TextureData __TextureData = TextureData("./res/test.png");
+	__TextureData.load();
+	m_SpriteTextures.atlas.bind();
+	m_SpriteTextures.allocate(1000,1000,GL_RGBA);
+	m_SpriteTextures.write(&__TrashStateRemoveLater,&__TextureData);
+	Texture::set_texture_parameter_linear_mipmap();
+	Texture::set_texture_parameter_clamp_to_edge();
+	Texture::generate_mipmap();
+	// NOTE when doing this after the detach the subprocess is not longer working, which makes no sense
+	// stop of testing block
+
 	// ----------------------------------------------------------------------------------------------------
 	// End Pipelines, Start Subprocesses
 	std::thread __SpriteCollector(Renderer::_sprite_collector,
@@ -75,6 +88,8 @@ Renderer::Renderer()
  */
 void Renderer::update()
 {
+	//m_Texture.bind();
+	m_SpriteTextures.atlas.bind();
 	_update_sprites();
 }
 
