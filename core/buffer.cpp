@@ -116,7 +116,7 @@ void TextureData::gpu_upload()
  *	upload data as subtexture to atlas on gpu
  *	TODO
  *	NOTE has to be uploaded in main thread
- *	NOTE target texture has to be bound before uploading
+ *	NOTE target texture has to be bound and allocated before uploading
  */
 void TextureData::gpu_upload(u32 x,u32 y)
 {

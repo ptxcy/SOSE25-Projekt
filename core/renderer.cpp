@@ -60,34 +60,26 @@ Renderer::Renderer()
 	m_SpritePipeline.upload("tex",0);
 	m_SpritePipeline.upload_coordinate_system();
 
-	// testing remoev later
-	PixelBufferComponent __TrashStateRemoveLater;
-	TextureData __TextureData0 = TextureData("./res/test.png");
-	TextureData __TextureData1 = TextureData("./res/kek.png");
-	TextureData __TextureData2 = TextureData("./res/maps.png");
-	TextureData __TextureData3 = TextureData("./res/kid.png");
-	__TextureData0.load();
-	__TextureData1.load();
-	__TextureData2.load();
-	__TextureData3.load();
+	// ----------------------------------------------------------------------------------------------------
+	// GPU Memory
+
+	// allocate sprite memory
 	m_SpriteTextures.atlas.bind();
 	m_SpriteTextures.allocate(1500,1500,GL_RGBA);
-	m_SpriteTextures.write(&__TrashStateRemoveLater,&__TextureData3);
-	m_SpriteTextures.write(&__TrashStateRemoveLater,&__TextureData1);
-	m_SpriteTextures.write(&__TrashStateRemoveLater,&__TextureData0);
-	m_SpriteTextures.write(&__TrashStateRemoveLater,&__TextureData2);
-	Texture::set_texture_parameter_linear_mipmap();
+	//Texture::set_texture_parameter_linear_mipmap();
+	Texture::set_texture_parameter_linear_unfiltered();
 	Texture::set_texture_parameter_clamp_to_edge();
-	Texture::generate_mipmap();
-	// NOTE when doing this after the detach the subprocess is not longer working, which makes no sense
-	// stop of testing block
+	//Texture::generate_mipmap();
+	// TODO run mipmap generation maybe after every subtexture write procedure
+	// TODO maybe use two sprite textures and swap after update
 
 	// ----------------------------------------------------------------------------------------------------
-	// End Pipelines, Start Subprocesses
+	// Start Subprocesses
 	std::thread __SpriteCollector(Renderer::_sprite_collector,
 								  m_Sprites,&m_SpriteOverwrite,&m_ActiveRange,&m_HelpersActive);
 	__SpriteCollector.detach();
 	// TODO unsafe, but it will probably work 99% of the time in normal use cases. still improve safety
+	// FIXME when doing something after the detach the subprocess is not longer working, which makes no sense
 
 	COMM_SCC("render system ready.");
 }
@@ -97,8 +89,6 @@ Renderer::Renderer()
  */
 void Renderer::update()
 {
-	glEnable(GL_BLEND);
-	m_SpriteTextures.atlas.bind();
 	_update_sprites();
 }
 
@@ -110,6 +100,23 @@ void Renderer::exit()
 	m_HelpersActive = false;
 	_signal_sprite_collector();
 }
+
+/**
+ *	register sprite texture to load and move to sprite pixel buffer
+ *	\param path: path to texture file
+ */
+void Renderer::register_sprite_texture(const char* path)
+{
+	COMM_LOG("sprite texture register of %s",path);
+	PixelBufferComponent __StoreMeMommy;
+	TextureData __TextureData = TextureData(path);
+	__TextureData.load();
+	m_SpriteTextures.atlas.bind();
+	m_SpriteTextures.write(&__StoreMeMommy,&__TextureData);
+}
+// TODO break apart, load in subthread and load when ready
+//		load, signal ready with either queue or enumerator, then traverse (shite idea) or work queue
+// TODO store texture info for reference by instance buffer, id and pointer both need static memory?!??
 
 /**
  *	register a new sprite instance for rendering
@@ -162,6 +169,7 @@ void Renderer::delete_sprite(Sprite* sprite)
 void Renderer::_update_sprites()
 {
 	m_SpriteVertexArray.bind();
+	m_SpriteTextures.atlas.bind();
 	m_SpritePipeline.enable();
 	m_SpriteInstanceBuffer.bind();
 	m_SpriteInstanceBuffer.upload_vertices(m_Sprites,RENDERER_MAXIMUM_SPRITE_COUNT,GL_DYNAMIC_DRAW);

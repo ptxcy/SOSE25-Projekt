@@ -13,6 +13,10 @@ s32 main(s32 argc,char** argv)
 	bool deleted_old = false;
 	*/
 
+	g_Renderer.register_sprite_texture("./res/kid.png");
+	g_Renderer.register_sprite_texture("./res/kek.png");
+	g_Renderer.register_sprite_texture("./res/test.png");
+	g_Renderer.register_sprite_texture("./res/maps.png");
 	Sprite* atlas_preview = g_Renderer.register_sprite(vec2(640,360),vec2(620,620));
 
 	bool running = true;
