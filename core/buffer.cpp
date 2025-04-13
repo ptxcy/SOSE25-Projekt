@@ -96,7 +96,7 @@ TextureData::TextureData(string path,bool corrected)
 void TextureData::load()
 {
 	COMM_ERR_COND(!check_file_exists(m_Path.c_str()),"texture %s could not be found",m_Path.c_str());
-	m_Data = stbi_load(m_Path.c_str(),&m_Width,&m_Height,0,STBI_rgb_alpha);
+	m_Data = stbi_load(m_Path.c_str(),&width,&height,0,STBI_rgb_alpha);
 }
 // TODO multithread by default and forget about it
 
@@ -107,7 +107,7 @@ void TextureData::load()
  */
 void TextureData::gpu_upload()
 {
-	glTexImage2D(GL_TEXTURE_2D,0,m_Format,m_Width,m_Height,0,GL_RGBA,GL_UNSIGNED_BYTE,m_Data);
+	glTexImage2D(GL_TEXTURE_2D,0,m_Format,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,m_Data);
 	stbi_image_free(m_Data);
 }
 // TODO move pixel free from gpu upload to reduce weight on main thread occupied by context
@@ -120,20 +120,10 @@ void TextureData::gpu_upload()
  */
 void TextureData::gpu_upload(u32 x,u32 y)
 {
-	glTexSubImage2D(GL_TEXTURE_2D,0,x,y,m_Width,m_Height,m_Format,GL_UNSIGNED_BYTE,m_Data);
+	glTexSubImage2D(GL_TEXTURE_2D,0,x,y,width,height,m_Format,GL_UNSIGNED_BYTE,m_Data);
 	stbi_image_free(m_Data);
 }
 // TODO move pixel free from gpu upload to reduce weight on main thread occupied by context
-
-/**
- *	calculate relative dimensions towards the given pixel buffer atlas
- *	\param idim: inverted atlas dimensions
- *	\returns dimensions clamped between 0,1 as edges of the pixel buffer
- */
-vec2 TextureData::calculate_relative_dimensions(vec2 idim)
-{
-	return vec2(m_Width,m_Height)*idim;
-}
 
 
 /**
@@ -278,6 +268,10 @@ void GPUPixelBuffer::allocate(u32 width,u32 height,u32 format)
 	m_InvDimensions = vec2(1.f/width,1.f/height);
 
 	// allocate memory
+	m_FreeMemory.push_back({
+			.position = vec2(0,0),
+			.dimensions = vec2(width,height)
+		});
 	glTexImage2D(GL_TEXTURE_2D,0,format,width,height,0,format,GL_UNSIGNED_BYTE,0);
 }
 // FIXME in case of sRGB colourspace for example the format in internalformat and format won't be the same
@@ -291,16 +285,50 @@ void GPUPixelBuffer::allocate(u32 width,u32 height,u32 format)
  */
 void GPUPixelBuffer::write(PixelBufferComponent* comp,TextureData* data)
 {
-	u32 x = 0;
-	u32 y = 0;
-	// TODO actually calculate position of new texture based on the current atlas state
+	// locate best position for texture on free memory space
+	f32 __BestDifference = 0x7f800000;
+	u32 __MemoryIndex = -1;
+	for (u32 i=0;i<m_FreeMemory.size();i++)
+	{
+		PixelBufferComponent* p_FreeComponent = &m_FreeMemory[i];
+		if (data->width>p_FreeComponent->dimensions.x||data->height>p_FreeComponent->dimensions.y) continue;
+		f32 __AreaDifference = p_FreeComponent->dimensions.x*p_FreeComponent->dimensions.y
+				- data->width*data->height;
+		if (__AreaDifference<__BestDifference)
+		{
+			__MemoryIndex = i;
+			__BestDifference = __AreaDifference;
+		}
+	}
+
+	// get memory segment pointer
+	COMM_ERR_COND(__MemoryIndex==-1,"sprite texture memory is populated or segmented. texture upload failed!");
+	PixelBufferComponent* p_CloseFitComponent = &m_FreeMemory[__MemoryIndex];
+
+	// segment free memory to reserve pixel space for upload
+	vec2 __AtlasLocation = p_CloseFitComponent->position;
+	PixelBufferComponent __Side = {
+		.position = p_CloseFitComponent->position+vec2(data->width,0),
+		.dimensions = vec2(p_CloseFitComponent->dimensions.x-data->width,data->height)
+	};
+	PixelBufferComponent __Below = {
+		.position = p_CloseFitComponent->position+vec2(0,data->height),
+		.dimensions = p_CloseFitComponent->dimensions-vec2(0,data->height)
+	};
+
+	// update memory information data
+	m_FreeMemory.erase(m_FreeMemory.begin()+__MemoryIndex);
+	if (__Side.dimensions.x>0) m_FreeMemory.push_back(__Side);
+	if (__Below.dimensions.y>0) m_FreeMemory.push_back(__Below);
+	// TODO when deleting and segmenting, check if free subspaces can be merged back into each other
+	// FIXME filter bleed, throw in a padding border, so the neighbouring textures don't flow into each other
 
 	// write subtexture info
-	comp->position = vec2(x,y)*m_InvDimensions;
-	comp->dimensions = data->calculate_relative_dimensions(m_InvDimensions);
+	comp->position = __AtlasLocation*m_InvDimensions;
+	comp->dimensions = vec2(data->width,data->height)*m_InvDimensions;
 
 	// write buffer
-	data->gpu_upload(x,y);
+	data->gpu_upload(__AtlasLocation.x,__AtlasLocation.y);
 }
 // TODO create a gpu_write and only upload (& bind) in that function, then do the location code in threadable
 //		capsulated method, storing all necessary information in the pixel buffer component

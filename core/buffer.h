@@ -56,11 +56,11 @@ public:
 	void gpu_upload();
 	void gpu_upload(u32 x,u32 y);
 
-	vec2 calculate_relative_dimensions(vec2 idim);
+public:
+	s32 width,height;
 
 private:
 	string m_Path;
-	s32 m_Width,m_Height;
 	s32 m_Format;
 	void* m_Data;
 };
@@ -113,6 +113,7 @@ private:
 	u32 m_Format;
 	vec2 m_Dimensions;
 	vec2 m_InvDimensions;
+	std::vector<PixelBufferComponent> m_FreeMemory;
 };
 
 // TODO framebuffer

@@ -66,8 +66,8 @@ Renderer::Renderer()
 	// allocate sprite memory
 	m_SpriteTextures.atlas.bind();
 	m_SpriteTextures.allocate(1500,1500,GL_RGBA);
-	//Texture::set_texture_parameter_linear_mipmap();
-	Texture::set_texture_parameter_linear_unfiltered();
+	Texture::set_texture_parameter_linear_mipmap();
+	//Texture::set_texture_parameter_linear_unfiltered();
 	Texture::set_texture_parameter_clamp_to_edge();
 	//Texture::generate_mipmap();
 	// TODO run mipmap generation maybe after every subtexture write procedure
@@ -113,6 +113,7 @@ void Renderer::register_sprite_texture(const char* path)
 	__TextureData.load();
 	m_SpriteTextures.atlas.bind();
 	m_SpriteTextures.write(&__StoreMeMommy,&__TextureData);
+	Texture::generate_mipmap();
 }
 // TODO break apart, load in subthread and load when ready
 //		load, signal ready with either queue or enumerator, then traverse (shite idea) or work queue
