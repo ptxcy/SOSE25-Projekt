@@ -9,6 +9,9 @@ void Input::update(bool& running)
 {
 	mouse.wheel = 0;
 
+	// reset trigger input per frame
+	memset(keyboard.triggered_keys,0x0,sizeof(keyboard.triggered_keys));
+
 	// process peripheral events
 	while (SDL_PollEvent(&m_Event))
 	{
@@ -16,9 +19,12 @@ void Input::update(bool& running)
 		{
 
 			// keyboard input
-		case SDL_KEYDOWN: keyboard.keys[m_Event.key.keysym.scancode] = true;
+		case SDL_KEYDOWN:
+			keyboard.keys[m_Event.key.keysym.scancode] = true;
+			keyboard.triggered_keys[m_Event.key.keysym.scancode] = true;
 			break;
-		case SDL_KEYUP: keyboard.keys[m_Event.key.keysym.scancode] = false;
+		case SDL_KEYUP:
+			keyboard.keys[m_Event.key.keysym.scancode] = false;
 			break;
 
 			// mouse input

@@ -17,6 +17,8 @@ s32 main(s32 argc,char** argv)
 	g_Renderer.register_sprite_texture("./res/kek.png");
 	g_Renderer.register_sprite_texture("./res/test.png");
 	g_Renderer.register_sprite_texture("./res/maps.png");
+	bool trigger_s = false;
+	bool trigger_b = false;
 	Sprite* atlas_preview = g_Renderer.register_sprite(vec2(640,360),vec2(620,620));
 
 	bool running = true;
@@ -24,6 +26,11 @@ s32 main(s32 argc,char** argv)
 	{
 		g_Frame.clear();
 		g_Input.update(running);
+
+		if (g_Input.keyboard.keys[SDL_SCANCODE_L]&&!trigger_s) _crave_the_kek();
+		if (g_Input.keyboard.keys[SDL_SCANCODE_O]&&!trigger_b) _crave_the_shit();
+		trigger_s = g_Input.keyboard.keys[SDL_SCANCODE_L];
+		trigger_b = g_Input.keyboard.keys[SDL_SCANCODE_O];
 
 		// sample usage
 		/*

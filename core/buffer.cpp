@@ -315,6 +315,10 @@ void GPUPixelBuffer::write(PixelBufferComponent* comp,TextureData* data)
 		.position = p_CloseFitComponent->position+vec2(0,data->height),
 		.dimensions = p_CloseFitComponent->dimensions-vec2(0,data->height)
 	};
+	// FIXME this is segmenting falsely, it's not possible to insert into texture space that has the correct
+	//		dimensions in only one segment but crosses over into a different free rect.
+	//		alternatively this can be done by assigning cross segment in both subsequent segments, but
+	//		this will mess with memory information, due to multiple free states per pixel. geez louize
 
 	// update memory information data
 	m_FreeMemory.erase(m_FreeMemory.begin()+__MemoryIndex);
