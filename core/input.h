@@ -14,16 +14,16 @@ constexpr u8 MOUSE_INPUT_BITPACKING = MOUSE_INPUT_RANGE/8+1;
 
 struct Keyboard
 {
-	u8 keys[KEYBOARD_INPUT_BITPACKING] = { false };
-	u8 triggered_keys[KEYBOARD_INPUT_BITPACKING] = { false };
+	Bytes keys = Bytes(KEYBOARD_INPUT_BITPACKING);
+	Bytes triggered_keys = Bytes(KEYBOARD_INPUT_BITPACKING);
 };
 
 struct Mouse
 {
 	vec2 position;
 	s32 wheel;
-	u8 buttons[MOUSE_INPUT_BITPACKING] = { false };
-	u8 triggered_buttons[MOUSE_INPUT_BITPACKING] = { false };
+	Bytes buttons = Bytes(MOUSE_INPUT_BITPACKING);
+	Bytes triggered_buttons = Bytes(MOUSE_INPUT_BITPACKING);
 };
 
 

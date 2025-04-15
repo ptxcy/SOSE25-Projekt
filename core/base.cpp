@@ -1,6 +1,9 @@
 #include "base.h"
 
 
+// ----------------------------------------------------------------------------------------------------
+// Utility
+
 /**
  *	check if a file can be found at given location
  *	\param path: path to check
@@ -13,6 +16,31 @@ bool check_file_exists(const char* path)
 	return stat(path,&tf)==0;
 }
 
+
+// ----------------------------------------------------------------------------------------------------
+// Low-Level Data
+
+/**
+ *	TODO
+ */
+Bytes::Bytes(size_t bytes)
+	: m_Size(bytes)
+{
+	m_Data = (u8*)malloc(bytes);
+	reset();
+}
+
+/**
+ *	TODO
+ */
+Bytes::~Bytes()
+{
+	free(m_Data);
+}
+
+
+// ----------------------------------------------------------------------------------------------------
+// Coordinate System
 
 /**
  *	coordinate system setup for 2D objects

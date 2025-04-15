@@ -150,6 +150,23 @@ static inline void produce_timestamp(bool padding=true)
 bool check_file_exists(const char* path);
 
 
+class Bytes
+{
+public:
+	Bytes(size_t size);
+	~Bytes();
+
+	inline bool operator[](size_t i) { return (*(m_Data+(i>>3))>>(i&7))&1u; }
+	inline void set(size_t i) { *(m_Data+(i>>3))|=1u<<(i&7); }
+	inline void unset(size_t i) { *(m_Data+(i>>3))&=~1u<<(i&7); }
+	inline void reset() { memset(m_Data,0,m_Size); }
+
+private:
+	u8* m_Data;
+	size_t m_Size;
+};
+
+
 class CoordinateSystem2D
 {
 public:
