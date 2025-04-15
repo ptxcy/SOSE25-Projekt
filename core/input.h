@@ -8,22 +8,19 @@
 constexpr u16 KEYBOARD_INPUT_RANGE = 285;
 constexpr u8 MOUSE_INPUT_RANGE = 5;
 
-constexpr u16 KEYBOARD_INPUT_BITPACKING = KEYBOARD_INPUT_RANGE/8+1;
-constexpr u8 MOUSE_INPUT_BITPACKING = MOUSE_INPUT_RANGE/8+1;
-
 
 struct Keyboard
 {
-	Bytes keys = Bytes(KEYBOARD_INPUT_BITPACKING);
-	Bytes triggered_keys = Bytes(KEYBOARD_INPUT_BITPACKING);
+	BitwiseWords keys = BitwiseWords(KEYBOARD_INPUT_RANGE);
+	BitwiseWords triggered_keys = BitwiseWords(KEYBOARD_INPUT_RANGE);
 };
 
 struct Mouse
 {
 	vec2 position;
 	s32 wheel;
-	Bytes buttons = Bytes(MOUSE_INPUT_BITPACKING);
-	Bytes triggered_buttons = Bytes(MOUSE_INPUT_BITPACKING);
+	BitwiseWords buttons = BitwiseWords(MOUSE_INPUT_RANGE);
+	BitwiseWords triggered_buttons = BitwiseWords(MOUSE_INPUT_RANGE);
 };
 
 

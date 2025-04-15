@@ -23,17 +23,17 @@ bool check_file_exists(const char* path)
 /**
  *	TODO
  */
-Bytes::Bytes(size_t bytes)
-	: m_Size(bytes)
+BitwiseWords::BitwiseWords(size_t size)
+	: m_Size(size/sizeof(__system_word)+1)
 {
-	m_Data = (u8*)malloc(bytes);
+	m_Data = (__system_word*)malloc(m_Size);
 	reset();
 }
 
 /**
  *	TODO
  */
-Bytes::~Bytes()
+BitwiseWords::~BitwiseWords()
 {
 	free(m_Data);
 }

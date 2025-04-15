@@ -2,6 +2,13 @@
 #define CORE_BASE_HEADER
 
 
+#if INTPTR_MAX == INT64_MAX
+#define __SYSTEM_64BIT
+#else
+#define __SYSTEM_32BIT
+#endif
+
+
 // basics
 #include <sys/stat.h>
 #include <iostream>
@@ -64,6 +71,7 @@ typedef std::string string;
 
 
 // constants
+// basic math
 constexpr f32 FRAME_RESOLUTION_X_INV = 1.f/FRAME_RESOLUTION_X;
 constexpr f32 FRAME_RESOLUTION_Y_INV = 1.f/FRAME_RESOLUTION_Y;
 constexpr f32 MATH_CARTESIAN_XRANGE = 1280.f;
@@ -72,6 +80,16 @@ constexpr f32 MATH_CARTESIAN_XRANGE_INV = 1.f/MATH_CARTESIAN_XRANGE;
 constexpr f32 MATH_CARTESIAN_YRANGE_INV = 1.f/MATH_CARTESIAN_YRANGE;
 constexpr f64 MATH_PI = 3.141592653;
 constexpr f64 MATH_E = 2.7182818284;
+
+// memory layout based on build target
+#ifdef __SYSTEM_64BIT
+typedef u64 __system_word;
+#else
+typedef u32 __system_word;
+#endif
+constexpr u8 MEM_WIDTH = sizeof(__system_word)*8;
+constexpr u8 MEM_SHIFT = log2(MEM_WIDTH);
+constexpr __system_word MEM_MASK = MEM_WIDTH-1;
 
 
 // ----------------------------------------------------------------------------------------------------
@@ -150,19 +168,19 @@ static inline void produce_timestamp(bool padding=true)
 bool check_file_exists(const char* path);
 
 
-class Bytes
+class BitwiseWords
 {
 public:
-	Bytes(size_t size);
-	~Bytes();
+	BitwiseWords(size_t size);
+	~BitwiseWords();
 
-	inline bool operator[](size_t i) { return (*(m_Data+(i>>3))>>(i&7))&1u; }
-	inline void set(size_t i) { *(m_Data+(i>>3))|=1u<<(i&7); }
-	inline void unset(size_t i) { *(m_Data+(i>>3))&=~1u<<(i&7); }
+	inline bool operator[](size_t i) { return (*(m_Data+(i>>MEM_SHIFT))>>(i&MEM_MASK))&1u; }
+	inline void set(size_t i) { *(m_Data+(i>>MEM_SHIFT))|=1u<<(i&MEM_MASK); }
+	inline void unset(size_t i) { *(m_Data+(i>>MEM_SHIFT))&=~1u<<(i&MEM_MASK); }
 	inline void reset() { memset(m_Data,0,m_Size); }
 
 private:
-	u8* m_Data;
+	__system_word* m_Data;
 	size_t m_Size;
 };
 

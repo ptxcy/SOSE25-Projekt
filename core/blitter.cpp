@@ -28,7 +28,13 @@ void GLAPIENTRY _gpu_error_callback(GLenum src,GLenum type,GLenum id,GLenum sev,
  */
 Frame::Frame(const char* title,u16 width,u16 height,bool vsync)
 {
-	COMM_MSG(LOG_YELLOW,"setup sdl version 3.3");
+	const char* __BitWidth =
+#ifdef __SYSTEM_64BIT
+		"64-bit";
+#else
+		"32-bit";
+#endif
+	COMM_MSG(LOG_YELLOW,"setup sdl version 3.3. %s",__BitWidth);
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,3);
@@ -37,7 +43,7 @@ Frame::Frame(const char* title,u16 width,u16 height,bool vsync)
 
 	// gpu error log
 #ifdef DEBUG
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS,SDL_GL_CONTEXT_DEBUG_FLAG);
+	  SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS,SDL_GL_CONTEXT_DEBUG_FLAG);
 #endif
 	// TODO join gpu output debug macros
 
@@ -58,6 +64,7 @@ Frame::Frame(const char* title,u16 width,u16 height,bool vsync)
 	glPixelStorei(GL_UNPACK_ALIGNMENT,1);
 	glViewport(0,0,width,height);
 
+	// gpu error log (TODO please join, testing does not work with T450)
 #ifdef DEBUG
 	glEnable(GL_DEBUG_OUTPUT);
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
