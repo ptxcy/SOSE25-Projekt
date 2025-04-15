@@ -1,0 +1,13 @@
+# Visual Studio Code
+.vscode/
+
+# IntelliJ IDEA
+.idea/
+
+# Allgemeine Editor-/IDE-Dateien
+*.swp
+*.swo
+
+# Betriebssystem- und Systemdateien
+.DS_Store
+Thumbs.db
