@@ -21,7 +21,8 @@ bool check_file_exists(const char* path)
 // Low-Level Data
 
 /**
- *	TODO
+ *	memory allocation for requested amount of bits with subsequent neutralization
+ *	\param size: size of bit sequence. this is the exact amount of needed bits, not in fact a bytelength
  */
 BitwiseWords::BitwiseWords(size_t size)
 	: m_Size(size/sizeof(__system_word)+1)
@@ -31,7 +32,7 @@ BitwiseWords::BitwiseWords(size_t size)
 }
 
 /**
- *	TODO
+ *	automatically release the allocated data bits on destruction
  */
 BitwiseWords::~BitwiseWords()
 {

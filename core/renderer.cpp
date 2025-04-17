@@ -67,18 +67,13 @@ Renderer::Renderer()
 	m_SpriteTextures.atlas.bind();
 	m_SpriteTextures.allocate(1500,1500,GL_RGBA);
 	Texture::set_texture_parameter_linear_mipmap();
-	//Texture::set_texture_parameter_linear_unfiltered();
 	Texture::set_texture_parameter_clamp_to_edge();
-	//Texture::generate_mipmap();
-	// TODO run mipmap generation maybe after every subtexture write procedure
-	// TODO maybe use two sprite textures and swap after update
 
 	// ----------------------------------------------------------------------------------------------------
 	// Start Subprocesses
 	std::thread __SpriteCollector(Renderer::_sprite_collector,
 								  m_Sprites,&m_SpriteOverwrite,&m_ActiveRange,&m_HelpersActive);
 	__SpriteCollector.detach();
-	// TODO unsafe, but it will probably work 99% of the time in normal use cases. still improve safety
 	// FIXME when doing something after the detach the subprocess is not longer working, which makes no sense
 
 	COMM_SCC("render system ready.");
@@ -90,6 +85,7 @@ Renderer::Renderer()
 void Renderer::update()
 {
 	_update_sprites();
+	_gpu_upload();
 }
 
 /**
@@ -108,15 +104,8 @@ void Renderer::exit()
 void Renderer::register_sprite_texture(const char* path)
 {
 	COMM_LOG("sprite texture register of %s",path);
-	PixelBufferComponent __StoreMeMommy;
-	TextureData __TextureData = TextureData(path);
-	__TextureData.load();
-	m_SpriteTextures.atlas.bind();
-	m_SpriteTextures.write(&__StoreMeMommy,&__TextureData);
-	Texture::generate_mipmap();
+	m_SpriteTextures.write(m_SpriteLoadRequests,path);
 }
-// TODO break apart, load in subthread and load when ready
-//		load, signal ready with either queue or enumerator, then traverse (shite idea) or work queue
 // TODO store texture info for reference by instance buffer, id and pointer both need static memory?!??
 
 /**
@@ -157,11 +146,29 @@ Sprite* Renderer::register_sprite(vec2 position,vec2 size,f32 rotation,f32 alpha
  */
 void Renderer::delete_sprite(Sprite* sprite)
 {
-	// signal sprite removal
 	sprite->offset.x = RENDERER_POSITIONAL_DELETION_CODE;
 	sprite->scale = vec2(0,0);
 	sprite = nullptr;
 	_signal_sprite_collector();
+}
+
+/**
+ *	helper to unclutter the automatic load callbacks for gpu data
+ */
+void Renderer::_gpu_upload()
+{
+	m_SpriteTextures.atlas.bind();
+	while (m_SpriteLoadRequests.size())
+	{
+		TextureData& __Data = m_SpriteLoadRequests.front();
+
+		COMM_AWT("uploading sprite texture buffer at %d,%d to gpu",__Data.x,__Data.y);
+		__Data.gpu_upload(__Data.x,__Data.y);
+		m_SpriteLoadRequests.pop();
+		COMM_CNF();
+	}
+	Texture::generate_mipmap();
+	// TODO performance will suffer when generating mipmap every time the loop condition breaks
 }
 
 /**

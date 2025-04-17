@@ -273,6 +273,7 @@ void GPUPixelBuffer::allocate(u32 width,u32 height,u32 format)
 			.dimensions = vec2(width,height)
 		});
 	glTexImage2D(GL_TEXTURE_2D,0,format,width,height,0,format,GL_UNSIGNED_BYTE,0);
+	// FIXME inconsistent formatting, the allocation format can easily be detached from texture data structure
 }
 // FIXME in case of sRGB colourspace for example the format in internalformat and format won't be the same
 //		furthermore this is absolutely necessary to be of dynamic nature, due to monocrome buffers being a thing
@@ -282,18 +283,26 @@ void GPUPixelBuffer::allocate(u32 width,u32 height,u32 format)
  *	\param comp: pixel buffer component data, will be uploaded to gpu, to locate correct position on atlas
  *	\param data: texture data holding pixel buffer to write to subtexture as well as dimensions
  *	NOTE related texture has to be bound beforehand
+ *	TODO
  */
-void GPUPixelBuffer::write(PixelBufferComponent* comp,TextureData* data)
+void GPUPixelBuffer::write(std::queue<TextureData>& requests,const char* path)
 {
+	// load information from texture file
+	TextureData __TextureData = TextureData(path);
+	__TextureData.load();
+
 	// locate best position for texture on free memory space
 	f32 __BestDifference = 0x7f800000;
 	u32 __MemoryIndex = -1;
 	for (u32 i=0;i<m_FreeMemory.size();i++)
 	{
 		PixelBufferComponent* p_FreeComponent = &m_FreeMemory[i];
-		if (data->width>p_FreeComponent->dimensions.x||data->height>p_FreeComponent->dimensions.y) continue;
+		if (__TextureData.width>p_FreeComponent->dimensions.x
+			||__TextureData.height>p_FreeComponent->dimensions.y) continue;
+
+		// find closest fit
 		f32 __AreaDifference = p_FreeComponent->dimensions.x*p_FreeComponent->dimensions.y
-				- data->width*data->height;
+				- __TextureData.width*__TextureData.height;
 		if (__AreaDifference<__BestDifference)
 		{
 			__MemoryIndex = i;
@@ -308,12 +317,12 @@ void GPUPixelBuffer::write(PixelBufferComponent* comp,TextureData* data)
 	// segment free memory to reserve pixel space for upload
 	vec2 __AtlasLocation = p_CloseFitComponent->position;
 	PixelBufferComponent __Side = {
-		.position = p_CloseFitComponent->position+vec2(data->width,0),
-		.dimensions = vec2(p_CloseFitComponent->dimensions.x-data->width,data->height)
+		.position = p_CloseFitComponent->position+vec2(__TextureData.width,0),
+		.dimensions = vec2(p_CloseFitComponent->dimensions.x-__TextureData.width,__TextureData.height)
 	};
 	PixelBufferComponent __Below = {
-		.position = p_CloseFitComponent->position+vec2(0,data->height),
-		.dimensions = p_CloseFitComponent->dimensions-vec2(0,data->height)
+		.position = p_CloseFitComponent->position+vec2(0,__TextureData.height),
+		.dimensions = p_CloseFitComponent->dimensions-vec2(0,__TextureData.height)
 	};
 	// FIXME this is segmenting falsely, it's not possible to insert into texture space that has the correct
 	//		dimensions in only one segment but crosses over into a different free rect.
@@ -328,11 +337,15 @@ void GPUPixelBuffer::write(PixelBufferComponent* comp,TextureData* data)
 	// FIXME filter bleed, throw in a padding border, so the neighbouring textures don't flow into each other
 
 	// write subtexture info
+	/*
 	comp->position = __AtlasLocation*m_InvDimensions;
-	comp->dimensions = vec2(data->width,data->height)*m_InvDimensions;
+	comp->dimensions = vec2(__TextureData.width,__TextureData.height)*m_InvDimensions;
+	*/
 
 	// write buffer
-	data->gpu_upload(__AtlasLocation.x,__AtlasLocation.y);
+	__TextureData.x = __AtlasLocation.x, __TextureData.y = __AtlasLocation.y;
+	requests.push(__TextureData);
+	// FIXME NOT ATOMIC! this is screaming for vengeance when threaded!
 }
 // TODO create a gpu_write and only upload (& bind) in that function, then do the location code in threadable
 //		capsulated method, storing all necessary information in the pixel buffer component

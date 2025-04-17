@@ -33,6 +33,7 @@ public:
 	static void delete_sprite(Sprite* sprite);
 
 private:
+	void _gpu_upload();
 	void _update_sprites();
 
 	// background procedures
@@ -55,11 +56,12 @@ private:
 
 	// textures
 	GPUPixelBuffer m_SpriteTextures;
+	std::queue<TextureData> m_SpriteLoadRequests;
 
 	// sprites
 	u16 m_ActiveRange = 0;
 	Sprite m_Sprites[RENDERER_MAXIMUM_SPRITE_COUNT];
-	std::queue<u16> m_SpriteOverwrite = std::queue<u16>();
+	std::queue<u16> m_SpriteOverwrite = std::queue<u16>();  // FIXME ??why did i do that
 };
 
 inline Renderer g_Renderer = Renderer();

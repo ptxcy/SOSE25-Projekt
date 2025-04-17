@@ -82,11 +82,13 @@ constexpr f64 MATH_PI = 3.141592653;
 constexpr f64 MATH_E = 2.7182818284;
 
 // memory layout based on build target
+typedef
 #ifdef __SYSTEM_64BIT
-typedef u64 __system_word;
+	u64
 #else
-typedef u32 __system_word;
+	u32
 #endif
+	__system_word;
 constexpr u8 MEM_WIDTH = sizeof(__system_word)*8;
 constexpr u8 MEM_SHIFT = log2(MEM_WIDTH);
 constexpr __system_word MEM_MASK = MEM_WIDTH-1;

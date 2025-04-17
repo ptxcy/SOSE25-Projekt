@@ -57,6 +57,7 @@ public:
 	void gpu_upload(u32 x,u32 y);
 
 public:
+	u32 x,y;
 	s32 width,height;
 
 private:
@@ -100,7 +101,7 @@ class GPUPixelBuffer
 {
 public:
 	void allocate(u32 width,u32 height,u32 format);
-	void write(PixelBufferComponent* comp,TextureData* data);
+	void write(std::queue<TextureData>& requests,const char* path);
 
 	// TODO allocate & write for statically written texture atlas
 	// TODO allocate & write for dynamically written texture atlas
