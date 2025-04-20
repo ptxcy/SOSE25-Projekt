@@ -4,6 +4,9 @@
 // ----------------------------------------------------------------------------------------------------
 // Background Process Signals
 
+// texture upload locking
+std::mutex _mutex_sprite_requests;
+
 // sprite collector signals
 std::mutex mutex_sprite;
 std::condition_variable cv_sprite;
@@ -104,9 +107,10 @@ void Renderer::exit()
 void Renderer::register_sprite_texture(const char* path)
 {
 	COMM_LOG("sprite texture register of %s",path);
-	m_SpriteTextures.write(m_SpriteLoadRequests,path);
+	std::thread __LoadThread(GPUPixelBuffer::load,
+							 &m_SpriteTextures,&m_SpriteLoadRequests,&_mutex_sprite_requests,path);
+	__LoadThread.detach();
 }
-// TODO store texture info for reference by instance buffer, id and pointer both need static memory?!??
 
 /**
  *	register a new sprite instance for rendering
@@ -158,6 +162,7 @@ void Renderer::delete_sprite(Sprite* sprite)
 void Renderer::_gpu_upload()
 {
 	m_SpriteTextures.atlas.bind();
+	_mutex_sprite_requests.lock();
 	while (m_SpriteLoadRequests.size())
 	{
 		TextureData& __Data = m_SpriteLoadRequests.front();
@@ -167,8 +172,9 @@ void Renderer::_gpu_upload()
 		m_SpriteLoadRequests.pop();
 		COMM_CNF();
 	}
+	_mutex_sprite_requests.unlock();
 	Texture::generate_mipmap();
-	// TODO performance will suffer when generating mipmap every time the loop condition breaks
+	// FIXME performance will suffer when generating mipmap every time the loop condition breaks
 }
 
 /**

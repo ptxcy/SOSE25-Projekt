@@ -97,24 +97,22 @@ struct PixelBufferComponent
 	vec2 dimensions;
 };
 
-class GPUPixelBuffer
+struct GPUPixelBuffer
 {
-public:
+	// utilty
 	void allocate(u32 width,u32 height,u32 format);
-	void write(std::queue<TextureData>& requests,const char* path);
-
+	static void load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,
+					 std::mutex* mutex_requests,const char* path);
 	// TODO allocate & write for statically written texture atlas
 	// TODO allocate & write for dynamically written texture atlas
 	// TODO when allocating, rotation boolean can be stored in alpha by signing the float
 
-public:
+	// data
 	Texture atlas;
-
-private:
-	u32 m_Format;
-	vec2 m_Dimensions;
-	vec2 m_InvDimensions;
-	std::vector<PixelBufferComponent> m_FreeMemory;
+	vec2 dimensions_inv;
+	std::vector<PixelBufferComponent> memory_segments;
+	//u32 m_Format;
+	//vec2 m_Dimensions;
 };
 
 // TODO framebuffer

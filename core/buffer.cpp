@@ -263,12 +263,12 @@ void Texture::generate_mipmap()
 void GPUPixelBuffer::allocate(u32 width,u32 height,u32 format)
 {
 	// store info
-	m_Format = format;
-	m_Dimensions = vec2(width,height);
-	m_InvDimensions = vec2(1.f/width,1.f/height);
+	//m_Format = format;
+	//m_Dimensions = vec2(width,height);
+	dimensions_inv = vec2(1.f/width,1.f/height);
 
 	// allocate memory
-	m_FreeMemory.push_back({
+	memory_segments.push_back({
 			.position = vec2(0,0),
 			.dimensions = vec2(width,height)
 		});
@@ -280,12 +280,12 @@ void GPUPixelBuffer::allocate(u32 width,u32 height,u32 format)
 
 /**
  *	write texture buffer to preallocated gpu memory
- *	\param comp: pixel buffer component data, will be uploaded to gpu, to locate correct position on atlas
- *	\param data: texture data holding pixel buffer to write to subtexture as well as dimensions
+ *	TODO params
  *	NOTE related texture has to be bound beforehand
- *	TODO
  */
-void GPUPixelBuffer::write(std::queue<TextureData>& requests,const char* path)
+std::mutex _mutex_memory_segments;
+void GPUPixelBuffer::load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,
+						  std::mutex* mutex_requests,const char* path)
 {
 	// load information from texture file
 	TextureData __TextureData = TextureData(path);
@@ -294,9 +294,9 @@ void GPUPixelBuffer::write(std::queue<TextureData>& requests,const char* path)
 	// locate best position for texture on free memory space
 	f32 __BestDifference = 0x7f800000;
 	u32 __MemoryIndex = -1;
-	for (u32 i=0;i<m_FreeMemory.size();i++)
+	for (u32 i=0;i<gpb->memory_segments.size();i++)
 	{
-		PixelBufferComponent* p_FreeComponent = &m_FreeMemory[i];
+		PixelBufferComponent* p_FreeComponent = &gpb->memory_segments[i];
 		if (__TextureData.width>p_FreeComponent->dimensions.x
 			||__TextureData.height>p_FreeComponent->dimensions.y) continue;
 
@@ -312,10 +312,10 @@ void GPUPixelBuffer::write(std::queue<TextureData>& requests,const char* path)
 
 	// get memory segment pointer
 	COMM_ERR_COND(__MemoryIndex==-1,"sprite texture memory is populated or segmented. texture upload failed!");
-	PixelBufferComponent* p_CloseFitComponent = &m_FreeMemory[__MemoryIndex];
+	PixelBufferComponent* p_CloseFitComponent = &gpb->memory_segments[__MemoryIndex];
 
 	// segment free memory to reserve pixel space for upload
-	vec2 __AtlasLocation = p_CloseFitComponent->position;
+	__TextureData.x = p_CloseFitComponent->position.x, __TextureData.y = p_CloseFitComponent->position.y;
 	PixelBufferComponent __Side = {
 		.position = p_CloseFitComponent->position+vec2(__TextureData.width,0),
 		.dimensions = vec2(p_CloseFitComponent->dimensions.x-__TextureData.width,__TextureData.height)
@@ -328,11 +328,14 @@ void GPUPixelBuffer::write(std::queue<TextureData>& requests,const char* path)
 	//		dimensions in only one segment but crosses over into a different free rect.
 	//		alternatively this can be done by assigning cross segment in both subsequent segments, but
 	//		this will mess with memory information, due to multiple free states per pixel. geez louize
+	//		solve this with a consistent merger algorithm after every segment?
 
 	// update memory information data
-	m_FreeMemory.erase(m_FreeMemory.begin()+__MemoryIndex);
-	if (__Side.dimensions.x>0) m_FreeMemory.push_back(__Side);
-	if (__Below.dimensions.y>0) m_FreeMemory.push_back(__Below);
+	_mutex_memory_segments.lock();
+	gpb->memory_segments.erase(gpb->memory_segments.begin()+__MemoryIndex);
+	if (__Side.dimensions.x>0) gpb->memory_segments.push_back(__Side);
+	if (__Below.dimensions.y>0) gpb->memory_segments.push_back(__Below);
+	_mutex_memory_segments.unlock();
 	// TODO when deleting and segmenting, check if free subspaces can be merged back into each other
 	// FIXME filter bleed, throw in a padding border, so the neighbouring textures don't flow into each other
 
@@ -341,11 +344,12 @@ void GPUPixelBuffer::write(std::queue<TextureData>& requests,const char* path)
 	comp->position = __AtlasLocation*m_InvDimensions;
 	comp->dimensions = vec2(__TextureData.width,__TextureData.height)*m_InvDimensions;
 	*/
+	// TODO move this to the gpu upload section in renderer and read info from texture data before deleting
 
 	// write buffer
-	__TextureData.x = __AtlasLocation.x, __TextureData.y = __AtlasLocation.y;
-	requests.push(__TextureData);
-	// FIXME NOT ATOMIC! this is screaming for vengeance when threaded!
+	mutex_requests->lock();
+	requests->push(__TextureData);
+	mutex_requests->unlock();
 }
 // TODO create a gpu_write and only upload (& bind) in that function, then do the location code in threadable
 //		capsulated method, storing all necessary information in the pixel buffer component
