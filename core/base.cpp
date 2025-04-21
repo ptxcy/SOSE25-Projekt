@@ -41,6 +41,41 @@ BitwiseWords::~BitwiseWords()
 
 
 // ----------------------------------------------------------------------------------------------------
+// Signals Between Threads
+
+/**
+ *	start to wait for a continue signal
+ */
+void ThreadSignal::wait()
+{
+	std::unique_lock<std::mutex> lock(mutex);
+	cv.wait(lock,[this]{ return active; });
+	active = false;
+}
+
+/**
+ *	signal all threads listening to continue with procedure
+ */
+void ThreadSignal::proceed()
+{
+	{
+		std::lock_guard<std::mutex> lock(mutex);
+		active = true;
+	}
+	cv.notify_one();
+}
+
+/**
+ *	signal subprocess to vanish
+ */
+void ThreadSignal::exit()
+{
+	running = false;
+	proceed();
+}
+
+
+// ----------------------------------------------------------------------------------------------------
 // Coordinate System
 
 /**

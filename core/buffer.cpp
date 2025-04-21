@@ -269,7 +269,7 @@ void GPUPixelBuffer::allocate(u32 width,u32 height,u32 format)
 
 	// allocate memory
 	memory_segments.push_back({
-			.position = vec2(0,0),
+			.offset = vec2(0,0),
 			.dimensions = vec2(width,height)
 		});
 	glTexImage2D(GL_TEXTURE_2D,0,format,width,height,0,format,GL_UNSIGNED_BYTE,0);
@@ -315,17 +315,17 @@ void GPUPixelBuffer::load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,
 	PixelBufferComponent* p_CloseFitComponent = &gpb->memory_segments[__MemoryIndex];
 
 	// write atlas information
-	__TextureData.x = p_CloseFitComponent->position.x, __TextureData.y = p_CloseFitComponent->position.y;
-	pbc->position = p_CloseFitComponent->position*gpb->dimensions_inv;
+	__TextureData.x = p_CloseFitComponent->offset.x, __TextureData.y = p_CloseFitComponent->offset.y;
+	pbc->offset = p_CloseFitComponent->offset*gpb->dimensions_inv;
 	pbc->dimensions = vec2(__TextureData.width,__TextureData.height)*gpb->dimensions_inv;
 
 	// segment free memory to reserve pixel space for upload
 	PixelBufferComponent __Side = {
-		.position = p_CloseFitComponent->position+vec2(__TextureData.width,0),
+		.offset = p_CloseFitComponent->offset+vec2(__TextureData.width,0),
 		.dimensions = vec2(p_CloseFitComponent->dimensions.x-__TextureData.width,__TextureData.height)
 	};
 	PixelBufferComponent __Below = {
-		.position = p_CloseFitComponent->position+vec2(0,__TextureData.height),
+		.offset = p_CloseFitComponent->offset+vec2(0,__TextureData.height),
 		.dimensions = p_CloseFitComponent->dimensions-vec2(0,__TextureData.height)
 	};
 	// FIXME this is segmenting falsely, it's not possible to insert into texture space that has the correct

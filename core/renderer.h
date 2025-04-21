@@ -33,6 +33,8 @@ public:
 	// sprite
 	PixelBufferComponent* register_sprite_texture(const char* path);
 	Sprite* register_sprite(PixelBufferComponent* texture,vec2 position,vec2 size,f32 rotation=.0f,f32 alpha=1.f);
+	void assign_sprite_texture(Sprite* sprite,PixelBufferComponent* texture);
+	static void delete_sprite_texture(PixelBufferComponent* texture);
 	static void delete_sprite(Sprite* sprite);
 
 private:
@@ -40,10 +42,9 @@ private:
 	void _update_sprites();
 
 	// background procedures
-	static void _sprite_collector(Sprite* sprites,std::queue<u16>* overwrites,u16* range,volatile bool* active);
+	template<typename T> static void _collector(T* xs,std::queue<u16>* os,u16* range,ThreadSignal* signal);
 
 private:
-	volatile bool m_HelpersActive = true;
 
 	// ----------------------------------------------------------------------------------------------------
 	// Data Management & Pipelines
@@ -61,6 +62,7 @@ private:
 	u16 m_SpriteTextureRange = 0;
 	GPUPixelBuffer m_GPUSpriteTextures;
 	PixelBufferComponent m_SpriteTextures[RENDERER_MAXIMUM_STEXTURE_COUNT];
+	std::queue<u16> m_SpriteTextureOverwrite;
 	std::queue<TextureData> m_SpriteLoadRequests;
 
 	// sprites

@@ -93,7 +93,7 @@ private:
 
 struct PixelBufferComponent
 {
-	vec2 position;
+	vec2 offset;
 	vec2 dimensions;
 };
 

@@ -7,18 +7,19 @@
 // texture upload locking
 std::mutex _mutex_sprite_requests;
 
+// texture collector signals
+ThreadSignal _sprite_texture_signal
+#ifdef DEBUG
+= { .name = "sprite texture" }
+#endif
+;
+
 // sprite collector signals
-std::mutex mutex_sprite;
-std::condition_variable cv_sprite;
-bool collect_sprites = false;
-void _signal_sprite_collector()
-{
-	{
-		std::lock_guard<std::mutex> lock(mutex_sprite);
-		collect_sprites = true;
-	}
-	cv_sprite.notify_one();
-}
+ThreadSignal _sprite_signal
+#ifdef DEBUG
+= { .name = "sprite" }
+#endif
+;
 
 
 // ----------------------------------------------------------------------------------------------------
@@ -76,9 +77,13 @@ Renderer::Renderer()
 
 	// ----------------------------------------------------------------------------------------------------
 	// Start Subprocesses
-	std::thread __SpriteCollector(Renderer::_sprite_collector,
-								  m_Sprites,&m_SpriteOverwrite,&m_ActiveRange,&m_HelpersActive);
+	std::thread __SpriteCollector(Renderer::_collector<Sprite>,
+								  m_Sprites,&m_SpriteOverwrite,&m_ActiveRange,&_sprite_signal);
 	__SpriteCollector.detach();
+	std::thread __SpriteTextureCollector(Renderer::_collector<PixelBufferComponent>,
+										 m_SpriteTextures,&m_SpriteTextureOverwrite,
+										 &m_SpriteTextureRange,&_sprite_texture_signal);
+	__SpriteTextureCollector.detach();
 	// FIXME when doing something after the detach the subprocess is not longer working, which makes no sense
 
 	COMM_SCC("render system ready.");
@@ -98,8 +103,8 @@ void Renderer::update()
  */
 void Renderer::exit()
 {
-	m_HelpersActive = false;
-	_signal_sprite_collector();
+	_sprite_texture_signal.exit();
+	_sprite_signal.exit();
 }
 
 /**
@@ -110,6 +115,8 @@ void Renderer::exit()
 PixelBufferComponent* Renderer::register_sprite_texture(const char* path)
 {
 	PixelBufferComponent* p_Comp = &m_SpriteTextures[m_SpriteTextureRange++];
+	// TODO support in-place overwrites
+	// TODO mark the given component space as free on atlas memory space
 
 	COMM_LOG("sprite texture register of %s",path);
 	std::thread __LoadThread(GPUPixelBuffer::load,
@@ -117,7 +124,6 @@ PixelBufferComponent* Renderer::register_sprite_texture(const char* path)
 	__LoadThread.detach();
 	return p_Comp;
 }
-// TODO allow to delete textures and overwrite information in-place
 
 /**
  *	register a new sprite instance for rendering
@@ -148,10 +154,28 @@ Sprite* Renderer::register_sprite(PixelBufferComponent* texture,vec2 position,ve
 		.scale = size,
 		.rotation = rotation,
 		.alpha = alpha,
-		.tex_position = texture->position,
-		.tex_dimension = texture->dimensions
 	};
+	Renderer::assign_sprite_texture(&m_Sprites[i],texture);
 	return &m_Sprites[i];
+}
+
+/**
+ *	TODO
+ */
+void Renderer::assign_sprite_texture(Sprite* sprite,PixelBufferComponent* texture)
+{
+	sprite->tex_position = texture->offset;
+	sprite->tex_dimension = texture->dimensions;
+}
+
+/**
+ *	TODO
+ */
+void Renderer::delete_sprite_texture(PixelBufferComponent* texture)
+{
+	texture->offset.x = RENDERER_POSITIONAL_DELETION_CODE;
+	texture = nullptr;
+	_sprite_texture_signal.proceed();
 }
 
 /**
@@ -163,7 +187,7 @@ void Renderer::delete_sprite(Sprite* sprite)
 	sprite->offset.x = RENDERER_POSITIONAL_DELETION_CODE;
 	sprite->scale = vec2(0,0);
 	sprite = nullptr;
-	_signal_sprite_collector();
+	_sprite_signal.proceed();
 }
 
 /**
@@ -209,36 +233,38 @@ void Renderer::_update_sprites()
 
 /**
  *	automatically collecting deleted sprites and assign memory space for override
- *	\param sprites: storage array for registered arrays
- *	\param overwrites: pointer to queue, listing the memory indices to overwrite in future registrations
+ *	\param xs: storage array for registered entities
+ *	\param os: pointer to queue, listing the memory indices to overwrite in future registrations
  *	\param range: pointer to active range towards furthest address of registered sprites
  *	\param active: reference to background process active flag
+ *	TODO after generalization rewrite document
  */
-void Renderer::_sprite_collector(Sprite* sprites,std::queue<u16>* overwrites,u16* range,volatile bool* active)
+template<typename T> void Renderer::_collector(T* xs,std::queue<u16>* os,u16* range,ThreadSignal* signal)
 {
-	COMM_SCC("started sprite collector background process");
+	COMM_SCC("started %s collector background process",signal->name);
 
 	// main loop
-	while (*active)
+	while (signal->running)
 	{
-		std::unique_lock<std::mutex> lock(mutex_sprite);
-		cv_sprite.wait(lock,[]{ return collect_sprites; });
-		collect_sprites = false;
-		if (!*active) break;
-		COMM_LOG("sprite collector is searching for removed objects...");
+		signal->wait();
+		if (!signal->running) break;
+		COMM_LOG("%s collector is searching for removed objects...",signal->name);
 
 		// iterate active sprite memory
-		(*overwrites) = std::queue<u16>();
+		(*os) = std::queue<u16>();
+		// FIXME can be done with fewer allocation when keeping reserved memory but clearing all of it
 		u16 __Streak = 0;
 		for (int i=0;i<(*range);i++)
 		{
 			// sprite marked to be removed
-			if (sprites[i].offset.x==RENDERER_POSITIONAL_DELETION_CODE)
+			if (xs[i].offset.x==RENDERER_POSITIONAL_DELETION_CODE)
 			{
-				COMM_MSG(LOG_PURPLE,"marked sprite found at memory index %d and scheduled to overwrite",i);
+				COMM_MSG(LOG_PURPLE,"marked %s found at memory index %d and scheduled to overwrite",
+						 signal->name,i);
+				// FIXME i'm not so sure i like the logging here
 				__Streak++;
 				if (i==(*range)-1) (*range) -= __Streak;
-				else overwrites->push(i);
+				else os->push(i);
 			}
 
 			// end removal streak
@@ -246,6 +272,7 @@ void Renderer::_sprite_collector(Sprite* sprites,std::queue<u16>* overwrites,u16
 		}
 	}
 
-	COMM_LOG("sprite collector background process finished");
+	COMM_LOG("%s collector background process finished",signal->name);
 }
-// TODO generalize by using a float pointer, so this collector can be reused for all static codable structures!!
+template void Renderer::_collector<Sprite>(Sprite*,std::queue<u16>*,u16*,ThreadSignal*);
+template void Renderer::_collector<PixelBufferComponent>(PixelBufferComponent*,std::queue<u16>*,u16*,ThreadSignal*);

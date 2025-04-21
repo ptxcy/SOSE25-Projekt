@@ -187,6 +187,24 @@ private:
 };
 
 
+struct ThreadSignal
+{
+	// utility
+	void wait();
+	void proceed();
+	void exit();
+
+	// data
+#ifdef DEBUG
+	const char* name;
+#endif
+	std::mutex mutex;
+	std::condition_variable cv;
+	bool active = false;
+	bool running = true;
+};
+
+
 class CoordinateSystem2D
 {
 public:
