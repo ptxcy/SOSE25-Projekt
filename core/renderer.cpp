@@ -45,7 +45,7 @@ Renderer::Renderer()
 	// Sprite Pipeline
 	COMM_LOG("assembling pipelines:");
 	COMM_LOG("sprite pipeline");
-	m_SpritePipeline.assemble(__SpriteVertexShader,__DirectFragmentShader,4,6,"sprite");
+	m_SpritePipeline.assemble(__SpriteVertexShader,__DirectFragmentShader,4,10,"sprite");
 	m_SpriteVertexArray.bind();
 	m_SpriteVertexBuffer.bind();
 	m_SpriteVertexBuffer.upload_vertices(__QuadVertices,24);
@@ -59,6 +59,8 @@ Renderer::Renderer()
 	m_SpritePipeline.define_index_attribute("scale",2);
 	m_SpritePipeline.define_index_attribute("rotation",1);
 	m_SpritePipeline.define_index_attribute("alpha",1);
+	m_SpritePipeline.define_index_attribute("tex_position",2);
+	m_SpritePipeline.define_index_attribute("tex_dimension",2);
 
 	m_SpritePipeline.upload("tex",0);
 	m_SpritePipeline.upload_coordinate_system();
@@ -67,8 +69,8 @@ Renderer::Renderer()
 	// GPU Memory
 
 	// allocate sprite memory
-	m_SpriteTextures.atlas.bind();
-	m_SpriteTextures.allocate(1500,1500,GL_RGBA);
+	m_GPUSpriteTextures.atlas.bind();
+	m_GPUSpriteTextures.allocate(1500,1500,GL_RGBA);
 	Texture::set_texture_parameter_linear_mipmap();
 	Texture::set_texture_parameter_clamp_to_edge();
 
@@ -103,14 +105,19 @@ void Renderer::exit()
 /**
  *	register sprite texture to load and move to sprite pixel buffer
  *	\param path: path to texture file
+ *	TODO
  */
-void Renderer::register_sprite_texture(const char* path)
+PixelBufferComponent* Renderer::register_sprite_texture(const char* path)
 {
+	PixelBufferComponent* p_Comp = &m_SpriteTextures[m_SpriteTextureRange++];
+
 	COMM_LOG("sprite texture register of %s",path);
 	std::thread __LoadThread(GPUPixelBuffer::load,
-							 &m_SpriteTextures,&m_SpriteLoadRequests,&_mutex_sprite_requests,path);
+							 &m_GPUSpriteTextures,&m_SpriteLoadRequests,p_Comp,&_mutex_sprite_requests,path);
 	__LoadThread.detach();
+	return p_Comp;
 }
+// TODO allow to delete textures and overwrite information in-place
 
 /**
  *	register a new sprite instance for rendering
@@ -119,8 +126,9 @@ void Renderer::register_sprite_texture(const char* path)
  *	\param rotation: (default .0f) rotation of the sprite in degrees
  *	\param alpha: (default 1.f) transparency of sprite clamped between 0 and 1. 0 = invisible -> 1 = opaque
  *	\returns pointer to sprite data for modification purposes
+ *	TODO
  */
-Sprite* Renderer::register_sprite(vec2 position,vec2 size,f32 rotation,f32 alpha)
+Sprite* Renderer::register_sprite(PixelBufferComponent* texture,vec2 position,vec2 size,f32 rotation,f32 alpha)
 {
 	// determine memory location, overwrite has priority over appending
 	u16 i;
@@ -139,13 +147,15 @@ Sprite* Renderer::register_sprite(vec2 position,vec2 size,f32 rotation,f32 alpha
 		.offset = position,
 		.scale = size,
 		.rotation = rotation,
-		.alpha = alpha
+		.alpha = alpha,
+		.tex_position = texture->position,
+		.tex_dimension = texture->dimensions
 	};
 	return &m_Sprites[i];
 }
 
 /**
- *	remove sprite from render list. quickly moved out of viewport in main thread, later collected automatically
+ *	remove sprite from render list. quickly scaled invisible in main thread, later collected automatically
  *	\param sprite: reference to sprite, being removed
  */
 void Renderer::delete_sprite(Sprite* sprite)
@@ -161,7 +171,7 @@ void Renderer::delete_sprite(Sprite* sprite)
  */
 void Renderer::_gpu_upload()
 {
-	m_SpriteTextures.atlas.bind();
+	m_GPUSpriteTextures.atlas.bind();
 	_mutex_sprite_requests.lock();
 	while (m_SpriteLoadRequests.size())
 	{
@@ -176,6 +186,7 @@ void Renderer::_gpu_upload()
 	Texture::generate_mipmap();
 	// FIXME performance will suffer when generating mipmap every time the loop condition breaks
 }
+// TODO stall until next frame when frametime budget is used up to avoid framerate issues
 
 /**
  *	helper to unclutter the update to all sprites
@@ -183,7 +194,7 @@ void Renderer::_gpu_upload()
 void Renderer::_update_sprites()
 {
 	m_SpriteVertexArray.bind();
-	m_SpriteTextures.atlas.bind();
+	m_GPUSpriteTextures.atlas.bind();
 	m_SpritePipeline.enable();
 	m_SpriteInstanceBuffer.bind();
 	m_SpriteInstanceBuffer.upload_vertices(m_Sprites,RENDERER_MAXIMUM_SPRITE_COUNT,GL_DYNAMIC_DRAW);
@@ -237,3 +248,4 @@ void Renderer::_sprite_collector(Sprite* sprites,std::queue<u16>* overwrites,u16
 
 	COMM_LOG("sprite collector background process finished");
 }
+// TODO generalize by using a float pointer, so this collector can be reused for all static codable structures!!

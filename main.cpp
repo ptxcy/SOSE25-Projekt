@@ -3,14 +3,7 @@
 #include "core/renderer.h"
 
 
-void _crave_the_kek()
-{
-	g_Renderer.register_sprite_texture("./res/test.png");
-}
-void _crave_the_shit()
-{
-	g_Renderer.register_sprite_texture("./res/maps.png");
-}
+std::vector<std::string> textures = { "./res/kid.png","./res/kek.png","./res/test.png","./res/maps.png" };
 
 s32 main(s32 argc,char** argv)
 {
@@ -22,9 +15,17 @@ s32 main(s32 argc,char** argv)
 	bool deleted_old = false;
 	*/
 
-	g_Renderer.register_sprite_texture("./res/kid.png");
-	g_Renderer.register_sprite_texture("./res/kek.png");
-	Sprite* atlas_preview = g_Renderer.register_sprite(vec2(640,360),vec2(620,620));
+	/*
+	PixelBufferComponent* t0 = g_Renderer.register_sprite_texture("./res/kid.png");
+	PixelBufferComponent* t1 = g_Renderer.register_sprite_texture("./res/kek.png");
+	PixelBufferComponent* t2 = g_Renderer.register_sprite_texture("./res/test.png");
+	PixelBufferComponent* t3 = g_Renderer.register_sprite_texture("./res/maps.png");
+	*/
+	u8 head = 0;
+	u8 atex = 0;
+	vec2 position = vec2(100,100);
+	PixelBufferComponent* ts[4];
+	//Sprite* atlas_preview = g_Renderer.register_sprite(t0,vec2(640,360),vec2(620,620));
 
 	bool running = true;
 	while(running)
@@ -32,8 +33,20 @@ s32 main(s32 argc,char** argv)
 		g_Frame.clear();
 		g_Input.update(running);
 
-		if (g_Input.keyboard.triggered_keys[SDL_SCANCODE_L]) _crave_the_kek();
-		if (g_Input.keyboard.triggered_keys[SDL_SCANCODE_O]) _crave_the_shit();
+		if (g_Input.keyboard.triggered_keys[SDL_SCANCODE_L]&&head<4)
+		{
+			ts[head] = g_Renderer.register_sprite_texture(textures[head].c_str());
+			head++;
+		}
+		if (g_Input.keyboard.triggered_keys[SDL_SCANCODE_O])
+		{
+			g_Renderer.register_sprite(ts[atex],position,vec2(100,100));
+			position.x += 150;
+			bool rpos = position.x>1150;
+			position.y += 150*rpos;
+			position.x = rpos ? 100 : position.x;
+			atex = (atex+1)%head;
+		}
 
 		// sample usage
 		/*

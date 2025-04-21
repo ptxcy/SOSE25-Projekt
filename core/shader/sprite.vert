@@ -8,6 +8,8 @@ in vec2 offset;
 in vec2 scale;
 in float rotation;
 in float alpha;
+in vec2 tex_position;
+in vec2 tex_dimension;
 
 out vec2 EdgeCoordinates;
 out float Alpha;
@@ -26,6 +28,6 @@ void main()
 
 	// pass
 	gl_Position = proj*view*vec4(Position*scale+offset,.0,1.);
-	EdgeCoordinates = edge_coordinates;
+	EdgeCoordinates = tex_position+tex_dimension*edge_coordinates;
 	Alpha = alpha;
 }

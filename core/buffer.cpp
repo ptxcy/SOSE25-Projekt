@@ -284,7 +284,7 @@ void GPUPixelBuffer::allocate(u32 width,u32 height,u32 format)
  *	NOTE related texture has to be bound beforehand
  */
 std::mutex _mutex_memory_segments;
-void GPUPixelBuffer::load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,
+void GPUPixelBuffer::load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,PixelBufferComponent* pbc,
 						  std::mutex* mutex_requests,const char* path)
 {
 	// load information from texture file
@@ -314,8 +314,12 @@ void GPUPixelBuffer::load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,
 	COMM_ERR_COND(__MemoryIndex==-1,"sprite texture memory is populated or segmented. texture upload failed!");
 	PixelBufferComponent* p_CloseFitComponent = &gpb->memory_segments[__MemoryIndex];
 
-	// segment free memory to reserve pixel space for upload
+	// write atlas information
 	__TextureData.x = p_CloseFitComponent->position.x, __TextureData.y = p_CloseFitComponent->position.y;
+	pbc->position = p_CloseFitComponent->position*gpb->dimensions_inv;
+	pbc->dimensions = vec2(__TextureData.width,__TextureData.height)*gpb->dimensions_inv;
+
+	// segment free memory to reserve pixel space for upload
 	PixelBufferComponent __Side = {
 		.position = p_CloseFitComponent->position+vec2(__TextureData.width,0),
 		.dimensions = vec2(p_CloseFitComponent->dimensions.x-__TextureData.width,__TextureData.height)
@@ -338,13 +342,6 @@ void GPUPixelBuffer::load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,
 	_mutex_memory_segments.unlock();
 	// TODO when deleting and segmenting, check if free subspaces can be merged back into each other
 	// FIXME filter bleed, throw in a padding border, so the neighbouring textures don't flow into each other
-
-	// write subtexture info
-	/*
-	comp->position = __AtlasLocation*m_InvDimensions;
-	comp->dimensions = vec2(__TextureData.width,__TextureData.height)*m_InvDimensions;
-	*/
-	// TODO move this to the gpu upload section in renderer and read info from texture data before deleting
 
 	// write buffer
 	mutex_requests->lock();

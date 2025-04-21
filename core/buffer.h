@@ -101,7 +101,7 @@ struct GPUPixelBuffer
 {
 	// utilty
 	void allocate(u32 width,u32 height,u32 format);
-	static void load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,
+	static void load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,PixelBufferComponent* pbc,
 					 std::mutex* mutex_requests,const char* path);
 	// TODO allocate & write for statically written texture atlas
 	// TODO allocate & write for dynamically written texture atlas

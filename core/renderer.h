@@ -7,6 +7,7 @@
 
 
 constexpr f32 RENDERER_POSITIONAL_DELETION_CODE = -1247.f;
+constexpr u16 RENDERER_MAXIMUM_STEXTURE_COUNT = 512;
 constexpr u16 RENDERER_MAXIMUM_SPRITE_COUNT = 512;
 
 
@@ -16,6 +17,8 @@ struct Sprite
 	vec2 scale = vec2(0,0);
 	f32 rotation = .0f;
 	f32 alpha = 1.f;
+	vec2 tex_position;
+	vec2 tex_dimension;
 };
 
 
@@ -28,8 +31,8 @@ public:
 	void exit();
 
 	// sprite
-	void register_sprite_texture(const char* path);
-	Sprite* register_sprite(vec2 position,vec2 size,f32 rotation=.0f,f32 alpha=1.f);
+	PixelBufferComponent* register_sprite_texture(const char* path);
+	Sprite* register_sprite(PixelBufferComponent* texture,vec2 position,vec2 size,f32 rotation=.0f,f32 alpha=1.f);
 	static void delete_sprite(Sprite* sprite);
 
 private:
@@ -55,7 +58,9 @@ private:
 	// Render Object Information
 
 	// textures
-	GPUPixelBuffer m_SpriteTextures;
+	u16 m_SpriteTextureRange = 0;
+	GPUPixelBuffer m_GPUSpriteTextures;
+	PixelBufferComponent m_SpriteTextures[RENDERER_MAXIMUM_STEXTURE_COUNT];
 	std::queue<TextureData> m_SpriteLoadRequests;
 
 	// sprites
