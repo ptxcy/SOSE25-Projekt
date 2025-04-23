@@ -5,13 +5,14 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+
   request-sync:
     build:
       context: ./microservices/request-sync
       dockerfile: Dockerfile
     ports:
       - "8081:8081"
-      -
+
   mongodb:
     image: mongo:latest
     container_name: mongodb
