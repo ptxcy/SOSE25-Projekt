@@ -2,7 +2,7 @@ import express from "express";
 import fs from "fs";
 import path from "path";
 
-const port = 8080;
+const port = 8081;
 const routesPath = path.join(__dirname, "routes");
 const app = express();
 

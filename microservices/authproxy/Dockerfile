@@ -1,4 +1,11 @@
-FROM ubuntu:latest
-LABEL authors="pkl"
+FROM node:18
 
-ENTRYPOINT ["top", "-b"]
+WORKDIR /app
+
+COPY . /app
+
+RUN npm install
+
+EXPOSE 8080
+
+CMD ["npm", "start"]
