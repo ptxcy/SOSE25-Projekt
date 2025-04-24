@@ -80,6 +80,7 @@ constexpr f32 MATH_CARTESIAN_XRANGE_INV = 1.f/MATH_CARTESIAN_XRANGE;
 constexpr f32 MATH_CARTESIAN_YRANGE_INV = 1.f/MATH_CARTESIAN_YRANGE;
 constexpr f64 MATH_PI = 3.141592653;
 constexpr f64 MATH_E = 2.7182818284;
+constexpr f64 MATH_CONVERSION_MS = .000001;
 
 // memory layout based on build target
 typedef
@@ -114,15 +115,10 @@ constexpr f64 LOG_FPS_ALERT = 16.6;
 constexpr const char* LOG_TIMING[] = { LOG_GREY,LOG_YELLOW,LOG_RED };
 inline std::chrono::steady_clock::time_point log_delta = std::chrono::steady_clock::now();
 static inline void reset_timestamp() { log_delta = std::chrono::steady_clock::now(); }
-static inline void ctlog(f64& delta)
-{
-	delta = (std::chrono::steady_clock::now()-log_delta).count()*.000001;
-	printf("%s",LOG_TIMING[(u8)std::min(delta/LOG_FPS_ALERT,2.)]);
-}
 static inline void produce_timestamp(bool padding=true)
 {
-	f64 delta;
-	ctlog(delta);
+	f64 delta = (std::chrono::steady_clock::now()-log_delta).count()*MATH_CONVERSION_MS;
+	printf("%s",LOG_TIMING[(u8)std::min(delta/LOG_FPS_ALERT,2.)]);
 	printf((padding) ? "%12fms%s" : "%fms%s\n",delta,LOG_CLEAR);
 	reset_timestamp();
 }
@@ -144,7 +140,36 @@ static inline void produce_timestamp(bool padding=true)
 #define COMM_LOG_FALLBACK(...) else { COMM_LOG(__VA_ARGS__); }
 #define COMM_SCC_FALLBACK(...) else { COMM_SCC(__VA_ARGS__); }
 #define COMM_ERR_FALLBACK(...) else { COMM_ERR(__VA_ARGS__); }
-// TODO this is entirely different on windows and mac, this needs to be ported or mended towards lower systems
+// TODO colouring is entirely different on windows and mac, this needs to be ported towards lower systems
+
+// runtime profiler
+constexpr u16 PROFILER_FRAMES_RELEVANT_AVERAGE = 300;
+struct RuntimeProfilerData
+{
+	const char* name;
+	std::chrono::steady_clock::time_point last;
+	f64 measurements[PROFILER_FRAMES_RELEVANT_AVERAGE] = { 0 };
+	u16 head = 0;
+};
+static inline void profiler_tick(RuntimeProfilerData* data)
+{
+	data->measurements[data->head] = (std::chrono::steady_clock::now()-data->last).count()*MATH_CONVERSION_MS;
+	data->head = (data->head+1)%PROFILER_FRAMES_RELEVANT_AVERAGE;
+	data->last = std::chrono::steady_clock::now();
+}
+static inline f64 profiler_average(RuntimeProfilerData* data)
+{
+	f64 sum = .0;
+	for (u16 i=0;i<PROFILER_FRAMES_RELEVANT_AVERAGE;i++) sum += data->measurements[i];
+	return sum/PROFILER_FRAMES_RELEVANT_AVERAGE;
+}
+// TODO colour frametime return based on user defined timing boundaries
+
+// runtime profiler features
+#define PROF_CRT(nom) { .name = nom };
+#define PROF_STA(d) d.last = std::chrono::steady_clock::now();
+#define PROF_STP(d) profiler_tick(&d);
+#define PROF_SHW(d) printf("%sprofiler: %12fms | %s%s\n",LOG_BLUE,profiler_average(&d),d.name,LOG_CLEAR);
 
 #else
 
@@ -163,6 +188,10 @@ static inline void produce_timestamp(bool padding=true)
 #define COMM_LOG_FALLBACK(...)
 #define COMM_SCC_FALLBACK(...)
 #define COMM_ERR_FALLBACK(...)
+#define PROF_CRT(nom);
+#define PROF_STA(d);
+#define PROF_STP(d);
+#define PROF_SHW(d);
 
 #endif
 

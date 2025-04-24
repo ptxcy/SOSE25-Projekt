@@ -85,6 +85,8 @@ Renderer::Renderer()
 										 &m_SpriteTextureRange,&_sprite_texture_signal);
 	__SpriteTextureCollector.detach();
 	// FIXME when doing something after the detach the subprocess is not longer working, which makes no sense
+	//		UPDATE: the subprocess seems to be working when monitored but then the print is also working?!??
+	//		this is probably a logging NOT a utility problem. mine fru die ilzebil, will net so als ick wohl will
 
 	COMM_SCC("render system ready.");
 }
@@ -94,8 +96,11 @@ Renderer::Renderer()
  */
 void Renderer::update()
 {
+	PROF_STA(m_ProfilerFullFrame);
 	_update_sprites();
 	_gpu_upload();
+	PROF_STP(m_ProfilerFullFrame);
+	PROF_SHW(m_ProfilerFullFrame);
 }
 
 /**

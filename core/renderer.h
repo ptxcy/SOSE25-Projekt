@@ -47,6 +47,12 @@ private:
 private:
 
 	// ----------------------------------------------------------------------------------------------------
+	// Runtime Profiler
+#ifdef DEBUG
+	RuntimeProfilerData m_ProfilerFullFrame = PROF_CRT("full frametime");
+#endif
+
+	// ----------------------------------------------------------------------------------------------------
 	// Data Management & Pipelines
 	VertexArray m_SpriteVertexArray;
 
