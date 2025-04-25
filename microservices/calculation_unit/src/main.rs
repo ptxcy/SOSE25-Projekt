@@ -52,7 +52,7 @@ async fn main() {
 
 /*
 // Create WebSocket connection.
-const socket = new WebSocket(`ws://localhost:3030/api/test`);
+const socket = new WebSocket(`ws://localhost:8082/api/test`);
 
 // Connection opened
 socket.addEventListener("open", (event) => {
