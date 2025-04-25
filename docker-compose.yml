@@ -16,7 +16,7 @@ services:
   calculation_unit:
     build:
       context: ./microservices/calculation_unit
-      dockerfile: dockerfile
+      dockerfile: microservices/calculation_unit/Dockerfile
     ports:
       - "8082:8082"
 
