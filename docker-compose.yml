@@ -13,6 +13,13 @@ services:
     ports:
       - "8081:8081"
 
+  calculation_unit:
+    build:
+      context: ./microservices/calculation_unit
+      dockerfile: dockerfile
+    ports:
+      - "8082:8082"
+
   mongodb:
     image: mongo:latest
     container_name: mongodb
