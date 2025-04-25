@@ -47,7 +47,7 @@ async fn main() {
 		.or(static_files)
 		.with(warp::cors().allow_any_origin());
 
-	warp::serve(routes).run(([127, 0, 0, 1], 8082)).await;
+	warp::serve(routes).run(([0, 0, 0, 0], 8082)).await;
 }
 
 /*

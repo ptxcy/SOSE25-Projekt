@@ -1,8 +1,7 @@
-
 FROM rust:latest
 
 WORKDIR /app
 
-COPY . /app
+COPY . .
 
-RUN cargo run --release
+CMD ["cargo", "run", "--release"]
