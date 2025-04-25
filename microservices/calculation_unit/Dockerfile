@@ -4,4 +4,6 @@ WORKDIR /app
 
 COPY . .
 
-CMD ["cargo", "run", "--release"]
+RUN cargo build --release
+
+CMD ["./target/release/calculation_unit"]
