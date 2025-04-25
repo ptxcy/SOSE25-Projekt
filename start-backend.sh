@@ -17,8 +17,3 @@ fi
 
 echo "Starting Stage Environment..."
 docker compose up -d --build authproxy request-sync calculation_unit mongodb
-
-echo "----------------------------------------------------------------------"
-echo "Shutting down all containers..."
-docker compose down
-echo "----------------------------------------------------------------------"
