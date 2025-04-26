@@ -42,7 +42,7 @@ private:
 	void _update_sprites();
 
 	// background procedures
-	template<typename T> static void _collector(T* xs,std::queue<u16>* os,u16* range,ThreadSignal* signal);
+	template<typename T> static void _collector(InPlaceArray<T>* xs,ThreadSignal* signal);
 
 private:
 
@@ -65,16 +65,13 @@ private:
 	// Render Object Information
 
 	// textures
-	u16 m_SpriteTextureRange = 0;
 	GPUPixelBuffer m_GPUSpriteTextures;
-	PixelBufferComponent m_SpriteTextures[RENDERER_MAXIMUM_STEXTURE_COUNT];
-	std::queue<u16> m_SpriteTextureOverwrite;
+	InPlaceArray<PixelBufferComponent> m_SpriteTextures
+			= InPlaceArray<PixelBufferComponent>(RENDERER_MAXIMUM_STEXTURE_COUNT);
 	std::queue<TextureData> m_SpriteLoadRequests;
 
 	// sprites
-	u16 m_ActiveRange = 0;
-	Sprite m_Sprites[RENDERER_MAXIMUM_SPRITE_COUNT];
-	std::queue<u16> m_SpriteOverwrite;
+	InPlaceArray<Sprite> m_Sprites = InPlaceArray<Sprite>(RENDERER_MAXIMUM_SPRITE_COUNT);
 };
 
 inline Renderer g_Renderer = Renderer();

@@ -77,12 +77,10 @@ Renderer::Renderer()
 
 	// ----------------------------------------------------------------------------------------------------
 	// Start Subprocesses
-	std::thread __SpriteCollector(Renderer::_collector<Sprite>,
-								  m_Sprites,&m_SpriteOverwrite,&m_ActiveRange,&_sprite_signal);
+	std::thread __SpriteCollector(Renderer::_collector<Sprite>,&m_Sprites,&_sprite_signal);
 	__SpriteCollector.detach();
 	std::thread __SpriteTextureCollector(Renderer::_collector<PixelBufferComponent>,
-										 m_SpriteTextures,&m_SpriteTextureOverwrite,
-										 &m_SpriteTextureRange,&_sprite_texture_signal);
+										 &m_SpriteTextures,&_sprite_texture_signal);
 	__SpriteTextureCollector.detach();
 	// FIXME when doing something after the detach the subprocess is not longer working, which makes no sense
 	//		UPDATE: the subprocess seems to be working when monitored but then the print is also working?!??
@@ -100,7 +98,6 @@ void Renderer::update()
 	_update_sprites();
 	_gpu_upload();
 	PROF_STP(m_ProfilerFullFrame);
-	PROF_SHW(m_ProfilerFullFrame);
 }
 
 /**
@@ -119,11 +116,10 @@ void Renderer::exit()
  */
 PixelBufferComponent* Renderer::register_sprite_texture(const char* path)
 {
-	PixelBufferComponent* p_Comp = &m_SpriteTextures[m_SpriteTextureRange++];
-	// TODO support in-place overwrites
+	PixelBufferComponent* p_Comp = m_SpriteTextures.next_free();
+	COMM_LOG("sprite texture register of %s",path);
 	// TODO mark the given component space as free on atlas memory space
 
-	COMM_LOG("sprite texture register of %s",path);
 	std::thread __LoadThread(GPUPixelBuffer::load,
 							 &m_GPUSpriteTextures,&m_SpriteLoadRequests,p_Comp,&_mutex_sprite_requests,path);
 	__LoadThread.detach();
@@ -142,26 +138,22 @@ PixelBufferComponent* Renderer::register_sprite_texture(const char* path)
 Sprite* Renderer::register_sprite(PixelBufferComponent* texture,vec2 position,vec2 size,f32 rotation,f32 alpha)
 {
 	// determine memory location, overwrite has priority over appending
-	u16 i;
-	if (m_SpriteOverwrite.size())
-	{
-		i = m_SpriteOverwrite.front();
-		m_SpriteOverwrite.pop();
-	}
-	else i = m_ActiveRange++;
-	COMM_LOG("sprite register at: i: %d -> (%f,%f), %fx%f, %f°",i,position.x,position.y,size.x,size.y,rotation);
-	COMM_ERR_COND(i>=RENDERER_MAXIMUM_SPRITE_COUNT,
+	Sprite* p_Sprite = m_Sprites.next_free();
+	COMM_LOG("sprite register at: (%f,%f), %fx%f, %f° -> count = %d",
+			 position.x,position.y,size.x,size.y,rotation,m_Sprites.active_range);
+	COMM_ERR_COND(m_Sprites.active_range>=RENDERER_MAXIMUM_SPRITE_COUNT,
 				  "sprite registration violates maximum range, consider adjusting the respective constant");
+	// TODO standard error respond when trying to write too many entities to an in-place array structure
 
 	// write information to memory
-	m_Sprites[i] = {
+	(*p_Sprite) = {
 		.offset = position,
 		.scale = size,
 		.rotation = rotation,
 		.alpha = alpha,
 	};
-	Renderer::assign_sprite_texture(&m_Sprites[i],texture);
-	return &m_Sprites[i];
+	Renderer::assign_sprite_texture(p_Sprite,texture);
+	return p_Sprite;
 }
 
 /**
@@ -226,8 +218,8 @@ void Renderer::_update_sprites()
 	m_GPUSpriteTextures.atlas.bind();
 	m_SpritePipeline.enable();
 	m_SpriteInstanceBuffer.bind();
-	m_SpriteInstanceBuffer.upload_vertices(m_Sprites,RENDERER_MAXIMUM_SPRITE_COUNT,GL_DYNAMIC_DRAW);
-	glDrawArraysInstanced(GL_TRIANGLES,0,6,m_ActiveRange);
+	m_SpriteInstanceBuffer.upload_vertices(m_Sprites.mem,RENDERER_MAXIMUM_SPRITE_COUNT,GL_DYNAMIC_DRAW);
+	glDrawArraysInstanced(GL_TRIANGLES,0,6,m_Sprites.active_range);
 }
 // TODO dynamic vs static reloading with/without flags (and is it even necessary)
 // TODO profile consistent upload expense
@@ -239,12 +231,9 @@ void Renderer::_update_sprites()
 /**
  *	automatically collecting deleted sprites and assign memory space for override
  *	\param xs: storage array for registered entities
- *	\param os: pointer to queue, listing the memory indices to overwrite in future registrations
- *	\param range: pointer to active range towards furthest address of registered sprites
- *	\param active: reference to background process active flag
  *	TODO after generalization rewrite document
  */
-template<typename T> void Renderer::_collector(T* xs,std::queue<u16>* os,u16* range,ThreadSignal* signal)
+template<typename T> void Renderer::_collector(InPlaceArray<T>* xs,ThreadSignal* signal)
 {
 	COMM_SCC("started %s collector background process",signal->name);
 
@@ -256,20 +245,20 @@ template<typename T> void Renderer::_collector(T* xs,std::queue<u16>* os,u16* ra
 		COMM_LOG("%s collector is searching for removed objects...",signal->name);
 
 		// iterate active sprite memory
-		(*os) = std::queue<u16>();
+		xs->overwrites = std::queue<u16>();
 		// FIXME can be done with fewer allocation when keeping reserved memory but clearing all of it
 		u16 __Streak = 0;
-		for (int i=0;i<(*range);i++)
+		for (int i=0;i<xs->active_range;i++)
 		{
 			// sprite marked to be removed
-			if (xs[i].offset.x==RENDERER_POSITIONAL_DELETION_CODE)
+			if (xs->mem[i].offset.x==RENDERER_POSITIONAL_DELETION_CODE)
 			{
 				COMM_MSG(LOG_PURPLE,"marked %s found at memory index %d and scheduled to overwrite",
 						 signal->name,i);
 				// FIXME i'm not so sure i like the logging here
 				__Streak++;
-				if (i==(*range)-1) (*range) -= __Streak;
-				else os->push(i);
+				if (i==xs->active_range-1) xs->active_range -= __Streak;
+				else xs->overwrites.push(i);
 			}
 
 			// end removal streak
@@ -279,5 +268,7 @@ template<typename T> void Renderer::_collector(T* xs,std::queue<u16>* os,u16* ra
 
 	COMM_LOG("%s collector background process finished",signal->name);
 }
-template void Renderer::_collector<Sprite>(Sprite*,std::queue<u16>*,u16*,ThreadSignal*);
-template void Renderer::_collector<PixelBufferComponent>(PixelBufferComponent*,std::queue<u16>*,u16*,ThreadSignal*);
+template void Renderer::_collector<Sprite>(InPlaceArray<Sprite>*,ThreadSignal*);
+template void Renderer::_collector<PixelBufferComponent>(InPlaceArray<PixelBufferComponent>*,ThreadSignal*);
+// TODO ??move this to the base feature implementation (although is this possible with those components?)
+//		make the inplacearray datastructure automatically clean up after itself. maybe implement static in .h?

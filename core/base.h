@@ -163,7 +163,7 @@ static inline f64 profiler_average(RuntimeProfilerData* data)
 	for (u16 i=0;i<PROFILER_FRAMES_RELEVANT_AVERAGE;i++) sum += data->measurements[i];
 	return sum/PROFILER_FRAMES_RELEVANT_AVERAGE;
 }
-// TODO colour frametime return based on user defined timing boundaries
+// TODO display all profiler steps in a debug-only wheel function
 
 // runtime profiler features
 #define PROF_CRT(nom) { .name = nom };
@@ -214,6 +214,35 @@ private:
 	__system_word* m_Data;
 	size_t m_Size;
 };
+
+
+template<typename T> class InPlaceArray
+{
+public:
+	InPlaceArray(u16 size) { mem = (T*)malloc(size*sizeof(T)); }
+	~InPlaceArray() { free(mem); }
+	//inline T* operator[](size_t i) { return &mem[i]; }
+
+	/**
+	 *	TODO
+	 */
+	inline T* next_free()
+	{
+		if (overwrites.size())
+		{
+			T* out = &mem[overwrites.front()];
+			overwrites.pop();
+			return out;
+		}
+		return &mem[active_range++];
+	}
+
+public:
+	u16 active_range = 0;
+	T* mem;
+	std::queue<u16> overwrites;
+};
+// FIXME implementation in header is not the way of the purist. think about your sins and decide absolution
 
 
 struct ThreadSignal
