@@ -3,6 +3,9 @@ mod network;
 mod client_message;
 mod server_message;
 mod websocket_format;
+mod logger;
+
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use client_message::ServerMessage;
 use server_message::ClientMessage;
@@ -12,6 +15,10 @@ use warp::ws::{Message, WebSocket};
 
 #[tokio::main]
 async fn main() {
+	let now = SystemTime::now();
+	let millis = now.duration_since(UNIX_EPOCH).expect("time went backwards").as_millis();
+	println!("current time: {}", millis);
+
 	let ws_route_json = warp::path!("test")
 		.and(warp::ws())
 		.map(|ws: warp::ws::Ws| ws.on_upgrade(handle_ws_json));
