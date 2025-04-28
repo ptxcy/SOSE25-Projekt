@@ -15,5 +15,5 @@ if [ "$1" == "--clean-build" ]; then
   echo "All containers stopped and system pruned."
 fi
 
-echo "Starting Stage Environment..."
+echo "Starting Dev Environment..."
 docker compose up -d --build authproxy request-sync calculation_unit mongodb
