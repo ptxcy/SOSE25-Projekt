@@ -72,12 +72,12 @@ async fn main() {
 		.or(static_files)
 		.with(warp::cors().allow_any_origin());
 
-	warp::serve(routes).run(([127, 0, 0, 1], 3030)).await;
+	warp::serve(routes).run(([0, 0, 0, 0], 8082)).await;
 }
 
 /*
 // Create WebSocket connection.
-const socket = new WebSocket(`ws://localhost:3030/api/test`);
+const socket = new WebSocket(`ws://localhost:8082/api/test`);
 
 // Connection opened
 socket.addEventListener("open", (event) => {

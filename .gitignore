@@ -1,6 +1,9 @@
 # Visual Studio Code
 .vscode/
 
+#mongoDb
+mongodb_data
+
 # IntelliJ IDEA
 .idea/
 
