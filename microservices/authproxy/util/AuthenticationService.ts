@@ -57,11 +57,11 @@ export async function validateBasicAuthentication(authHeaderValue: string): Prom
     return createAuthResult(userData, true);
 }
 
-
 export async function validateUserPassword(input: string, reference: string) {
     return bcrypt.compare(input, reference);
 }
 
 export async function generateJWTToken(userData: IUser): Promise<string> {
-    return jwt.sign(userData, "PrivateDefaultKey");
+    return jwt.sign({ ...userData }, "PrivateDefaultKey");
 }
+

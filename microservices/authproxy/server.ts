@@ -7,7 +7,6 @@ const port = 8080;
 const routesPath = path.join(__dirname, "routes");
 const app = express();
 
-// ATM Only Allow Json Requests
 app.use(express.json());
 
 app.listen(port, () => {
