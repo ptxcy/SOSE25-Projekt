@@ -1,6 +1,7 @@
 import express from "express";
 import fs from "fs";
 import path from "path";
+import {connectToMongoDatabase} from "./util/Database";
 
 const port = 8080;
 const routesPath = path.join(__dirname, "routes");
@@ -38,11 +39,16 @@ async function loadRoutes() {
     }
 }
 
+async function establishDataBaseConnection() {
+    await connectToMongoDatabase();
+}
+
 async function initServerRoutes() {
     await loadRoutes();
 }
 
 async function startServer() {
+    await establishDataBaseConnection();
     await initServerRoutes();
 }
 

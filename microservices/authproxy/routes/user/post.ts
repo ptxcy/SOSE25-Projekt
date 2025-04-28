@@ -6,12 +6,16 @@ import {createUser} from "../../util/UsersService";
 async function post(request: Request, response: Response) {
    const userData: IUser = request.body;
    if (!userData.username || !userData.password) {
-       response.status(400).json({message:"Username and password is required"});
+       response.status(400).json({message:"username and password is required!"});
        return;
    }
 
-   await createUser(userData.username, userData.password);
-   response.status(200).json({message:"Successfully created user"});
+   const tryToCreateUser = await createUser(userData.username, userData.password);
+   if(tryToCreateUser === null) {
+       response.status(400).json({message:"Failed to create user!"});
+   }
+
+   response.status(200).json({message:"Successfully created user!"});
 }
 
 //Export middleware and handler calls for dynamic routing

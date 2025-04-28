@@ -5,8 +5,14 @@ export async function loadUser(username: string): Promise<IUser | null> {
     return UserModel.findOne({username: username});
 }
 
-export async function createUser(username: string, password: string): Promise<IUser> {
-    return UserModel.create({username, password});
+export async function createUser(username: string, password: string): Promise<IUser | null> {
+    try {
+        const user = await UserModel.create({ username, password });
+        return user;
+    } catch (error) {
+        console.error("Fehler beim Erstellen des Benutzers:", error);
+        return null;
+    }
 }
 
 async function deleteUser(username: string): Promise<boolean> {
