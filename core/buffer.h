@@ -104,16 +104,15 @@ struct GPUPixelBuffer
 	static void load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,PixelBufferComponent* pbc,
 					 std::mutex* mutex_requests,const char* path);
 	// TODO allocate & write for statically written texture atlas
-	// TODO allocate & write for dynamically written texture atlas
 	// TODO when allocating, rotation boolean can be stored in alpha by signing the float
+	// TODO allow to merge deleted rects when using a dynamic texture atlas
 
 	// data
 	Texture atlas;
 	vec2 dimensions_inv;
 	std::vector<PixelBufferComponent> memory_segments;
-	//u32 m_Format;
-	//vec2 m_Dimensions;
 };
+
 
 // TODO framebuffer
 

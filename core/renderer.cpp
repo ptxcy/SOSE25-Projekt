@@ -82,9 +82,6 @@ Renderer::Renderer()
 	std::thread __SpriteTextureCollector(Renderer::_collector<PixelBufferComponent>,
 										 &m_SpriteTextures,&_sprite_texture_signal);
 	__SpriteTextureCollector.detach();
-	// FIXME when doing something after the detach the subprocess is not longer working, which makes no sense
-	//		UPDATE: the subprocess seems to be working when monitored but then the print is also working?!??
-	//		this is probably a logging NOT a utility problem. mine fru die ilzebil, will net so als ick wohl will
 
 	COMM_SCC("render system ready.");
 }
@@ -112,13 +109,12 @@ void Renderer::exit()
 /**
  *	register sprite texture to load and move to sprite pixel buffer
  *	\param path: path to texture file
- *	TODO
+ *	\returns pointer to texture component info to assign the texture to a sprite later
  */
 PixelBufferComponent* Renderer::register_sprite_texture(const char* path)
 {
 	PixelBufferComponent* p_Comp = m_SpriteTextures.next_free();
 	COMM_LOG("sprite texture register of %s",path);
-	// TODO mark the given component space as free on atlas memory space
 
 	std::thread __LoadThread(GPUPixelBuffer::load,
 							 &m_GPUSpriteTextures,&m_SpriteLoadRequests,p_Comp,&_mutex_sprite_requests,path);
@@ -128,12 +124,12 @@ PixelBufferComponent* Renderer::register_sprite_texture(const char* path)
 
 /**
  *	register a new sprite instance for rendering
+ *	\param texture: sprite texture to be assigned to the sprite canvas
  *	\param position: 2-dimensional position of sprite on screen, bounds defined by coordinate system
  *	\param size: width and height of the sprite
  *	\param rotation: (default .0f) rotation of the sprite in degrees
  *	\param alpha: (default 1.f) transparency of sprite clamped between 0 and 1. 0 = invisible -> 1 = opaque
  *	\returns pointer to sprite data for modification purposes
- *	TODO
  */
 Sprite* Renderer::register_sprite(PixelBufferComponent* texture,vec2 position,vec2 size,f32 rotation,f32 alpha)
 {
@@ -141,9 +137,6 @@ Sprite* Renderer::register_sprite(PixelBufferComponent* texture,vec2 position,ve
 	Sprite* p_Sprite = m_Sprites.next_free();
 	COMM_LOG("sprite register at: (%f,%f), %fx%f, %f° -> count = %d",
 			 position.x,position.y,size.x,size.y,rotation,m_Sprites.active_range);
-	COMM_ERR_COND(m_Sprites.active_range>=RENDERER_MAXIMUM_SPRITE_COUNT,
-				  "sprite registration violates maximum range, consider adjusting the respective constant");
-	// TODO standard error respond when trying to write too many entities to an in-place array structure
 
 	// write information to memory
 	(*p_Sprite) = {
@@ -157,7 +150,9 @@ Sprite* Renderer::register_sprite(PixelBufferComponent* texture,vec2 position,ve
 }
 
 /**
- *	TODO
+ *	assign a sprite texture to a sprite canvas
+ *	\param sprite: pointer to the sprite canvas received at creation
+ *	\param texture: pointer to texture component info received at load request
  */
 void Renderer::assign_sprite_texture(Sprite* sprite,PixelBufferComponent* texture)
 {
@@ -166,7 +161,8 @@ void Renderer::assign_sprite_texture(Sprite* sprite,PixelBufferComponent* textur
 }
 
 /**
- *	TODO
+ *	remove given sprite texture and free memory in array as well as releasing memory space on atlas
+ *	\param texture: pointer to texture, which shall be removed
  */
 void Renderer::delete_sprite_texture(PixelBufferComponent* texture)
 {
@@ -174,6 +170,8 @@ void Renderer::delete_sprite_texture(PixelBufferComponent* texture)
 	texture = nullptr;
 	_sprite_texture_signal.proceed();
 }
+// TODO mark the given component space as free on atlas memory space, VITAL FEATURE!
+//		this also requires an auto merger system in buffer (which is on the high priority todo anyways)
 
 /**
  *	remove sprite from render list. quickly scaled invisible in main thread, later collected automatically
@@ -205,8 +203,8 @@ void Renderer::_gpu_upload()
 	}
 	_mutex_sprite_requests.unlock();
 	Texture::generate_mipmap();
-	// FIXME performance will suffer when generating mipmap every time the loop condition breaks
 }
+// FIXME performance will suffer when generating mipmap every time the loop condition breaks
 // TODO stall until next frame when frametime budget is used up to avoid framerate issues
 
 /**
@@ -221,8 +219,6 @@ void Renderer::_update_sprites()
 	m_SpriteInstanceBuffer.upload_vertices(m_Sprites.mem,RENDERER_MAXIMUM_SPRITE_COUNT,GL_DYNAMIC_DRAW);
 	glDrawArraysInstanced(GL_TRIANGLES,0,6,m_Sprites.active_range);
 }
-// TODO dynamic vs static reloading with/without flags (and is it even necessary)
-// TODO profile consistent upload expense
 
 
 // ----------------------------------------------------------------------------------------------------
@@ -230,8 +226,10 @@ void Renderer::_update_sprites()
 
 /**
  *	automatically collecting deleted sprites and assign memory space for override
- *	\param xs: storage array for registered entities
- *	TODO after generalization rewrite document
+ *	\param xs: collectable array structure holding removable sprites conforming to the collection rules:
+ *			- remove coding is in offset.x as RENDERER_POSITIONAL_DELETION_CODE
+ *			- has to be stored as an InPlaceArray to support overwrite and range system
+ *	\param signal: background collector needs an activation signal to know when it is sensible to collect
  */
 template<typename T> void Renderer::_collector(InPlaceArray<T>* xs,ThreadSignal* signal)
 {
@@ -246,7 +244,6 @@ template<typename T> void Renderer::_collector(InPlaceArray<T>* xs,ThreadSignal*
 
 		// iterate active sprite memory
 		xs->overwrites = std::queue<u16>();
-		// FIXME can be done with fewer allocation when keeping reserved memory but clearing all of it
 		u16 __Streak = 0;
 		for (int i=0;i<xs->active_range;i++)
 		{
@@ -270,5 +267,3 @@ template<typename T> void Renderer::_collector(InPlaceArray<T>* xs,ThreadSignal*
 }
 template void Renderer::_collector<Sprite>(InPlaceArray<Sprite>*,ThreadSignal*);
 template void Renderer::_collector<PixelBufferComponent>(InPlaceArray<PixelBufferComponent>*,ThreadSignal*);
-// TODO ??move this to the base feature implementation (although is this possible with those components?)
-//		make the inplacearray datastructure automatically clean up after itself. maybe implement static in .h?

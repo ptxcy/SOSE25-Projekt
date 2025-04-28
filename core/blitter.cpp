@@ -41,12 +41,6 @@ Frame::Frame(const char* title,u16 width,u16 height,bool vsync)
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,3);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,8);
 
-	// gpu error log
-#ifdef DEBUG
-	  SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS,SDL_GL_CONTEXT_DEBUG_FLAG);
-#endif
-	// TODO join gpu output debug macros
-
 	COMM_MSG(LOG_CYAN,"opening window");
 	m_Frame = SDL_CreateWindow(title,SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,
 							   width,height,SDL_WINDOW_OPENGL);
@@ -64,8 +58,9 @@ Frame::Frame(const char* title,u16 width,u16 height,bool vsync)
 	glPixelStorei(GL_UNPACK_ALIGNMENT,1);
 	glViewport(0,0,width,height);
 
-	// gpu error log (TODO please join, testing does not work with T450)
+	// gpu error log
 #ifdef DEBUG
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS,SDL_GL_CONTEXT_DEBUG_FLAG);
 	glEnable(GL_DEBUG_OUTPUT);
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	glDebugMessageCallback(_gpu_error_callback,0);

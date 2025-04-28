@@ -141,6 +141,7 @@ static inline void produce_timestamp(bool padding=true)
 #define COMM_SCC_FALLBACK(...) else { COMM_SCC(__VA_ARGS__); }
 #define COMM_ERR_FALLBACK(...) else { COMM_ERR(__VA_ARGS__); }
 // TODO colouring is entirely different on windows and mac, this needs to be ported towards lower systems
+// FIXME when multithreading this system does not print all comms on some architectures, rather strange
 
 // runtime profiler
 constexpr u16 PROFILER_FRAMES_RELEVANT_AVERAGE = 300;
@@ -163,7 +164,7 @@ static inline f64 profiler_average(RuntimeProfilerData* data)
 	for (u16 i=0;i<PROFILER_FRAMES_RELEVANT_AVERAGE;i++) sum += data->measurements[i];
 	return sum/PROFILER_FRAMES_RELEVANT_AVERAGE;
 }
-// TODO display all profiler steps in a debug-only wheel function
+// TODO display all profiler steps in a debug-only wheel function... essentially write profiler for debug mode!
 
 // runtime profiler features
 #define PROF_CRT(nom) { .name = nom };
@@ -188,10 +189,10 @@ static inline f64 profiler_average(RuntimeProfilerData* data)
 #define COMM_LOG_FALLBACK(...)
 #define COMM_SCC_FALLBACK(...)
 #define COMM_ERR_FALLBACK(...)
-#define PROF_CRT(nom);
-#define PROF_STA(d);
-#define PROF_STP(d);
-#define PROF_SHW(d);
+#define PROF_CRT(nom)
+#define PROF_STA(d)
+#define PROF_STP(d)
+#define PROF_SHW(d)
 
 #endif
 
@@ -219,12 +220,16 @@ private:
 template<typename T> class InPlaceArray
 {
 public:
-	InPlaceArray(u16 size) { mem = (T*)malloc(size*sizeof(T)); }
+	InPlaceArray(u16 size)
+#ifdef DEBUG
+			: m_Size(size)
+#endif
+		{ mem = (T*)malloc(size*sizeof(T)); }
 	~InPlaceArray() { free(mem); }
-	//inline T* operator[](size_t i) { return &mem[i]; }
 
 	/**
-	 *	TODO
+	 *	get pointer to next free memory slot without segmentation and extensive range extensions
+	 *	\returns pointer to optimal free memory slot
 	 */
 	inline T* next_free()
 	{
@@ -234,6 +239,8 @@ public:
 			overwrites.pop();
 			return out;
 		}
+		COMM_ERR_COND(m_Size<active_range+1,
+					  "data registration violates maximum range, consider adjusting the creation constant");
 		return &mem[active_range++];
 	}
 
@@ -241,8 +248,11 @@ public:
 	u16 active_range = 0;
 	T* mem;
 	std::queue<u16> overwrites;
+
+#ifdef DEBUG
+private: u16 m_Size;
+#endif
 };
-// FIXME implementation in header is not the way of the purist. think about your sins and decide absolution
 
 
 struct ThreadSignal

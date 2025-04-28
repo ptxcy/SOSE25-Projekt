@@ -98,7 +98,6 @@ void TextureData::load()
 	COMM_ERR_COND(!check_file_exists(m_Path.c_str()),"texture %s could not be found",m_Path.c_str());
 	m_Data = stbi_load(m_Path.c_str(),&width,&height,0,STBI_rgb_alpha);
 }
-// TODO multithread by default and forget about it
 
 /**
  *	upload data to gpu
@@ -110,11 +109,11 @@ void TextureData::gpu_upload()
 	glTexImage2D(GL_TEXTURE_2D,0,m_Format,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,m_Data);
 	stbi_image_free(m_Data);
 }
-// TODO move pixel free from gpu upload to reduce weight on main thread occupied by context
 
 /**
  *	upload data as subtexture to atlas on gpu
- *	TODO
+ *	\param x: x-axis atlas location of the subtexture
+ *	\param y: y-axis atlas location of the subtexture
  *	NOTE has to be uploaded in main thread
  *	NOTE target texture has to be bound and allocated before uploading
  */
@@ -123,7 +122,6 @@ void TextureData::gpu_upload(u32 x,u32 y)
 	glTexSubImage2D(GL_TEXTURE_2D,0,x,y,width,height,m_Format,GL_UNSIGNED_BYTE,m_Data);
 	stbi_image_free(m_Data);
 }
-// TODO move pixel free from gpu upload to reduce weight on main thread occupied by context
 
 
 /**
@@ -236,7 +234,7 @@ void Texture::set_texture_parameter_filter_bias(float bias)
  *	define border colour for texture when set_texture_parameter_clamp_to_border() is defined
  *	\param colour: RGBA border colour as vector
  *	NOTE texture should be bound
- *	TODO pointer trick not field tested, should border colour fail to work this is the most likely culprit
+ *	NOTE pointer trick not field tested, should border colour fail to work this is the most likely culprit
  */
 void Texture::set_texture_parameter_border_colour(vec4 colour)
 {
@@ -273,15 +271,19 @@ void GPUPixelBuffer::allocate(u32 width,u32 height,u32 format)
 			.dimensions = vec2(width,height)
 		});
 	glTexImage2D(GL_TEXTURE_2D,0,format,width,height,0,format,GL_UNSIGNED_BYTE,0);
-	// FIXME inconsistent formatting, the allocation format can easily be detached from texture data structure
 }
+// FIXME inconsistent formatting, the allocation format can easily be detached from texture data structure
 // FIXME in case of sRGB colourspace for example the format in internalformat and format won't be the same
 //		furthermore this is absolutely necessary to be of dynamic nature, due to monocrome buffers being a thing
 
 /**
  *	write texture buffer to preallocated gpu memory
- *	TODO params
- *	NOTE related texture has to be bound beforehand
+ *	\param gpb: target pixel buffer
+ *	\param requests: pointer to load request queue, receiving the gpu upload request when loading is done
+ *	\param pbc: pointer to atlas component information, this will be overwritten
+ *	\param mutex_requests: simple mutual exclusion, blocking the access to the load request queue
+ *	\param path: path to texture file
+ *	NOTE this is supposed to run as a subthread, hence the mutex and load request queue pointer
  */
 std::mutex _mutex_memory_segments;
 void GPUPixelBuffer::load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,PixelBufferComponent* pbc,
@@ -348,5 +350,3 @@ void GPUPixelBuffer::load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,
 	requests->push(__TextureData);
 	mutex_requests->unlock();
 }
-// TODO create a gpu_write and only upload (& bind) in that function, then do the location code in threadable
-//		capsulated method, storing all necessary information in the pixel buffer component
