@@ -12,11 +12,11 @@ use warp::ws::{Message, WebSocket};
 
 #[tokio::main]
 async fn main() {
-	let ws_route_json = warp::path!("api" / "test")
+	let ws_route_json = warp::path!("test")
 		.and(warp::ws())
 		.map(|ws: warp::ws::Ws| ws.on_upgrade(handle_ws_json));
 
-	let ws_route_msgpack = warp::path!("api" / "msgpack")
+	let ws_route_msgpack = warp::path!("msgpack")
 		.and(warp::ws())
 		.map(|ws: warp::ws::Ws| ws.on_upgrade(handle_ws_msgpack));
 
@@ -60,7 +60,7 @@ async fn handle_ws_msgpack(ws: WebSocket) {
 
 /*
 // Create WebSocket connection.
-const socket = new WebSocket(`ws://localhost:8082/api/test`);
+const socket = new WebSocket(`ws://localhost:8082/test`);
 
 // Connection opened
 socket.addEventListener("open", (event) => {
