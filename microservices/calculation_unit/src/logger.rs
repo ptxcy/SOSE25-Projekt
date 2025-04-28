@@ -1,11 +1,11 @@
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::{fmt, time::{SystemTime, UNIX_EPOCH}};
 
 
 pub trait Loggable {
 	fn log(self) -> Self;
 }
 
-impl<T, E: ToString> Loggable for Result<T, E> {
+impl<T, E: fmt::Debug> Loggable for Result<T, E> {
 	fn log(self) -> Self {
 		match &self {
 			Ok(_) => {},
@@ -15,7 +15,7 @@ impl<T, E: ToString> Loggable for Result<T, E> {
 				let hours = (total_seconds / 3600) % 24;
 				let minutes = (total_seconds / 60) % 60;
 				let seconds = total_seconds % 60;
-				println!("{{{}:{}:{}}} Error: {}", hours, minutes, seconds, e.to_string());
+				println!("{{{}:{}:{}}} Error: {:?}", hours, minutes, seconds, e);
 			},
 		}
 		self
