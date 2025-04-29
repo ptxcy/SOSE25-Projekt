@@ -42,10 +42,16 @@ async fn handle_ws_json(ws: WebSocket) {
 	let (mut tx, mut rx) = ws.split();
 	while let Some(Ok(msg)) = rx.next().await {
 		if let Ok(text) = msg.to_str() {
-			println!("Received: {}", text);
-			let client_message: ClientMessage = serde_json::from_str::<ClientMessage>(text).log().unwrap();
-			let server_message = ServerMessage::response_to(&client_message);
-			let response = serde_json::to_string(&server_message).log().unwrap();
+			let response = match std::panic::catch_unwind(|| {
+				println!("Received: {}", text);
+				let client_message: ClientMessage = serde_json::from_str::<ClientMessage>(text).log().unwrap();
+				let server_message = ServerMessage::response_to(&client_message);
+				let response = serde_json::to_string(&server_message).log().unwrap();
+				response
+			}).log() {
+			    Ok(r) => r,
+			    Err(e) => { continue; },
+			};
 			if tx.send(Message::text(&response)).await.is_err() {
 				break;
 			}
@@ -56,13 +62,19 @@ async fn handle_ws_json(ws: WebSocket) {
 async fn handle_ws_msgpack(ws: WebSocket) {
 	let (mut tx, mut rx) = ws.split();
 	while let Some(Ok(msg)) = rx.next().await {
-		let msgpack_bytes = msg.into_bytes();
-		let client_message = rmp_serde::from_slice::<ClientMessage>(&msgpack_bytes[..]).log().unwrap();
-		let received = serde_json::to_string(&client_message).log().unwrap();
-		println!("Received: {}", received);
+		let response = match std::panic::catch_unwind(|| {
+			let msgpack_bytes = msg.into_bytes();
+			let client_message = rmp_serde::from_slice::<ClientMessage>(&msgpack_bytes[..]).log().unwrap();
+			let received = serde_json::to_string(&client_message).log().unwrap();
+			println!("Received: {}", received);
 
-		let server_message = ServerMessage::response_to(&client_message);
-		let response = rmp_serde::to_vec(&server_message).log().unwrap();
+			let server_message = ServerMessage::response_to(&client_message);
+			let response = rmp_serde::to_vec(&server_message).log().unwrap();
+			response
+		}) {
+		    Ok(r) => r,
+		    Err(e) => { continue; },
+		};
 		if tx.send(Message::binary(response)).await.is_err() {
 			break;
 		}
