@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
 import {logRequest} from "../../middleware/request-logger";
 import {IUser} from "../../util/UserModel";
-import {createUser} from "../../util/UsersService";
+import {createUser} from "../../util/UserService";
 import {validateAuthorization} from "../../middleware/is-jwt-token-valid";
 
 async function post(request: Request, response: Response) {

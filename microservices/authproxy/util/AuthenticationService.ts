@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import {IUser} from "./UserModel";
-import {loadUser} from "./UsersService";
+import {loadUser} from "./UserService";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
 export interface AuthenticationResult {
