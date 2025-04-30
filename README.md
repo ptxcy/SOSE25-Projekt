@@ -1,3 +1,3 @@
 # SOSE25-Projekt
 
-[Core Documentation](core/doc/index.md)
+[Core Documentation](client/core/doc/index.md)
