@@ -1,5 +1,5 @@
 import * as mongoose from "mongoose";
-import {loadUser, createUser} from "./UserService";
+import {loadUser, createUser} from "./user/UserService";
 
 const defaultAdminPassword = "admin";
 

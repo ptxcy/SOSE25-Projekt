@@ -1,6 +1,6 @@
 import {Request, Response, NextFunction} from "express";
 import jwt, {JwtPayload} from "jsonwebtoken";
-import {IUser} from "../util/UserModel";
+import {IUser} from "../util/user/UserModel";
 
 const SECRET_KEY = "PrivateDefaultKey";
 

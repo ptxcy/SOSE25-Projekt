@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
-import {IUser} from "./UserModel";
-import {loadUser} from "./UserService";
+import {IUser} from "./user/UserModel";
+import {loadUser} from "./user/UserService";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
 export interface AuthenticationResult {
@@ -42,7 +42,7 @@ export async function validateBasicAuthentication(authHeaderValue: string): Prom
 
     const userData: IUser | null = await loadUser(username);
     if (!userData) {
-        const error = "User did not exist!";
+        const error = "user did not exist!";
         console.error(error);
         return createAuthResult(null, false, error);
     }

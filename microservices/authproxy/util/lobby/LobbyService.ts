@@ -10,7 +10,7 @@ export async function createLobby(lobbyName: string, lobbyPassword: string | nul
         const lobby = await LobbyModel.create({ lobbyName, lobbyPassword, members });
         return lobby;
     } catch (error) {
-        console.error("Fehler beim Erstellen der Lobby:", error);
+        console.error("Fehler beim Erstellen der lobby:", error);
         return null;
     }
 }

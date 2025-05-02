@@ -5,18 +5,16 @@ import {connectToMongoDatabase} from "./util/Database";
 
 const port = 8080;
 const routesPath = path.join(__dirname, "routes");
-const app = express();
-
+export const app = express();
 app.use(express.json());
-
 app.listen(port, () => {
     console.log(`Server läuft auf http://localhost:${port}`);
 });
 
-// Custom Function for loading dynamic routes in /routes/endpoint/method.ts
+// Custom Function for loading HTTP dynamic routes in /routes/endpoint/method.ts
 async function loadRoutes() {
     const folders = fs.readdirSync(routesPath, { withFileTypes: true })
-        .filter(dirent => dirent.isDirectory())
+        .filter(dirent => dirent.isDirectory() && !dirent.name.startsWith("ws_"))
         .map(dirent => dirent.name);
 
     for (const folder of folders) {

@@ -1,13 +1,13 @@
 import {Request, Response} from "express";
 import {logRequest} from "../../middleware/request-logger";
 import {validateAuthorization} from "../../middleware/is-jwt-token-valid";
-import {ILobby} from "../../util/LobbyModel";
-import {createLobby} from "../../util/LobbyService";
+import {ILobby} from "../../util/lobby/LobbyModel";
+import {createLobby} from "../../util/lobby/LobbyService";
 
 async function post(request: Request, response: Response) {
     const lobbyData: ILobby = request.body;
     if (!lobbyData.lobbyName) {
-        response.status(400).json({message: "Lobby name is required!"});
+        response.status(400).json({message: "lobby name is required!"});
         return;
     }
 
@@ -24,11 +24,11 @@ async function post(request: Request, response: Response) {
 
     const tryToCreateLobby: ILobby | null = await createLobby(lobbyData.lobbyName, lobbyPassword, [userNameFromCreator]);
     if (tryToCreateLobby === null) {
-        response.status(400).json({message: "Failed to create Lobby!"});
+        response.status(400).json({message: "Failed to create lobby!"});
         return;
     }
 
-    response.status(200).json({message: "Successfully created Lobby! Please start Web Socket Connection with Lobby Info!"});
+    response.status(200).json({message: "Successfully created lobby! Please start Web Socket Connection with lobby Info!"});
 }
 
 //Export middleware and handler calls for dynamic routing
