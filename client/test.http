@@ -1,0 +1,33 @@
+@baseUrl = http://localhost:8080
+
+### Create User
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+{
+  "username": "Benito",
+  "password": "password123"
+}
+
+### Authenticate and get token
+# @name login
+GET {{baseUrl}}/authenticate
+Authorization: Basic dGVzdHVzZXI6cGFzc3dvcmQxMjM=
+
+
+@authToken = {{login.response.headers.Authorization}}
+# @authToken = "spsss"
+
+### Create Lobby
+POST {{baseUrl}}/lobbys
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "lobbyName": "test lobby"
+}
+
+### Get all Lobbies
+GET {{baseUrl}}/lobbys
+Authorization: Bearer {{authToken}}
+

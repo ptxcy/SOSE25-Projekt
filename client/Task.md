@@ -90,3 +90,10 @@ The intended sequence of operations for the client is:
     *   How should WebSocket connection errors or invalid messages (in MessagePack format) be handled?
 *   **Optional Lobby Password:** Confirmed: Omit the `password` field in the JSON payload for `POST /authproxy/lobbys` if no password is desired.
 *   **User Creation Auth:** The `POST /authproxy/user` endpoint currently has `validateAuthorization` middleware. Does creating a user really require an existing valid Bearer token? This seems counter-intuitive for registration.
+
+
+
+
+asynchroner call
+endpunkte bauen
+create lobby, gibt bool zurück
