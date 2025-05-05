@@ -1,4 +1,4 @@
-import {Request, Response, NextFunction} from "express";
+import {NextFunction, Request, Response} from "express";
 import jwt, {JwtPayload} from "jsonwebtoken";
 import {IUser} from "../util/user/UserModel";
 
@@ -25,10 +25,16 @@ export function validateAuthorization(request: Request, response: Response, next
             return;
         }
 
-        const userObject: IUser = token as JwtPayload as IUser;
-        (request as any).userObject = userObject;
+
+        const userData = (token as any)._doc;
+        if (!userData) {
+            response.status(401).json({ message: "Invalid Token Structure" });
+            return;
+        }
+
+        (request as any).userObject = userData as IUser;
         next();
     } catch (error) {
-        response.status(401).json({message: "Invalid Token"});
+        response.status(401).json({ message: "Invalid Token" });
     }
 }
