@@ -76,6 +76,18 @@ void ThreadSignal::exit()
 
 
 // ----------------------------------------------------------------------------------------------------
+// Geometry
+
+/**
+ *	TODO
+ */
+bool Rect::intersect(vec2 point)
+{
+	return (point.x<extent.x&&point.x>position.x)&&(point.y<extent.y&&point.y>position.y);
+}
+
+
+// ----------------------------------------------------------------------------------------------------
 // Coordinate System
 
 /**

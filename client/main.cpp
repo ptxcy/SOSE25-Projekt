@@ -1,12 +1,14 @@
 #include "core/blitter.h"
 #include "core/input.h"
 #include "core/renderer.h"
+#include "core/ui.h"
 
 
 std::vector<std::string> textures = { "./res/kid.png","./res/kek.png","./res/test.png","./res/maps.png" };
 
 s32 main(s32 argc,char** argv)
 {
+	/*
 	u8 head = 0;
 	u8 atex = 0;
 	u8 timer = 0;
@@ -17,6 +19,12 @@ s32 main(s32 argc,char** argv)
 	Sprite* s2 = g_Renderer.register_sprite(ts[head],vec2(120,400),vec2(200,200));
 	Sprite* s3 = g_Renderer.register_sprite(ts[head],vec2(400,400),vec2(50,50));
 	head++;
+	*/
+	//UIBatch* uib = g_UI.batches.next_free();
+	UIBatch uib;
+	Button* btn = uib.add_button("not yet ready","./res/kid.png","./res/test.png","./res/maps.png",
+								 vec2(150,150),vec2(200,150));
+	g_UI.batches.push_back(&uib);
 
 	bool running = true;
 	while(running)
@@ -24,6 +32,7 @@ s32 main(s32 argc,char** argv)
 		g_Frame.clear();
 		g_Input.update(running);
 
+		/*
 		if (g_Input.keyboard.triggered_keys[SDL_SCANCODE_L]&&head<4)
 		{
 			ts[head] = g_Renderer.register_sprite_texture(textures[head].c_str());
@@ -43,7 +52,10 @@ s32 main(s32 argc,char** argv)
 			timer = 0;
 		}
 		timer++;
+		*/
 
+		if (btn->confirm) std::cout << "sync\n";
+		g_UI.update();
 		g_Renderer.update();
 		g_Frame.update();
 	}

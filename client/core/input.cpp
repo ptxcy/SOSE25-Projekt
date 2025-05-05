@@ -19,7 +19,6 @@ void Input::update(bool& running)
 	{
 		switch (m_Event.type)
 		{
-
 			// keyboard input
 		case SDL_KEYDOWN:
 			keyboard.keys.set(m_Event.key.keysym.scancode);
@@ -30,9 +29,10 @@ void Input::update(bool& running)
 
 			// mouse input
 		case SDL_MOUSEMOTION:
-			SDL_GetMouseState((int*)&mouse.position.x,(int*)&mouse.position.y);
-			mouse.position *= vec2(FRAME_RESOLUTION_X_INV,FRAME_RESOLUTION_Y_INV);
+			SDL_GetMouseState(&mouse.apos_x,&mouse.apos_y);
+			mouse.position = vec2(FRAME_RESOLUTION_X_INV*mouse.apos_x,FRAME_RESOLUTION_Y_INV*mouse.apos_y);
 			mouse.position *= vec2(MATH_CARTESIAN_XRANGE,MATH_CARTESIAN_YRANGE);
+			mouse.position.y = MATH_CARTESIAN_YRANGE-mouse.position.y;
 			break;
 		case SDL_MOUSEBUTTONDOWN:
 			mouse.buttons.set(m_Event.button.button-1);

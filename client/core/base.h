@@ -273,6 +273,17 @@ struct ThreadSignal
 };
 
 
+struct Rect
+{
+	// utility
+	bool intersect(vec2 point);
+
+	// data
+	vec2 position;
+	vec2 extent;
+};
+
+
 class CoordinateSystem2D
 {
 public:

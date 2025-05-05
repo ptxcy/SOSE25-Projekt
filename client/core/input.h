@@ -17,6 +17,7 @@ struct Keyboard
 
 struct Mouse
 {
+	s32 apos_x,apos_y;
 	vec2 position;
 	s32 wheel;
 	BitwiseWords buttons = BitwiseWords(MOUSE_INPUT_RANGE);
