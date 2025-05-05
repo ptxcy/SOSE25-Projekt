@@ -26,7 +26,7 @@ export async function validateBasicAuthentication(authHeaderValue: string): Prom
 
     let base64decodedValue = "";
     try {
-        base64decodedValue = Buffer.from(authHeaderValue, 'base64').toString('ascii');
+        base64decodedValue = Buffer.from(authHeaderValue.substring("Basic ".length), 'base64').toString('ascii');
     } catch (e) {
         const error = "Could not decode base64 value in authHeader!";
         console.error(error, e);
