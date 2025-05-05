@@ -7,7 +7,7 @@ export async function loadLobby(lobbyName: string): Promise<ILobby | null> {
 
 export async function createLobby(lobbyName: string, lobbyPassword: string | null, members: string[]): Promise<ILobby | null> {
     try {
-        const lobby = await LobbyModel.create({ lobbyName, lobbyPassword, members });
+        const lobby = await LobbyModel.create({ lobbyName, lobbyPassword, members, open: true});
         return lobby;
     } catch (error) {
         console.error("Fehler beim Erstellen der lobby:", error);
