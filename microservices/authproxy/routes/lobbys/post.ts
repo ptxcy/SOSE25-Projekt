@@ -11,7 +11,7 @@ async function post(request: Request, response: Response) {
         return;
     }
 
-    const userNameFromCreator = (request as any).userObject.userName;
+    const userNameFromCreator = (request as any).userObject.username;
     if (!userNameFromCreator) {
         response.status(400).json({message: "Malformed JWT Token"});
         return
