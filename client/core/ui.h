@@ -21,13 +21,11 @@ constexpr u16 UI_MAXIMUM_BUTTON_COUNT = 16;
 struct UIBatch
 {
 	// utility
-	Button* add_button(const char* label,const char* tidle,const char* thover,const char* taction,
-					   vec2 position,vec2 scale);
+	Button* add_button(string label,string tidle,string thover,string taction,vec2 position,vec2 scale);
 
 	// data
 	InPlaceArray<Button> buttons = InPlaceArray<Button>(UI_MAXIMUM_BUTTON_COUNT);
 };
-constexpr u16 UI_MAXIMUM_BATCH_COUNT = 128;
 
 
 class UI

@@ -79,7 +79,9 @@ void ThreadSignal::exit()
 // Geometry
 
 /**
- *	TODO
+ *	determines if the given point is intersecting with the rect
+ *	\param point: point in 2D space to check relationship with rect
+ *	\returns true if point is inside rect bounds
  */
 bool Rect::intersect(vec2 point)
 {

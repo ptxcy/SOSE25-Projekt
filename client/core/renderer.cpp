@@ -166,12 +166,20 @@ void Renderer::assign_sprite_texture(Sprite* sprite,PixelBufferComponent* textur
  */
 void Renderer::delete_sprite_texture(PixelBufferComponent* texture)
 {
+	// signal cleanup
 	texture->offset.x = RENDERER_POSITIONAL_DELETION_CODE;
 	texture = nullptr;
 	_sprite_texture_signal.proceed();
+
+	// free texture atlas memory
+	/*
+	m_GPUSpriteTextures.mutex_memory_segments.lock();
+	m_GPUSpriteTextures.memory_segments.push_back(*texture);
+	m_GPUSpriteTextures.mutex_memory_segments.unlock();
+	*/
+	// TODO mark the given component space as free on atlas memory space, VITAL FEATURE!
+	// TODO merge segments after adding free section to reduce segmentation
 }
-// TODO mark the given component space as free on atlas memory space, VITAL FEATURE!
-//		this also requires an auto merger system in buffer (which is on the high priority todo anyways)
 
 /**
  *	remove sprite from render list. quickly scaled invisible in main thread, later collected automatically

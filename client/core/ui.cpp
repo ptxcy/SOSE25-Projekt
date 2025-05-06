@@ -2,16 +2,22 @@
 
 
 /**
- *	TODO
+ *	add a button to the batch
+ *	\param label: button label writing across button surface
+ *	\param tidle: idle texture, in case button is not interacted with this will be displayed
+ *	\param thover: hover texture, in case mouse cursor hovers over button and button is not clicked
+ *	\param taction: action texture, in case button is clicked and held
+ *	\param position: center position of button
+ *	\param scale: dimensions of the button
+ *	\returns address of button to later read interaction state from
  */
-Button* UIBatch::add_button(const char* label,const char* tidle,const char* thover,const char* taction,
-							vec2 position,vec2 scale)
+Button* UIBatch::add_button(string label,string tidle,string thover,string taction,vec2 position,vec2 scale)
 {
 	// graphics setup
 	Button* out = buttons.next_free();
-	out->idle = g_Renderer.register_sprite_texture(tidle);
-	out->hover = g_Renderer.register_sprite_texture(thover);
-	out->action = g_Renderer.register_sprite_texture(taction);
+	out->idle = g_Renderer.register_sprite_texture(tidle.c_str());
+	out->hover = g_Renderer.register_sprite_texture(thover.c_str());
+	out->action = g_Renderer.register_sprite_texture(taction.c_str());
 	out->canvas = g_Renderer.register_sprite(out->idle,position,scale);
 
 	// intersection boundaries
@@ -22,9 +28,10 @@ Button* UIBatch::add_button(const char* label,const char* tidle,const char* thov
 	};
 	return out;
 }
+// TODO write a text label across the button surface, this needs text support
 
 /**
- *	TODO
+ *	update ui
  */
 void UI::update()
 {
