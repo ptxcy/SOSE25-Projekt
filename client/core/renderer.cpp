@@ -172,12 +172,9 @@ void Renderer::delete_sprite_texture(PixelBufferComponent* texture)
 	_sprite_texture_signal.proceed();
 
 	// free texture atlas memory
-	/*
 	m_GPUSpriteTextures.mutex_memory_segments.lock();
 	m_GPUSpriteTextures.memory_segments.push_back(*texture);
 	m_GPUSpriteTextures.mutex_memory_segments.unlock();
-	*/
-	// TODO mark the given component space as free on atlas memory space, VITAL FEATURE!
 	// TODO merge segments after adding free section to reduce segmentation
 }
 

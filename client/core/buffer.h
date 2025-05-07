@@ -111,6 +111,7 @@ struct GPUPixelBuffer
 	Texture atlas;
 	vec2 dimensions_inv;
 	std::vector<PixelBufferComponent> memory_segments;
+	std::mutex mutex_memory_segments;
 };
 
 

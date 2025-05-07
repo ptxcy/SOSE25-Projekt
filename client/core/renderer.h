@@ -34,7 +34,7 @@ public:
 	PixelBufferComponent* register_sprite_texture(const char* path);
 	Sprite* register_sprite(PixelBufferComponent* texture,vec2 position,vec2 size,f32 rotation=.0f,f32 alpha=1.f);
 	void assign_sprite_texture(Sprite* sprite,PixelBufferComponent* texture);
-	static void delete_sprite_texture(PixelBufferComponent* texture);
+	void delete_sprite_texture(PixelBufferComponent* texture);
 	static void delete_sprite(Sprite* sprite);
 
 private:

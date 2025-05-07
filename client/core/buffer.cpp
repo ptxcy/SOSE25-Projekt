@@ -285,7 +285,7 @@ void GPUPixelBuffer::allocate(u32 width,u32 height,u32 format)
  *	\param path: path to texture file
  *	NOTE this is supposed to run as a subthread, hence the mutex and load request queue pointer
  */
-std::mutex _mutex_memory_segments;
+//std::mutex _mutex_memory_segments;
 void GPUPixelBuffer::load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,PixelBufferComponent* pbc,
 						  std::mutex* mutex_requests,const char* path)
 {
@@ -337,11 +337,11 @@ void GPUPixelBuffer::load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,
 	//		solve this with a consistent merger algorithm after every segment?
 
 	// update memory information data
-	_mutex_memory_segments.lock();
+	gpb->mutex_memory_segments.lock();
 	gpb->memory_segments.erase(gpb->memory_segments.begin()+__MemoryIndex);
 	if (__Side.dimensions.x>0) gpb->memory_segments.push_back(__Side);
 	if (__Below.dimensions.y>0) gpb->memory_segments.push_back(__Below);
-	_mutex_memory_segments.unlock();
+	gpb->mutex_memory_segments.unlock();
 	// TODO when deleting and segmenting, check if free subspaces can be merged back into each other
 	// FIXME filter bleed, throw in a padding border, so the neighbouring textures don't flow into each other
 
