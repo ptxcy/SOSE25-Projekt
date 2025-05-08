@@ -285,7 +285,6 @@ void GPUPixelBuffer::allocate(u32 width,u32 height,u32 format)
  *	\param path: path to texture file
  *	NOTE this is supposed to run as a subthread, hence the mutex and load request queue pointer
  */
-//std::mutex _mutex_memory_segments;
 void GPUPixelBuffer::load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,PixelBufferComponent* pbc,
 						  std::mutex* mutex_requests,const char* path)
 {
