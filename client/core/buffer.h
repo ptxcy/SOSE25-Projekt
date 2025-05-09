@@ -97,6 +97,7 @@ struct PixelBufferComponent
 	vec2 dimensions;
 };
 
+constexpr u8 BUFFER_ATLAS_BORDER_PADDING = 2;
 struct GPUPixelBuffer
 {
 	// utilty

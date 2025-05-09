@@ -321,13 +321,15 @@ void GPUPixelBuffer::load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,
 	pbc->dimensions = vec2(__TextureData.width,__TextureData.height)*gpb->dimensions_inv;
 
 	// segment free memory to reserve pixel space for upload
+	s32 __PaddedWidth = __TextureData.width+BUFFER_ATLAS_BORDER_PADDING;
+	s32 __PaddedHeight = __TextureData.height+BUFFER_ATLAS_BORDER_PADDING;
 	PixelBufferComponent __Side = {
-		.offset = p_CloseFitComponent->offset+vec2(__TextureData.width,0),
-		.dimensions = vec2(p_CloseFitComponent->dimensions.x-__TextureData.width,__TextureData.height)
+		.offset = p_CloseFitComponent->offset+vec2(__PaddedWidth,0),
+		.dimensions = vec2(p_CloseFitComponent->dimensions.x-__PaddedWidth,__PaddedHeight)
 	};
 	PixelBufferComponent __Below = {
-		.offset = p_CloseFitComponent->offset+vec2(0,__TextureData.height),
-		.dimensions = p_CloseFitComponent->dimensions-vec2(0,__TextureData.height)
+		.offset = p_CloseFitComponent->offset+vec2(0,__PaddedHeight),
+		.dimensions = p_CloseFitComponent->dimensions-vec2(0,__PaddedHeight)
 	};
 	// FIXME this is segmenting falsely, it's not possible to insert into texture space that has the correct
 	//		dimensions in only one segment but crosses over into a different free rect.
@@ -342,7 +344,6 @@ void GPUPixelBuffer::load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,
 	if (__Below.dimensions.y>0) gpb->memory_segments.push_back(__Below);
 	gpb->mutex_memory_segments.unlock();
 	// TODO when deleting and segmenting, check if free subspaces can be merged back into each other
-	// FIXME filter bleed, throw in a padding border, so the neighbouring textures don't flow into each other
 
 	// write buffer
 	mutex_requests->lock();
