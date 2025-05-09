@@ -1,6 +1,6 @@
 use serde::{Serialize, Deserialize};
 
-use crate::server_message::ClientMessage;
+use crate::messages::server_message::ClientMessage;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ServerMessage {

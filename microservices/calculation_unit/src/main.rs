@@ -1,18 +1,23 @@
-
-mod network;
-mod client_message;
-mod server_message;
-mod websocket_format;
 mod logger;
 
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use client_message::ServerMessage;
+use messages::client_message::ServerMessage;
+use messages::server_message::ClientMessage;
 use logger::Loggable;
-use server_message::ClientMessage;
 use warp::Filter;
 use futures::{StreamExt, SinkExt};
 use warp::ws::{Message, WebSocket};
+
+mod messages {
+    pub mod server_message;
+    pub mod websocket_format;
+    pub mod client_message;
+}
+
+mod game {
+    pub mod network;
+}
 
 #[tokio::main]
 async fn main() {
@@ -94,4 +99,4 @@ socket.addEventListener("open", (event) => {
 socket.addEventListener("message", (event) => {
   console.log("Message from server ", event.data);
 });
-*/ 
+*/
