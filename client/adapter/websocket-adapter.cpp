@@ -658,3 +658,7 @@ void closeCalculationUnitConnection(std::shared_ptr<WebSocketClient> client) {
         client->close();
     }
 }
+
+// redet nur mit authproxy
+struct erstellen um msgpack zu senden
+lib zum decoden und encoden von msgpack

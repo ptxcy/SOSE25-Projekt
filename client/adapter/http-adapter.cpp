@@ -20,6 +20,10 @@ std::string base64_encode(const std::string& input) {
     return crow::utility::base64encode(input, input.size());
 }
 
+std::string getDefaultPort(const std::string& protocol) {
+    return protocol == "https" ? "443" : "80";
+}
+
 // Simple URL parsing function
 struct UrlComponents {
     std::string protocol;
@@ -30,20 +34,31 @@ struct UrlComponents {
 
 UrlComponents parse_url(const std::string& url) {
     UrlComponents result;
-    
-    // Simple regex-based URL parsing
-    std::regex url_regex("(https?)://([^:/]+)(?::(\\d+))?(/.*)?");
-    std::smatch match;
-    
-    if (std::regex_match(url, match, url_regex)) {
-        result.protocol = match[1].str();
-        result.host = match[2].str();
-        result.port = match[3].str().empty() ? (result.protocol == "https" ? "443" : "80") : match[3].str();
-        result.path = match[4].str().empty() ? "/" : match[4].str();
-    } else {
+
+    auto protocol_end = url.find("://");
+    if (protocol_end == std::string::npos) {
         throw std::runtime_error("Invalid URL format: " + url);
     }
-    
+    result.protocol = url.substr(0, protocol_end);
+
+    auto host_start = protocol_end + 3;
+    auto path_start = url.find('/', host_start);
+    auto port_start = url.find(':', host_start);
+
+    if (path_start == std::string::npos) {
+        result.path = "/";
+    } else {
+        result.path = url.substr(path_start);
+    }
+
+    if (port_start != std::string::npos && (path_start == std::string::npos || port_start < path_start)) {
+        result.host = url.substr(host_start, port_start - host_start);
+        result.port = url.substr(port_start + 1, path_start - port_start - 1);
+    } else {
+        result.host = url.substr(host_start, path_start - host_start);
+        result.port = getDefaultPort(result.protocol);
+    }
+
     return result;
 }
 
@@ -316,3 +331,12 @@ HttpResponse createLobby(const std::string& baseUrl, const std::string& lobbyNam
     // Send POST request
     return sendPostRequest(url, jsonPayload, "application/json", authHeader);
 }
+
+
+// createUser
+// createLobby
+// authenticateUser
+// username:password base 64 encode (value) danach string basic concatinate
+// header:
+// GET http://authproxy:8080/authenticate,
+// "Authorization":"Basic Base64(username:password)"
