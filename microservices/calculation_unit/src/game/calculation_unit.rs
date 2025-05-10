@@ -1,9 +1,9 @@
-use tokio::sync::mpsc::Sender;
 
 use crate::messages::server_message::ServerMessage;
+use tokio::sync::mpsc::*;
 
 
-pub fn start(server_message_tx: Sender<ServerMessage>) {
+pub fn start(sender_receiver: Receiver<Sender<ServerMessage>>) {
 	loop {
 		
 	}
