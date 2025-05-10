@@ -10,37 +10,54 @@ mod messages {
 mod game {
     pub mod network;
     pub mod coordinate;
+    pub mod calculation_unit;
 }
 
 // use structure
 
 use std::time::{SystemTime, UNIX_EPOCH};
+use game::calculation_unit;
 use messages::{client_message::ClientMessage, server_message::ServerMessage};
 use logger::Loggable;
 use warp::Filter;
 use futures::{StreamExt, SinkExt};
 use warp::ws::{Message, WebSocket};
 
+pub fn get_time() -> u128 {
+	let now = SystemTime::now();
+	let millis = now.duration_since(UNIX_EPOCH).expect("time went backwards").as_millis();
+	millis
+}
+
 // async main gets started on program start
 #[tokio::main]
 async fn main() {
-	let now = SystemTime::now();
-	let millis = now.duration_since(UNIX_EPOCH).expect("time went backwards").as_millis();
+	// dummy print for time
+	let millis = get_time();
 	println!("current time: {}", millis);
 
-	let ws_route_json = warp::path!("test")
+	// channels for ServerMessgaes which update all clients
+	let (server_message_tx, mut server_message_rx) = tokio::sync::mpsc::channel::<ServerMessage>(32);
+
+	// calculation task
+	tokio::spawn(async move {
+		calculation_unit::start(server_message_tx);
+	});
+
+
+	/* let ws_route_json = warp::path!("test")
 		.and(warp::ws())
-		.map(|ws: warp::ws::Ws| ws.on_upgrade(handle_ws_json));
+		.map(|ws: warp::ws::Ws| ws.on_upgrade(handle_ws_json)); */
 
 	let ws_route_msgpack = warp::path!("msgpack")
 		.and(warp::ws())
 		.map(|ws: warp::ws::Ws| ws.on_upgrade(handle_ws_msgpack));
 
-	let static_files = warp::fs::dir("public");
+	// let static_files = warp::fs::dir("public");
 
 	let routes = ws_route_msgpack
-		.or(ws_route_json)
-		.or(static_files)
+		// .or(ws_route_json)
+		// .or(static_files)
 		.with(warp::cors().allow_any_origin());
 
 	warp::serve(routes).run(([0, 0, 0, 0], 8082)).await;
