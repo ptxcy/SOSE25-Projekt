@@ -26,15 +26,3 @@ pub struct RequestInfo {
 	calculation_unit: CalculationUnitInfo,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct RequestData {
-	calculation_type: String,
-	// calculation_data: todo!(),
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct WebsocketMessage {
-	request_info: RequestInfo,
-	request_data: RequestData,
-	// calculation_result: todo!(),
-}

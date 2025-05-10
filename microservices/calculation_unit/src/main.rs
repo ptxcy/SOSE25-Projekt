@@ -2,8 +2,7 @@ mod logger;
 
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use messages::client_message::ServerMessage;
-use messages::server_message::ClientMessage;
+use messages::{client_message::ClientMessage, server_message::ServerMessage};
 use logger::Loggable;
 use warp::Filter;
 use futures::{StreamExt, SinkExt};
@@ -17,6 +16,7 @@ mod messages {
 
 mod game {
     pub mod network;
+    pub mod coordinate;
 }
 
 #[tokio::main]
@@ -50,7 +50,7 @@ async fn handle_ws_json(ws: WebSocket) {
 			let response = match std::panic::catch_unwind(|| {
 				println!("Received: {}", text);
 				let client_message: ClientMessage = serde_json::from_str::<ClientMessage>(text).log().unwrap();
-				let server_message = ServerMessage::response_to(&client_message);
+				let server_message = ServerMessage::respond_to(&client_message);
 				let response = serde_json::to_string(&server_message).log().unwrap();
 				response
 			}).log() {
@@ -73,7 +73,7 @@ async fn handle_ws_msgpack(ws: WebSocket) {
 			let received = serde_json::to_string(&client_message).log().unwrap();
 			println!("Received: {}", received);
 
-			let server_message = ServerMessage::response_to(&client_message);
+			let server_message = ServerMessage::respond_to(&client_message);
 			let response = rmp_serde::to_vec(&server_message).log().unwrap();
 			response
 		}) {
