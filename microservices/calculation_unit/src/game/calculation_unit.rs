@@ -1,4 +1,4 @@
-use crate::{game::coordinate::Coordinate, messages::{client_message::{ClientMessage, ClientRequest}, server_message::ServerMessage}};
+use crate::{game::coordinate::Coordinate, logger::Loggable, messages::{client_message::{ClientMessage, ClientRequest}, server_message::ServerMessage}};
 use tokio::sync::mpsc::*;
 use std::{collections::HashMap, sync::Arc, time::Instant};
 
@@ -40,30 +40,7 @@ pub async fn start(mut sender_receiver: Receiver<Sender<Arc<ServerMessage>>>, mu
 
 		// receive client input
 		while let Ok(client_message) = client_message_receiver.try_recv() {
-			match client_message.request_data {
-				// TEMP move dummy client by certain amount
-			    ClientRequest::DummyMoveBy { id, mut position } => {
-			    	// TODO
-			    	match dummys.get_mut(&id) {
-			            Some(dummy) => {
-			            	dummy.position.add(&position.c().scale(delta_seconds));
-			            },
-			            None => {
-			            	// TODO handle connection if connection tried to move non existent object
-			            	println!("tried moving dummy but dummy doesnt exist by this id: {}", id);
-			            },
-			        };
-			    },
-				// TEMP spawn dummy client
-			    ClientRequest::SpawnDummy { id } => {
-					println!("spawn dummy client");
-					let dummy = DummyObject {
-						id: id.clone(), 
-						position: Coordinate::default(),
-					};
-					dummys.insert(id, dummy);
-			    },
-			}
+			let result = client_message.request_data.execute(&mut dummys, delta_seconds).log();
 		}
 
 		// TODO game logic calculation

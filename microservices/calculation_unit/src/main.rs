@@ -72,44 +72,20 @@ async fn main() {
 	// let static_files = warp::fs::dir("public");
 
 	let routes = ws_route_msgpack
-		// .or(ws_route_json)
 		// .or(static_files)
 		.with(warp::cors().allow_any_origin());
 
 	warp::serve(routes).run(([0, 0, 0, 0], 8082)).await;
 }
 
-// for testing handle json
-#[allow(dead_code)]
-async fn handle_ws_json(ws: WebSocket) {
-	let (mut tx, mut rx) = ws.split();
-	while let Some(Ok(msg)) = rx.next().await {
-		if let Ok(text) = msg.to_str() {
-			let response = match std::panic::catch_unwind(|| {
-				println!("Received: {}", text);
-				let client_message: ClientMessage = serde_json::from_str::<ClientMessage>(text).log().unwrap();
-				let server_message = ServerMessage::respond_to(&client_message);
-				let response = serde_json::to_string(&server_message).log().unwrap();
-				response
-			}).log() {
-			    Ok(r) => r,
-			    Err(e) => { continue; },
-			};
-			if tx.send(Message::text(&response)).await.is_err() {
-				break;
-			}
-		}
-	}
-}
-
-// actual message pack handling
+// actual message handling
 async fn handle_ws_msgpack(ws: WebSocket, mut server_message_rx: Receiver<Arc<ServerMessage>>, client_message_sender: Sender<ClientMessage>) {
 	let (mut websocket_tx, mut websocket_rx) = ws.split();
 
 	// receiving messages from async client
 	tokio::spawn(async move {
 		while let Some(Ok(msg)) = websocket_rx.next().await {
-			let response = match std::panic::catch_unwind(|| {
+			match std::panic::catch_unwind(|| {
 				let msgpack_bytes = msg.into_bytes();
 				let client_message = rmp_serde::from_slice::<ClientMessage>(&msgpack_bytes[..]).log().unwrap();
 				let received = serde_json::to_string(&client_message).log().unwrap();
@@ -119,12 +95,12 @@ async fn handle_ws_msgpack(ws: WebSocket, mut server_message_rx: Receiver<Arc<Se
 				let client_message_clone = client_message.clone();
 				let client_message_sender_clone = client_message_sender.clone();
 				tokio::spawn(async move {
-					client_message_sender_clone.send(client_message_clone).await.unwrap();
+					client_message_sender_clone.send(client_message_clone).await.log().unwrap();
 				});
 
-				let server_message = ServerMessage::respond_to(&client_message);
-				let response = rmp_serde::to_vec(&server_message).log().unwrap();
-				response
+				// let server_message = ServerMessage::respond_to(&client_message);
+				// let response = rmp_serde::to_vec(&server_message).log().unwrap();
+				// response
 			}) {
 			    Ok(r) => r,
 			    Err(e) => { continue; },
