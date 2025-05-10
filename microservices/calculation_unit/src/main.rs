@@ -17,7 +17,7 @@ mod game {
 
 use std::time::{SystemTime, UNIX_EPOCH};
 use game::calculation_unit;
-use messages::{client_message::ClientMessage, server_message::ServerMessage};
+use messages::{client_message::{self, ClientMessage}, server_message::ServerMessage};
 use logger::Loggable;
 use warp::Filter;
 use futures::{SinkExt, StreamExt};
@@ -37,11 +37,12 @@ async fn main() {
 	let millis = get_time();
 	println!("current time: {}", millis);
 
-	let (sender_sender, sender_receiver) = channel::<Sender<ServerMessage>>(32);
+	let (server_message_sender_sender, server_message_sender_receiver) = channel::<Sender<ServerMessage>>(32);
+	let (client_message_sender, client_message_receiver) = channel::<ClientMessage>(1024);
 
 	// calculation task
 	tokio::spawn(async move {
-		calculation_unit::start(sender_receiver);
+		calculation_unit::start(server_message_sender_receiver, client_message_receiver);
 	});
 
 
@@ -54,7 +55,8 @@ async fn main() {
     .map(move |ws: warp::ws::Ws| {
         // channels for ServerMessages which update this client
         let (server_message_tx, server_message_rx) = channel::<ServerMessage>(32);
-        let sender_sender_clone = sender_sender.clone();
+        let sender_sender_clone = server_message_sender_sender.clone();
+		let client_message_sender_clone = client_message_sender.clone();
 
 		// send the server_message_tx to the calculation task
         tokio::spawn(async move {
@@ -63,7 +65,7 @@ async fn main() {
             }
         });
 
-        ws.on_upgrade(move |websocket| handle_ws_msgpack(websocket, server_message_rx))
+        ws.on_upgrade(move |websocket| handle_ws_msgpack(websocket, server_message_rx, client_message_sender_clone))
     });
 
 	// let static_files = warp::fs::dir("public");
@@ -100,17 +102,24 @@ async fn handle_ws_json(ws: WebSocket) {
 }
 
 // actual message pack handling
-async fn handle_ws_msgpack(ws: WebSocket, mut server_message_rx: Receiver<ServerMessage>) {
+async fn handle_ws_msgpack(ws: WebSocket, mut server_message_rx: Receiver<ServerMessage>, client_message_sender: Sender<ClientMessage>) {
 	let (mut websocket_tx, mut websocket_rx) = ws.split();
 
-	// receiving messages async
-	let receiver = tokio::spawn(async move {
+	// receiving messages from async client
+	tokio::spawn(async move {
 		while let Some(Ok(msg)) = websocket_rx.next().await {
 			let response = match std::panic::catch_unwind(|| {
 				let msgpack_bytes = msg.into_bytes();
 				let client_message = rmp_serde::from_slice::<ClientMessage>(&msgpack_bytes[..]).log().unwrap();
 				let received = serde_json::to_string(&client_message).log().unwrap();
 				println!("Received: {}", received);
+				
+				// send clientmsg to calculation task
+				let client_message_clone = client_message.clone();
+				let client_message_sender_clone = client_message_sender.clone();
+				tokio::spawn(async move {
+					client_message_sender_clone.send(client_message_clone).await.unwrap();
+				});
 
 				let server_message = ServerMessage::respond_to(&client_message);
 				let response = rmp_serde::to_vec(&server_message).log().unwrap();
@@ -125,7 +134,7 @@ async fn handle_ws_msgpack(ws: WebSocket, mut server_message_rx: Receiver<Server
 		}
 	});
 
-	// sending messages async
+	// sending messages from server to client async
 	while let Some(msg) = server_message_rx.recv().await {
 		let response = match std::panic::catch_unwind(|| {
 			let msgpack_bytes = rmp_serde::to_vec(&msg).log().unwrap();

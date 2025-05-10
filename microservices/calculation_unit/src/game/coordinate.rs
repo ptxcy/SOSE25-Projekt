@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Coordinate {
 	x: f64,
 	y: f64,
