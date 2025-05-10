@@ -2,11 +2,11 @@ use serde::{Deserialize, Serialize};
 
 use super::{client_message::ClientMessage, websocket_format::RequestInfo};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 // TODO object data
 pub struct ObjectData {}
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ServerMessage {
     request_info: RequestInfo,
     request_data: ObjectData,

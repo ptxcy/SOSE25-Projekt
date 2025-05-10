@@ -15,9 +15,9 @@ mod game {
 
 // use structure
 
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::{sync::Arc, time::{SystemTime, UNIX_EPOCH}};
 use game::calculation_unit;
-use messages::{client_message::{self, ClientMessage}, server_message::ServerMessage};
+use messages::{client_message::ClientMessage, server_message::ServerMessage};
 use logger::Loggable;
 use warp::Filter;
 use futures::{SinkExt, StreamExt};
@@ -37,12 +37,12 @@ async fn main() {
 	let millis = get_time();
 	println!("current time: {}", millis);
 
-	let (server_message_sender_sender, server_message_sender_receiver) = channel::<Sender<ServerMessage>>(32);
+	let (server_message_sender_sender, server_message_sender_receiver) = channel::<Sender<Arc<ServerMessage>>>(32);
 	let (client_message_sender, client_message_receiver) = channel::<ClientMessage>(1024);
 
 	// calculation task
 	tokio::spawn(async move {
-		calculation_unit::start(server_message_sender_receiver, client_message_receiver);
+		calculation_unit::start(server_message_sender_receiver, client_message_receiver).await;
 	});
 
 
@@ -54,7 +54,7 @@ async fn main() {
     .and(warp::ws())
     .map(move |ws: warp::ws::Ws| {
         // channels for ServerMessages which update this client
-        let (server_message_tx, server_message_rx) = channel::<ServerMessage>(32);
+        let (server_message_tx, server_message_rx) = channel::<Arc<ServerMessage>>(32);
         let sender_sender_clone = server_message_sender_sender.clone();
 		let client_message_sender_clone = client_message_sender.clone();
 
@@ -102,7 +102,7 @@ async fn handle_ws_json(ws: WebSocket) {
 }
 
 // actual message pack handling
-async fn handle_ws_msgpack(ws: WebSocket, mut server_message_rx: Receiver<ServerMessage>, client_message_sender: Sender<ClientMessage>) {
+async fn handle_ws_msgpack(ws: WebSocket, mut server_message_rx: Receiver<Arc<ServerMessage>>, client_message_sender: Sender<ClientMessage>) {
 	let (mut websocket_tx, mut websocket_rx) = ws.split();
 
 	// receiving messages from async client
@@ -137,7 +137,7 @@ async fn handle_ws_msgpack(ws: WebSocket, mut server_message_rx: Receiver<Server
 	// sending messages from server to client async
 	while let Some(msg) = server_message_rx.recv().await {
 		let response = match std::panic::catch_unwind(|| {
-			let msgpack_bytes = rmp_serde::to_vec(&msg).log().unwrap();
+			let msgpack_bytes = rmp_serde::to_vec(&*msg).log().unwrap();
 			msgpack_bytes
 		}) {
 			Ok(r) => r,
