@@ -7,10 +7,13 @@ use super::websocket_format::RequestInfo;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum ClientRequest {
-	DummyMoveTo {
+	SpawnDummy {
+		id: String
+	},
+	DummyMoveBy {
 		id: String,
 		position: Coordinate,
-	}
+	},
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

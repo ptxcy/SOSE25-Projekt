@@ -11,6 +11,7 @@ mod game {
     pub mod network;
     pub mod coordinate;
     pub mod calculation_unit;
+    pub mod dummy;
 }
 
 // use structure
