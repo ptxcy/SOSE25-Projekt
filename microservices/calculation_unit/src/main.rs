@@ -1,13 +1,6 @@
+// module structure
+
 mod logger;
-
-use std::time::{SystemTime, UNIX_EPOCH};
-
-use messages::{client_message::ClientMessage, server_message::ServerMessage};
-use logger::Loggable;
-use warp::Filter;
-use futures::{StreamExt, SinkExt};
-use warp::ws::{Message, WebSocket};
-
 mod messages {
     pub mod server_message;
     pub mod websocket_format;
@@ -19,6 +12,16 @@ mod game {
     pub mod coordinate;
 }
 
+// use structure
+
+use std::time::{SystemTime, UNIX_EPOCH};
+use messages::{client_message::ClientMessage, server_message::ServerMessage};
+use logger::Loggable;
+use warp::Filter;
+use futures::{StreamExt, SinkExt};
+use warp::ws::{Message, WebSocket};
+
+// async main gets started on program start
 #[tokio::main]
 async fn main() {
 	let now = SystemTime::now();
@@ -43,6 +46,7 @@ async fn main() {
 	warp::serve(routes).run(([0, 0, 0, 0], 8082)).await;
 }
 
+// for testing handle json
 async fn handle_ws_json(ws: WebSocket) {
 	let (mut tx, mut rx) = ws.split();
 	while let Some(Ok(msg)) = rx.next().await {
@@ -64,6 +68,7 @@ async fn handle_ws_json(ws: WebSocket) {
 	}
 }
 
+// actual message pack handling
 async fn handle_ws_msgpack(ws: WebSocket) {
 	let (mut tx, mut rx) = ws.split();
 	while let Some(Ok(msg)) = rx.next().await {
