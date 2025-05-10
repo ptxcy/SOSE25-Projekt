@@ -1,4 +1,4 @@
-use crate::{game::coordinate::Coordinate, logger::Loggable, messages::{client_message::{ClientMessage, ClientRequest}, server_message::ServerMessage}};
+use crate::{game::coordinate::Coordinate, get_time, logger::Loggable, messages::{client_message::{ClientMessage, ClientRequest}, server_message::{ObjectData, ServerMessage}, websocket_format::RequestInfo}};
 use tokio::sync::mpsc::*;
 use std::{collections::HashMap, sync::Arc, time::Instant};
 
@@ -45,5 +45,20 @@ pub async fn start(mut sender_receiver: Receiver<Sender<Arc<ServerMessage>>>, mu
 
 		// TODO game logic calculation
 		println!("do calulation");
+
+		// creating message for sending
+		let object_data = ObjectData {
+			dummies: dummys,
+		};
+		let server_message = ServerMessage {
+		    request_info: RequestInfo::new(get_time() as f64),
+		    request_data: object_data,
+		};
+
+		// sending message
+		broadcast(&server_message_senders, &server_message);
+
+		// retrieving ownership of data
+		dummys = server_message.request_data.dummies;
 	}
 }

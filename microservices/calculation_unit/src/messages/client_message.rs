@@ -20,14 +20,16 @@ pub enum ClientRequest {
 
 
 impl ClientRequest {
+	// executes a clients input data on the game
 	pub fn execute(self, dummys: &mut HashMap<String, DummyObject>, delta_seconds: f64) -> std::result::Result<(), String> {
 		match self {
+
 			// TEMP move dummy client by certain amount
 		    ClientRequest::DummyMoveBy { id, mut position } => {
 		    	// TODO
 		    	match dummys.get_mut(&id) {
 		            Some(dummy) => {
-		            	dummy.position.add(&position.c().scale(delta_seconds));
+		            	dummy.position.addd(&position, delta_seconds);
 		            },
 		            None => {
 		            	// TODO handle connection if connection tried to move non existent object
@@ -35,6 +37,7 @@ impl ClientRequest {
 		            },
 		        };
 		    },
+
 			// TEMP spawn dummy client
 		    ClientRequest::SpawnDummy { id } => {
 		    	// check if dummy with id already exists

@@ -20,10 +20,16 @@ impl Default for Coordinate {
 
 impl Coordinate {
 
+	/* c
+	clones itself and returns it
+	*/
 	pub fn c(&self) -> Self {
 		self.clone()
 	}
 
+	/* add
+	mutates itself by adding another
+	*/
 	pub fn add(&mut self, other: &Self) -> &mut Self {
 		self.x += other.x;
 		self.y += other.y;
@@ -31,6 +37,39 @@ impl Coordinate {
 		self
 	}
 
+	/* sub
+	mutates itself by subtracting another
+	*/
+	pub fn sub(&mut self, other: &Self) -> &mut Self {
+		self.x -= other.x;
+		self.y -= other.y;
+		self.z -= other.z;
+		self
+	}
+
+	/* addd
+	mutates itself by adding another with delta time scaled
+	*/
+	pub fn addd(&mut self, other: &Self, delta_seconds: f64) -> &mut Self {
+		self.x += other.x * delta_seconds;
+		self.y += other.y * delta_seconds;
+		self.z += other.z * delta_seconds;
+		self
+	}
+
+	/* subd
+	mutates itself by subtracting another with delta time scaled
+	*/
+	pub fn subd(&mut self, other: &Self, delta_seconds: f64) -> &mut Self {
+		self.x -= other.x * delta_seconds;
+		self.y -= other.y * delta_seconds;
+		self.z -= other.z * delta_seconds;
+		self
+	}
+
+	/* scale
+	mutates itself by scaling all values by a value
+	*/
 	pub fn scale(&mut self, value: f64) -> &mut Self {
 		self.x *= value;
 		self.y *= value;

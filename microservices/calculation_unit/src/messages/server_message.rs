@@ -1,21 +1,24 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 
 use crate::{game::dummy::DummyObject, get_time};
 
 use super::{client_message::ClientMessage, websocket_format::RequestInfo};
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
 // TODO object data
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ObjectData {
-    dummies: Vec<DummyObject>,
+    pub dummies: HashMap<String, DummyObject>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ServerMessage {
-    request_info: RequestInfo,
-    request_data: ObjectData,
+    pub request_info: RequestInfo,
+    pub request_data: ObjectData,
 }
 
+// TEMP going to be removed after testing
 impl ServerMessage {
     pub fn respond_to(client_message: &ClientMessage) -> Self {
         let mut updated_request_info = client_message.request_info.clone();
@@ -24,7 +27,7 @@ impl ServerMessage {
         Self {
             request_info: updated_request_info,
             request_data: ObjectData {
-                dummies: vec![],
+                dummies: HashMap::new(),
             },
         }
     }
