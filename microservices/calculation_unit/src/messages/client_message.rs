@@ -23,10 +23,11 @@ impl ClientRequest {
 		match self {
 
 			// TEMP move dummy client by certain amount
-		    ClientRequest::DummyMoveBy { id, mut position } => {
+		    ClientRequest::DummyMoveBy { id, position } => {
 		    	// TODO
 		    	match dummys.get_mut(&id) {
 		            Some(dummy) => {
+		            	// println!("moved dummy client");
 		            	dummy.position.addd(&position, delta_seconds);
 		            },
 		            None => {

@@ -72,7 +72,7 @@ async fn handle_ws_msgpack(ws: WebSocket, mut server_message_rx: Receiver<Arc<Se
 				let msgpack_bytes = msg.into_bytes();
 				let client_message = rmp_serde::from_slice::<ClientMessage>(&msgpack_bytes[..]).log().unwrap();
 				let received = serde_json::to_string(&client_message).log().unwrap();
-				println!("Received: {}", received);
+				// println!("Received: {}", received);
 				
 				// send clientmsg to calculation task
 				let client_message_clone = client_message.clone();
