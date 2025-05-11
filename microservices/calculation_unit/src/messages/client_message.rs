@@ -11,7 +11,7 @@ pub enum ClientRequest {
 	SpawnDummy {
 		id: String
 	},
-	DummyMoveBy {
+	DummySetVelocity {
 		id: String,
 		position: Coordinate,
 	},
@@ -23,12 +23,11 @@ impl ClientRequest {
 		match self {
 
 			// TEMP move dummy client by certain amount
-		    ClientRequest::DummyMoveBy { id, position } => {
+		    ClientRequest::DummySetVelocity { id, position } => {
 		    	// TODO
 		    	match dummys.get_mut(&id) {
 		            Some(dummy) => {
-		            	// println!("moved dummy client");
-		            	dummy.position.addd(&position, delta_seconds);
+		            	dummy.velocity = position;
 		            },
 		            None => {
 		            	// TODO handle connection if connection tried to move non existent object
@@ -51,7 +50,7 @@ impl ClientRequest {
 				println!("spawn dummy client");
 				let dummy = DummyObject {
 					id: id.clone(), 
-					position: Coordinate::default(),
+					..Default::default()
 				};
 				dummys.insert(id, dummy);
 		    },

@@ -3,7 +3,7 @@ use url::Url;
 use futures_util::{stream::StreamExt, SinkExt};
 use calculation_unit::{
 	game::coordinate::Coordinate, get_time, logger::Loggable, messages::{
-		client_message::{ClientMessage, ClientRequest::DummyMoveBy},
+		client_message::{ClientMessage, ClientRequest::DummySetVelocity},
 		server_message::ServerMessage
 	}
 };
@@ -26,7 +26,7 @@ pub fn request_move() -> Vec<u8> {
     // Example ClientMessage to send
     let client_message = ClientMessage {
         request_info: Default::default(),
-        request_data: DummyMoveBy { id: "dummy_1".to_owned(), position: Coordinate { x: 2., y: 0., z: 0. } },
+        request_data: DummySetVelocity { id: "dummy_1".to_owned(), position: Coordinate { x: 2., y: 0., z: 0. } },
     };
 
     // Serialize ClientMessage to MessagePack
