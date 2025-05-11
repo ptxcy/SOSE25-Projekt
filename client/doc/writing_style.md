@@ -47,6 +47,20 @@ structure = {
 ```
 
 
+## Documentation
+
+```c++
+/**
+ *	function description
+ *	\param a: explanation first parameter
+ *	\param b: explanation second parameter
+ *	\param c: explanation last parameter
+ *	\returns value description that will be return upon running
+ */
+u8 func(u8 a,u16 b,string c) {  }
+```
+
+
 ## Details
 
 ```c++
