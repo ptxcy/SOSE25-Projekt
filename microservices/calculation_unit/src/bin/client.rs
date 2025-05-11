@@ -1,0 +1,64 @@
+use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
+use url::Url;
+use futures_util::{stream::StreamExt, SinkExt};
+use calculation_unit::{
+	get_time,
+	logger::Loggable,
+	messages::{
+		client_message::ClientMessage,
+		server_message::ServerMessage
+	},
+};
+
+#[tokio::main]
+async fn main() {
+    // Define the WebSocket server URL
+    let url = Url::parse("ws://127.0.0.1:8082/msgpack").expect("Invalid WebSocket URL");
+
+    // Connect to the WebSocket server
+    let (ws_stream, _) = connect_async(url)
+        .await
+        .expect("Failed to connect to WebSocket server");
+
+    println!("Connected to WebSocket server!");
+
+    let (mut write, mut read) = ws_stream.split();
+
+    // Example ClientMessage to send
+    let client_message = ClientMessage {
+        request_info: Default::default(),
+        request_data: calculation_unit::messages::client_message::ClientRequest::SpawnDummy {
+            id: "dummy_1".to_string(),
+        },
+    };
+
+    // Serialize ClientMessage to MessagePack
+    let serialized_message = rmp_serde::to_vec(&client_message).expect("Failed to serialize message");
+
+    // Send a message to the server
+    tokio::spawn(async move {
+        write
+            .send(Message::Binary(serialized_message))
+            .await
+            .expect("Failed to send message");
+        println!("Message sent to server!");
+    });
+
+    // Read messages from the server
+    while let Some(msg) = read.next().await {
+        match msg {
+            Ok(Message::Binary(data)) => {
+                // Deserialize MessagePack to ClientMessage
+                match rmp_serde::from_slice::<ClientMessage>(&data) {
+                    Ok(client_message) => println!("Received: {:?}", client_message),
+                    Err(e) => eprintln!("Failed to deserialize message: {}", e),
+                }
+            }
+            Ok(other) => println!("Received non-binary message: {:?}", other),
+            Err(e) => {
+                eprintln!("Error reading message: {}", e);
+                break;
+            }
+        }
+    }
+}

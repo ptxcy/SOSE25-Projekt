@@ -1,18 +1,20 @@
 use serde::{Serialize, Deserialize};
 
-
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, Default)]
 pub struct ClientInfo {
 	sent_time: f64,
 }
+
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, Default)]
 pub struct AuthproxyInfo {
 	sent_time: f64,
 }
+
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, Default)]
 pub struct RequestSyncInfo {
 	sent_time: f64,
 }
+
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, Default)]
 pub struct CalculationUnitInfo {
 	pub sent_time: f64,

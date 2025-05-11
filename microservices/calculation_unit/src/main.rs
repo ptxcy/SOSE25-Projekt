@@ -1,35 +1,18 @@
-// module structure
 
-mod logger;
-mod messages {
-    pub mod server_message;
-    pub mod websocket_format;
-    pub mod client_message;
-}
-
-mod game {
-    pub mod network;
-    pub mod coordinate;
-    pub mod calculation_unit;
-    pub mod dummy;
-}
-
-// use structure
-
-use std::{sync::Arc, time::{SystemTime, UNIX_EPOCH}};
-use game::calculation_unit;
-use messages::{client_message::ClientMessage, server_message::ServerMessage};
-use logger::Loggable;
+use std::sync::Arc;
+use calculation_unit::{
+	get_time,
+	logger::Loggable,
+	messages::{
+		client_message::ClientMessage,
+		server_message::ServerMessage
+	},
+	game::calculation_unit::start
+};
 use warp::Filter;
 use futures::{SinkExt, StreamExt};
 use warp::ws::{Message, WebSocket};
 use tokio::sync::mpsc::*;
-
-pub fn get_time() -> u128 {
-	let now = SystemTime::now();
-	let millis = now.duration_since(UNIX_EPOCH).expect("time went backwards").as_millis();
-	millis
-}
 
 // async main gets started on program start
 #[tokio::main]
@@ -43,7 +26,7 @@ async fn main() {
 
 	// calculation task
 	tokio::spawn(async move {
-		calculation_unit::start(server_message_sender_receiver, client_message_receiver).await;
+		start(server_message_sender_receiver, client_message_receiver).await;
 	});
 
 

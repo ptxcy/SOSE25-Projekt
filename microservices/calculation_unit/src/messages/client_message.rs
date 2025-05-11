@@ -6,7 +6,6 @@ use crate::game::{coordinate::Coordinate, dummy::DummyObject};
 
 use super::websocket_format::RequestInfo;
 
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum ClientRequest {
 	SpawnDummy {
@@ -17,7 +16,6 @@ pub enum ClientRequest {
 		position: Coordinate,
 	},
 }
-
 
 impl ClientRequest {
 	// executes a clients input data on the game
