@@ -261,8 +261,6 @@ void Texture::generate_mipmap()
 void GPUPixelBuffer::allocate(u32 width,u32 height,u32 format)
 {
 	// store info
-	//m_Format = format;
-	//m_Dimensions = vec2(width,height);
 	dimensions_inv = vec2(1.f/width,1.f/height);
 
 	// allocate memory
@@ -277,7 +275,7 @@ void GPUPixelBuffer::allocate(u32 width,u32 height,u32 format)
 //		furthermore this is absolutely necessary to be of dynamic nature, due to monocrome buffers being a thing
 
 /**
- *	write texture buffer to preallocated gpu memory
+ *	load texture from path and finally upload to gpu memory
  *	\param gpb: target pixel buffer
  *	\param requests: pointer to load request queue, receiving the gpu upload request when loading is done
  *	\param pbc: pointer to atlas component information, this will be overwritten
@@ -285,25 +283,48 @@ void GPUPixelBuffer::allocate(u32 width,u32 height,u32 format)
  *	\param path: path to texture file
  *	NOTE this is supposed to run as a subthread, hence the mutex and load request queue pointer
  */
-void GPUPixelBuffer::load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,PixelBufferComponent* pbc,
-						  std::mutex* mutex_requests,const char* path)
+void GPUPixelBuffer::load_texture(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,
+								  PixelBufferComponent* pbc,std::mutex* mutex_requests,const char* path)
 {
 	// load information from texture file
 	TextureData __TextureData = TextureData(path);
 	__TextureData.load();
 
+	// upload to gpu memory
+	_load(gpb,requests,pbc,mutex_requests,&__TextureData);
+}
+
+/**
+ *	load font data and finally upload to gpu memory
+ *	\param path: path to font file
+ *	NOTE this is supposed to run as a subthread, hence the mutex and load request queue pointer
+ */
+void GPUPixelBuffer::load_font(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,
+							   PixelBufferComponent* pbc,std::mutex* mutex_requests,const char* path)
+{
+	// TODO
+}
+
+/**
+ *	write texture buffer to preallocated gpu memory
+ *	\param data: texture data
+ *	NOTE this is supposed to run as a subthread, hence the mutex and load request queue pointer
+ */
+void GPUPixelBuffer::_load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,
+						   PixelBufferComponent* pbc,std::mutex* mutex_requests,TextureData* data)
+{
 	// locate best position for texture on free memory space
 	f32 __BestDifference = 0x7f800000;
 	u32 __MemoryIndex = -1;
 	for (u32 i=0;i<gpb->memory_segments.size();i++)
 	{
 		PixelBufferComponent* p_FreeComponent = &gpb->memory_segments[i];
-		if (__TextureData.width>p_FreeComponent->dimensions.x
-			||__TextureData.height>p_FreeComponent->dimensions.y) continue;
+		if (data->width>p_FreeComponent->dimensions.x
+			||data->height>p_FreeComponent->dimensions.y) continue;
 
 		// find closest fit
 		f32 __AreaDifference = p_FreeComponent->dimensions.x*p_FreeComponent->dimensions.y
-				- __TextureData.width*__TextureData.height;
+				- data->width*data->height;
 		if (__AreaDifference<__BestDifference)
 		{
 			__MemoryIndex = i;
@@ -316,13 +337,13 @@ void GPUPixelBuffer::load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,
 	PixelBufferComponent* p_CloseFitComponent = &gpb->memory_segments[__MemoryIndex];
 
 	// write atlas information
-	__TextureData.x = p_CloseFitComponent->offset.x, __TextureData.y = p_CloseFitComponent->offset.y;
+	data->x = p_CloseFitComponent->offset.x, data->y = p_CloseFitComponent->offset.y;
 	pbc->offset = p_CloseFitComponent->offset*gpb->dimensions_inv;
-	pbc->dimensions = vec2(__TextureData.width,__TextureData.height)*gpb->dimensions_inv;
+	pbc->dimensions = vec2(data->width,data->height)*gpb->dimensions_inv;
 
 	// segment free memory to reserve pixel space for upload
-	s32 __PaddedWidth = __TextureData.width+BUFFER_ATLAS_BORDER_PADDING;
-	s32 __PaddedHeight = __TextureData.height+BUFFER_ATLAS_BORDER_PADDING;
+	s32 __PaddedWidth = data->width+BUFFER_ATLAS_BORDER_PADDING;
+	s32 __PaddedHeight = data->height+BUFFER_ATLAS_BORDER_PADDING;
 	PixelBufferComponent __Side = {
 		.offset = p_CloseFitComponent->offset+vec2(__PaddedWidth,0),
 		.dimensions = vec2(p_CloseFitComponent->dimensions.x-__PaddedWidth,__PaddedHeight)
@@ -347,6 +368,6 @@ void GPUPixelBuffer::load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,
 
 	// write buffer
 	mutex_requests->lock();
-	requests->push(__TextureData);
+	requests->push(*data);
 	mutex_requests->unlock();
 }

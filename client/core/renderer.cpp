@@ -116,7 +116,7 @@ PixelBufferComponent* Renderer::register_sprite_texture(const char* path)
 	PixelBufferComponent* p_Comp = m_SpriteTextures.next_free();
 	COMM_LOG("sprite texture register of %s",path);
 
-	std::thread __LoadThread(GPUPixelBuffer::load,
+	std::thread __LoadThread(GPUPixelBuffer::load_texture,
 							 &m_GPUSpriteTextures,&m_SpriteLoadRequests,p_Comp,&_mutex_sprite_requests,path);
 	__LoadThread.detach();
 	return p_Comp;
