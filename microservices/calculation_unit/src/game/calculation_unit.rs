@@ -10,7 +10,7 @@ pub fn broadcast(senders: &Vec<Sender<Arc<ServerMessage>>>, message: &ServerMess
     for sender in senders.iter() {
         let message_clone = Arc::clone(&shared_message);
         if let Err(e) = sender.try_send(message_clone) {
-            eprintln!("Failed to send message: {}", e);
+            // eprintln!("Failed to send message: {}", e);
         }
     }
 }
@@ -28,7 +28,7 @@ pub async fn start(mut sender_receiver: Receiver<Sender<Arc<ServerMessage>>>, mu
 	// game loop
 	loop {
 		// get new client channels
-		while let Ok(sender) = {println!("calculation_unit: try receive a new sender"); sender_receiver.try_recv()} {
+		while let Ok(sender) = {/* println!("calculation_unit: try receive a new sender"); */ sender_receiver.try_recv()} {
 			server_message_senders.push(sender);
 		}
 
@@ -44,7 +44,7 @@ pub async fn start(mut sender_receiver: Receiver<Sender<Arc<ServerMessage>>>, mu
 		}
 
 		// TODO game logic calculation
-		println!("do calulation");
+		// println!("do calulation");
 
 		// creating message for sending
 		let object_data = ObjectData {

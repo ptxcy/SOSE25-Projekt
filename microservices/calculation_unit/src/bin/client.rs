@@ -49,7 +49,7 @@ async fn main() {
         match msg {
             Ok(Message::Binary(data)) => {
                 // Deserialize MessagePack to ClientMessage
-                match rmp_serde::from_slice::<ClientMessage>(&data) {
+                match rmp_serde::from_slice::<ServerMessage>(&data) {
                     Ok(client_message) => println!("Received: {:?}", client_message),
                     Err(e) => eprintln!("Failed to deserialize message: {}", e),
                 }
