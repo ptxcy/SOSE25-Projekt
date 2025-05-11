@@ -19,7 +19,7 @@ async fn main() {
 	println!("current time: {}", millis);
 
 	let (server_message_sender_sender, server_message_sender_receiver) = channel::<ServerMessageSenderChannel>(32);
-	let (client_message_sender, client_message_receiver) = channel::<ClientMessage>(1024);
+	let (client_message_sender, client_message_receiver) = channel::<ClientMessage>(32);
 
 	// calculation task
 	tokio::spawn(async move {
@@ -55,8 +55,6 @@ async fn handle_ws_msgpack(ws: WebSocket, client_message_sender: Sender<ClientMe
 	// receiving messages from async client
 	tokio::spawn(async move {
 		while let Some(Ok(msg)) = websocket_rx.next().await {
-			let sender_sender_clone = sender_sender.clone();
-			let server_message_tx_clone = server_message_tx.clone();
 			match std::panic::catch_unwind(|| {
 				let msgpack_bytes = msg.into_bytes();
 				let client_message = rmp_serde::from_slice::<ClientMessage>(&msgpack_bytes[..]).log().unwrap();
@@ -65,6 +63,8 @@ async fn handle_ws_msgpack(ws: WebSocket, client_message_sender: Sender<ClientMe
 			        calculation_unit::messages::client_message::ClientRequest::SpawnDummy { id } => {
 						// send the server_message_tx to the calculation task
 						let id = id.clone();
+						let sender_sender_clone = sender_sender.clone();
+						let server_message_tx_clone = server_message_tx.clone();
 				        tokio::spawn(async move {
 				            if let Err(e) = sender_sender_clone.send(ServerMessageSenderChannel::new(id, server_message_tx_clone)).await {
 				                eprintln!("Failed to send server_message_tx: {}", e);
@@ -91,6 +91,7 @@ async fn handle_ws_msgpack(ws: WebSocket, client_message_sender: Sender<ClientMe
 	});
 
 	// sending messages from calculation_unit to client async
+	// FIX FIXME TODO ???
 	while let Some(msg) = server_message_rx.recv().await {
 		println!("got something from calc");
 		let response = match std::panic::catch_unwind(|| {
