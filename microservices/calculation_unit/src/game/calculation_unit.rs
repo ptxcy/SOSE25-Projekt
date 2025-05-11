@@ -45,6 +45,9 @@ pub fn broadcast(senders: &mut Vec<ServerMessageSenderChannel>, message: &Server
 				};
 			}
 		}
+		else {
+			println!("tick not there yet {} - {}", sender_channel.tick_counter, sender_channel.update_threshold);
+		}
 	}
 	// remove senders that are closed
 	for i in to_be_removed.iter().rev() {
