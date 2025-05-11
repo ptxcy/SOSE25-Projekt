@@ -2,12 +2,13 @@ use std::collections::HashMap;
 
 use serde::{Serialize, Deserialize};
 
-use crate::game::{coordinate::Coordinate, dummy::DummyObject};
+use crate::game::{coordinate::Coordinate, dummy::DummyObject, game_objects::GameObjects};
 
 use super::websocket_format::RequestInfo;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum ClientRequest {
+	SetClientFPS(f64),
 	SpawnDummy {
 		id: String
 	},
@@ -17,15 +18,22 @@ pub enum ClientRequest {
 	},
 }
 
+impl Default for ClientRequest {
+    fn default() -> Self {
+    	Self::SetClientFPS(60.)
+    }
+}
+
 impl ClientRequest {
 	// executes a clients input data on the game
-	pub fn execute(self, dummys: &mut HashMap<String, DummyObject>, delta_seconds: f64) -> std::result::Result<(), String> {
+	pub fn execute(self, game_objects: &mut GameObjects, delta_seconds: f64) -> std::result::Result<(), String> {
+		let dummies = &mut game_objects.dummies;
 		match self {
 
 			// TEMP move dummy client by certain amount
 		    ClientRequest::DummySetVelocity { id, position } => {
 		    	// TODO
-		    	match dummys.get_mut(&id) {
+		    	match dummies.get_mut(&id) {
 		            Some(dummy) => {
 		            	dummy.velocity = position;
 		            },
@@ -39,7 +47,7 @@ impl ClientRequest {
 			// TEMP spawn dummy client
 		    ClientRequest::SpawnDummy { id } => {
 		    	// check if dummy with id already exists
-		    	match dummys.get(&id) {
+		    	match dummies.get(&id) {
 		            Some(_) => {
 		            	return Err(format!("error: couldnt spawn dummy, dummy already exists! id: {}", id));
 		            },
@@ -52,7 +60,10 @@ impl ClientRequest {
 					id: id.clone(), 
 					..Default::default()
 				};
-				dummys.insert(id, dummy);
+				dummies.insert(id, dummy);
+		    },
+		    ClientRequest::SetClientFPS(fps) => {
+		    	// TODO update the conneciton
 		    },
 		};
 		Ok(())
@@ -63,4 +74,13 @@ impl ClientRequest {
 pub struct ClientMessage {
     pub request_info: RequestInfo,
     pub request_data: ClientRequest,
+}
+
+impl Default for ClientMessage {
+    fn default() -> Self {
+    	ClientMessage {
+    		request_info: Default::default(),
+    		request_data: Default::default(),
+    	}
+    }
 }

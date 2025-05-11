@@ -13,6 +13,7 @@ pub mod game {
     pub mod coordinate;
     pub mod calculation_unit;
     pub mod dummy;
+    pub mod game_objects;
 }
 
 pub fn get_time() -> u128 {

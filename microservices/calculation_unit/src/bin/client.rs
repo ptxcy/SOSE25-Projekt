@@ -10,12 +10,7 @@ use calculation_unit::{
 
 pub fn request_spawn() -> Vec<u8> {
     // Example ClientMessage to send
-    let client_message = ClientMessage {
-        request_info: Default::default(),
-        request_data: calculation_unit::messages::client_message::ClientRequest::SpawnDummy {
-            id: "dummy_1".to_string(),
-        },
-    };
+    let client_message = ClientMessage::default();
 
     // Serialize ClientMessage to MessagePack
     let serialized_message = rmp_serde::to_vec(&client_message).expect("Failed to serialize message");
@@ -25,8 +20,8 @@ pub fn request_spawn() -> Vec<u8> {
 pub fn request_move() -> Vec<u8> {
     // Example ClientMessage to send
     let client_message = ClientMessage {
-        request_info: Default::default(),
         request_data: DummySetVelocity { id: "dummy_1".to_owned(), position: Coordinate { x: 2., y: 0., z: 0. } },
+        ..Default::default()
     };
 
     // Serialize ClientMessage to MessagePack
@@ -75,7 +70,7 @@ async fn main() {
                 // Deserialize MessagePack to ClientMessage
                 match rmp_serde::from_slice::<ServerMessage>(&data) {
                     Ok(client_message) => {
-                        println!("Received: {:?}", client_message.request_data.dummies);
+                        println!("Received: {:?}", client_message.request_data.game_objects);
                     },
                     Err(e) => eprintln!("Failed to deserialize message: {}", e),
                 }

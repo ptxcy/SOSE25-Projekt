@@ -2,7 +2,7 @@ use crate::{game::coordinate::Coordinate, get_time, logger::Loggable, messages::
 use tokio::sync::mpsc::*;
 use std::{collections::HashMap, sync::Arc, time::Instant};
 
-use super::dummy::DummyObject;
+use super::{dummy::DummyObject, game_objects::GameObjects};
 
 // send message to all client receivers
 pub fn broadcast(senders: &mut Vec<Sender<Arc<ServerMessage>>>, message: &ServerMessage) {
@@ -28,8 +28,8 @@ pub fn broadcast(senders: &mut Vec<Sender<Arc<ServerMessage>>>, message: &Server
 	}
 }
 
-pub fn update_game(dummies: &mut HashMap<String, DummyObject>, delta_seconds: f64) -> std::result::Result<(), String> {
-	update_dummies(dummies, delta_seconds)?;
+pub fn update_game(game_objects: &mut GameObjects, delta_seconds: f64) -> std::result::Result<(), String> {
+	update_dummies(&mut game_objects.dummies, delta_seconds)?;
 	Ok(())
 }
 
@@ -44,8 +44,8 @@ pub async fn start(mut sender_receiver: Receiver<Sender<Arc<ServerMessage>>>, mu
 	// client channels
 	let mut server_message_senders = Vec::<Sender<Arc<ServerMessage>>>::new();
 
-	// map id to dummy
-	let mut dummys = HashMap::<String, DummyObject>::new();
+	// initialise game objects
+	let mut game_objects = GameObjects::new();
 
 	// delta time init
 	let mut last_time = Instant::now();
@@ -65,15 +65,15 @@ pub async fn start(mut sender_receiver: Receiver<Sender<Arc<ServerMessage>>>, mu
 
 		// receive client input
 		while let Ok(client_message) = client_message_receiver.try_recv() {
-			let result = client_message.request_data.execute(&mut dummys, delta_seconds).log();
+			let result = client_message.request_data.execute(&mut game_objects, delta_seconds).log();
 		}
 
 		// game logic calculation
-		let update_result = update_game(&mut dummys, delta_seconds).log();
+		let update_result = update_game(&mut game_objects, delta_seconds).log();
 
 		// creating message for sending
 		let object_data = ObjectData {
-			dummies: dummys,
+			game_objects
 		};
 		let server_message = ServerMessage {
 			request_info: RequestInfo::new(get_time() as f64),
@@ -84,6 +84,6 @@ pub async fn start(mut sender_receiver: Receiver<Sender<Arc<ServerMessage>>>, mu
 		broadcast(&mut server_message_senders, &server_message);
 
 		// retrieving ownership of data
-		dummys = server_message.request_data.dummies;
+		game_objects = server_message.request_data.game_objects;
 	}
 }
