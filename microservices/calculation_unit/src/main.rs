@@ -7,7 +7,6 @@ use calculation_unit::{
 		client_message::ClientMessage,
 		server_message::ServerMessage
 	},
-	game::calculation_unit::start
 };
 use warp::Filter;
 use futures::{SinkExt, StreamExt};
@@ -26,30 +25,21 @@ async fn main() {
 
 	// calculation task
 	tokio::spawn(async move {
-		start(server_message_sender_receiver, client_message_receiver).await;
+		calculation_unit::game::calculation_unit::start(server_message_sender_receiver, client_message_receiver).await;
 	});
 
-
-	/* let ws_route_json = warp::path!("test")
-		.and(warp::ws())
-		.map(|ws: warp::ws::Ws| ws.on_upgrade(handle_ws_json)); */
 
 	let ws_route_msgpack = warp::path!("msgpack")
     .and(warp::ws())
     .map(move |ws: warp::ws::Ws| {
         // channels for ServerMessages which update this client
-        let (server_message_tx, server_message_rx) = channel::<Arc<ServerMessage>>(32);
         let sender_sender_clone = server_message_sender_sender.clone();
 		let client_message_sender_clone = client_message_sender.clone();
 
 		// send the server_message_tx to the calculation task
-        tokio::spawn(async move {
-            if let Err(e) = sender_sender_clone.send(server_message_tx).await {
-                eprintln!("Failed to send server_message_tx: {}", e);
-            }
-        });
+		// TODO move into handlemsg pack
 
-        ws.on_upgrade(move |websocket| handle_ws_msgpack(websocket, server_message_rx, client_message_sender_clone))
+        ws.on_upgrade(move |websocket| handle_ws_msgpack(websocket, client_message_sender_clone, sender_sender_clone))
     });
 
 	// let static_files = warp::fs::dir("public");
@@ -62,15 +52,30 @@ async fn main() {
 }
 
 // actual message handling
-async fn handle_ws_msgpack(ws: WebSocket, mut server_message_rx: Receiver<Arc<ServerMessage>>, client_message_sender: Sender<ClientMessage>) {
+async fn handle_ws_msgpack(ws: WebSocket, client_message_sender: Sender<ClientMessage>, sender_sender: Sender<Sender<Arc<ServerMessage>>>) {
 	let (mut websocket_tx, mut websocket_rx) = ws.split();
+    let (server_message_tx, mut server_message_rx) = channel::<Arc<ServerMessage>>(32);
 
 	// receiving messages from async client
 	tokio::spawn(async move {
 		while let Some(Ok(msg)) = websocket_rx.next().await {
+			let sender_sender_clone = sender_sender.clone();
+			let server_message_tx_clone = server_message_tx.clone();
 			match std::panic::catch_unwind(|| {
 				let msgpack_bytes = msg.into_bytes();
 				let client_message = rmp_serde::from_slice::<ClientMessage>(&msgpack_bytes[..]).log().unwrap();
+
+				match &client_message.request_data {
+			        calculation_unit::messages::client_message::ClientRequest::SpawnDummy { id } => {
+				        tokio::spawn(async move {
+				            if let Err(e) = sender_sender_clone.send(server_message_tx_clone).await {
+				                eprintln!("Failed to send server_message_tx: {}", e);
+				            }
+				        });
+			        },
+			        _ => {}
+			    };
+
 				let received = serde_json::to_string(&client_message).log().unwrap();
 				// println!("Received: {}", received);
 				
