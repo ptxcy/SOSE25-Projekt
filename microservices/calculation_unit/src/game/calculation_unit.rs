@@ -32,11 +32,14 @@ pub fn broadcast(senders: &mut Vec<ServerMessageSenderChannel>, message: &Server
 		sender_channel.tick_counter += delta_seconds;
 		if sender_channel.tick_counter >= sender_channel.update_threshold {
 			// send message to client
+			println!("trying to send to client");
 			sender_channel.tick_counter = 0.;
 			let message_clone = Arc::clone(&shared_message);
 			if let Err(e) = sender_channel.sender.try_send(message_clone) {
 				match e {
-					error::TrySendError::Full(_) => { /* do nothing */ },
+					error::TrySendError::Full(_) => {
+						eprintln!("Failed to send message: {}", e);
+					},
 					error::TrySendError::Closed(_) => {
 						eprintln!("Failed to send message: {}", e);
 						// remove connection
@@ -46,7 +49,7 @@ pub fn broadcast(senders: &mut Vec<ServerMessageSenderChannel>, message: &Server
 			}
 		}
 		else {
-			println!("tick not there yet {} - {}", sender_channel.tick_counter, sender_channel.update_threshold);
+			// println!("tick not there yet {} - {}", sender_channel.tick_counter, sender_channel.update_threshold);
 		}
 	}
 	// remove senders that are closed

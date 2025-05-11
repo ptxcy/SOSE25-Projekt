@@ -90,8 +90,9 @@ async fn handle_ws_msgpack(ws: WebSocket, client_message_sender: Sender<ClientMe
 		}
 	});
 
-	// sending messages from server to client async
+	// sending messages from calculation_unit to client async
 	while let Some(msg) = server_message_rx.recv().await {
+		println!("got something from calc");
 		let response = match std::panic::catch_unwind(|| {
 			let msgpack_bytes = rmp_serde::to_vec(&*msg).log().unwrap();
 			msgpack_bytes
