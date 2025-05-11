@@ -1,12 +1,10 @@
 
 use std::sync::Arc;
 use calculation_unit::{
-	get_time,
-	logger::Loggable,
-	messages::{
+	game::calculation_unit::ServerMessageSenderChannel, get_time, logger::Loggable, messages::{
 		client_message::ClientMessage,
 		server_message::ServerMessage
-	},
+	}
 };
 use warp::Filter;
 use futures::{SinkExt, StreamExt};
@@ -20,7 +18,7 @@ async fn main() {
 	let millis = get_time();
 	println!("current time: {}", millis);
 
-	let (server_message_sender_sender, server_message_sender_receiver) = channel::<Sender<Arc<ServerMessage>>>(32);
+	let (server_message_sender_sender, server_message_sender_receiver) = channel::<ServerMessageSenderChannel>(32);
 	let (client_message_sender, client_message_receiver) = channel::<ClientMessage>(1024);
 
 	// calculation task
@@ -36,8 +34,6 @@ async fn main() {
         let sender_sender_clone = server_message_sender_sender.clone();
 		let client_message_sender_clone = client_message_sender.clone();
 
-		// send the server_message_tx to the calculation task
-		// TODO move into handlemsg pack
 
         ws.on_upgrade(move |websocket| handle_ws_msgpack(websocket, client_message_sender_clone, sender_sender_clone))
     });
@@ -52,7 +48,7 @@ async fn main() {
 }
 
 // actual message handling
-async fn handle_ws_msgpack(ws: WebSocket, client_message_sender: Sender<ClientMessage>, sender_sender: Sender<Sender<Arc<ServerMessage>>>) {
+async fn handle_ws_msgpack(ws: WebSocket, client_message_sender: Sender<ClientMessage>, sender_sender: Sender<ServerMessageSenderChannel>) {
 	let (mut websocket_tx, mut websocket_rx) = ws.split();
     let (server_message_tx, mut server_message_rx) = channel::<Arc<ServerMessage>>(32);
 
@@ -67,19 +63,21 @@ async fn handle_ws_msgpack(ws: WebSocket, client_message_sender: Sender<ClientMe
 
 				match &client_message.request_data {
 			        calculation_unit::messages::client_message::ClientRequest::SpawnDummy { id } => {
+						// send the server_message_tx to the calculation task
+						let id = id.clone();
 				        tokio::spawn(async move {
-				            if let Err(e) = sender_sender_clone.send(server_message_tx_clone).await {
+				            if let Err(e) = sender_sender_clone.send(ServerMessageSenderChannel::new(id, server_message_tx_clone)).await {
 				                eprintln!("Failed to send server_message_tx: {}", e);
 				            }
 				        });
 			        },
-			        _ => {}
+			        _ => { }
 			    };
 
-				let received = serde_json::to_string(&client_message).log().unwrap();
+				// let received = serde_json::to_string(&client_message).log().unwrap();
 				// println!("Received: {}", received);
 				
-				// send clientmsg to calculation task
+				// send client message to calculation task
 				let client_message_clone = client_message.clone();
 				let client_message_sender_clone = client_message_sender.clone();
 				tokio::spawn(async move {

@@ -3,14 +3,17 @@ use url::Url;
 use futures_util::{stream::StreamExt, SinkExt};
 use calculation_unit::{
 	game::coordinate::Coordinate, get_time, logger::Loggable, messages::{
-		client_message::{ClientMessage, ClientRequest::DummySetVelocity},
+		client_message::{ClientMessage, ClientRequest::{self, DummySetVelocity}},
 		server_message::ServerMessage
 	}
 };
 
 pub fn request_spawn() -> Vec<u8> {
     // Example ClientMessage to send
-    let client_message = ClientMessage::default();
+    let client_message = ClientMessage {
+        request_data: ClientRequest::SpawnDummy { id: "dummy_1".to_owned() },
+        ..Default::default()
+    };
 
     // Serialize ClientMessage to MessagePack
     let serialized_message = rmp_serde::to_vec(&client_message).expect("Failed to serialize message");

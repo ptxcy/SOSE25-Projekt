@@ -5,14 +5,16 @@ use std::{collections::HashMap, sync::Arc, time::Instant};
 use super::{dummy::DummyObject, game_objects::GameObjects};
 
 pub struct ServerMessageSenderChannel {
+	pub id: String,
 	pub sender: Sender<Arc<ServerMessage>>,
 	pub update_threshold: f64,
 	pub tick_counter: f64,
 }
 
 impl ServerMessageSenderChannel {
-    pub fn new(sender: Sender<Arc<ServerMessage>>) -> Self {
+    pub fn new(id: String, sender: Sender<Arc<ServerMessage>>) -> Self {
     	Self {
+    		id,
 	        sender,
 	        // default 60 fps value till updated
 	        update_threshold: 1. / 60.,
@@ -62,7 +64,7 @@ pub fn update_dummies(dummies: &mut HashMap<String, DummyObject>, delta_seconds:
 	Ok(())
 }
 
-pub async fn start(mut sender_receiver: Receiver<Sender<Arc<ServerMessage>>>, mut client_message_receiver: Receiver<ClientMessage>) {
+pub async fn start(mut sender_receiver: Receiver<ServerMessageSenderChannel>, mut client_message_receiver: Receiver<ClientMessage>) {
 	// client channels
 	let mut server_message_senders = Vec::<ServerMessageSenderChannel>::new();
 
@@ -76,7 +78,7 @@ pub async fn start(mut sender_receiver: Receiver<Sender<Arc<ServerMessage>>>, mu
 	loop {
 		// get new client channels
 		while let Ok(sender) = {sender_receiver.try_recv()} {
-			server_message_senders.push(ServerMessageSenderChannel::new(sender));
+			server_message_senders.push(sender);
 		}
 
 		// delta time calculation here
