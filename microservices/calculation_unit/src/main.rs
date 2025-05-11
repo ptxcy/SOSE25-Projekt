@@ -80,17 +80,10 @@ async fn handle_ws_msgpack(ws: WebSocket, mut server_message_rx: Receiver<Arc<Se
 				tokio::spawn(async move {
 					client_message_sender_clone.send(client_message_clone).await.log().unwrap();
 				});
-
-				// let server_message = ServerMessage::respond_to(&client_message);
-				// let response = rmp_serde::to_vec(&server_message).log().unwrap();
-				// response
 			}) {
 			    Ok(r) => r,
 			    Err(e) => { continue; },
 			};
-			// if websocket_tx.send(Message::binary(response)).await.is_err() {
-			// 	break;
-			// }
 		}
 	});
 
@@ -109,17 +102,3 @@ async fn handle_ws_msgpack(ws: WebSocket, mut server_message_rx: Receiver<Arc<Se
 	}
 }
 
-/*
-// Create WebSocket connection.
-const socket = new WebSocket(`ws://localhost:8082/test`);
-
-// Connection opened
-socket.addEventListener("open", (event) => {
-  socket.send(JSON.stringify({author: "jonas", content: "hi"}));
-});
-
-// Listen for messages
-socket.addEventListener("message", (event) => {
-  console.log("Message from server ", event.data);
-});
-*/

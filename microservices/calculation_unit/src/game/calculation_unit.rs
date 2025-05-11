@@ -4,22 +4,44 @@ use std::{collections::HashMap, sync::Arc, time::Instant};
 
 use super::{dummy::DummyObject, game_objects::GameObjects};
 
+pub struct ServerMessageSenderChannel {
+	pub sender: Sender<Arc<ServerMessage>>,
+	pub update_threshold: f64,
+	pub tick_counter: f64,
+}
+
+impl ServerMessageSenderChannel {
+    pub fn new(sender: Sender<Arc<ServerMessage>>) -> Self {
+    	Self {
+	        sender,
+	        // default 60 fps value till updated
+	        update_threshold: 1. / 60.,
+	        tick_counter: 0.,
+	    }
+    }
+}
+
 // send message to all client receivers
-pub fn broadcast(senders: &mut Vec<Sender<Arc<ServerMessage>>>, message: &ServerMessage) {
+pub fn broadcast(senders: &mut Vec<ServerMessageSenderChannel>, message: &ServerMessage, delta_seconds: f64) {
 	let shared_message = Arc::new(message.clone()); // Wrap the message in an Arc
 	let mut to_be_removed = Vec::<usize>::new();
 	// send messages to all
-	for (i, sender) in senders.iter().enumerate() {
-		let message_clone = Arc::clone(&shared_message);
-		if let Err(e) = sender.try_send(message_clone) {
-			match e {
-				error::TrySendError::Full(_) => { /* do nothing */ },
-				error::TrySendError::Closed(_) => {
-					eprintln!("Failed to send message: {}", e);
-					// remove connection
-					to_be_removed.push(i);
-				},
-			};
+	for (i, sender_channel) in senders.iter_mut().enumerate() {
+		sender_channel.tick_counter += delta_seconds;
+		if sender_channel.tick_counter >= sender_channel.update_threshold {
+			// send message to client
+			sender_channel.tick_counter = 0.;
+			let message_clone = Arc::clone(&shared_message);
+			if let Err(e) = sender_channel.sender.try_send(message_clone) {
+				match e {
+					error::TrySendError::Full(_) => { /* do nothing */ },
+					error::TrySendError::Closed(_) => {
+						eprintln!("Failed to send message: {}", e);
+						// remove connection
+						to_be_removed.push(i);
+					},
+				};
+			}
 		}
 	}
 	// remove senders that are closed
@@ -42,7 +64,7 @@ pub fn update_dummies(dummies: &mut HashMap<String, DummyObject>, delta_seconds:
 
 pub async fn start(mut sender_receiver: Receiver<Sender<Arc<ServerMessage>>>, mut client_message_receiver: Receiver<ClientMessage>) {
 	// client channels
-	let mut server_message_senders = Vec::<Sender<Arc<ServerMessage>>>::new();
+	let mut server_message_senders = Vec::<ServerMessageSenderChannel>::new();
 
 	// initialise game objects
 	let mut game_objects = GameObjects::new();
@@ -53,8 +75,8 @@ pub async fn start(mut sender_receiver: Receiver<Sender<Arc<ServerMessage>>>, mu
 	// game loop
 	loop {
 		// get new client channels
-		while let Ok(sender) = {/* println!("calculation_unit: try receive a new sender"); */ sender_receiver.try_recv()} {
-			server_message_senders.push(sender);
+		while let Ok(sender) = {sender_receiver.try_recv()} {
+			server_message_senders.push(ServerMessageSenderChannel::new(sender));
 		}
 
 		// delta time calculation here
@@ -81,7 +103,7 @@ pub async fn start(mut sender_receiver: Receiver<Sender<Arc<ServerMessage>>>, mu
 		};
 
 		// sending message
-		broadcast(&mut server_message_senders, &server_message);
+		broadcast(&mut server_message_senders, &server_message, delta_seconds);
 
 		// retrieving ownership of data
 		game_objects = server_message.request_data.game_objects;
