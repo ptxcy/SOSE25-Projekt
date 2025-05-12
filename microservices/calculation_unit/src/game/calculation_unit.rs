@@ -1,6 +1,6 @@
 use crate::{game::coordinate::Coordinate, get_time, logger::Loggable, messages::{client_message::{ClientMessage, ClientRequest}, server_message::{ObjectData, ServerMessage}, websocket_format::RequestInfo}};
 use tokio::sync::mpsc::*;
-use std::{collections::HashMap, sync::Arc, time::Instant};
+use std::{collections::HashMap, sync::Arc, time::{Duration, Instant}};
 
 use super::{dummy::DummyObject, game_objects::GameObjects};
 
@@ -24,7 +24,7 @@ impl ServerMessageSenderChannel {
 }
 
 // send message to all client receivers
-pub fn broadcast(senders: &mut Vec<ServerMessageSenderChannel>, message: &ServerMessage, delta_seconds: f64) {
+pub async fn broadcast(senders: &mut Vec<ServerMessageSenderChannel>, message: &ServerMessage, delta_seconds: f64) {
 	let shared_message = Arc::new(message.clone()); // Wrap the message in an Arc
 	let mut to_be_removed = Vec::<usize>::new();
 	// send messages to all
@@ -36,7 +36,7 @@ pub fn broadcast(senders: &mut Vec<ServerMessageSenderChannel>, message: &Server
 			sender_channel.tick_counter = 0.;
 			let message_clone = Arc::clone(&shared_message);
 			// FIXME channel closes for some reason
-			if let Err(e) = sender_channel.sender.try_send(message_clone) {
+			if let Err(e) = sender_channel.sender.send(message_clone).await {
 				eprintln!("Failed to send message: {}", e);
 				// remove connection
 				to_be_removed.push(i);
@@ -62,7 +62,7 @@ pub fn update_dummies(dummies: &mut HashMap<String, DummyObject>, delta_seconds:
 	Ok(())
 }
 
-pub fn start(mut sender_receiver: Receiver<ServerMessageSenderChannel>, mut client_message_receiver: Receiver<ClientMessage>) {
+pub async fn start(mut sender_receiver: Receiver<ServerMessageSenderChannel>, mut client_message_receiver: Receiver<ClientMessage>) {
 	// client channels
 	let mut server_message_senders = Vec::<ServerMessageSenderChannel>::new();
 
@@ -77,7 +77,6 @@ pub fn start(mut sender_receiver: Receiver<ServerMessageSenderChannel>, mut clie
 
 		while let Ok(sender) = sender_receiver.try_recv() {
 			println!("getting sender");
-			// FIXME this message is not being received
 			if let Err(e) = sender.sender.try_send(Arc::new(ServerMessage::dummy())) {
 				eprintln!("Failed to send initial dummy message: {}", e);
 			}
@@ -110,9 +109,11 @@ pub fn start(mut sender_receiver: Receiver<ServerMessageSenderChannel>, mut clie
 
 		// sending message
 		// println!("broadcasting to clients");
-		broadcast(&mut server_message_senders, &server_message, delta_seconds);
+		broadcast(&mut server_message_senders, &server_message, delta_seconds).await;
 
 		// retrieving ownership of data
 		game_objects = server_message.request_data.game_objects;
+
+		tokio::task::yield_now().await;
 	}
 }

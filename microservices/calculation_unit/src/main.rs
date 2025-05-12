@@ -73,6 +73,12 @@ async fn handle_ws_msgpack(ws: WebSocket, client_message_sender: Sender<ClientMe
 			            }
 			        });
 			        // make sure only doing this once ever, second loop for other messages
+					// send client message to calculation task
+					let client_message_clone = client_message.clone();
+					let client_message_sender_clone = client_message_sender.clone();
+					tokio::spawn(async move {
+						client_message_sender_clone.send(client_message_clone).await.log().unwrap();
+					});
 		            break;
 		        },
 		        _ => { }
