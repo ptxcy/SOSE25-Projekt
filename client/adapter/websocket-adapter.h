@@ -39,30 +39,20 @@ private:
     ConnectionCallback connection_callback_;
 };
 
-// Connect to calculation service WebSocket endpoint using JWT token
-std::shared_ptr<WebSocketClient> connectToCalculateWebSocket(
+// Connect to authproxy WebSocket endpoint using JWT token
+std::shared_ptr<WebSocketClient> connectToAuthProxyWebSocket(
     const std::string& jwtToken,
     const std::string& host = "localhost",
     const std::string& port = "8080",
+    const std::string& path = "/api/ws",
     MessageCallback messageCallback = nullptr,
     ConnectionCallback connectionCallback = nullptr
 );
 
-// Connect to calculation unit
-std::shared_ptr<WebSocketClient> connectToCalculationUnit(
-    const std::string& baseUrl, 
-    const std::string& bearerToken,
-    std::function<void(const std::string&, bool)> messageHandler = nullptr,
-    ConnectionCallback connectionHandler = nullptr
-);
-
-// Send a MessagePack formatted message to the calculation unit
-bool sendMessagePackToCalculationUnit(
+// Helper function to send a MessagePack formatted message
+bool sendMessagePack(
     std::shared_ptr<WebSocketClient> client,
     const std::vector<uint8_t>& messagePackData
 );
-
-// Close the WebSocket connection to the calculation unit
-void closeCalculationUnitConnection(std::shared_ptr<WebSocketClient> client);
 
 #endif // WEBSOCKET_ADAPTER_H

@@ -16,7 +16,7 @@ async function get(request: Request, response: Response) {
     }
     
     response.status(200)
-        .setHeader("Authorization", await generateJWTToken(authenticationResult.userData))
+        .setHeader("Authorization", "Bearer " + await generateJWTToken(authenticationResult.userData))
         .json({message: "Authentication was successful!"});
 }
 

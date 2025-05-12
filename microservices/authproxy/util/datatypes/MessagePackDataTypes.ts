@@ -8,15 +8,9 @@ export interface RequestInfo {
     calculation_unit: { sent_time: number };
 }
 
-export interface RequestData {
-    calculation_type: string;
-    calculated_data: object;
-}
-
 export interface CalculationRequest {
     request_info: RequestInfo;
-    request_data: RequestData;
-    calculation_result: object;
+    request_data: object;
 }
 
 export async function encodeObject(object: CalculationRequest): Promise<Uint8Array> {
