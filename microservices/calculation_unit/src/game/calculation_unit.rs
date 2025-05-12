@@ -62,7 +62,7 @@ pub fn update_dummies(dummies: &mut HashMap<String, DummyObject>, delta_seconds:
 	Ok(())
 }
 
-pub async fn start(mut sender_receiver: Receiver<ServerMessageSenderChannel>, mut client_message_receiver: Receiver<ClientMessage>) {
+pub fn start(mut sender_receiver: Receiver<ServerMessageSenderChannel>, mut client_message_receiver: Receiver<ClientMessage>) {
 	// client channels
 	let mut server_message_senders = Vec::<ServerMessageSenderChannel>::new();
 
@@ -74,44 +74,45 @@ pub async fn start(mut sender_receiver: Receiver<ServerMessageSenderChannel>, mu
 
 	// game loop
 	loop {
-		tokio::select! {
-			Some(sender) = sender_receiver.recv() => {
-				println!("getting sender");
-				if let Err(e) = sender.sender.send(Arc::new(ServerMessage::dummy())).await {
-					eprintln!("Failed to send initial dummy message: {}", e);
-				}
 
-				server_message_senders.push(sender);
+		while let Ok(sender) = sender_receiver.try_recv() {
+			println!("getting sender");
+			// FIXME this message is not being received
+			if let Err(e) = sender.sender.try_send(Arc::new(ServerMessage::dummy())) {
+				eprintln!("Failed to send initial dummy message: {}", e);
 			}
-			Some(client_message) = client_message_receiver.recv() => {
-				// delta time calculation here
-				let now = Instant::now();
-				let delta_time = now.duration_since(last_time);
-				last_time = now;
-				let delta_seconds = delta_time.as_secs_f64();
 
-				// receive client input
-				let result = client_message.request_data.execute(&mut game_objects, delta_seconds)/* .log() */;
-
-				// game logic calculation
-				let update_result = update_game(&mut game_objects, delta_seconds).log();
-
-				// creating message for sending
-				let object_data = ObjectData {
-					game_objects
-				};
-				let server_message = ServerMessage {
-					request_info: RequestInfo::new(get_time() as f64),
-					request_data: object_data,
-				};
-
-				// sending message
-				// println!("broadcasting to clients");
-				broadcast(&mut server_message_senders, &server_message, delta_seconds);
-
-				// retrieving ownership of data
-				game_objects = server_message.request_data.game_objects;
-			}
+			server_message_senders.push(sender);
 		}
+
+		// delta time calculation here
+		let now = Instant::now();
+		let delta_time = now.duration_since(last_time);
+		last_time = now;
+		let delta_seconds = delta_time.as_secs_f64();
+
+		// receive client input
+		while let Ok(client_message) = client_message_receiver.try_recv() {
+			let result = client_message.request_data.execute(&mut game_objects, delta_seconds)/* .log() */;
+		}
+
+		// game logic calculation
+		let update_result = update_game(&mut game_objects, delta_seconds).log();
+
+		// creating message for sending
+		let object_data = ObjectData {
+			game_objects
+		};
+		let server_message = ServerMessage {
+			request_info: RequestInfo::new(get_time() as f64),
+			request_data: object_data,
+		};
+
+		// sending message
+		// println!("broadcasting to clients");
+		broadcast(&mut server_message_senders, &server_message, delta_seconds);
+
+		// retrieving ownership of data
+		game_objects = server_message.request_data.game_objects;
 	}
 }
