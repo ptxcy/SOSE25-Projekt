@@ -81,33 +81,33 @@ void VertexBuffer::upload_elements(std::vector<u32> elements)
 
 /**
  *	allocation and setup for texture data load
- *	\param path: path to texture file
  *	\param corrected: (default false) true if texture is corrected sRGB colourspace instead of regular RGBA
  */
-TextureData::TextureData(string path,bool corrected)
-	: m_Path(path)
+TextureData::TextureData(bool corrected)
 {
 	m_Format = GL_RGBA+corrected*0x7338;
 }
 
 /**
  *	make the cpu load the texture data & dimensions from file
+ *	\param path: path to texture
  */
-void TextureData::load()
+void TextureData::load(const char* path)
 {
-	COMM_ERR_COND(!check_file_exists(m_Path.c_str()),"texture %s could not be found",m_Path.c_str());
-	m_Data = stbi_load(m_Path.c_str(),&width,&height,0,STBI_rgb_alpha);
+	COMM_ERR_COND(!check_file_exists(path),"texture %s could not be found",path);
+	data = stbi_load(path,&width,&height,0,STBI_rgb_alpha);
+	m_Texture = true;
 }
 
 /**
  *	upload data to gpu
- *	NOTE has to be uploaded on main thread
+ *	NOTE has to be uploaded in main thread
  *	NOTE target texture has to be bound before uploading
  */
 void TextureData::gpu_upload()
 {
-	glTexImage2D(GL_TEXTURE_2D,0,m_Format,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,m_Data);
-	stbi_image_free(m_Data);
+	glTexImage2D(GL_TEXTURE_2D,0,m_Format,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,data);
+	_free();
 }
 
 /**
@@ -119,8 +119,17 @@ void TextureData::gpu_upload()
  */
 void TextureData::gpu_upload(u32 x,u32 y)
 {
-	glTexSubImage2D(GL_TEXTURE_2D,0,x,y,width,height,m_Format,GL_UNSIGNED_BYTE,m_Data);
-	stbi_image_free(m_Data);
+	glTexSubImage2D(GL_TEXTURE_2D,0,x,y,width,height,m_Format,GL_UNSIGNED_BYTE,data);
+	_free();
+}
+
+/**
+ *	free buffer memory
+ */
+void TextureData::_free()
+{
+	if (m_Texture) stbi_image_free(data);
+	else free(data);
 }
 
 
@@ -278,31 +287,55 @@ void GPUPixelBuffer::allocate(u32 width,u32 height,u32 format)
  *	load texture from path and finally upload to gpu memory
  *	\param gpb: target pixel buffer
  *	\param requests: pointer to load request queue, receiving the gpu upload request when loading is done
- *	\param pbc: pointer to atlas component information, this will be overwritten
  *	\param mutex_requests: simple mutual exclusion, blocking the access to the load request queue
+ *	\param pbc: pointer to atlas component information, this will be overwritten
  *	\param path: path to texture file
  *	NOTE this is supposed to run as a subthread, hence the mutex and load request queue pointer
  */
 void GPUPixelBuffer::load_texture(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,
-								  PixelBufferComponent* pbc,std::mutex* mutex_requests,const char* path)
+								  std::mutex* mutex_requests,PixelBufferComponent* pbc,const char* path)
 {
 	// load information from texture file
-	TextureData __TextureData = TextureData(path);
-	__TextureData.load();
+	TextureData __TextureData;
+	__TextureData.load(path);
 
 	// upload to gpu memory
-	_load(gpb,requests,pbc,mutex_requests,&__TextureData);
+	_load(gpb,requests,mutex_requests,pbc,&__TextureData);
 }
 
 /**
  *	load font data and finally upload to gpu memory
+ *	\param font: pointer to target font memory
  *	\param path: path to font file
  *	NOTE this is supposed to run as a subthread, hence the mutex and load request queue pointer
  */
-void GPUPixelBuffer::load_font(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,
-							   PixelBufferComponent* pbc,std::mutex* mutex_requests,const char* path)
+void GPUPixelBuffer::load_font(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,std::mutex* mutex_requests,
+							   Font* font,const char* path)
 {
-	// TODO
+	// load ttf file
+	FT_Face __Face;
+	bool _failed = FT_New_Face(g_FreetypeLibrary,path,0,&__Face);
+	COMM_ERR_COND(_failed,"font loading unsuccessful");
+	FT_Set_Pixel_Sizes(__Face,0,50);  // TODO important to actually set the size for every font as we desire
+
+	// iterate font glyphs
+	for (u8 i=0;i<96;i++)
+	{
+		// rasterize glyph
+		_failed = FT_Load_Char(__Face,i+32,FT_LOAD_RENDER);
+		COMM_ERR_COND(_failed,"rasterization of character %c failed",(char)i+32);
+
+		// glyph attributes
+		TextureData __TextureData;
+		__TextureData.width = __Face->glyph->bitmap.width;
+		__TextureData.height = __Face->glyph->bitmap.rows;
+
+		// upload glyph as texture buffer
+		size_t __Mem = __Face->glyph->bitmap.pitch*__Face->glyph->bitmap.rows;
+		__TextureData.data = (void*)malloc(__Mem);
+		memcpy(__TextureData.data,__Face->glyph->bitmap.buffer,__Mem);
+		_load(gpb,requests,mutex_requests,&font->tex[i],&__TextureData);
+	}
 }
 
 /**
@@ -311,7 +344,7 @@ void GPUPixelBuffer::load_font(GPUPixelBuffer* gpb,std::queue<TextureData>* requ
  *	NOTE this is supposed to run as a subthread, hence the mutex and load request queue pointer
  */
 void GPUPixelBuffer::_load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,
-						   PixelBufferComponent* pbc,std::mutex* mutex_requests,TextureData* data)
+						   std::mutex* mutex_requests,PixelBufferComponent* pbc,TextureData* data)
 {
 	// locate best position for texture on free memory space
 	f32 __BestDifference = 0x7f800000;

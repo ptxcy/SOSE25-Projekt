@@ -50,20 +50,23 @@ private:
 class TextureData
 {
 public:
-	TextureData(string path,bool corrected=false);
+	TextureData(bool corrected=false);
 
-	void load();
+	void load(const char* path);
 	void gpu_upload();
 	void gpu_upload(u32 x,u32 y);
+
+private:
+	void _free();
 
 public:
 	u32 x,y;
 	s32 width,height;
+	void* data;
 
 private:
-	string m_Path;
 	s32 m_Format;
-	void* m_Data;
+	bool m_Texture = false;
 };
 
 
@@ -97,17 +100,22 @@ struct PixelBufferComponent
 	vec2 dimensions;
 };
 
+struct Font
+{
+	PixelBufferComponent tex[96];
+};
+
 constexpr u8 BUFFER_ATLAS_BORDER_PADDING = 2;
 struct GPUPixelBuffer
 {
 	// utilty
 	void allocate(u32 width,u32 height,u32 format);
-	static void load_texture(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,PixelBufferComponent* pbc,
-					 std::mutex* mutex_requests,const char* path);
-	static void load_font(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,PixelBufferComponent* pbc,
-							 std::mutex* mutex_requests,const char* path);
-	static void _load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,PixelBufferComponent* pbc,
-					 std::mutex* mutex_requests,TextureData* data);
+	static void load_texture(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,std::mutex* mutex_requests,
+							 PixelBufferComponent* pbc,const char* path);
+	static void load_font(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,std::mutex* mutex_requests,
+						  Font* font,const char* path);
+	static void _load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,std::mutex* mutex_requests,
+					  PixelBufferComponent* pbc,TextureData* data);
 	// TODO allocate & write for statically written texture atlas
 	// TODO when allocating, rotation boolean can be stored in alpha by signing the float
 	// TODO allow to merge deleted rects when using a dynamic texture atlas

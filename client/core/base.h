@@ -40,6 +40,10 @@
 #include "include/stb_image.h"
 #endif
 
+// font
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 
 // ----------------------------------------------------------------------------------------------------
 // basetype definitions to n64 standard
@@ -295,6 +299,12 @@ public:
 };
 
 inline CoordinateSystem2D g_CoordinateSystem = CoordinateSystem2D(MATH_CARTESIAN_XRANGE,MATH_CARTESIAN_YRANGE);
+
+
+// ----------------------------------------------------------------------------------------------------
+// Additional Globals
+
+inline FT_Library g_FreetypeLibrary;
 
 
 #endif

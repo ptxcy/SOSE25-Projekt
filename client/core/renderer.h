@@ -7,6 +7,8 @@
 
 
 constexpr f32 RENDERER_POSITIONAL_DELETION_CODE = -1247.f;
+constexpr u16 RENDERER_SPRITE_MEMORY_WIDTH = 1500;
+constexpr u16 RENDERER_SPRITE_MEMORY_HEIGHT = 1500;
 constexpr u16 RENDERER_MAXIMUM_STEXTURE_COUNT = 512;
 constexpr u16 RENDERER_MAXIMUM_SPRITE_COUNT = 512;
 
@@ -36,6 +38,9 @@ public:
 	void assign_sprite_texture(Sprite* sprite,PixelBufferComponent* texture);
 	void delete_sprite_texture(PixelBufferComponent* texture);
 	static void delete_sprite(Sprite* sprite);
+
+	// text
+	void register_font(Font* font,const char* path);
 
 private:
 	void _gpu_upload();

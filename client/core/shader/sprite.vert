@@ -28,6 +28,7 @@ void main()
 
 	// pass
 	gl_Position = proj*view*vec4(Position*scale+offset,.0,1.);
-	EdgeCoordinates = tex_position+tex_dimension*edge_coordinates;
+	EdgeCoordinates = edge_coordinates;
+	//EdgeCoordinates = tex_position+tex_dimension*edge_coordinates;
 	Alpha = alpha;
 }

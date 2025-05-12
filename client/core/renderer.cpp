@@ -32,6 +32,10 @@ Renderer::Renderer()
 {
 	COMM_MSG(LOG_CYAN,"starting render system");
 
+	COMM_LOG("starting font rasterizer");
+	bool _failed = FT_Init_FreeType(&g_FreetypeLibrary);
+	COMM_ERR_COND(_failed,"text rasterizer not available");
+
 	COMM_LOG("pre-loading basic geometry data");
 	f32 __QuadVertices[] = {
 		-.5f,.5f,.0f,.0f, .5f,-.5f,1.f,1.f, .5f,.5f,1.f,.0f,
@@ -44,6 +48,7 @@ Renderer::Renderer()
 
 	// ----------------------------------------------------------------------------------------------------
 	// Sprite Pipeline
+
 	COMM_LOG("assembling pipelines:");
 	COMM_LOG("sprite pipeline");
 	m_SpritePipeline.assemble(__SpriteVertexShader,__DirectFragmentShader,4,10,"sprite");
@@ -69,9 +74,9 @@ Renderer::Renderer()
 	// ----------------------------------------------------------------------------------------------------
 	// GPU Memory
 
-	// allocate sprite memory
+	COMM_LOG("allocating sprite memory");
 	m_GPUSpriteTextures.atlas.bind();
-	m_GPUSpriteTextures.allocate(1500,1500,GL_RGBA);
+	m_GPUSpriteTextures.allocate(RENDERER_SPRITE_MEMORY_WIDTH,RENDERER_SPRITE_MEMORY_HEIGHT,GL_RGBA);
 	Texture::set_texture_parameter_linear_mipmap();
 	Texture::set_texture_parameter_clamp_to_edge();
 
@@ -117,7 +122,7 @@ PixelBufferComponent* Renderer::register_sprite_texture(const char* path)
 	COMM_LOG("sprite texture register of %s",path);
 
 	std::thread __LoadThread(GPUPixelBuffer::load_texture,
-							 &m_GPUSpriteTextures,&m_SpriteLoadRequests,p_Comp,&_mutex_sprite_requests,path);
+							 &m_GPUSpriteTextures,&m_SpriteLoadRequests,&_mutex_sprite_requests,p_Comp,path);
 	__LoadThread.detach();
 	return p_Comp;
 }
@@ -188,6 +193,19 @@ void Renderer::delete_sprite(Sprite* sprite)
 	sprite->scale = vec2(0,0);
 	sprite = nullptr;
 	_sprite_signal.proceed();
+}
+
+/**
+ *	rasterize a vector font and upload pixel buffer to gpu memory
+ *	\param font: font data memory, to use later when writing text with or in style of it
+ *	\param path: path to .ttf vector font file
+ */
+void Renderer::register_font(Font* font,const char* path)
+{
+	COMM_LOG("font register from source %s",path);
+	std::thread __LoadThread(GPUPixelBuffer::load_font,&m_GPUSpriteTextures,&m_SpriteLoadRequests,
+							 &_mutex_sprite_requests,font,path);
+	__LoadThread.detach();
 }
 
 /**
