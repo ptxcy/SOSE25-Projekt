@@ -1,10 +1,7 @@
-use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
-
-use crate::{game::{dummy::DummyObject, game_objects::GameObjects}, get_time};
-
-use super::{client_message::ClientMessage, websocket_format::RequestInfo};
+use crate::game::game_objects::GameObjects;
+use super::websocket_format::RequestInfo;
 
 // TODO object data
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -16,4 +13,13 @@ pub struct ObjectData {
 pub struct ServerMessage {
     pub request_info: RequestInfo,
     pub request_data: ObjectData,
+}
+
+impl ServerMessage {
+    pub fn dummy() -> Self {
+        Self {
+            request_info: Default::default(),
+            request_data: ObjectData { game_objects: GameObjects::new() },
+        }
+    }
 }

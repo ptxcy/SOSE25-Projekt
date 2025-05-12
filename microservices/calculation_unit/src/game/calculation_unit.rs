@@ -17,7 +17,7 @@ impl ServerMessageSenderChannel {
     		id,
 	        sender,
 	        // default 60 fps value till updated
-	        update_threshold: 1. / 60.,
+	        update_threshold: 1. / 6.,
 	        tick_counter: 0.,
 	    }
     }
@@ -84,6 +84,10 @@ pub async fn start(mut sender_receiver: Receiver<ServerMessageSenderChannel>, mu
 	loop {
 		// get new client channels
 		while let Ok(sender) = {sender_receiver.try_recv()} {
+			println!("getting sender");
+			// FIXME this message is not being received
+		    let _ = sender.sender.try_send(Arc::new(ServerMessage::dummy()));
+
 			server_message_senders.push(sender);
 		}
 
@@ -95,7 +99,7 @@ pub async fn start(mut sender_receiver: Receiver<ServerMessageSenderChannel>, mu
 
 		// receive client input
 		while let Ok(client_message) = client_message_receiver.try_recv() {
-			let result = client_message.request_data.execute(&mut game_objects, delta_seconds).log();
+			let result = client_message.request_data.execute(&mut game_objects, delta_seconds)/* .log() */;
 		}
 
 		// game logic calculation

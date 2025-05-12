@@ -54,45 +54,59 @@ async fn handle_ws_msgpack(ws: WebSocket, client_message_sender: Sender<ClientMe
 
 	// receiving messages from async client
 	tokio::spawn(async move {
+
 		while let Some(Ok(msg)) = websocket_rx.next().await {
-			match std::panic::catch_unwind(|| {
-				let msgpack_bytes = msg.into_bytes();
-				let client_message = rmp_serde::from_slice::<ClientMessage>(&msgpack_bytes[..]).log().unwrap();
-
-				match &client_message.request_data {
-			        calculation_unit::messages::client_message::ClientRequest::SpawnDummy { id } => {
-						// send the server_message_tx to the calculation task
-						let id = id.clone();
-						let sender_sender_clone = sender_sender.clone();
-						let server_message_tx_clone = server_message_tx.clone();
-				        tokio::spawn(async move {
-				            if let Err(e) = sender_sender_clone.send(ServerMessageSenderChannel::new(id, server_message_tx_clone)).await {
-				                eprintln!("Failed to send server_message_tx: {}", e);
-				            }
-				        });
-			        },
-			        _ => { }
-			    };
-
-				// let received = serde_json::to_string(&client_message).log().unwrap();
-				// println!("Received: {}", received);
-				
-				// send client message to calculation task
-				let client_message_clone = client_message.clone();
-				let client_message_sender_clone = client_message_sender.clone();
-				tokio::spawn(async move {
-					client_message_sender_clone.send(client_message_clone).await.log().unwrap();
-				});
-			}) {
-			    Ok(r) => r,
-			    Err(e) => { continue; },
+			let msgpack_bytes = msg.into_bytes();
+			let client_message = match rmp_serde::from_slice::<ClientMessage>(&msgpack_bytes[..]).log() {
+			    Ok(m) => m,
+			    Err(_) => continue,
 			};
+
+			match &client_message.request_data {
+		        calculation_unit::messages::client_message::ClientRequest::SpawnDummy { id } => {
+					// send the server_message_tx to the calculation task
+					let id = id.clone();
+			        tokio::spawn(async move {
+			        	println!("new conenction");
+			            if let Err(e) = sender_sender.send(ServerMessageSenderChannel::new(id, server_message_tx)).await {
+			                eprintln!("Failed to send server_message_tx: {}", e);
+			            }
+			        });
+			        // make sure only doing this once ever, second loop for other messages
+		            break;
+		        },
+		        _ => { }
+		    };
+			
+			// send client message to calculation task
+			let client_message_clone = client_message.clone();
+			let client_message_sender_clone = client_message_sender.clone();
+			tokio::spawn(async move {
+				client_message_sender_clone.send(client_message_clone).await.log().unwrap();
+			});
+		}
+
+		while let Some(Ok(msg)) = websocket_rx.next().await {
+			let msgpack_bytes = msg.into_bytes();
+			let client_message = match rmp_serde::from_slice::<ClientMessage>(&msgpack_bytes[..]).log() {
+			    Ok(m) => m,
+			    Err(_) => continue,
+			};
+
+			// let received = serde_json::to_string(&client_message).log().unwrap();
+			// println!("Received: {}", received);
+			
+			// send client message to calculation task
+			let client_message_clone = client_message.clone();
+			let client_message_sender_clone = client_message_sender.clone();
+			tokio::spawn(async move {
+				client_message_sender_clone.send(client_message_clone).await.log().unwrap();
+			});
 		}
 	});
 
 	// sending messages from calculation_unit to client async
-	// FIX FIXME TODO ???
-	while let Some(msg) = server_message_rx.recv().await {
+	while let Ok(msg) = server_message_rx.try_recv() {
 		println!("got something from calc");
 		let response = match std::panic::catch_unwind(|| {
 			let msgpack_bytes = rmp_serde::to_vec(&*msg).log().unwrap();
