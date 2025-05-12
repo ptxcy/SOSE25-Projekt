@@ -24,7 +24,7 @@ impl ServerMessageSenderChannel {
 }
 
 // send message to all client receivers
-pub fn broadcast(senders: &mut Vec<ServerMessageSenderChannel>, message: &ServerMessage, delta_seconds: f64) {
+pub async fn broadcast(senders: &mut Vec<ServerMessageSenderChannel>, message: &ServerMessage, delta_seconds: f64) {
 	let shared_message = Arc::new(message.clone()); // Wrap the message in an Arc
 	let mut to_be_removed = Vec::<usize>::new();
 	// send messages to all
@@ -35,22 +35,14 @@ pub fn broadcast(senders: &mut Vec<ServerMessageSenderChannel>, message: &Server
 			println!("trying to send to client");
 			sender_channel.tick_counter = 0.;
 			let message_clone = Arc::clone(&shared_message);
-			if let Err(e) = sender_channel.sender.try_send(message_clone) {
-				match e {
-					error::TrySendError::Full(_) => {
-						eprintln!("Failed to send message: {}", e);
-					},
-					error::TrySendError::Closed(_) => {
-						eprintln!("Failed to send message: {}", e);
-						// remove connection
-						to_be_removed.push(i);
-					},
-				};
+			// FIXME channel closes for some reason
+			if let Err(e) = sender_channel.sender.send(message_clone).await {
+				eprintln!("Failed to send message: {}", e);
+				// remove connection
+				to_be_removed.push(i);
 			}
 		}
-		else {
-			// println!("tick not there yet {} - {}", sender_channel.tick_counter, sender_channel.update_threshold);
-		}
+		else { }
 	}
 	// remove senders that are closed
 	for i in to_be_removed.iter().rev() {
@@ -83,13 +75,17 @@ pub async fn start(mut sender_receiver: Receiver<ServerMessageSenderChannel>, mu
 	// game loop
 	loop {
 		// get new client channels
-		while let Ok(sender) = {sender_receiver.try_recv()} {
+		println!("a");
+		while let Some(sender) = sender_receiver.recv().await {
 			println!("getting sender");
 			// FIXME this message is not being received
-		    let _ = sender.sender.try_send(Arc::new(ServerMessage::dummy()));
+			if let Err(e) = sender.sender.send(Arc::new(ServerMessage::dummy())).await {
+				eprintln!("Failed to send initial dummy message: {}", e);
+			}
 
 			server_message_senders.push(sender);
 		}
+		println!("b");
 
 		// delta time calculation here
 		let now = Instant::now();
@@ -98,7 +94,7 @@ pub async fn start(mut sender_receiver: Receiver<ServerMessageSenderChannel>, mu
 		let delta_seconds = delta_time.as_secs_f64();
 
 		// receive client input
-		while let Ok(client_message) = client_message_receiver.try_recv() {
+		while let Some(client_message) = client_message_receiver.recv().await {
 			let result = client_message.request_data.execute(&mut game_objects, delta_seconds)/* .log() */;
 		}
 
@@ -115,7 +111,8 @@ pub async fn start(mut sender_receiver: Receiver<ServerMessageSenderChannel>, mu
 		};
 
 		// sending message
-		broadcast(&mut server_message_senders, &server_message, delta_seconds);
+		println!("broadcasting to clients");
+		broadcast(&mut server_message_senders, &server_message, delta_seconds).await;
 
 		// retrieving ownership of data
 		game_objects = server_message.request_data.game_objects;

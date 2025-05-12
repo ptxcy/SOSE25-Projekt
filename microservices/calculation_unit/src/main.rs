@@ -106,7 +106,8 @@ async fn handle_ws_msgpack(ws: WebSocket, client_message_sender: Sender<ClientMe
 	});
 
 	// sending messages from calculation_unit to client async
-	while let Ok(msg) = server_message_rx.try_recv() {
+	// FIXME channel closes for some reason
+	while let Some(msg) = server_message_rx.recv().await {
 		println!("got something from calc");
 		let response = match std::panic::catch_unwind(|| {
 			let msgpack_bytes = rmp_serde::to_vec(&*msg).log().unwrap();
