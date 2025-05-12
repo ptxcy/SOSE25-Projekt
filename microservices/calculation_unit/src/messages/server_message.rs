@@ -3,7 +3,6 @@ use serde::{Deserialize, Serialize};
 use crate::game::game_objects::GameObjects;
 use super::websocket_format::RequestInfo;
 
-// TODO object data
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ObjectData {
     pub game_objects: GameObjects,

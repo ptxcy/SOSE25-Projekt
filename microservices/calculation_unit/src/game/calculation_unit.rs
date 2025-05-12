@@ -35,7 +35,6 @@ pub async fn broadcast(senders: &mut Vec<ServerMessageSenderChannel>, message: &
 			println!("trying to send to client");
 			sender_channel.tick_counter = 0.;
 			let message_clone = Arc::clone(&shared_message);
-			// FIXME channel closes for some reason
 			if let Err(e) = sender_channel.sender.send(message_clone).await {
 				eprintln!("Failed to send message: {}", e);
 				// remove connection
@@ -114,6 +113,7 @@ pub async fn start(mut sender_receiver: Receiver<ServerMessageSenderChannel>, mu
 		// retrieving ownership of data
 		game_objects = server_message.request_data.game_objects;
 
+		// let other tokio tasks do stuff
 		tokio::task::yield_now().await;
 	}
 }
