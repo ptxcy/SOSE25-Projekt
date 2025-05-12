@@ -1,4 +1,3 @@
-
 use std::sync::Arc;
 use calculation_unit::{
 	game::calculation_unit::ServerMessageSenderChannel, get_time, logger::Loggable, messages::{
@@ -67,8 +66,9 @@ async fn handle_ws_msgpack(ws: WebSocket, client_message_sender: Sender<ClientMe
 					// send the server_message_tx to the calculation task
 					let id = id.clone();
 			        tokio::spawn(async move {
-			        	println!("new conenction");
-			            if let Err(e) = sender_sender.send(ServerMessageSenderChannel::new(id, server_message_tx)).await {
+			        	println!("new connection");
+						let server_message_tx_clone = server_message_tx.clone();
+			            if let Err(e) = sender_sender.send(ServerMessageSenderChannel::new(id, server_message_tx_clone)).await {
 			                eprintln!("Failed to send server_message_tx: {}", e);
 			            }
 			        });
@@ -106,7 +106,6 @@ async fn handle_ws_msgpack(ws: WebSocket, client_message_sender: Sender<ClientMe
 	});
 
 	// sending messages from calculation_unit to client async
-	// FIXME channel closes for some reason
 	while let Some(msg) = server_message_rx.recv().await {
 		println!("got something from calc");
 		let response = match std::panic::catch_unwind(|| {
