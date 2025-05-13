@@ -17,7 +17,7 @@ impl ServerMessageSenderChannel {
     		id,
 	        sender,
 	        // default 60 fps value till updated
-	        update_threshold: 1. / 6.,
+	        update_threshold: 1. / 2.,
 	        tick_counter: 0.,
 	    }
     }
@@ -32,7 +32,7 @@ pub async fn broadcast(senders: &mut Vec<ServerMessageSenderChannel>, message: &
 		sender_channel.tick_counter += delta_seconds;
 		if sender_channel.tick_counter >= sender_channel.update_threshold {
 			// send message to client
-			println!("trying to send to client");
+			// println!("trying to send to client");
 			sender_channel.tick_counter = 0.;
 			let message_clone = Arc::clone(&shared_message);
 			if let Err(e) = sender_channel.sender.send(message_clone).await {
@@ -75,10 +75,10 @@ pub async fn start(mut sender_receiver: Receiver<ServerMessageSenderChannel>, mu
 	loop {
 
 		while let Ok(sender) = sender_receiver.try_recv() {
-			println!("getting sender");
-			if let Err(e) = sender.sender.try_send(Arc::new(ServerMessage::dummy())) {
-				eprintln!("Failed to send initial dummy message: {}", e);
-			}
+			println!("getting sender {}", sender.id);
+			// if let Err(e) = sender.sender.try_send(Arc::new(ServerMessage::dummy())) {
+			// 	eprintln!("Failed to send initial dummy message: {}", e);
+			// }
 
 			server_message_senders.push(sender);
 		}
@@ -91,7 +91,7 @@ pub async fn start(mut sender_receiver: Receiver<ServerMessageSenderChannel>, mu
 
 		// receive client input
 		while let Ok(client_message) = client_message_receiver.try_recv() {
-			let result = client_message.request_data.execute(&mut game_objects, delta_seconds)/* .log() */;
+			let result = client_message.request_data.execute(&mut game_objects, delta_seconds).log();
 		}
 
 		// game logic calculation

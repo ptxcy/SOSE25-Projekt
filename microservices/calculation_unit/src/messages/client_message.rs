@@ -1,9 +1,6 @@
-use std::collections::HashMap;
 
 use serde::{Serialize, Deserialize};
-
 use crate::game::{coordinate::Coordinate, dummy::DummyObject, game_objects::GameObjects};
-
 use super::websocket_format::RequestInfo;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -49,7 +46,7 @@ impl ClientRequest {
 		    	// check if dummy with id already exists
 		    	match dummies.get(&id) {
 		            Some(_) => {
-		            	return Err(format!("error: couldnt spawn dummy, dummy already exists! id: {}", id));
+		            	return Err(format!("couldnt spawn dummy, dummy already exists! id: {}", id));
 		            },
 		            None => { },
 		        };

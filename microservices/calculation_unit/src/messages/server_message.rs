@@ -15,7 +15,7 @@ pub struct ServerMessage {
 }
 
 impl ServerMessage {
-    pub fn dummy() -> Self {
+    pub fn test() -> Self {
         Self {
             request_info: Default::default(),
             request_data: ObjectData { game_objects: GameObjects::new() },

@@ -74,10 +74,8 @@ async fn handle_ws_msgpack(ws: WebSocket, client_message_sender: Sender<ClientMe
 					let id = id.clone();
 					tokio::spawn(async move {
 						println!("new connection");
-						let server_message_tx_clone = server_message_tx.clone();
-						if let Err(e) = sender_sender.send(ServerMessageSenderChannel::new(id, server_message_tx_clone)).await {
-							eprintln!("Failed to send server_message_tx: {}", e);
-						}
+						let result = sender_sender.send(ServerMessageSenderChannel::new(id, server_message_tx)).await
+							.logm("failed to send server_message_tx");
 					});
 					// make sure only doing this once ever, second loop for other messages
 					// send client message to calculation task
@@ -104,7 +102,7 @@ async fn handle_ws_msgpack(ws: WebSocket, client_message_sender: Sender<ClientMe
 
 	// sending messages from calculation_unit to client async
 	while let Some(msg) = server_message_rx.recv().await {
-		println!("got something from calc");
+		// println!("got something from calc");
 		let response = match std::panic::catch_unwind(|| {
 			let msgpack_bytes = rmp_serde::to_vec(&*msg).log().unwrap();
 			msgpack_bytes
