@@ -1,17 +1,19 @@
+use std::env;
+
 use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
 use url::Url;
 use futures_util::{stream::StreamExt, SinkExt};
 use calculation_unit::{
-	game::coordinate::Coordinate, get_time, logger::Loggable, messages::{
+	game::coordinate::Coordinate, messages::{
 		client_message::{ClientMessage, ClientRequest::{self, DummySetVelocity}},
 		server_message::ServerMessage
 	}
 };
 
-pub fn request_spawn() -> Vec<u8> {
+pub fn request_spawn(id: &String) -> Vec<u8> {
     // Example ClientMessage to send
     let client_message = ClientMessage {
-        request_data: ClientRequest::SpawnDummy { id: "dummy_1".to_owned() },
+        request_data: ClientRequest::SpawnDummy { id: id.clone() },
         ..Default::default()
     };
 
@@ -20,10 +22,10 @@ pub fn request_spawn() -> Vec<u8> {
     serialized_message
 }
 
-pub fn request_move() -> Vec<u8> {
+pub fn request_move(id: &String) -> Vec<u8> {
     // Example ClientMessage to send
     let client_message = ClientMessage {
-        request_data: DummySetVelocity { id: "dummy_1".to_owned(), position: Coordinate { x: 2., y: 0., z: 0. } },
+        request_data: DummySetVelocity { id: id.clone(), position: Coordinate { x: 2., y: 0., z: 0. } },
         ..Default::default()
     };
 
@@ -34,6 +36,14 @@ pub fn request_move() -> Vec<u8> {
 
 #[tokio::main]
 async fn main() {
+    let args = env::args().collect::<Vec<String>>();
+
+    if args.len() != 2 {
+        panic!("no id args, start using cargo run --bin client -- dummy1");
+    }
+
+    let id = args[1].clone();
+
     // Define the WebSocket server URL
     let url = Url::parse("ws://127.0.0.1:8082/msgpack").expect("Invalid WebSocket URL");
 
@@ -49,7 +59,7 @@ async fn main() {
     // Send a message to the server
     tokio::spawn(async move {
         // spawn dummy_1
-        let serialized_message = request_spawn();
+        let serialized_message = request_spawn(&id);
         write
             .send(Message::Binary(serialized_message))
             .await
@@ -58,7 +68,7 @@ async fn main() {
 
         // move dummy_1
         loop {
-            let serialized_message = request_move();
+            let serialized_message = request_move(&id);
             write
                 .send(Message::Binary(serialized_message))
                 .await
