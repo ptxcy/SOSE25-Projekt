@@ -9,8 +9,6 @@
 constexpr f32 RENDERER_POSITIONAL_DELETION_CODE = -1247.f;
 constexpr u16 RENDERER_SPRITE_MEMORY_WIDTH = 1500;
 constexpr u16 RENDERER_SPRITE_MEMORY_HEIGHT = 1500;
-constexpr u16 RENDERER_MAXIMUM_STEXTURE_COUNT = 512;
-constexpr u16 RENDERER_MAXIMUM_SPRITE_COUNT = 512;
 
 
 struct Sprite
@@ -40,7 +38,7 @@ public:
 	static void delete_sprite(Sprite* sprite);
 
 	// text
-	void register_font(Font* font,const char* path);
+	void register_font(Font* font,const char* path,u16 size);
 
 private:
 	void _gpu_upload();
@@ -59,6 +57,7 @@ private:
 
 	// ----------------------------------------------------------------------------------------------------
 	// Data Management & Pipelines
+
 	VertexArray m_SpriteVertexArray;
 
 	VertexBuffer m_SpriteVertexBuffer;
@@ -71,12 +70,9 @@ private:
 
 	// textures
 	GPUPixelBuffer m_GPUSpriteTextures;
-	InPlaceArray<PixelBufferComponent> m_SpriteTextures
-			= InPlaceArray<PixelBufferComponent>(RENDERER_MAXIMUM_STEXTURE_COUNT);
-	std::queue<TextureData> m_SpriteLoadRequests;
 
 	// sprites
-	InPlaceArray<Sprite> m_Sprites = InPlaceArray<Sprite>(RENDERER_MAXIMUM_SPRITE_COUNT);
+	InPlaceArray<Sprite> m_Sprites = InPlaceArray<Sprite>(BUFFER_MAXIMUM_TEXTURE_COUNT);
 };
 
 inline Renderer g_Renderer = Renderer();

@@ -4,9 +4,6 @@
 // ----------------------------------------------------------------------------------------------------
 // Background Process Signals
 
-// texture upload locking
-std::mutex _mutex_sprite_requests;
-
 // texture collector signals
 ThreadSignal _sprite_texture_signal
 #ifdef DEBUG
@@ -80,12 +77,22 @@ Renderer::Renderer()
 	Texture::set_texture_parameter_linear_mipmap();
 	Texture::set_texture_parameter_clamp_to_edge();
 
+	/*
+	COMM_LOG("allocating font memory");
+	m_GPUFontTextures.atlas.bind();
+	m_GPUFontTextures.allocate(RENDERER_FONT_MEMORY_WIDTH,RENDERER_FONT_MEMORY_HEIGHT,GL_RED);
+	Texture::set_texture_parameter_linear_mipmap();
+	Texture::set_texture_parameter_clamp_to_edge();
+	*/
+
 	// ----------------------------------------------------------------------------------------------------
 	// Start Subprocesses
+
+	COMM_LOG("starting renderer subprocesses");
 	std::thread __SpriteCollector(Renderer::_collector<Sprite>,&m_Sprites,&_sprite_signal);
 	__SpriteCollector.detach();
 	std::thread __SpriteTextureCollector(Renderer::_collector<PixelBufferComponent>,
-										 &m_SpriteTextures,&_sprite_texture_signal);
+										 &m_GPUSpriteTextures.textures,&_sprite_texture_signal);
 	__SpriteTextureCollector.detach();
 
 	COMM_SCC("render system ready.");
@@ -114,16 +121,16 @@ void Renderer::exit()
 /**
  *	register sprite texture to load and move to sprite pixel buffer
  *	\param path: path to texture file
- *	\returns pointer to texture component info to assign the texture to a sprite later
+ *	\returns pointer to texture component info to assign to a sprite later
  */
 PixelBufferComponent* Renderer::register_sprite_texture(const char* path)
 {
-	PixelBufferComponent* p_Comp = m_SpriteTextures.next_free();
-	COMM_LOG("sprite texture register of %s",path);
+	PixelBufferComponent* p_Comp = m_GPUSpriteTextures.textures.next_free();
 
-	std::thread __LoadThread(GPUPixelBuffer::load_texture,
-							 &m_GPUSpriteTextures,&m_SpriteLoadRequests,&_mutex_sprite_requests,p_Comp,path);
+	COMM_LOG("sprite texture register of %s",path);
+	std::thread __LoadThread(GPUPixelBuffer::load_texture,&m_GPUSpriteTextures,p_Comp,path);
 	__LoadThread.detach();
+
 	return p_Comp;
 }
 
@@ -199,12 +206,12 @@ void Renderer::delete_sprite(Sprite* sprite)
  *	rasterize a vector font and upload pixel buffer to gpu memory
  *	\param font: font data memory, to use later when writing text with or in style of it
  *	\param path: path to .ttf vector font file
+ *	\param size: rasterization size
  */
-void Renderer::register_font(Font* font,const char* path)
+void Renderer::register_font(Font* font,const char* path,u16 size)
 {
 	COMM_LOG("font register from source %s",path);
-	std::thread __LoadThread(GPUPixelBuffer::load_font,&m_GPUSpriteTextures,&m_SpriteLoadRequests,
-							 &_mutex_sprite_requests,font,path);
+	std::thread __LoadThread(GPUPixelBuffer::load_font,&m_GPUSpriteTextures,font,path,size);
 	__LoadThread.detach();
 }
 
@@ -214,17 +221,17 @@ void Renderer::register_font(Font* font,const char* path)
 void Renderer::_gpu_upload()
 {
 	m_GPUSpriteTextures.atlas.bind();
-	_mutex_sprite_requests.lock();
-	while (m_SpriteLoadRequests.size())
+	m_GPUSpriteTextures.mutex_texture_requests.lock();
+	while (m_GPUSpriteTextures.load_requests.size())
 	{
-		TextureData& __Data = m_SpriteLoadRequests.front();
+		TextureData& __Data = m_GPUSpriteTextures.load_requests.front();
 
 		COMM_AWT("uploading sprite texture buffer at %d,%d to gpu",__Data.x,__Data.y);
 		__Data.gpu_upload(__Data.x,__Data.y);
-		m_SpriteLoadRequests.pop();
+		m_GPUSpriteTextures.load_requests.pop();
 		COMM_CNF();
 	}
-	_mutex_sprite_requests.unlock();
+	m_GPUSpriteTextures.mutex_texture_requests.unlock();
 	Texture::generate_mipmap();
 }
 // FIXME performance will suffer when generating mipmap every time the loop condition breaks
@@ -239,7 +246,7 @@ void Renderer::_update_sprites()
 	m_GPUSpriteTextures.atlas.bind();
 	m_SpritePipeline.enable();
 	m_SpriteInstanceBuffer.bind();
-	m_SpriteInstanceBuffer.upload_vertices(m_Sprites.mem,RENDERER_MAXIMUM_SPRITE_COUNT,GL_DYNAMIC_DRAW);
+	m_SpriteInstanceBuffer.upload_vertices(m_Sprites.mem,BUFFER_MAXIMUM_TEXTURE_COUNT,GL_DYNAMIC_DRAW);
 	glDrawArraysInstanced(GL_TRIANGLES,0,6,m_Sprites.active_range);
 }
 
