@@ -54,7 +54,15 @@ pub fn send_client_message(client_message_sender: &Sender<ClientMessage>, messag
 
 pub fn parse_client_message(message: Message) -> Result<ClientMessage, rmp_serde::decode::Error> {
 	let msgpack_bytes = message.into_bytes();
-	rmp_serde::from_slice::<ClientMessage>(&msgpack_bytes[..])
+	let message = rmp_serde::from_slice::<ClientMessage>(&msgpack_bytes[..]);
+	match &message {
+	    Ok(m) => {
+	    	// TEMP test for client
+	    	println!("{:?}", m);
+	    },
+	    Err(_) => {},
+	};
+	message
 }
 
 // actual message handling
