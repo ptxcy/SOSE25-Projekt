@@ -2,7 +2,7 @@ use crate::{get_time, logger::Loggable, messages::{client_message::ClientMessage
 use tokio::sync::mpsc::*;
 use std::{collections::HashMap, sync::Arc, time::Instant};
 
-use super::{dummy::DummyObject, game_objects::GameObjects};
+use super::{action::{AsRaw, SafeAction}, coordinate::Coordinate, dummy::DummyObject, game_objects::GameObjects};
 
 pub struct ServerMessageSenderChannel {
 	pub id: String,
@@ -50,13 +50,26 @@ pub async fn broadcast(senders: &mut Vec<ServerMessageSenderChannel>, message: &
 }
 
 pub fn update_game(game_objects: &mut GameObjects, delta_seconds: f64) -> std::result::Result<(), String> {
-	update_dummies(&mut game_objects.dummies, delta_seconds)?;
+	let mut actions = Vec::<SafeAction>::new();
+
+	// get actions
+	update_dummies(&mut actions, &mut game_objects.dummies, delta_seconds)?;
+
+	// execute operations on data
+	for action in actions {
+		action.execute();
+	}
 	Ok(())
 }
 
-pub fn update_dummies(dummies: &mut HashMap<String, DummyObject>, delta_seconds: f64) -> std::result::Result<(), String> {
+pub fn update_dummies(actions: &mut Vec<SafeAction>, dummies: &mut HashMap<String, DummyObject>, delta_seconds: f64) -> std::result::Result<(), String> {
 	for (id, dummy) in dummies.iter_mut() {
-		dummy.position.addd(&dummy.velocity, delta_seconds);
+		// dummy.position.addd(&dummy.velocity, delta_seconds);
+		actions.push(SafeAction::AddCoordinate {
+			coordinate: dummy.position.raw_mut(),
+			other: dummy.velocity.raw(),
+			multiplier: delta_seconds
+		});
 	}
 	Ok(())
 }
