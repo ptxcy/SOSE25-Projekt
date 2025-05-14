@@ -54,7 +54,7 @@ public:
 
 	void load(const char* path);
 	void gpu_upload();
-	void gpu_upload(u32 x,u32 y);
+	void gpu_upload_subtexture();
 
 private:
 	void _free();
@@ -114,6 +114,7 @@ struct GPUPixelBuffer
 	static void load_texture(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,const char* path);
 	static void load_font(GPUPixelBuffer* gpb,Font* font,const char* path,u16 size);
 	static void _load(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,TextureData* data);
+	void gpu_upload();
 	// TODO allocate & write for statically written texture atlas
 	// TODO when allocating, rotation boolean can be stored in alpha by signing the float
 	// TODO allow to merge deleted rects when using a dynamic texture atlas

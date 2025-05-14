@@ -77,13 +77,11 @@ Renderer::Renderer()
 	Texture::set_texture_parameter_linear_mipmap();
 	Texture::set_texture_parameter_clamp_to_edge();
 
-	/*
 	COMM_LOG("allocating font memory");
 	m_GPUFontTextures.atlas.bind();
 	m_GPUFontTextures.allocate(RENDERER_FONT_MEMORY_WIDTH,RENDERER_FONT_MEMORY_HEIGHT,GL_RED);
 	Texture::set_texture_parameter_linear_mipmap();
 	Texture::set_texture_parameter_clamp_to_edge();
-	*/
 
 	// ----------------------------------------------------------------------------------------------------
 	// Start Subprocesses
@@ -211,7 +209,7 @@ void Renderer::delete_sprite(Sprite* sprite)
 void Renderer::register_font(Font* font,const char* path,u16 size)
 {
 	COMM_LOG("font register from source %s",path);
-	std::thread __LoadThread(GPUPixelBuffer::load_font,&m_GPUSpriteTextures,font,path,size);
+	std::thread __LoadThread(GPUPixelBuffer::load_font,&m_GPUFontTextures,font,path,size);
 	__LoadThread.detach();
 }
 
@@ -220,21 +218,9 @@ void Renderer::register_font(Font* font,const char* path,u16 size)
  */
 void Renderer::_gpu_upload()
 {
-	m_GPUSpriteTextures.atlas.bind();
-	m_GPUSpriteTextures.mutex_texture_requests.lock();
-	while (m_GPUSpriteTextures.load_requests.size())
-	{
-		TextureData& __Data = m_GPUSpriteTextures.load_requests.front();
-
-		COMM_AWT("uploading sprite texture buffer at %d,%d to gpu",__Data.x,__Data.y);
-		__Data.gpu_upload(__Data.x,__Data.y);
-		m_GPUSpriteTextures.load_requests.pop();
-		COMM_CNF();
-	}
-	m_GPUSpriteTextures.mutex_texture_requests.unlock();
-	Texture::generate_mipmap();
+	m_GPUSpriteTextures.gpu_upload();
+	m_GPUFontTextures.gpu_upload();
 }
-// FIXME performance will suffer when generating mipmap every time the loop condition breaks
 // TODO stall until next frame when frametime budget is used up to avoid framerate issues
 
 /**
@@ -244,6 +230,7 @@ void Renderer::_update_sprites()
 {
 	m_SpriteVertexArray.bind();
 	m_GPUSpriteTextures.atlas.bind();
+	//m_GPUFontTextures.atlas.bind();
 	m_SpritePipeline.enable();
 	m_SpriteInstanceBuffer.bind();
 	m_SpriteInstanceBuffer.upload_vertices(m_Sprites.mem,BUFFER_MAXIMUM_TEXTURE_COUNT,GL_DYNAMIC_DRAW);

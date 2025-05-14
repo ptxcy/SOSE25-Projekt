@@ -111,13 +111,11 @@ void TextureData::gpu_upload()
 }
 
 /**
- *	upload data as subtexture to atlas on gpu
- *	\param x: x-axis atlas location of the subtexture
- *	\param y: y-axis atlas location of the subtexture
+ *	upload data as subtexture to atlas on gpu based on saved x & y axis offset
  *	NOTE has to be uploaded in main thread
  *	NOTE target texture has to be bound and allocated before uploading
  */
-void TextureData::gpu_upload(u32 x,u32 y)
+void TextureData::gpu_upload_subtexture()
 {
 	glTexSubImage2D(GL_TEXTURE_2D,0,x,y,width,height,m_Format,GL_UNSIGNED_BYTE,data);
 	_free();
@@ -406,3 +404,29 @@ void GPUPixelBuffer::_load(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,Texture
 	gpb->load_requests.push(*data);
 	gpb->mutex_texture_requests.unlock();
 }
+
+/**
+ *	automatically uploads the loaded subtextures to the gpu
+ *	NOTE this has to be run in main thread due to the gpu upload being context sensitive
+ */
+void GPUPixelBuffer::gpu_upload()
+{
+	atlas.bind();
+	mutex_texture_requests.lock();
+
+	// iterate waiting requests
+	while (load_requests.size())
+	{
+		TextureData& p_Data = load_requests.front();
+
+		COMM_AWT("uploading pixel buffer at %d,%d to gpu",p_Data.x,p_Data.y);
+		p_Data.gpu_upload();
+		load_requests.pop();
+		COMM_CNF();
+	}
+
+	// controversial pixel buffer lod creation
+	mutex_texture_requests.unlock();
+	Texture::generate_mipmap();
+}
+// FIXME performance will suffer when generating mipmap every time the loop condition breaks

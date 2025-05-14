@@ -70,6 +70,7 @@ private:
 
 	// textures
 	GPUPixelBuffer m_GPUSpriteTextures;
+	GPUPixelBuffer m_GPUFontTextures;
 
 	// sprites
 	InPlaceArray<Sprite> m_Sprites = InPlaceArray<Sprite>(BUFFER_MAXIMUM_TEXTURE_COUNT);
