@@ -24,8 +24,13 @@ impl ServerMessageSenderChannel {
 }
 
 // send message to all client receivers
-pub async fn broadcast(senders: &mut Vec<ServerMessageSenderChannel>, message: &ServerMessage, delta_seconds: f64) {
-	let shared_message = Arc::new(message.clone()); // Wrap the message in an Arc
+pub async fn broadcast(senders: &mut Vec<ServerMessageSenderChannel>, game_objects: &GameObjects, delta_seconds: f64) {
+	// TODO user specific messages
+	let server_message = ServerMessage {
+		request_info: RequestInfo::new(get_time() as f64),
+		request_data: ObjectData::prepare_for("all".to_owned(), game_objects),
+	};
+	let shared_message = Arc::new(server_message.clone()); // Wrap the message in an Arc
 	let mut to_be_removed = Vec::<usize>::new();
 	// send messages to all
 	for (i, sender_channel) in senders.iter_mut().enumerate() {
@@ -110,21 +115,10 @@ pub async fn start(mut sender_receiver: Receiver<ServerMessageSenderChannel>, mu
 		// game logic calculation
 		let update_result = update_game(&mut game_objects, delta_seconds).log();
 
-		// creating message for sending
-		let object_data = ObjectData {
-			game_objects
-		};
-		let server_message = ServerMessage {
-			request_info: RequestInfo::new(get_time() as f64),
-			request_data: object_data,
-		};
 
 		// sending message
 		// println!("broadcasting to clients");
-		broadcast(&mut server_message_senders, &server_message, delta_seconds).await;
-
-		// retrieving ownership of data
-		game_objects = server_message.request_data.game_objects;
+		broadcast(&mut server_message_senders, &game_objects, delta_seconds).await;
 
 		// let other tokio tasks do stuff
 		tokio::task::yield_now().await;
