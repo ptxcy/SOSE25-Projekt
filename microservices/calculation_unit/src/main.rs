@@ -55,13 +55,13 @@ pub fn send_client_message(client_message_sender: &Sender<ClientMessage>, messag
 pub fn parse_client_message(message: Message) -> Result<ClientMessage, rmp_serde::decode::Error> {
 	let msgpack_bytes = message.into_bytes();
 	let message = rmp_serde::from_slice::<ClientMessage>(&msgpack_bytes[..]);
-	match &message {
-	    Ok(m) => {
-	    	// TEMP test for client
-	    	println!("{:?}", m);
-	    },
-	    Err(_) => {},
-	};
+	// match &message {
+	//     Ok(m) => {
+	//     	// TEMP test for client
+	//     	println!("{:?}", m);
+	//     },
+	//     Err(_) => {},
+	// };
 	message
 }
 
@@ -79,29 +79,17 @@ async fn handle_ws_msgpack(ws: WebSocket, client_message_sender: Sender<ClientMe
 			match &client_message.request_data {
 				calculation_unit::messages::client_message::ClientRequest::SpawnDummy { id } => {
 					// send the server_message_tx to the calculation task
+					let sender_sender = sender_sender.clone();
+					let server_message_tx = server_message_tx.clone();
 					let id = id.clone();
 					tokio::spawn(async move {
 						println!("new connection");
 						let result = sender_sender.send(ServerMessageSenderChannel::new(id, server_message_tx)).await
 							.logm("failed to send server_message_tx");
 					});
-					// make sure only doing this once ever, second loop for other messages
-					// send client message to calculation task
-					send_client_message(&client_message_sender, &client_message);
-					break;
 				},
 				_ => { }
 			};
-			
-			// send client message to calculation task
-			send_client_message(&client_message_sender, &client_message);
-		}
-
-		while let Some(Ok(msg)) = websocket_rx.next().await {
-			let client_message = match parse_client_message(msg) { Ok(m) => m, Err(_) => continue, };
-
-			// let received = serde_json::to_string(&client_message).log().unwrap();
-			// println!("Received: {}", received);
 			
 			// send client message to calculation task
 			send_client_message(&client_message_sender, &client_message);
