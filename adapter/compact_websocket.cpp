@@ -44,7 +44,7 @@ int main() {
         auto ep = boost::asio::connect(ws.next_layer(), results);
         ws.handshake("localhost:" + std::to_string(ep.port()), "/msgpack");
         
-        std::string message = "Hello, MessagePack!";
+        std::string message = "Hello!";
         ws.binary(true);
         std::string serializedMessage = serialize(message);
         ws.write(boost::asio::buffer(serializedMessage));
