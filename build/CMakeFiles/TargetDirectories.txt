@@ -1,0 +1,3 @@
+/Users/pni/Uni/Projekt_Test_Branch/SOSE25-Projekt/build/CMakeFiles/simple_websocket_client.dir
+/Users/pni/Uni/Projekt_Test_Branch/SOSE25-Projekt/build/CMakeFiles/edit_cache.dir
+/Users/pni/Uni/Projekt_Test_Branch/SOSE25-Projekt/build/CMakeFiles/rebuild_cache.dir

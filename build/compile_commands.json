@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/Users/pni/Uni/Projekt_Test_Branch/SOSE25-Projekt/build",
+  "command": "/usr/bin/clang++ -g -std=gnu++14 -arch arm64 -o CMakeFiles/simple_websocket_client.dir/simple_websocket.cpp.o -c /Users/pni/Uni/Projekt_Test_Branch/SOSE25-Projekt/adapter/simple_websocket.cpp",
+  "file": "/Users/pni/Uni/Projekt_Test_Branch/SOSE25-Projekt/adapter/simple_websocket.cpp",
+  "output": "CMakeFiles/simple_websocket_client.dir/simple_websocket.cpp.o"
+}
+]
