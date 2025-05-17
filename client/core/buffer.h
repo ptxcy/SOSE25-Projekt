@@ -118,6 +118,7 @@ struct GPUPixelBuffer
 	// TODO allocate & write for statically written texture atlas
 	// TODO when allocating, rotation boolean can be stored in alpha by signing the float
 	// TODO allow to merge deleted rects when using a dynamic texture atlas
+	// FIXME format can be assigned when allocating but load instructions are format dependent
 
 	// data
 	Texture atlas;

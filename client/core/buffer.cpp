@@ -322,7 +322,7 @@ void GPUPixelBuffer::load_font(GPUPixelBuffer* gpb,Font* font,const char* path,u
 		COMM_ERR_COND(_failed,"rasterization of character %c failed",(char)i+32);
 
 		// glyph attributes
-		TextureData __TextureData;
+		TextureData __TextureData = TextureData(GL_RED);
 		__TextureData.width = __Face->glyph->bitmap.width;
 		__TextureData.height = __Face->glyph->bitmap.rows;
 
@@ -420,7 +420,7 @@ void GPUPixelBuffer::gpu_upload()
 		TextureData& p_Data = load_requests.front();
 
 		COMM_AWT("uploading pixel buffer at %d,%d to gpu",p_Data.x,p_Data.y);
-		p_Data.gpu_upload();
+		p_Data.gpu_upload_subtexture();
 		load_requests.pop();
 		COMM_CNF();
 	}

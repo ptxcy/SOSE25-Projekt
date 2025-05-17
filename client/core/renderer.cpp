@@ -229,8 +229,8 @@ void Renderer::_gpu_upload()
 void Renderer::_update_sprites()
 {
 	m_SpriteVertexArray.bind();
-	m_GPUSpriteTextures.atlas.bind();
-	//m_GPUFontTextures.atlas.bind();
+	//m_GPUSpriteTextures.atlas.bind();
+	m_GPUFontTextures.atlas.bind();
 	m_SpritePipeline.enable();
 	m_SpriteInstanceBuffer.bind();
 	m_SpriteInstanceBuffer.upload_vertices(m_Sprites.mem,BUFFER_MAXIMUM_TEXTURE_COUNT,GL_DYNAMIC_DRAW);
