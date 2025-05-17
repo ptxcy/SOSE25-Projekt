@@ -55,13 +55,13 @@ pub fn send_client_message(client_message_sender: &Sender<ClientMessage>, messag
 pub fn parse_client_message(message: Message) -> Result<ClientMessage, rmp_serde::decode::Error> {
 	let msgpack_bytes = message.into_bytes();
 	let message = rmp_serde::from_slice::<ClientMessage>(&msgpack_bytes[..]);
-	// match &message {
-	//     Ok(m) => {
-	//     	// TEMP test for client
-	//     	println!("{:?}", m);
-	//     },
-	//     Err(_) => {},
-	// };
+	match &message {
+	    Ok(m) => {
+	    	// TEMP test for client
+	    	println!("{:?}", m);
+	    },
+	    Err(_) => {},
+	};
 	message
 }
 
@@ -69,6 +69,8 @@ pub fn parse_client_message(message: Message) -> Result<ClientMessage, rmp_serde
 async fn handle_ws_msgpack(ws: WebSocket, client_message_sender: Sender<ClientMessage>, sender_sender: Sender<ServerMessageSenderChannel>) {
 	let (mut websocket_tx, mut websocket_rx) = ws.split();
 	let (server_message_tx, mut server_message_rx) = channel::<Arc<ServerMessage>>(32);
+
+	println!("new websocket client connected");
 
 	// receiving messages from async client
 	tokio::spawn(async move {
