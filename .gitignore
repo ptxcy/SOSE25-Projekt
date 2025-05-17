@@ -1,5 +1,5 @@
 # Visual Studio Code
-.vscode/
+# .vscode/
 
 #mongoDb
 mongodb_data
@@ -26,4 +26,4 @@ client/core/include/*
 *.o
 gmon.out
 
-.github/
+# .github/
