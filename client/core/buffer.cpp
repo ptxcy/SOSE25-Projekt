@@ -308,6 +308,8 @@ void GPUPixelBuffer::load_texture(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,
  */
 void GPUPixelBuffer::load_font(GPUPixelBuffer* gpb,Font* font,const char* path,u16 size)
 {
+	font->size = size;
+
 	// load ttf file
 	FT_Face __Face;
 	bool _failed = FT_New_Face(g_FreetypeLibrary,path,0,&__Face);
@@ -321,10 +323,16 @@ void GPUPixelBuffer::load_font(GPUPixelBuffer* gpb,Font* font,const char* path,u
 		_failed = FT_Load_Char(__Face,i+32,FT_LOAD_RENDER);
 		COMM_ERR_COND(_failed,"rasterization of character %c failed",(char)i+32);
 
-		// glyph attributes
+		// subtexture attributes
 		TextureData __TextureData = TextureData(GL_RED);
 		__TextureData.width = __Face->glyph->bitmap.width;
 		__TextureData.height = __Face->glyph->bitmap.rows;
+
+		// glyph attributes
+		font->glyphs[i] = {
+			.bearing = vec2(__Face->glyph->bitmap_left,__Face->glyph->bitmap_top),
+			.advance = (__Face->glyph->advance.x>>6)
+		};
 
 		// upload glyph as texture buffer
 		size_t __Mem = __Face->glyph->bitmap.pitch*__Face->glyph->bitmap.rows;

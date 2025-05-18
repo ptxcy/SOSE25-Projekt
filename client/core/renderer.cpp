@@ -20,6 +20,61 @@ ThreadSignal _sprite_signal
 
 
 // ----------------------------------------------------------------------------------------------------
+// Text Component
+
+/**
+ *	TODO
+ */
+void Text::align()
+{
+	offset = position;
+
+	// adjust vertical alignment
+	u8 vertical_alignment = 2-(alignment%3);
+	offset.y += vertical_alignment*(MATH_CENTER_Y-(font->size*scale*.5));
+
+	// adjust horizontal alignment
+	u8 horizontal_alignment = alignment/3;
+	if (!!horizontal_alignment)
+	{
+		f32 wordlen = 0;
+		for (char c : data) wordlen += font->glyphs[c-32].advance*scale;
+		offset.x += horizontal_alignment*(MATH_CENTER_X-wordlen*.5f);
+	}
+}
+
+/**
+ *	TODO
+ */
+void Text::load_buffer()
+{
+	bool reallocate = buffer.size()<data.size();
+	COMM_LOG_COND(reallocate,"allocating memory for text buffer");
+	if (reallocate) buffer = std::vector<TextCharacter>(data.size());
+
+	// load font information for characters
+	vec2 __Cursor = offset;
+	for (u32 i=0;i<data.size();i++)
+	{
+		TextCharacter& p_Character = buffer[i];
+		PixelBufferComponent& p_Component = font->tex[data[i]-32];
+		Glyph& p_Glyph = font->glyphs[data[i]-32];
+
+		// load text data
+		p_Character = {
+			.offset = __Cursor,
+			.scale = p_Component.dimensions*scale,
+			.bearing = p_Glyph.bearing*scale,
+			.colour = colour,
+			.comp = p_Component
+		};
+
+		__Cursor.x += p_Glyph.advance*scale;
+	}
+}
+
+
+// ----------------------------------------------------------------------------------------------------
 // Renderer Main Features
 
 /**
@@ -42,6 +97,8 @@ Renderer::Renderer()
 	COMM_LOG("compiling shaders");
 	Shader __SpriteVertexShader = Shader("core/shader/sprite.vert",GL_VERTEX_SHADER);
 	Shader __DirectFragmentShader = Shader("core/shader/sprite.frag",GL_FRAGMENT_SHADER);
+	Shader __TextVertexShader = Shader("core/shader/text.vert",GL_VERTEX_SHADER);
+	Shader __TextFragmentShader = Shader("core/shader/text.frag",GL_FRAGMENT_SHADER);
 
 	// ----------------------------------------------------------------------------------------------------
 	// Sprite Pipeline
@@ -67,6 +124,26 @@ Renderer::Renderer()
 
 	m_SpritePipeline.upload("tex",0);
 	m_SpritePipeline.upload_coordinate_system();
+
+	COMM_LOG("text pipeline");
+	m_FontPipeline.assemble(__TextVertexShader,__TextFragmentShader,4,14,"text");
+	m_FontVertexArray.bind();
+	m_SpriteVertexBuffer.bind();
+
+	m_FontPipeline.enable();
+	m_FontPipeline.define_attribute("position",2);
+	m_FontPipeline.define_attribute("edge_coordinates",2);
+
+	m_FontInstanceBuffer.bind();
+	m_FontPipeline.define_index_attribute("offset",2);
+	m_FontPipeline.define_index_attribute("scale",2);
+	m_FontPipeline.define_index_attribute("bearing",2);
+	m_FontPipeline.define_index_attribute("colour",4);
+	m_FontPipeline.define_index_attribute("atlas_position",2);
+	m_FontPipeline.define_index_attribute("atlas_dimension",2);
+
+	m_FontPipeline.upload("tex",0);
+	m_FontPipeline.upload_coordinate_system();
 
 	// ----------------------------------------------------------------------------------------------------
 	// GPU Memory
@@ -103,6 +180,7 @@ void Renderer::update()
 {
 	PROF_STA(m_ProfilerFullFrame);
 	_update_sprites();
+	_update_text();
 	_gpu_upload();
 	PROF_STP(m_ProfilerFullFrame);
 }
@@ -214,6 +292,33 @@ void Renderer::register_font(Font* font,const char* path,u16 size)
 }
 
 /**
+ *	TODO
+ */
+Text* Renderer::write_text(Font* font,const string& data,vec2 position,f32 scale,
+						   vec4 colour,ScreenAlignment align)
+{
+	Text* p_Text = (Text*)malloc(sizeof(Text));
+	(*p_Text) = {
+		.font = font,
+		.position = position,
+		.scale = scale,
+		.colour = colour,
+		.alignment = align,
+		.data = data,
+	};
+
+	p_Text->align();
+	p_Text->load_buffer();
+	m_Texts.push_back(p_Text);
+
+	return p_Text;
+}
+// FIXME experimental memory management, this should happen ideally over the entirety of the possible text range
+
+// TODO add an option to delete text once no longer needed
+// TODO cleanup memory on renderer close for all allocated text memory
+
+/**
  *	helper to unclutter the automatic load callbacks for gpu data
  */
 void Renderer::_gpu_upload()
@@ -224,17 +329,30 @@ void Renderer::_gpu_upload()
 // TODO stall until next frame when frametime budget is used up to avoid framerate issues
 
 /**
- *	helper to unclutter the update to all sprites
+ *	update all registered sprites
  */
 void Renderer::_update_sprites()
 {
 	m_SpriteVertexArray.bind();
-	//m_GPUSpriteTextures.atlas.bind();
-	m_GPUFontTextures.atlas.bind();
+	m_GPUSpriteTextures.atlas.bind();
 	m_SpritePipeline.enable();
 	m_SpriteInstanceBuffer.bind();
 	m_SpriteInstanceBuffer.upload_vertices(m_Sprites.mem,BUFFER_MAXIMUM_TEXTURE_COUNT,GL_DYNAMIC_DRAW);
 	glDrawArraysInstanced(GL_TRIANGLES,0,6,m_Sprites.active_range);
+}
+
+/**
+ *	update all registered text
+ */
+void Renderer::_update_text()
+{
+	m_FontVertexArray.bind();
+	m_GPUFontTextures.atlas.bind();
+	/*
+	m_TextPipeline.enable();
+	m_FontInstanceBuffer.bind();
+	TODO drawcalling text characters
+	*/
 }
 
 

@@ -17,13 +17,9 @@ mongodb_data
 Thumbs.db
 
 # core
-core/include/*
-*.o
-gmon.out
-
-# core
 client/core/include/*
 *.o
 gmon.out
+.gdb_history
 
 copilot-instructions.md

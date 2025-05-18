@@ -13,6 +13,26 @@ constexpr u16 RENDERER_FONT_MEMORY_WIDTH = 1500;
 constexpr u16 RENDERER_FONT_MEMORY_HEIGHT = 1500;
 
 
+// ----------------------------------------------------------------------------------------------------
+// States
+
+enum ScreenAlignment
+{
+	SCREEN_ALIGN_TOPLEFT,
+	SCREEN_ALIGN_CENTERLEFT,
+	SCREEN_ALIGN_BOTTOMLEFT,
+	SCREEN_ALIGN_TOPCENTER,
+	SCREEN_ALIGN_CENTER,
+	SCREEN_ALIGN_BOTTOMCENTER,
+	SCREEN_ALIGN_TOPRIGHT,
+	SCREEN_ALIGN_CENTERRIGHT,
+	SCREEN_ALIGN_BOTTOMRIGHT
+};
+
+
+// ----------------------------------------------------------------------------------------------------
+// GPU Data Structures
+
 struct Sprite
 {
 	vec2 offset = vec2(0,0);
@@ -23,6 +43,39 @@ struct Sprite
 	vec2 tex_dimension;
 };
 
+struct TextCharacter
+{
+	vec2 offset = vec2(0);
+	vec2 scale = vec2(0);
+	vec2 bearing = vec2(0);
+	vec4 colour = vec4(1);
+	PixelBufferComponent comp;
+};
+
+
+// ----------------------------------------------------------------------------------------------------
+// Entity Data
+
+struct Text
+{
+	// utility
+	void align();
+	void load_buffer();
+
+	// data
+	Font* font;
+	vec2 position;
+	vec2 offset;
+	f32 scale;
+	vec4 colour;
+	ScreenAlignment alignment;
+	string data;
+	std::vector<TextCharacter> buffer;
+};
+
+
+// ----------------------------------------------------------------------------------------------------
+// Renderer Component
 
 class Renderer
 {
@@ -41,10 +94,12 @@ public:
 
 	// text
 	void register_font(Font* font,const char* path,u16 size);
+	Text* write_text(Font* font,const string& data,vec2 position,f32 scale,vec4 colour,ScreenAlignment align);
 
 private:
 	void _gpu_upload();
 	void _update_sprites();
+	void _update_text();
 
 	// background procedures
 	template<typename T> static void _collector(InPlaceArray<T>* xs,ThreadSignal* signal);
@@ -61,11 +116,14 @@ private:
 	// Data Management & Pipelines
 
 	VertexArray m_SpriteVertexArray;
+	VertexArray m_FontVertexArray;
 
 	VertexBuffer m_SpriteVertexBuffer;
 	VertexBuffer m_SpriteInstanceBuffer;
+	VertexBuffer m_FontInstanceBuffer;
 
 	ShaderPipeline m_SpritePipeline;
+	ShaderPipeline m_FontPipeline;
 
 	// ----------------------------------------------------------------------------------------------------
 	// Render Object Information
@@ -76,6 +134,9 @@ private:
 
 	// sprites
 	InPlaceArray<Sprite> m_Sprites = InPlaceArray<Sprite>(BUFFER_MAXIMUM_TEXTURE_COUNT);
+
+	// text
+	std::vector<Text*> m_Texts;
 };
 
 inline Renderer g_Renderer = Renderer();

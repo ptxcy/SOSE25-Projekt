@@ -100,9 +100,17 @@ struct PixelBufferComponent
 	vec2 dimensions;
 };
 
+struct Glyph
+{
+	vec2 bearing;
+	s64 advance;
+};
+
 struct Font
 {
 	PixelBufferComponent tex[96];
+	Glyph glyphs[96];
+	u16 size;
 };
 
 constexpr u16 BUFFER_MAXIMUM_TEXTURE_COUNT = 1024;

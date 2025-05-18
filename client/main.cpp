@@ -12,6 +12,7 @@ s32 main(s32 argc,char** argv)
 	g_UI.batches.push_back(&uib);
 	Font __Ubuntu;
 	g_Renderer.register_font(&__Ubuntu,"res/font/ubuntu.ttf",50);
+	//g_Renderer.write_text(vec2);
 
 	bool running = true;
 	while (running)
