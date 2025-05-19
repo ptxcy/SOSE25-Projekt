@@ -1,8 +1,21 @@
-use crate::{get_time, logger::Loggable, messages::{client_message::ClientMessage, server_message::{ObjectData, ServerMessage}, websocket_format::RequestInfo}};
-use tokio::sync::mpsc::*;
+use crate::{
+	get_time,
+	logger::Loggable,
+	messages::{
+		client_message::ClientMessage,
+		server_message::{ObjectData, ServerMessage},
+		websocket_format::RequestInfo,
+	},
+};
 use std::{collections::HashMap, sync::Arc, time::Instant};
+use tokio::sync::mpsc::*;
 
-use super::{action::{AsRaw, SafeAction}, coordinate::Coordinate, dummy::DummyObject, game_objects::GameObjects};
+use super::{
+	action::{AsRaw, SafeAction},
+	coordinate::Coordinate,
+	dummy::DummyObject,
+	game_objects::GameObjects,
+};
 
 pub struct ServerMessageSenderChannel {
 	pub id: String,
@@ -12,19 +25,23 @@ pub struct ServerMessageSenderChannel {
 }
 
 impl ServerMessageSenderChannel {
-    pub fn new(id: String, sender: Sender<Arc<ServerMessage>>) -> Self {
-    	Self {
-    		id,
-	        sender,
-	        // default 60 fps value till updated
-	        update_threshold: 1. / 2.,
-	        tick_counter: 0.,
-	    }
-    }
+	pub fn new(id: String, sender: Sender<Arc<ServerMessage>>) -> Self {
+		Self {
+			id,
+			sender,
+			// default 60 fps value till updated
+			update_threshold: 1. / 2.,
+			tick_counter: 0.,
+		}
+	}
 }
 
 // send message to all client receivers
-pub async fn broadcast(senders: &mut Vec<ServerMessageSenderChannel>, game_objects: &GameObjects, delta_seconds: f64) {
+pub async fn broadcast(
+	senders: &mut Vec<ServerMessageSenderChannel>,
+	game_objects: &GameObjects,
+	delta_seconds: f64,
+) {
 	// TODO user specific messages
 	let server_message = ServerMessage {
 		request_info: RequestInfo::new(get_time() as f64),
@@ -45,8 +62,8 @@ pub async fn broadcast(senders: &mut Vec<ServerMessageSenderChannel>, game_objec
 				// remove connection
 				to_be_removed.push(i);
 			}
+		} else {
 		}
-		else { }
 	}
 	// remove senders that are closed
 	for i in to_be_removed.iter().rev() {
@@ -54,7 +71,10 @@ pub async fn broadcast(senders: &mut Vec<ServerMessageSenderChannel>, game_objec
 	}
 }
 
-pub fn update_game(game_objects: &mut GameObjects, delta_seconds: f64) -> std::result::Result<(), String> {
+pub fn update_game(
+	game_objects: &mut GameObjects,
+	delta_seconds: f64,
+) -> std::result::Result<(), String> {
 	let mut actions = Vec::<SafeAction>::new();
 
 	// get actions
@@ -67,19 +87,26 @@ pub fn update_game(game_objects: &mut GameObjects, delta_seconds: f64) -> std::r
 	Ok(())
 }
 
-pub fn update_dummies(actions: &mut Vec<SafeAction>, dummies: &mut HashMap<String, DummyObject>, delta_seconds: f64) -> std::result::Result<(), String> {
+pub fn update_dummies(
+	actions: &mut Vec<SafeAction>,
+	dummies: &mut HashMap<String, DummyObject>,
+	delta_seconds: f64,
+) -> std::result::Result<(), String> {
 	for (id, dummy) in dummies.iter_mut() {
 		// dummy.position.addd(&dummy.velocity, delta_seconds);
 		actions.push(SafeAction::AddCoordinate {
 			coordinate: dummy.position.raw_mut(),
 			other: dummy.velocity.raw(),
-			multiplier: delta_seconds
+			multiplier: delta_seconds,
 		});
 	}
 	Ok(())
 }
 
-pub async fn start(mut sender_receiver: Receiver<ServerMessageSenderChannel>, mut client_message_receiver: Receiver<ClientMessage>) {
+pub async fn start(
+	mut sender_receiver: Receiver<ServerMessageSenderChannel>,
+	mut client_message_receiver: Receiver<ClientMessage>,
+) {
 	// client channels
 	let mut server_message_senders = Vec::<ServerMessageSenderChannel>::new();
 
@@ -91,7 +118,6 @@ pub async fn start(mut sender_receiver: Receiver<ServerMessageSenderChannel>, mu
 
 	// game loop
 	loop {
-
 		while let Ok(sender) = sender_receiver.try_recv() {
 			println!("getting sender {}", sender.id);
 			// if let Err(e) = sender.sender.try_send(Arc::new(ServerMessage::dummy())) {
@@ -109,12 +135,14 @@ pub async fn start(mut sender_receiver: Receiver<ServerMessageSenderChannel>, mu
 
 		// receive client input
 		while let Ok(client_message) = client_message_receiver.try_recv() {
-			let result = client_message.request_data.execute(&mut game_objects, delta_seconds).log();
+			let result = client_message
+				.request_data
+				.execute(&mut game_objects, delta_seconds)
+				.log();
 		}
 
 		// game logic calculation
 		let update_result = update_game(&mut game_objects, delta_seconds).log();
-
 
 		// sending message
 		// println!("broadcasting to clients");

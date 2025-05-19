@@ -1,7 +1,12 @@
-use std::{fmt, time::{SystemTime, UNIX_EPOCH}};
+use std::{
+	fmt,
+	time::{SystemTime, UNIX_EPOCH},
+};
 
 fn log_with_time<E: fmt::Debug>(message: E) -> String {
-	let now = SystemTime::now().duration_since(UNIX_EPOCH).expect("Time went backwards.");
+	let now = SystemTime::now()
+		.duration_since(UNIX_EPOCH)
+		.expect("Time went backwards.");
 	let total_seconds = now.as_secs();
 	let hours = (total_seconds / 3600) % 24;
 	let minutes = (total_seconds / 60) % 60;
@@ -17,20 +22,20 @@ pub trait Loggable {
 impl<T, E: fmt::Debug> Loggable for Result<T, E> {
 	fn log(self) -> Self {
 		match &self {
-		    Ok(_) => {},
-		    Err(e) => {
-		    	println!("{}", log_with_time(e));
-		    },
+			Ok(_) => {}
+			Err(e) => {
+				println!("{}", log_with_time(e));
+			}
 		}
 		self
 	}
 
 	fn logm<M: fmt::Debug>(self, message: M) -> Self {
 		match &self {
-		    Ok(_) => {},
-		    Err(e) => {
-		    	println!("{}: {:?}", log_with_time(e), message);
-		    },
+			Ok(_) => {}
+			Err(e) => {
+				println!("{}: {:?}", log_with_time(e), message);
+			}
 		}
 		self
 	}

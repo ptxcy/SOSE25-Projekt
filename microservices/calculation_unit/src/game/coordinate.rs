@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Coordinate {
 	pub x: f64,
@@ -9,17 +8,16 @@ pub struct Coordinate {
 }
 
 impl Default for Coordinate {
-    fn default() -> Self {
-    	Coordinate {
-	        x: 0.0,
-	        y: 0.0,
-	        z: 0.0,
-	    }
-    }
+	fn default() -> Self {
+		Coordinate {
+			x: 0.0,
+			y: 0.0,
+			z: 0.0,
+		}
+	}
 }
 
 impl Coordinate {
-
 	/* c
 	clones itself and returns it
 	*/

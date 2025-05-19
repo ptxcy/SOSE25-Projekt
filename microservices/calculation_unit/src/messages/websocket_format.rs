@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, Default)]
 pub struct ClientInfo {
@@ -29,11 +29,10 @@ pub struct RequestInfo {
 }
 
 impl RequestInfo {
-    pub fn new(sent_time: f64) -> Self {
-    	Self {
-	        calculation_unit: CalculationUnitInfo { sent_time },
-	        ..Default::default()
-	    }
-    }
+	pub fn new(sent_time: f64) -> Self {
+		Self {
+			calculation_unit: CalculationUnitInfo { sent_time },
+			..Default::default()
+		}
+	}
 }
-

@@ -10,7 +10,10 @@ pub struct NetworkNode<T> {
 impl<T> NetworkNode<T> {
 	// base constructor with no connections
 	fn new(value: T) -> Self {
-		let node = Self { value, connections: vec![] };
+		let node = Self {
+			value,
+			connections: vec![],
+		};
 		node
 	}
 
@@ -35,7 +38,7 @@ pub fn connect_twoway<T>(a: &NodeWrapper<T>, b: &NodeWrapper<T>) {
 
 #[cfg(test)]
 pub mod network_tests {
-	use super::{connect, connect_twoway, NetworkNode, NodeWrapper};
+	use super::{NetworkNode, NodeWrapper, connect, connect_twoway};
 
 	fn print_value(node: &NodeWrapper<i32>) {
 		let value = node.borrow().value;

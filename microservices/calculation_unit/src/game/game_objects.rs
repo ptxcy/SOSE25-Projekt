@@ -4,7 +4,6 @@ use serde::{Deserialize, Serialize};
 
 use super::dummy::DummyObject;
 
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct GameObjects {
 	pub dummies: HashMap<String, DummyObject>,
