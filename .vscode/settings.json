@@ -1,6 +1,31 @@
 {
     "cmake.sourceDirectory": "./adapter",
     "files.associations": {
-        "istream": "cpp"
-    }
+        "istream": "cpp",
+        "queue": "cpp",
+        "stack": "cpp",
+        "__split_buffer": "cpp",
+        "array": "cpp",
+        "deque": "cpp",
+        "forward_list": "cpp",
+        "list": "cpp",
+        "span": "cpp",
+        "string": "cpp",
+        "string_view": "cpp",
+        "vector": "cpp"
+    },
+    "github.copilot.chat.commitMessageGeneration.instructions": [
+        {
+            "text": "write at the end of the commit message the changes files in []"
+        },
+        {
+            "text": "Example: [file1.cpp, file2.h]"
+        },
+        {
+            "text": "ensure the commit message provides a concise summary of the modifications"
+        },
+        {
+            "text": "if multiple files are modified, list each file in a comma-separated format within the brackets"
+        }
+    ]
 }
