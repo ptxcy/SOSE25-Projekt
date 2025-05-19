@@ -239,21 +239,46 @@ void serialize_dummy_set_velocity(msgpack::sbuffer &buffer, const std::string &d
     packer.pack(z);
 }
 
+// Helper function to print hex dump of binary data
+void print_hex_dump(const char *data, size_t size)
+{
+    std::cout << "Hex dump: ";
+    for (size_t i = 0; i < size; ++i)
+    {
+        std::cout << std::hex << std::setw(2) << std::setfill('0')
+                  << (static_cast<int>(data[i]) & 0xFF) << " ";
+    }
+    std::cout << std::dec << std::endl;
+}
+
 int main()
 {
     try
     {
+        std::cout << "WebSocket Client - MessagePack Test (with Response Support)" << std::endl;
+        std::cout << "----------------------------------------" << std::endl;
+
+        // Initialize Boost.Asio
         boost::asio::io_context ioc;
         boost::beast::websocket::stream<boost::asio::ip::tcp::socket> ws{ioc};
 
+        // Connect to server
         std::cout << "Connecting to localhost:8082/msgpack..." << std::endl;
         auto results = boost::asio::ip::tcp::resolver{ioc}.resolve("localhost", "8082");
         auto ep = boost::asio::connect(ws.next_layer(), results);
+
+        // Set WebSocket options
+        ws.set_option(boost::beast::websocket::stream_base::timeout::suggested(
+            boost::beast::role_type::client));
+
+        // Perform the handshake
         ws.handshake("localhost:" + std::to_string(ep.port()), "/msgpack");
         std::cout << "Connected successfully!" << std::endl;
 
+        // Set binary mode for MessagePack data
         ws.binary(true);
 
+        // User menu
         int choice;
         std::cout << "\nSelect message type to send:" << std::endl;
         std::cout << "1. SpawnDummy" << std::endl;
@@ -317,6 +342,10 @@ int main()
             break;
         }
 
+        // Print debug info about the binary data we're sending
+        std::cout << "Sending MessagePack binary data of size: " << buffer.size() << " bytes" << std::endl;
+        print_hex_dump(buffer.data(), buffer.size());
+
         // Send the binary message
         std::cout << "Sending message to server..." << std::endl;
         ws.write(boost::asio::buffer(buffer.data(), buffer.size()));
@@ -325,13 +354,10 @@ int main()
         // Create a buffer for the response
         boost::beast::flat_buffer response_buffer;
 
-        // Set a timeout for receiving response (5 seconds)
-        ws.set_option(boost::beast::websocket::stream_base::timeout::suggested(
-            boost::beast::role_type::client));
-
+        // Try to read a response with a timeout
         try
         {
-            // Read the response
+            // Read a message into our buffer
             ws.read(response_buffer);
 
             // Convert response to string for display
@@ -339,7 +365,7 @@ int main()
                 static_cast<const char *>(response_buffer.data().data()),
                 response_buffer.data().size());
 
-            // Try to interpret as msgpack if possible
+            // Print response information
             std::cout << "\n===== RESPONSE RECEIVED =====\n";
             std::cout << "Size: " << response_buffer.data().size() << " bytes\n";
 
@@ -368,11 +394,36 @@ int main()
             }
             std::cout << std::endl;
 
+            // Try to interpret as MessagePack
+            if (response_buffer.data().size() > 0)
+            {
+                try
+                {
+                    // Create a zone for allocation
+                    msgpack::zone zone;
+
+                    // Deserialize MessagePack object
+                    msgpack::object obj = msgpack::unpack(
+                                              static_cast<const char *>(response_buffer.data().data()),
+                                              response_buffer.data().size(),
+                                              nullptr,
+                                              &zone)
+                                              .get();
+
+                    std::cout << "MessagePack object type: " << obj.type << std::endl;
+                    std::cout << "MessagePack content: " << obj << std::endl;
+                }
+                catch (std::exception &e)
+                {
+                    std::cout << "Failed to parse as MessagePack: " << e.what() << std::endl;
+                }
+            }
+
             std::cout << "============================\n";
         }
-        catch (boost::beast::timeout_error const &)
+        catch (std::exception &e)
         {
-            std::cout << "No response received within timeout period." << std::endl;
+            std::cout << "Error reading response: " << e.what() << std::endl;
         }
 
         // Close the WebSocket connection

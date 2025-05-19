@@ -1,3 +1,6 @@
 {
-    "cmake.sourceDirectory": "./adapter"
+    "cmake.sourceDirectory": "./adapter",
+    "files.associations": {
+        "istream": "cpp"
+    }
 }
