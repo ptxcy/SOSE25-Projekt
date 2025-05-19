@@ -91,18 +91,6 @@ struct ServerMessage
     MSGPACK_DEFINE(request_info, request_data);
 };
 
-struct OutgoingMessage
-{
-    std::string message_type;
-    std::variant<SpawnDummy, SetClientFPS, DummySetVelocity> buffer;
-    MSGPACK_DEFINE(message_type, data);
-};
-
-// Global variable to store the latest server message
-ServerMessage g_latestMessage;
-std::mutex g_messageMutex;
-bool g_hasMessage = false;
-
 
 // Message structures for client requests
 struct SpawnDummy
@@ -123,6 +111,22 @@ struct DummySetVelocity
     Coordinate position;
     MSGPACK_DEFINE(id, position);
 };
+
+struct BufferVariant
+{
+	SpawnDummy dummy;
+	SetClientFPS client_fps;
+	DummySetVelocity velo;
+	MSGPACK_DEFINE(dummy,client_fps,velo);
+};
+
+struct OutgoingMessage
+{
+    std::string message_type;
+	BufferVariant buffer;
+    MSGPACK_DEFINE(message_type,buffer);
+};
+
 
 // Global queues for server responses and outgoing messages
 std::queue<ServerMessage> serverToClientMessage;

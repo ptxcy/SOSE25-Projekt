@@ -116,27 +116,6 @@ void serialize_spawn_dummy(msgpack::sbuffer &buffer, const std::string &dummy_id
 void serialize_set_client_fps(msgpack::sbuffer &buffer, double fps);
 void serialize_dummy_set_velocity(msgpack::sbuffer &buffer, const std::string &dummy_id, double x, double y, double z);
 
-// Forward declarations for queue helper functions
-void queueSpawnDummy(const std::string &dummy_id);
-void queueSetClientFPS(double fps);
-void queueDummySetVelocity(const std::string &dummy_id, double x, double y, double z);
-
-// Helper function to print hex dump
-void print_hex_dump(const char *data, size_t size)
-{
-    std::cout << "Hex dump:" << std::endl;
-    for (size_t i = 0; i < size; ++i)
-    {
-        std::cout << std::hex << std::setw(2) << std::setfill('0')
-                  << (static_cast<int>(data[i]) & 0xFF) << " ";
-        if ((i + 1) % 16 == 0)
-        {
-            std::cout << std::endl;
-        }
-    }
-    std::cout << std::dec << std::endl;
-}
-
 // Helper function to pack RequestInfo with default values
 void pack_default_request_info(msgpack::packer<msgpack::sbuffer> &packer)
 {
@@ -261,12 +240,6 @@ bool parse_server_response(const char *data, size_t size)
     }
 }
 
-// Externally accessible version of print_server_message
-void printServerMessage(const ServerMessage &message)
-{
-    print_server_message(message);
-}
-
 // Function to start the websocket adapter - can be called from other files
 int startWebsocketAdapter()
 {
@@ -288,22 +261,18 @@ int startWebsocketAdapter()
             {
                 // Check if there are messages to send
                 OutgoingMessage outMsg = clientToServerMessage.front();
-                if (outMsg == NULL)
-                {
-                    clientToServerMessage.pop();
-                    ws.write(boost::asio::buffer(outMsg.buffer.data(), outMsg.buffer.size()));
-                }
+				msgpack::sbuffer fuckyou;
+				msgpack::pack(fuckyou,outMsg);
+                clientToServerMessage.pop();
+                ws.write(boost::asio::buffer(fuckyou.data(),fuckyou.size()));
 
                 // Create a buffer for the response
                 boost::beast::flat_buffer response_buffer;
-                // Read a response
                 ws.read(response_buffer);
-                // Process the response
                 auto data = response_buffer.data();
-                const char *raw_data = static_cast<const char *>(data.data());
+                const char* raw_data = boost::asio::buffer_cast<const char*>(data);
                 size_t data_size = data.size();
                 parse_server_response(raw_data, data_size);
-                // Sleep for a short time to prevent tight looping
                 std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }
         }
