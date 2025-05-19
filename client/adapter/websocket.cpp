@@ -224,28 +224,6 @@ void serialize_dummy_set_velocity(msgpack::sbuffer &buffer, const std::string &d
     packer.pack(z);
 }
 
-// Helper functions to queue different types of messages
-void queueSpawnDummy(const std::string &dummy_id)
-{
-    msgpack::sbuffer buffer;
-    serialize_spawn_dummy(buffer, dummy_id);
-    clientToServerMessage.push(OutgoingMessage::Type::SpawnDummy, std::move(buffer));
-}
-
-void queueSetClientFPS(double fps)
-{
-    msgpack::sbuffer buffer;
-    serialize_set_client_fps(buffer, fps);
-    clientToServerMessage.push(OutgoingMessage::Type::SetClientFPS, std::move(buffer));
-}
-
-void queueDummySetVelocity(const std::string &dummy_id, double x, double y, double z)
-{
-    msgpack::sbuffer buffer;
-    serialize_dummy_set_velocity(buffer, dummy_id, x, y, z);
-    clientToServerMessage.push(OutgoingMessage::Type::DummySetVelocity, std::move(buffer));
-}
-
 // Parse server response and add to queue
 bool parse_server_response(const char *data, size_t size)
 {
@@ -294,10 +272,6 @@ int startWebsocketAdapter()
 {
     try
     {
-        std::cout << "Queueing initial test message..." << std::endl;
-        queueSpawnDummy("test_dummy_" + std::to_string(std::time(nullptr)));
-        std::cout << "Starting WebSocket client loop..." << std::endl;
-
         boost::asio::io_context ioc;
         boost::beast::websocket::stream<boost::asio::ip::tcp::socket> ws{ioc};
 
@@ -314,7 +288,7 @@ int startWebsocketAdapter()
             {
                 // Check if there are messages to send
                 OutgoingMessage outMsg = clientToServerMessage.front();
-                if (outMsg)
+                if (outMsg == NULL)
                 {
                     clientToServerMessage.pop();
                     ws.write(boost::asio::buffer(outMsg.buffer.data(), outMsg.buffer.size()));
