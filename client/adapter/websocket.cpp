@@ -233,7 +233,7 @@ bool parse_server_response(const char *data, size_t size)
 
         return true;
     }
-    catch (const std::exception &e)
+    catch (const std::exception& e)
     {
         std::cerr << "Error parsing server response: " << e.what() << std::endl;
         return false;
@@ -261,9 +261,9 @@ int startWebsocketAdapter()
             {
                 // Check if there are messages to send
                 OutgoingMessage outMsg = clientToServerMessage.front();
+                clientToServerMessage.pop();
 				msgpack::sbuffer fuckyou;
 				msgpack::pack(fuckyou,outMsg);
-                clientToServerMessage.pop();
                 ws.write(boost::asio::buffer(fuckyou.data(),fuckyou.size()));
 
                 // Create a buffer for the response
@@ -295,5 +295,14 @@ int startWebsocketAdapter()
 // Main function to run the WebSocket client
 int main()
 {
-   startWebsocketAdapter();
+	OutgoingMessage msg = {
+		.message_type = "deine-mudder",
+		.buffer = {
+			.dummy = {
+				"dumdumgumgum",
+			},
+		},
+	};
+	clientToServerMessage.push(msg);
+	startWebsocketAdapter();
 }
