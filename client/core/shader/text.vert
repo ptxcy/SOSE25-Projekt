@@ -20,7 +20,7 @@ uniform mat4 proj;
 void main()
 {
 	// pass
-	gl_Position = proj*view*vec4(position*scale+offset,.0,1.);
+	gl_Position = proj*view*vec4(position*scale/*+offset*/,.0,1.);
 	EdgeCoordinates = edge_coordinates;
 	Colour = colour;
 }

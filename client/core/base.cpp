@@ -50,7 +50,6 @@ void ThreadSignal::wait()
 {
 	std::unique_lock<std::mutex> lock(mutex);
 	cv.wait(lock,[this]{ return active; });
-	active = false;
 }
 
 /**

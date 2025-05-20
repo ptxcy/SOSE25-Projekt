@@ -111,6 +111,7 @@ struct Font
 	PixelBufferComponent tex[96];
 	Glyph glyphs[96];
 	u16 size;
+	ThreadSignal signal;
 };
 
 constexpr u16 BUFFER_MAXIMUM_TEXTURE_COUNT = 1024;

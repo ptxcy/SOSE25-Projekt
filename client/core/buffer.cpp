@@ -340,6 +340,7 @@ void GPUPixelBuffer::load_font(GPUPixelBuffer* gpb,Font* font,const char* path,u
 		memcpy(__TextureData.data,__Face->glyph->bitmap.buffer,__Mem);
 		_load(gpb,&font->tex[i],&__TextureData);
 	}
+	font->signal.proceed();
 
 	// store & clear
 	FT_Done_Face(__Face);

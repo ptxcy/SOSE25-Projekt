@@ -61,6 +61,7 @@ void Text::load_buffer()
 		Glyph& p_Glyph = font->glyphs[data[i]-32];
 
 		// load text data
+		COMM_LOG("%f, %f\n",__Cursor.x,__Cursor.y);
 		p_Character = {
 			.offset = __Cursor,
 			.scale = p_Component.dimensions*scale,
@@ -126,24 +127,24 @@ Renderer::Renderer()
 	m_SpritePipeline.upload_coordinate_system();
 
 	COMM_LOG("text pipeline");
-	m_FontPipeline.assemble(__TextVertexShader,__TextFragmentShader,4,14,"text");
-	m_FontVertexArray.bind();
+	m_TextPipeline.assemble(__TextVertexShader,__TextFragmentShader,4,14,"text");
+	m_TextVertexArray.bind();
 	m_SpriteVertexBuffer.bind();
 
-	m_FontPipeline.enable();
-	m_FontPipeline.define_attribute("position",2);
-	m_FontPipeline.define_attribute("edge_coordinates",2);
+	m_TextPipeline.enable();
+	m_TextPipeline.define_attribute("position",2);
+	m_TextPipeline.define_attribute("edge_coordinates",2);
 
-	m_FontInstanceBuffer.bind();
-	m_FontPipeline.define_index_attribute("offset",2);
-	m_FontPipeline.define_index_attribute("scale",2);
-	m_FontPipeline.define_index_attribute("bearing",2);
-	m_FontPipeline.define_index_attribute("colour",4);
-	m_FontPipeline.define_index_attribute("atlas_position",2);
-	m_FontPipeline.define_index_attribute("atlas_dimension",2);
+	m_TextInstanceBuffer.bind();
+	m_TextPipeline.define_index_attribute("offset",2);
+	m_TextPipeline.define_index_attribute("scale",2);
+	m_TextPipeline.define_index_attribute("bearing",2);
+	m_TextPipeline.define_index_attribute("colour",4);
+	m_TextPipeline.define_index_attribute("atlas_position",2);
+	m_TextPipeline.define_index_attribute("atlas_dimension",2);
 
-	m_FontPipeline.upload("tex",0);
-	m_FontPipeline.upload_coordinate_system();
+	m_TextPipeline.upload("tex",0);
+	m_TextPipeline.upload_coordinate_system();
 
 	// ----------------------------------------------------------------------------------------------------
 	// GPU Memory
@@ -294,24 +295,21 @@ void Renderer::register_font(Font* font,const char* path,u16 size)
 /**
  *	TODO
  */
-Text* Renderer::write_text(Font* font,const string& data,vec2 position,f32 scale,
-						   vec4 colour,ScreenAlignment align)
+u16 Renderer::write_text(Font* font,string data,vec2 position,f32 scale,vec4 colour,ScreenAlignment align)
 {
-	Text* p_Text = (Text*)malloc(sizeof(Text));
-	(*p_Text) = {
-		.font = font,
-		.position = position,
-		.scale = scale,
-		.colour = colour,
-		.alignment = align,
-		.data = data,
-	};
+	font->signal.wait();
+	m_Texts.push_back({
+			.font = font,
+			.position = position,
+			.scale = (f32)scale/font->size,
+			.colour = colour,
+			.alignment = align,
+			.data = data
+		});
 
-	p_Text->align();
-	p_Text->load_buffer();
-	m_Texts.push_back(p_Text);
-
-	return p_Text;
+	m_Texts.back().align();
+	m_Texts.back().load_buffer();
+	return m_Texts.size()-1;
 }
 // FIXME experimental memory management, this should happen ideally over the entirety of the possible text range
 
@@ -346,13 +344,18 @@ void Renderer::_update_sprites()
  */
 void Renderer::_update_text()
 {
-	m_FontVertexArray.bind();
-	m_GPUFontTextures.atlas.bind();
-	/*
+	// prepare gpu
+	m_TextVertexArray.bind();
+	m_TextInstanceBuffer.bind();
 	m_TextPipeline.enable();
-	m_FontInstanceBuffer.bind();
-	TODO drawcalling text characters
-	*/
+	m_GPUFontTextures.atlas.bind();
+
+	// iterate text entities
+	for (Text& p_Text : m_Texts)
+	{
+		m_TextInstanceBuffer.upload_vertices(p_Text.buffer,GL_DYNAMIC_DRAW);
+		glDrawArraysInstanced(GL_TRIANGLES,0,6,p_Text.buffer.size());
+	}
 }
 
 
@@ -374,6 +377,7 @@ template<typename T> void Renderer::_collector(InPlaceArray<T>* xs,ThreadSignal*
 	while (signal->running)
 	{
 		signal->wait();
+		signal->active = false;
 		if (!signal->running) break;
 		COMM_LOG("%s collector is searching for removed objects...",signal->name);
 

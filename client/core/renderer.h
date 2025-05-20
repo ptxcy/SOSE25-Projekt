@@ -94,7 +94,8 @@ public:
 
 	// text
 	void register_font(Font* font,const char* path,u16 size);
-	Text* write_text(Font* font,const string& data,vec2 position,f32 scale,vec4 colour,ScreenAlignment align);
+	u16 write_text(Font* font,string data,vec2 position,f32 scale,
+				   vec4 colour=vec4(1),ScreenAlignment align=SCREEN_ALIGN_BOTTOMLEFT);
 
 private:
 	void _gpu_upload();
@@ -116,14 +117,14 @@ private:
 	// Data Management & Pipelines
 
 	VertexArray m_SpriteVertexArray;
-	VertexArray m_FontVertexArray;
+	VertexArray m_TextVertexArray;
 
 	VertexBuffer m_SpriteVertexBuffer;
 	VertexBuffer m_SpriteInstanceBuffer;
-	VertexBuffer m_FontInstanceBuffer;
+	VertexBuffer m_TextInstanceBuffer;
 
 	ShaderPipeline m_SpritePipeline;
-	ShaderPipeline m_FontPipeline;
+	ShaderPipeline m_TextPipeline;
 
 	// ----------------------------------------------------------------------------------------------------
 	// Render Object Information
@@ -136,7 +137,7 @@ private:
 	InPlaceArray<Sprite> m_Sprites = InPlaceArray<Sprite>(BUFFER_MAXIMUM_TEXTURE_COUNT);
 
 	// text
-	std::vector<Text*> m_Texts;
+	std::vector<Text> m_Texts;
 };
 
 inline Renderer g_Renderer = Renderer();
