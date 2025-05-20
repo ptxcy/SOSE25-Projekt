@@ -1,26 +1,20 @@
 #ifndef WEBSOCKET_H
 #define WEBSOCKET_H
 
+
 #include <string>
 #include <vector>
 #include <queue>
 #include <iostream>
 #include <string>
-#include <iomanip> // For hex output formatting
-#include <mutex>
 #include <thread>
 #include <chrono>
-#include <variant>
 #include <map>
-#include <sstream>
-#include <condition_variable>
-#include <ctime>
-#include <functional>
-#include <atomic>
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
 #include <boost/asio.hpp>
 #include <msgpack.hpp>
+
 
 struct Coordinate
 {
@@ -133,7 +127,7 @@ std::queue<ServerMessage> serverToClientMessage;
 std::queue<ClientMessage> clientToServerMessage;
 
 // Core function to start the WebSocket adapter
-int startWebsocketAdapter();
+void startWebsocketAdapter();
 
 // Functions to queue requests to the WebSocket server
 void queueSpawnDummy(const std::string &dummy_id);
