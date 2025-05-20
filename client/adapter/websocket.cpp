@@ -260,7 +260,7 @@ int startWebsocketAdapter()
             while (true)
             {
                 // Check if there are messages to send
-                OutgoingMessage outMsg = clientToServerMessage.front();
+                SpawnDummy outMsg = clientToServerMessage.front().buffer.dummy;
                 clientToServerMessage.pop();
 				msgpack::sbuffer fuckyou;
 				msgpack::pack(fuckyou,outMsg);
