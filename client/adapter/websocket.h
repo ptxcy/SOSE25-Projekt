@@ -112,18 +112,10 @@ struct DummySetVelocity
     MSGPACK_DEFINE(id, position);
 };
 
-struct BufferVariant
-{
-	SpawnDummy dummy;
-	SetClientFPS client_fps;
-	DummySetVelocity velo;
-	MSGPACK_DEFINE(dummy,client_fps,velo);
-};
-
 struct OutgoingMessage
 {
     std::string message_type;
-	BufferVariant buffer;
+	msgpack::object buffer;
     MSGPACK_DEFINE(message_type,buffer);
 };
 

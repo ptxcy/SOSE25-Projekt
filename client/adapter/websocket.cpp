@@ -260,7 +260,7 @@ int startWebsocketAdapter()
             while (true)
             {
                 // Check if there are messages to send
-                SpawnDummy outMsg = clientToServerMessage.front().buffer.dummy;
+                OutgoingMessage outMsg = clientToServerMessage.front();
                 clientToServerMessage.pop();
 				msgpack::sbuffer fuckyou;
 				msgpack::pack(fuckyou,outMsg);
@@ -297,12 +297,11 @@ int main()
 {
 	OutgoingMessage msg = {
 		.message_type = "deine-mudder",
-		.buffer = {
-			.dummy = {
-				"dumdumgumgum",
-			},
-		},
 	};
+	msgpack::sbuffer buffer;
+	serialize_spawn_dummy(buffer,"fuccus ruccus");
+	msgpack::object_handle handle = msgpack::unpack(buffer.data(),buffer.size());
+	msg.buffer = handle.get();
 	clientToServerMessage.push(msg);
 	startWebsocketAdapter();
 }
