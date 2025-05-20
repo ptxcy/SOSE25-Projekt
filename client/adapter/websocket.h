@@ -93,16 +93,16 @@ struct ServerMessage
 
 
 // Message structures for client requests
-struct SpawnDummy
-{
-    std::string id;
-    MSGPACK_DEFINE(id);
-};
-
 struct SetClientFPS
 {
     double fps;
     MSGPACK_DEFINE(fps);
+};
+
+struct SpawnDummy
+{
+    std::string id;
+    MSGPACK_DEFINE(id);
 };
 
 struct DummySetVelocity
@@ -112,17 +112,25 @@ struct DummySetVelocity
     MSGPACK_DEFINE(id, position);
 };
 
-struct OutgoingMessage
+struct ClientRequest
 {
-    std::string message_type;
-	msgpack::object buffer;
-    MSGPACK_DEFINE(message_type,buffer);
+	std::optional<double> set_client_fps;
+	std::optional<std::string> spawn_dummy;
+	std::optional<DummySetVelocity> dummy_set_velocity;
+	MSGPACK_DEFINE(set_client_fps,spawn_dummy,dummy_set_velocity);
+};
+
+struct ClientMessage
+{
+	RequestInfo request_info;
+	ClientRequest request_data;
+    MSGPACK_DEFINE(request_info,request_data);
 };
 
 
 // Global queues for server responses and outgoing messages
 std::queue<ServerMessage> serverToClientMessage;
-std::queue<OutgoingMessage> clientToServerMessage;
+std::queue<ClientMessage> clientToServerMessage;
 
 // Core function to start the WebSocket adapter
 int startWebsocketAdapter();

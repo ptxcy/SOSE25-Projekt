@@ -260,7 +260,7 @@ int startWebsocketAdapter()
             while (true)
             {
                 // Check if there are messages to send
-                OutgoingMessage outMsg = clientToServerMessage.front();
+                ClientMessage outMsg = clientToServerMessage.front();
                 clientToServerMessage.pop();
 				msgpack::sbuffer fuckyou;
 				msgpack::pack(fuckyou,outMsg);
@@ -295,13 +295,12 @@ int startWebsocketAdapter()
 // Main function to run the WebSocket client
 int main()
 {
-	OutgoingMessage msg = {
-		.message_type = "deine-mudder",
+	ClientMessage msg = {
+		.request_info = {},
+		.request_data = {
+			.spawn_dummy = std::optional<std::string>("ich bin 1 gummibaer")
+		},
 	};
-	msgpack::sbuffer buffer;
-	serialize_spawn_dummy(buffer,"fuccus ruccus");
-	msgpack::object_handle handle = msgpack::unpack(buffer.data(),buffer.size());
-	msg.buffer = handle.get();
 	clientToServerMessage.push(msg);
 	startWebsocketAdapter();
 }
