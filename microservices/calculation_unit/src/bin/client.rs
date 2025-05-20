@@ -3,7 +3,8 @@ use std::env;
 use calculation_unit::{
 	game::coordinate::Coordinate,
 	messages::{
-		client_message::{ClientMessage, ClientRequest, DummySetVelocity}, server_message::ServerMessage
+		client_message::{ClientMessage, ClientRequest, DummySetVelocity},
+		server_message::ServerMessage,
 	},
 };
 use futures_util::{SinkExt, stream::StreamExt};

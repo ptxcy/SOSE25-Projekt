@@ -2,7 +2,6 @@ use super::websocket_format::RequestInfo;
 use crate::game::{coordinate::Coordinate, dummy::DummyObject, game_objects::GameObjects};
 use serde::{Deserialize, Serialize};
 
-
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct DummySetVelocity {
 	pub id: String,
@@ -44,7 +43,11 @@ impl ClientRequest {
 		let dummies = &mut game_objects.dummies;
 		match self {
 			// TEMP move dummy client by certain amount
-			ClientRequest { set_client_fps: _, spawn_dummy: _, dummy_set_velocity: Some(DummySetVelocity { id, position }) } => {
+			ClientRequest {
+				set_client_fps: _,
+				spawn_dummy: _,
+				dummy_set_velocity: Some(DummySetVelocity { id, position }),
+			} => {
 				// TODO
 				match dummies.get_mut(&id) {
 					Some(dummy) => {
@@ -61,7 +64,11 @@ impl ClientRequest {
 			}
 
 			// TEMP spawn dummy client
-			ClientRequest { set_client_fps: _, spawn_dummy: Some(id), dummy_set_velocity: _ } => {
+			ClientRequest {
+				set_client_fps: _,
+				spawn_dummy: Some(id),
+				dummy_set_velocity: _,
+			} => {
 				// check if dummy with id already exists
 				match dummies.get(&id) {
 					Some(_) => {
