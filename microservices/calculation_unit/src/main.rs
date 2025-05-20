@@ -70,7 +70,7 @@ pub fn parse_client_message(message: Message) -> Result<ClientMessage, rmp_serde
 			println!("{:?}", m);
 		}
 		Err(_) => {
-			println!("received non message pack message");
+			println!("received non message pack message or non clientmessage");
 		}
 	};
 	client_message
@@ -95,8 +95,8 @@ async fn handle_ws_msgpack(
 				Err(_) => continue,
 			};
 
-			match &client_message.request_data {
-				calculation_unit::messages::client_message::ClientRequest::SpawnDummy { id } => {
+			match &client_message.request_data.spawn_dummy {
+				Some(id) => {
 					// send the server_message_tx to the calculation task
 					let sender_sender = sender_sender.clone();
 					let server_message_tx = server_message_tx.clone();

@@ -2,21 +2,40 @@ use super::websocket_format::RequestInfo;
 use crate::game::{coordinate::Coordinate, dummy::DummyObject, game_objects::GameObjects};
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub enum ClientRequest {
-	SetClientFPS(f64),
-	SpawnDummy { id: String },
-	DummySetVelocity { id: String, position: Coordinate },
+
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+pub struct DummySetVelocity {
+	pub id: String,
+	pub position: Coordinate,
 }
 
-impl Default for ClientRequest {
-	fn default() -> Self {
-		Self::SetClientFPS(60.)
-	}
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+pub struct ClientRequest {
+	pub set_client_fps: Option<f64>,
+	pub spawn_dummy: Option<String>,
+	pub dummy_set_velocity: Option<DummySetVelocity>,
 }
 
 impl ClientRequest {
 	// executes a clients input data on the game
+	pub fn set_client_fps(value: f64) -> Self {
+		Self {
+			set_client_fps: Some(value),
+			..Default::default()
+		}
+	}
+	pub fn spawn_dummy(id: &str) -> Self {
+		Self {
+			spawn_dummy: Some(id.to_owned()),
+			..Default::default()
+		}
+	}
+	pub fn dummy_set_velocity(value: DummySetVelocity) -> Self {
+		Self {
+			dummy_set_velocity: Some(value),
+			..Default::default()
+		}
+	}
 	pub fn execute(
 		self,
 		game_objects: &mut GameObjects,
@@ -25,7 +44,7 @@ impl ClientRequest {
 		let dummies = &mut game_objects.dummies;
 		match self {
 			// TEMP move dummy client by certain amount
-			ClientRequest::DummySetVelocity { id, position } => {
+			ClientRequest { set_client_fps: _, spawn_dummy: _, dummy_set_velocity: Some(DummySetVelocity { id, position }) } => {
 				// TODO
 				match dummies.get_mut(&id) {
 					Some(dummy) => {
@@ -42,7 +61,7 @@ impl ClientRequest {
 			}
 
 			// TEMP spawn dummy client
-			ClientRequest::SpawnDummy { id } => {
+			ClientRequest { set_client_fps: _, spawn_dummy: Some(id), dummy_set_velocity: _ } => {
 				// check if dummy with id already exists
 				match dummies.get(&id) {
 					Some(_) => {
@@ -62,9 +81,7 @@ impl ClientRequest {
 				};
 				dummies.insert(id, dummy);
 			}
-			ClientRequest::SetClientFPS(fps) => {
-				// TODO update the conneciton
-			}
+			_ => {}
 		};
 		Ok(())
 	}

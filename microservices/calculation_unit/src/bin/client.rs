@@ -3,11 +3,7 @@ use std::env;
 use calculation_unit::{
 	game::coordinate::Coordinate,
 	messages::{
-		client_message::{
-			ClientMessage,
-			ClientRequest::{self, DummySetVelocity},
-		},
-		server_message::ServerMessage,
+		client_message::{ClientMessage, ClientRequest, DummySetVelocity}, server_message::ServerMessage
 	},
 };
 use futures_util::{SinkExt, stream::StreamExt};
@@ -17,7 +13,7 @@ use url::Url;
 pub fn request_spawn(id: &String) -> Vec<u8> {
 	// Example ClientMessage to send
 	let client_message = ClientMessage {
-		request_data: ClientRequest::SpawnDummy { id: id.clone() },
+		request_data: ClientRequest::spawn_dummy(id),
 		..Default::default()
 	};
 
@@ -30,14 +26,14 @@ pub fn request_spawn(id: &String) -> Vec<u8> {
 pub fn request_move(id: &String) -> Vec<u8> {
 	// Example ClientMessage to send
 	let client_message = ClientMessage {
-		request_data: DummySetVelocity {
+		request_data: ClientRequest::dummy_set_velocity(DummySetVelocity {
 			id: id.clone(),
 			position: Coordinate {
 				x: 2.,
 				y: 0.,
 				z: 0.,
 			},
-		},
+		}),
 		..Default::default()
 	};
 
