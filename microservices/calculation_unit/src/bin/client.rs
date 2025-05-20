@@ -14,7 +14,7 @@ use url::Url;
 pub fn request_spawn(id: &String) -> Vec<u8> {
 	// Example ClientMessage to send
 	let client_message = ClientMessage {
-		request_data: ClientRequest::spawn_dummy(id),
+		request_data: ClientRequest::new_spawn_dummy(id),
 		..Default::default()
 	};
 
@@ -27,7 +27,7 @@ pub fn request_spawn(id: &String) -> Vec<u8> {
 pub fn request_move(id: &String) -> Vec<u8> {
 	// Example ClientMessage to send
 	let client_message = ClientMessage {
-		request_data: ClientRequest::dummy_set_velocity(DummySetVelocity {
+		request_data: ClientRequest::new_dummy_set_velocity(DummySetVelocity {
 			id: id.clone(),
 			position: Coordinate {
 				x: 2.,
