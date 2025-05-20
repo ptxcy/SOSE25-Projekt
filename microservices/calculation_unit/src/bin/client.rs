@@ -1,11 +1,10 @@
 use std::env;
 
 use calculation_unit::{
-	game::coordinate::Coordinate,
-	messages::{
+	game::coordinate::Coordinate, logger::log_with_time, messages::{
 		client_message::{ClientMessage, ClientRequest, DummySetVelocity},
 		server_message::ServerMessage,
-	},
+	}
 };
 use futures_util::{SinkExt, stream::StreamExt};
 use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
@@ -62,7 +61,7 @@ async fn main() {
 		.await
 		.expect("Failed to connect to WebSocket server");
 
-	println!("Connected to WebSocket server!");
+	log_with_time(format!("Connected to WebSocket server!"));
 
 	let (mut write, mut read) = ws_stream.split();
 
@@ -74,7 +73,7 @@ async fn main() {
 			.send(Message::Binary(serialized_message))
 			.await
 			.expect("Failed to send message");
-		println!("Message sent to server! trying to spawn");
+		log_with_time(format!("Message sent to server! trying to spawn"));
 
 		// move dummy_1
 		loop {
@@ -93,14 +92,14 @@ async fn main() {
 				// Deserialize MessagePack to ClientMessage
 				match rmp_serde::from_slice::<ServerMessage>(&data) {
 					Ok(client_message) => {
-						println!("Received: {:?}", client_message.request_data.game_objects);
+						log_with_time(format!("Received: {:?}", client_message.request_data.game_objects));
 					}
-					Err(e) => eprintln!("Failed to deserialize message: {}", e),
+					Err(e) => log_with_time(format!("Failed to deserialize message: {}", e)),
 				}
 			}
-			Ok(other) => println!("Received non-binary message: {:?}", other),
+			Ok(other) => log_with_time(format!("Received non-binary message: {:?}", other)),
 			Err(e) => {
-				eprintln!("Error reading message: {}", e);
+				log_with_time(format!("Error reading message: {}", e));
 				break;
 			}
 		}

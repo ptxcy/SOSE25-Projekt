@@ -1,7 +1,6 @@
 use calculation_unit::{
 	game::calculation_unit::ServerMessageSenderChannel,
-	get_time,
-	logger::Loggable,
+	logger::{log_with_time, Loggable},
 	messages::{client_message::ClientMessage, server_message::ServerMessage},
 };
 use futures::{SinkExt, StreamExt};
@@ -13,9 +12,7 @@ use warp::ws::{Message, WebSocket};
 // async main gets started on program start
 #[tokio::main]
 async fn main() {
-	// dummy print for time
-	let millis = get_time();
-	println!("current time: {}", millis);
+	log_with_time("calculation unit started");
 
 	let (server_message_sender_sender, server_message_sender_receiver) =
 		channel::<ServerMessageSenderChannel>(32);
@@ -67,10 +64,10 @@ pub fn parse_client_message(message: Message) -> Result<ClientMessage, rmp_serde
 	match &client_message {
 		Ok(m) => {
 			// TEMP test for client
-			println!("{:?}", m);
+			log_with_time(format!("{:?}", m));
 		}
 		Err(_) => {
-			println!("received non message pack message or non clientmessage");
+			log_with_time("received non message pack message or non clientmessage");
 		}
 	};
 	client_message
@@ -85,7 +82,7 @@ async fn handle_ws_msgpack(
 	let (mut websocket_tx, mut websocket_rx) = ws.split();
 	let (server_message_tx, mut server_message_rx) = channel::<Arc<ServerMessage>>(32);
 
-	println!("new websocket client connected");
+	log_with_time("new websocket client connected");
 
 	// receiving messages from async client
 	tokio::spawn(async move {
@@ -102,7 +99,7 @@ async fn handle_ws_msgpack(
 					let server_message_tx = server_message_tx.clone();
 					let id = id.clone();
 					tokio::spawn(async move {
-						println!("new connection");
+						log_with_time("new connection");
 						let result = sender_sender
 							.send(ServerMessageSenderChannel::new(id, server_message_tx))
 							.await
@@ -119,7 +116,6 @@ async fn handle_ws_msgpack(
 
 	// sending messages from calculation_unit to client async
 	while let Some(msg) = server_message_rx.recv().await {
-		// println!("got something from calc");
 		let response = match std::panic::catch_unwind(|| {
 			let msgpack_bytes = rmp_serde::to_vec(&*msg).log().unwrap();
 			msgpack_bytes

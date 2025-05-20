@@ -1,6 +1,6 @@
 use crate::{
 	get_time,
-	logger::Loggable,
+	logger::{log_with_time, Loggable},
 	messages::{
 		client_message::ClientMessage,
 		server_message::{ObjectData, ServerMessage},
@@ -54,11 +54,11 @@ pub async fn broadcast(
 		sender_channel.tick_counter += delta_seconds;
 		if sender_channel.tick_counter >= sender_channel.update_threshold {
 			// send message to client
-			// println!("trying to send to client");
+			// log_with_time(format!("trying to send to client"));
 			sender_channel.tick_counter = 0.;
 			let message_clone = Arc::clone(&shared_message);
 			if let Err(e) = sender_channel.sender.send(message_clone).await {
-				eprintln!("Failed to send message: {}", e);
+				log_with_time(format!("Failed to send message: {}", e));
 				// remove connection
 				to_be_removed.push(i);
 			}
@@ -119,9 +119,9 @@ pub async fn start(
 	// game loop
 	loop {
 		while let Ok(sender) = sender_receiver.try_recv() {
-			println!("getting sender {}", sender.id);
+			log_with_time(format!("getting sender {}", sender.id));
 			// if let Err(e) = sender.sender.try_send(Arc::new(ServerMessage::dummy())) {
-			// 	eprintln!("Failed to send initial dummy message: {}", e);
+			// 	log_with_time(format!("Failed to send initial dummy message: {}", e));
 			// }
 
 			server_message_senders.push(sender);
@@ -145,7 +145,7 @@ pub async fn start(
 		let update_result = update_game(&mut game_objects, delta_seconds).log();
 
 		// sending message
-		// println!("broadcasting to clients");
+		// log_with_time(format!("broadcasting to clients"));
 		broadcast(&mut server_message_senders, &game_objects, delta_seconds).await;
 
 		// let other tokio tasks do stuff

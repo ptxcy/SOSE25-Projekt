@@ -1,5 +1,5 @@
 use super::websocket_format::RequestInfo;
-use crate::game::{coordinate::Coordinate, dummy::DummyObject, game_objects::GameObjects};
+use crate::{game::{coordinate::Coordinate, dummy::DummyObject, game_objects::GameObjects}, logger::log_with_time};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
@@ -41,7 +41,7 @@ pub fn spawn_dummy(
 	};
 
 	// spawn dummy
-	println!("spawn dummy client");
+	log_with_time("spawn dummy client");
 	let dummy = DummyObject {
 		id: id.clone(),
 		..Default::default()
