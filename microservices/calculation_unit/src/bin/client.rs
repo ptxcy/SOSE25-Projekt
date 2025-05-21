@@ -1,10 +1,12 @@
 use std::env;
 
 use calculation_unit::{
-	game::coordinate::Coordinate, logger::log_with_time, messages::{
+	game::coordinate::Coordinate,
+	logger::log_with_time,
+	messages::{
 		client_message::{ClientMessage, ClientRequest, DummySetVelocity},
 		server_message::ServerMessage,
-	}
+	},
 };
 use futures_util::{SinkExt, stream::StreamExt};
 use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
@@ -92,7 +94,10 @@ async fn main() {
 				// Deserialize MessagePack to ClientMessage
 				match rmp_serde::from_slice::<ServerMessage>(&data) {
 					Ok(client_message) => {
-						log_with_time(format!("Received: {:?}", client_message.request_data.game_objects));
+						log_with_time(format!(
+							"Received: {:?}",
+							client_message.request_data.game_objects
+						));
 					}
 					Err(e) => log_with_time(format!("Failed to deserialize message: {}", e)),
 				}

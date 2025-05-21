@@ -1,5 +1,8 @@
 use super::websocket_format::RequestInfo;
-use crate::{game::{coordinate::Coordinate, dummy::DummyObject, game_objects::GameObjects}, logger::log_with_time};
+use crate::{
+	game::{coordinate::Coordinate, dummy::DummyObject, game_objects::GameObjects},
+	logger::log_with_time,
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
@@ -20,7 +23,7 @@ pub fn set_client_fps(
 	delta_seconds: f64,
 	value: f64,
 ) -> std::result::Result<(), String> {
-	// TODO 
+	// TODO
 	Ok(())
 }
 pub fn spawn_dummy(

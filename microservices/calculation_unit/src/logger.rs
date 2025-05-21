@@ -1,7 +1,12 @@
 use std::{
+	cell::RefCell,
 	fmt,
+	sync::Mutex,
 	time::{SystemTime, UNIX_EPOCH},
 };
+
+static last_log: Mutex<RefCell<Option<String>>> = Mutex::new(RefCell::new(None));
+static repeat_log_count: Mutex<RefCell<usize>> = Mutex::new(RefCell::new(0));
 
 fn message_with_time<E: fmt::Debug>(message: E) -> String {
 	let now = SystemTime::now()
@@ -15,7 +20,28 @@ fn message_with_time<E: fmt::Debug>(message: E) -> String {
 }
 
 pub fn log_with_time<E: fmt::Debug>(message: E) {
-	println!("{}\n", message_with_time(message));
+	let message = message_with_time(message);
+	let last_log_message = last_log.lock().unwrap();
+	let mut last_log_message_inner = last_log_message.borrow_mut();
+	match &*last_log_message_inner {
+		Some(m) => {
+			let repeat_lock = repeat_log_count.lock().unwrap();
+			let mut repeat_count_mut = repeat_lock.borrow_mut();
+			if message == *m {
+				*repeat_count_mut += 1;
+				if (*repeat_count_mut) % 1000 >= 999 {
+					print!("+");
+				}
+				return;
+			} else {
+				println!("({})", *repeat_count_mut);
+				*repeat_count_mut = 0;
+			}
+		}
+		None => {}
+	};
+	*last_log_message_inner = Some(message.clone());
+	println!("\n{}", message);
 }
 
 pub trait Loggable {

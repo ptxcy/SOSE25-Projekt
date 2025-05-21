@@ -1,6 +1,6 @@
 use calculation_unit::{
 	game::calculation_unit::ServerMessageSenderChannel,
-	logger::{log_with_time, Loggable},
+	logger::{Loggable, log_with_time},
 	messages::{client_message::ClientMessage, server_message::ServerMessage},
 };
 use futures::{SinkExt, StreamExt};
