@@ -2,6 +2,7 @@
 #include "core/input.h"
 #include "core/renderer.h"
 #include "core/ui.h"
+#include "core/websocket.h"
 
 
 s32 main(s32 argc,char** argv)
@@ -17,7 +18,17 @@ s32 main(s32 argc,char** argv)
 		g_Frame.clear();
 		g_Input.update(running);
 
-		if (btn->confirm) std::cout << "sync\n";
+		if (btn->confirm)
+		{
+			ClientMessage __Msg = {
+				.request_info = {  },
+				.request_data = { .spawn_dummy = std::optional<std::string>("owen wilson") },
+			};
+			g_Websocket.complex.m_MutexClientMessages.lock();
+			g_Websocket.complex.client_messages.push(__Msg);
+			g_Websocket.complex.m_MutexClientMessages.unlock();
+		}
+
 		g_UI.update();
 		g_Renderer.update();
 		g_Frame.update();

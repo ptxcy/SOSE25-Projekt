@@ -6,12 +6,33 @@
 #include "../adapter/definition.h"
 
 
-// Global queues for server responses and outgoing messages
-std::queue<ServerMessage> serverToClientMessage;
-std::queue<ClientMessage> clientToServerMessage;
+typedef boost::beast::websocket::stream<boost::asio::ip::tcp::socket> socket_stream;
 
-// Core function to start the WebSocket adapter
-void startWebsocketAdapter();
+struct WebsocketComplex
+{
+	std::queue<ServerMessage> server_messages;
+	std::queue<ClientMessage> client_messages;
+	std::mutex m_MutexServerMessages;
+	std::mutex m_MutexClientMessages;
+	boost::asio::io_context ioc;
+	socket_stream ws{ioc};
+};
+
+
+// voluntary websocket feature
+class Websocket
+{
+public:
+	Websocket(string host="localhost",string port="8082");
+
+public:
+	WebsocketComplex complex;
+};
+
+
+#ifdef FEAT_MULTIPLAYER
+extern Websocket g_Websocket;
+#endif
 
 
 #endif

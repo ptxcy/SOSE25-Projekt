@@ -1,12 +1,18 @@
 #include "websocket.h"
 
 
+#ifdef FEAT_MULTIPLAYER
+Websocket g_Websocket;
+#endif
+
+
 /**
  *	Parse server response and add to queue
+ *	\param c: websocket data
  *	\param data: raw response data
  *	\param size: length of received response data
  */
-void parse_server_response(const char* data, size_t size)
+void _parse_server_response(WebsocketComplex* c,const char* data, size_t size)
 {
 	try
 	{
@@ -18,58 +24,81 @@ void parse_server_response(const char* data, size_t size)
 		// Try to convert to our ServerMessage structure
 		ServerMessage message;
 		obj.convert(message);
-		serverToClientMessage.push(message);
+		c->m_MutexServerMessages.lock();
+		c->server_messages.push(message);
 
 		COMM_LOG("Parsed Response: ID: %s, QSize: %li",
-				 message.request_data.target_user_id.c_str(),serverToClientMessage.size());
+				 message.request_data.target_user_id.c_str(),c->server_messages.size());
+		c->m_MutexServerMessages.unlock();
 	}
 
 	catch (const std::exception& e) { COMM_ERR("Error parsing server response: %s",e.what()); }
 }
 
 /**
- *	Function to start the websocket adapter
- *	\param host: (default=localhost) websocket host
- *	\param port: (default=8082) websocket port
+ *	function to handle websocket download traffic
  *	NOTE this is meant to be executed in a subthread, so the queues are filled asynchronously
  */
-void startWebsocketAdapter(string host,string port)
+void _handle_websocket_download(WebsocketComplex* c)
+{
+	while (true)
+	{
+		boost::beast::flat_buffer response_buffer;
+		c->ws.read(response_buffer);
+		auto data = response_buffer.data();
+		const char* raw_data = boost::asio::buffer_cast<const char*>(data);
+		size_t data_size = data.size();
+		_parse_server_response(c,raw_data,data_size);
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	}
+}
+// TODO lock queue when updating
+// TODO allow handler to stop updating when window is closed
+
+/**
+ *	function to handle websocket upload traffic
+ *	NOTE this is meant to be executed in a subthread, so the queues are filled asynchronously
+ */
+void _handle_websocket_upload(WebsocketComplex* c)
+{
+	while (true)
+	{
+		c->m_MutexClientMessages.lock();
+		if (c->client_messages.size())
+		{
+			ClientMessage outMsg = c->client_messages.front();
+			c->client_messages.pop();
+			c->m_MutexClientMessages.unlock();
+			msgpack::sbuffer msg_buffer;
+			msgpack::pack(msg_buffer,outMsg);
+			c->ws.write(boost::asio::buffer(msg_buffer.data(),msg_buffer.size()));
+		}
+		c->m_MutexClientMessages.unlock();
+	}
+}
+
+
+/**
+ *	automatically run the necessary setup to update & process the websocket queues
+ *	\param host: (default=localhost) websocket host
+ *	\param port: (default=8082) websocket port
+ */
+Websocket::Websocket(string host,string port)
 {
 	try
 	{
 		COMM_LOG("Connecting to WebSocket server at %s:%s/msgpack...",host.c_str(),port.c_str());
-		boost::asio::io_context ioc;
-		boost::beast::websocket::stream<boost::asio::ip::tcp::socket> ws{ioc};
-		auto results = boost::asio::ip::tcp::resolver{ioc}.resolve(host,port);
-		auto ep = boost::asio::connect(ws.next_layer(),results);
-		ws.handshake(host+':'+std::to_string(ep.port()),"/msgpack");
-		ws.binary(true);
+		auto results = boost::asio::ip::tcp::resolver{complex.ioc}.resolve(host,port);
+		auto ep = boost::asio::connect(complex.ws.next_layer(),results);
+		complex.ws.handshake(host+':'+std::to_string(ep.port()),"/msgpack");
+		complex.ws.binary(true);
 		COMM_SCC("Connected to server successfully!");
 		// FIXME find out if the ep.port call has merit and if not replace it by predefined parameter
-
-		while (true)
-		{
-			// Check if there are messages to send
-			if (clientToServerMessage.size())
-			{
-				ClientMessage outMsg = clientToServerMessage.front();
-				clientToServerMessage.pop();
-				msgpack::sbuffer msg_buffer;
-				msgpack::pack(msg_buffer,outMsg);
-				ws.write(boost::asio::buffer(msg_buffer.data(),msg_buffer.size()));
-			}
-
-			// Create a buffer for the response
-			boost::beast::flat_buffer response_buffer;
-			ws.read(response_buffer);
-			auto data = response_buffer.data();
-			const char* raw_data = boost::asio::buffer_cast<const char*>(data);
-			size_t data_size = data.size();
-			parse_server_response(raw_data, data_size);
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		}
 	}
+	catch (std::exception const &e) { COMM_ERR("Connection Error: %s",e.what()); }
 
-	catch (std::exception const &e) { COMM_ERR("WebSocket error: %s",e.what()); }
+	std::thread __HandleWebsocketDownload(_handle_websocket_download,&complex);
+	std::thread __HandleWebsocketUpload(_handle_websocket_upload,&complex);
+	__HandleWebsocketDownload.detach();
+	__HandleWebsocketUpload.detach();
 }
-// TODO split up this handler into upload & download
