@@ -8,30 +8,34 @@
 
 typedef boost::beast::websocket::stream<boost::asio::ip::tcp::socket> socket_stream;
 
-struct WebsocketComplex
-{
-	std::queue<ServerMessage> server_messages;
-	std::queue<ClientMessage> client_messages;
-	std::mutex m_MutexServerMessages;
-	std::mutex m_MutexClientMessages;
-	boost::asio::io_context ioc;
-	socket_stream ws{ioc};
-};
 
-
-// voluntary websocket feature
 class Websocket
 {
 public:
 	Websocket(string host="localhost",string port="8082");
+	ServerMessage receive_message();
+	void send_message(ClientMessage msg);
+	void exit();
+
 
 public:
-	WebsocketComplex complex;
+	std::queue<ServerMessage> server_messages;
+	std::queue<ClientMessage> client_messages;
+	std::mutex mutex_server_messages;
+	std::mutex mutex_client_messages;
+	boost::asio::io_context ioc;
+	socket_stream ws{ioc};
+	bool running = true;
+
+private:
+	std::thread m_HandleWebsocketDownload;
+	std::thread m_HandleWebsocketUpload;
+	bool connected = false;
 };
 
 
 #ifdef FEAT_MULTIPLAYER
-extern Websocket g_Websocket;
+inline Websocket g_Websocket;
 #endif
 
 

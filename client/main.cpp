@@ -20,13 +20,10 @@ s32 main(s32 argc,char** argv)
 
 		if (btn->confirm)
 		{
-			ClientMessage __Msg = {
-				.request_info = {  },
-				.request_data = { .spawn_dummy = std::optional<std::string>("owen wilson") },
-			};
-			g_Websocket.complex.m_MutexClientMessages.lock();
-			g_Websocket.complex.client_messages.push(__Msg);
-			g_Websocket.complex.m_MutexClientMessages.unlock();
+			g_Websocket.send_message({
+					.request_info = {  },
+					.request_data =  { .spawn_dummy = std::optional<std::string>("owen wilson") },
+				});
 		}
 
 		g_UI.update();
@@ -34,6 +31,9 @@ s32 main(s32 argc,char** argv)
 		g_Frame.update();
 	}
 
+#ifdef FEAT_MULTIPLAYER
+	g_Websocket.exit();
+#endif
 	g_Renderer.exit();
 	g_Frame.close();
 	return 0;
