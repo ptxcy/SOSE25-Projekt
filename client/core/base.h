@@ -2,6 +2,7 @@
 #define CORE_BASE_HEADER
 
 
+// system definition
 #if INTPTR_MAX == INT64_MAX
 #define __SYSTEM_64BIT
 #else

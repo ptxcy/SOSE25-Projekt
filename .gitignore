@@ -12,18 +12,16 @@ mongodb_data
 *.swo
 *target/
 
+# emacs
+gmon.out
+.gdb_history
+
 # Betriebssystem- und Systemdateien
 .DS_Store
 Thumbs.db
 
 # core
-core/include/*
-*.o
-gmon.out
-
-# core
 client/core/include/*
 *.o
-gmon.out
 
 copilot-instructions.md
