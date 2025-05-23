@@ -22,6 +22,16 @@ s32 main(s32 argc,char** argv)
 			.request_data = { .spawn_dummy = std::optional<string>(name) },
 		});
 
+	g_Websocket.send_message({
+			.request_info = {  },
+			.request_data = {
+				.set_client_fps = std::optional<SetClientFPS>({
+					.id = name,
+					.fps = 60.
+				})
+			}
+		});
+
 	bool running = true;
 	while (running)
 	{
@@ -35,8 +45,8 @@ s32 main(s32 argc,char** argv)
 					.dummy_set_velocity = std::optional<DummySetVelocity>({
 						.id = name,
 						.position = {
-							.x = 10*(g_Input.keyboard.keys[SDL_SCANCODE_D]-g_Input.keyboard.keys[SDL_SCANCODE_A]),
-							.y = 10*(g_Input.keyboard.keys[SDL_SCANCODE_W]-g_Input.keyboard.keys[SDL_SCANCODE_S]),
+							.x = 100*(g_Input.keyboard.keys[SDL_SCANCODE_D]-g_Input.keyboard.keys[SDL_SCANCODE_A]),
+							.y = 100*(g_Input.keyboard.keys[SDL_SCANCODE_W]-g_Input.keyboard.keys[SDL_SCANCODE_S]),
 							.z = .0
 						}
 					})
