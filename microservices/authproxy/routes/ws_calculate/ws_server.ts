@@ -11,6 +11,7 @@ const server = createServer(app);
 const wss = new WebSocketServer({server});
 
 wss.on("connection", async (ws: WebSocket, req) => {
+    console.log("connecfsajfaasfjhhhhhsasjfsaklfsalkjfsahlsafljafslahfashljklfajsfjasjhfhjahjasfhjasfjhasfhjafs");
     if (req.url !== "/calculate") {
         console.error("Somebody tryed to connect to the wrong websocket route");
         ws.close();
@@ -33,6 +34,7 @@ wss.on("connection", async (ws: WebSocket, req) => {
     }
 
     ws.on("message", async (message: RawData) => {
+        console.log("Received message", message);
         if (valid.userData) {
             await handleWebsocketMessage(ws, message, valid.userData);
         }
@@ -43,7 +45,7 @@ wss.on("connection", async (ws: WebSocket, req) => {
     });
 });
 
-server.listen(8080, () => {
-    console.log("Websocket server Listening on port 8080");
+server.listen(8083, () => {
+    console.log("Websocket server Listening on port 8083");
 });
 
