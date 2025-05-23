@@ -5,7 +5,8 @@ in vec2 position;
 in vec2 edge_coordinates;
 
 in vec2 offset;
-in float scale;
+in vec2 scale;
+in vec2 bearing;
 in vec4 colour;
 in vec2 atlas_position;
 in vec2 atlas_dimension;
@@ -19,8 +20,11 @@ uniform mat4 proj;
 
 void main()
 {
+	vec2 Position = position+.5;
+	Position = Position*scale+offset+bearing;
+	gl_Position = proj*view*vec4(Position.x,Position.y-scale.y,.0,1.);
+
 	// pass
-	gl_Position = proj*view*vec4(position*scale/*+offset*/,.0,1.);
-	EdgeCoordinates = edge_coordinates;
+	EdgeCoordinates = atlas_position+atlas_dimension*edge_coordinates;
 	Colour = colour;
 }

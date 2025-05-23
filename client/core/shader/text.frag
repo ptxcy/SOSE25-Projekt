@@ -11,6 +11,5 @@ uniform sampler2D tex;
 
 void main()
 {
-	//pixelColour = Colour*texture(tex,EdgeCoordinates).r;
-	pixelColour = vec4(1,0,0,1);
+	pixelColour = Colour*texture(tex,EdgeCoordinates).r;
 }

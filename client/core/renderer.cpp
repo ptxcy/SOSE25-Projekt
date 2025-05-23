@@ -23,7 +23,7 @@ ThreadSignal _sprite_signal
 // Text Component
 
 /**
- *	TODO
+ *	dynamically align text content based on content dimensions
  */
 void Text::align()
 {
@@ -44,7 +44,7 @@ void Text::align()
 }
 
 /**
- *	TODO
+ *	load instance buffer for text content according to specified font
  */
 void Text::load_buffer()
 {
@@ -61,10 +61,9 @@ void Text::load_buffer()
 		Glyph& p_Glyph = font->glyphs[data[i]-32];
 
 		// load text data
-		COMM_LOG("%f, %f\n",__Cursor.x,__Cursor.y);
 		p_Character = {
 			.offset = __Cursor,
-			.scale = p_Component.dimensions*scale,
+			.scale = p_Glyph.scale*scale,
 			.bearing = p_Glyph.bearing*scale,
 			.colour = colour,
 			.comp = p_Component

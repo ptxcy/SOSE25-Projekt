@@ -330,6 +330,7 @@ void GPUPixelBuffer::load_font(GPUPixelBuffer* gpb,Font* font,const char* path,u
 
 		// glyph attributes
 		font->glyphs[i] = {
+			.scale = vec2(__Face->glyph->bitmap.width,__Face->glyph->bitmap.rows),
 			.bearing = vec2(__Face->glyph->bitmap_left,__Face->glyph->bitmap_top),
 			.advance = (__Face->glyph->advance.x>>6)
 		};

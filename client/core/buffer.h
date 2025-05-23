@@ -102,6 +102,7 @@ struct PixelBufferComponent
 
 struct Glyph
 {
+	vec2 scale;
 	vec2 bearing;
 	s64 advance;
 };
