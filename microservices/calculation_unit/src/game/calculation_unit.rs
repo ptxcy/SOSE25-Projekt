@@ -137,7 +137,11 @@ pub async fn start(
 		while let Ok(client_message) = client_message_receiver.try_recv() {
 			let result = client_message
 				.request_data
-				.execute(&mut game_objects, &mut server_message_senders, delta_seconds)
+				.execute(
+					&mut game_objects,
+					&mut server_message_senders,
+					delta_seconds,
+				)
 				.log();
 		}
 

@@ -2,7 +2,10 @@ use std::collections::HashMap;
 
 use super::websocket_format::RequestInfo;
 use crate::{
-	game::{calculation_unit::ServerMessageSenderChannel, coordinate::Coordinate, dummy::DummyObject, game_objects::GameObjects},
+	game::{
+		calculation_unit::ServerMessageSenderChannel, coordinate::Coordinate, dummy::DummyObject,
+		game_objects::GameObjects,
+	},
 	logger::log_with_time,
 };
 use serde::{Deserialize, Serialize};
@@ -33,12 +36,15 @@ pub fn set_client_fps(
 	value: SetClientFPS,
 ) -> std::result::Result<(), String> {
 	match server_message_senders.get_mut(&value.id) {
-	    Some(client) => {
-	    	client.update_threshold = 1. / value.fps;
-	    },
-	    None => {
-	    	return Err(format!("couldnt find servermessagesenderchannel of id {}", value.id));
-	    },
+		Some(client) => {
+			client.update_threshold = 1. / value.fps;
+		}
+		None => {
+			return Err(format!(
+				"couldnt find servermessagesenderchannel of id {}",
+				value.id
+			));
+		}
 	};
 	Ok(())
 }

@@ -28,7 +28,10 @@ pub fn request_spawn(id: &String) -> Vec<u8> {
 pub fn request_set_fps(id: &String, fps: f64) -> Vec<u8> {
 	// Example ClientMessage to send
 	let client_message = ClientMessage {
-		request_data: ClientRequest::new_set_client_fps(SetClientFPS{id: id.clone(), fps}),
+		request_data: ClientRequest::new_set_client_fps(SetClientFPS {
+			id: id.clone(),
+			fps,
+		}),
 		..Default::default()
 	};
 
