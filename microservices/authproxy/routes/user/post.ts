@@ -1,5 +1,4 @@
 import {Request, Response} from "express";
-import {logRequest} from "../../middleware/request-logger";
 import {IUser} from "../../util/user/UserModel";
 import {createUser} from "../../util/user/UserService";
 
@@ -18,4 +17,4 @@ async function post(request: Request, response: Response) {
 }
 
 //Export middleware and handler calls for dynamic routing
-export default [logRequest, post];
+export default [post];

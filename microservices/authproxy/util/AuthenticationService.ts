@@ -1,7 +1,9 @@
 import bcrypt from 'bcrypt';
 import {IUser} from "./user/UserModel";
 import {loadUser} from "./user/UserService";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt, {JwtPayload} from "jsonwebtoken";
+
+const PRIVATE_KEY = "PrivateDefaultKey"
 
 export interface AuthenticationResult {
     userData: IUser | null;
@@ -15,6 +17,35 @@ function createAuthResult(userData: IUser | null, success: boolean, errorMessage
         success,
         errorMessage
     };
+}
+
+export async function validateAuthentication(authHeaderValue: string): Promise<AuthenticationResult> {
+    if (!authHeaderValue) {
+        const error = "AuthHeader must be provided!";
+        console.error(error);
+        return createAuthResult(null, false, error);
+    }
+
+    if (authHeaderValue.startsWith("Bearer ")) {
+        authHeaderValue = authHeaderValue.substring(7);
+    }
+
+    const token = jwt.verify(authHeaderValue, PRIVATE_KEY);
+    if(!token || typeof token === "string") {
+        const error = "AuthHeader was invalid!";
+        console.error(error);
+        return createAuthResult(null, false, error);
+    }
+
+    const username: string = token.username;
+    const userData: IUser | null = await loadUser(username);
+    if (!userData) {
+        const error = "user did not exist!";
+        console.error(error);
+        return createAuthResult(null, false, error);
+    }
+
+    return createAuthResult(userData, true);
 }
 
 export async function validateBasicAuthentication(authHeaderValue: string): Promise<AuthenticationResult> {
@@ -62,6 +93,6 @@ export async function validateUserPassword(input: string, reference: string) {
 }
 
 export async function generateJWTToken(userData: IUser): Promise<string> {
-    return jwt.sign({ ...userData }, "PrivateDefaultKey");
+    return jwt.sign({...userData}, PRIVATE_KEY);
 }
 

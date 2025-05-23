@@ -1,7 +1,11 @@
 import {WebSocketServer, WebSocket, RawData} from "ws";
 import {createServer} from "http";
 import {app} from "../../server";
-import {AuthenticationResult, validateBasicAuthentication} from "../../util/AuthenticationService";
+import {
+    AuthenticationResult,
+    validateAuthentication,
+    validateBasicAuthentication
+} from "../../util/AuthenticationService";
 import {handleWebsocketMessage} from "../../util/lobby/LobbyManager";
 
 const server = createServer(app);
@@ -22,7 +26,7 @@ wss.on("connection", async (ws: WebSocket, req) => {
         return;
     }
 
-    const valid: AuthenticationResult = await validateBasicAuthentication(authorization);
+    const valid: AuthenticationResult = await validateAuthentication(authorization);
     if (!valid || !valid.success) {
         console.error("Somebody tryed to connect but was not authenticated");
         ws.close();
