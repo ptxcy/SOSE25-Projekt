@@ -10,9 +10,9 @@
 
 struct Coordinate
 {
-	double x;
-	double y;
-	double z;
+	f64 x;
+	f64 y;
+	f64 z;
 	MSGPACK_DEFINE(x, y, z);
 };
 // TODO make single precision coordinates and transition to vector library
@@ -102,7 +102,7 @@ struct DummySetVelocity
 struct ClientRequest
 {
 	std::optional<double> set_client_fps;
-	std::optional<std::string> spawn_dummy;
+	std::optional<string> spawn_dummy;
 	std::optional<DummySetVelocity> dummy_set_velocity;
 	MSGPACK_DEFINE(set_client_fps,spawn_dummy,dummy_set_velocity);
 };

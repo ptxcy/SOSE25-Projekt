@@ -17,7 +17,6 @@ public:
 	void send_message(ClientMessage msg);
 	void exit();
 
-
 public:
 	std::queue<ServerMessage> server_messages;
 	std::queue<ClientMessage> client_messages;
@@ -35,7 +34,7 @@ private:
 
 
 #ifdef FEAT_MULTIPLAYER
-inline Websocket g_Websocket;
+inline Websocket g_Websocket = Websocket("92.252.72.59");
 #endif
 
 

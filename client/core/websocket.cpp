@@ -83,7 +83,9 @@ Websocket::Websocket(string host,string port)
 
 		// start traffic handler
 		m_HandleWebsocketDownload = std::thread(_handle_websocket_download,this);
+		m_HandleWebsocketDownload.detach();
 		m_HandleWebsocketUpload = std::thread(_handle_websocket_upload,this);
+		m_HandleWebsocketUpload.detach();
 		connected = true;
 	}
 	catch (std::exception const &e) { COMM_ERR("Connection Error: %s",e.what()); }
@@ -123,6 +125,6 @@ void Websocket::exit()
 {
 	if (!connected) return;
 	running = false;
-	m_HandleWebsocketDownload.join();
-	m_HandleWebsocketUpload.join();
+	//m_HandleWebsocketDownload.join();
+	//m_HandleWebsocketUpload.join();
 }
