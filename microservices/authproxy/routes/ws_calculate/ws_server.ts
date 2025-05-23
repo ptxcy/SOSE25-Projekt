@@ -3,8 +3,7 @@ import {createServer} from "http";
 import {app} from "../../server";
 import {
     AuthenticationResult,
-    validateAuthentication,
-    validateBasicAuthentication
+    validateAuthentication
 } from "../../util/AuthenticationService";
 import {handleWebsocketMessage} from "../../util/lobby/LobbyManager";
 
