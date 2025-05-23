@@ -12,7 +12,6 @@ use tokio::sync::mpsc::*;
 
 use super::{
 	action::{AsRaw, SafeAction},
-	coordinate::Coordinate,
 	dummy::DummyObject,
 	game_objects::GameObjects,
 };
@@ -20,6 +19,7 @@ use super::{
 pub struct ServerMessageSenderChannel {
 	pub id: String,
 	pub sender: Sender<Arc<ServerMessage>>,
+	// FPS
 	pub update_threshold: f64,
 	pub tick_counter: f64,
 }
@@ -38,7 +38,7 @@ impl ServerMessageSenderChannel {
 
 // send message to all client receivers
 pub async fn broadcast(
-	senders: &mut Vec<ServerMessageSenderChannel>,
+	senders: &mut HashMap<String, ServerMessageSenderChannel>,
 	game_objects: &GameObjects,
 	delta_seconds: f64,
 ) {
@@ -48,9 +48,9 @@ pub async fn broadcast(
 		request_data: ObjectData::prepare_for("all".to_owned(), game_objects),
 	};
 	let shared_message = Arc::new(server_message.clone()); // Wrap the message in an Arc
-	let mut to_be_removed = Vec::<usize>::new();
+	let mut to_be_removed = Vec::<String>::new();
 	// send messages to all
-	for (i, sender_channel) in senders.iter_mut().enumerate() {
+	for (i, (id, sender_channel)) in senders.iter_mut().enumerate() {
 		sender_channel.tick_counter += delta_seconds;
 		if sender_channel.tick_counter >= sender_channel.update_threshold {
 			// send message to client
@@ -60,14 +60,14 @@ pub async fn broadcast(
 			if let Err(e) = sender_channel.sender.send(message_clone).await {
 				log_with_time(format!("Failed to send message: {}", e));
 				// remove connection
-				to_be_removed.push(i);
+				to_be_removed.push(id.clone());
 			}
 		} else {
 		}
 	}
 	// remove senders that are closed
 	for i in to_be_removed.iter().rev() {
-		senders.remove(*i);
+		senders.remove(i);
 	}
 }
 
@@ -108,7 +108,7 @@ pub async fn start(
 	mut client_message_receiver: Receiver<ClientMessage>,
 ) {
 	// client channels
-	let mut server_message_senders = Vec::<ServerMessageSenderChannel>::new();
+	let mut server_message_senders = HashMap::<String, ServerMessageSenderChannel>::new();
 
 	// initialise game objects
 	let mut game_objects = GameObjects::new();
@@ -124,7 +124,7 @@ pub async fn start(
 			// 	log_with_time(format!("Failed to send initial dummy message: {}", e));
 			// }
 
-			server_message_senders.push(sender);
+			server_message_senders.insert(sender.id.clone(), sender);
 		}
 
 		// delta time calculation here
@@ -137,7 +137,7 @@ pub async fn start(
 		while let Ok(client_message) = client_message_receiver.try_recv() {
 			let result = client_message
 				.request_data
-				.execute(&mut game_objects, delta_seconds)
+				.execute(&mut game_objects, &mut server_message_senders, delta_seconds)
 				.log();
 		}
 
