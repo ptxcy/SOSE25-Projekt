@@ -2,7 +2,7 @@
 #define HTTP_ADAPTER_H
 
 #include <cpr/cpr.h>
-#include <cppcodec/base64_rfc4648.hpp>
+#include "base64.h"
 #include <string>
 #include <optional>
 
@@ -17,7 +17,7 @@ bool createLobby(const std::string& lobbyName, const std::optional<std::string>&
 
 // Convenience function for authentication workflow
 std::optional<std::string> completeAuthAndLobbyProcess(
-    const std::string& username, 
+    const std::string& username,
     const std::string& password,
     bool createNewUser = false,
     const std::optional<std::string>& lobbyName = std::nullopt,
