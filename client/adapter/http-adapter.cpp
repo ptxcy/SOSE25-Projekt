@@ -10,6 +10,8 @@ bool createUser(const std::string &username, const std::string &password)
         cpr::Header{{"Content-Type", "application/json"}},
         cpr::Body{body});
 
+    std::cout << "createUser response: " << response.text << " (Status: " << response.status_code << ")" << std::endl;
+
     return response.status_code == 200;
 }
 
@@ -26,19 +28,22 @@ std::optional<std::string> authenticateOnServer(const std::string &username, con
         auto authHeader = response.header["Authorization"];
         if (authHeader.find("Bearer ") == 0)
         {
+            std::cout << "authenticateOnServer response: " << response.text << " (Status: " << response.status_code << ")" << std::endl;
             return authHeader.substr(7);
         }
     }
 
+    std::cout << "authenticateOnServer response: " << response.text << " (Status: " << response.status_code << ")" << std::endl;
+
     return std::nullopt;
 }
 
-bool createLobby(const std::string &lobbyName, const std::optional<std::string> &lobbyPassword, const std::string &jwtToken)
+std::string createLobby(const std::string &lobbyName, const std::optional<std::string> &lobbyPassword, const std::string &jwtToken)
 {
-    std::string body = R"({"lobbyname":")" + lobbyName + R"(")";
+    std::string body = R"({"lobbyName":")" + lobbyName + R"(")";
     if (lobbyPassword)
     {
-        body += R"(,"lobbypassword":")" + *lobbyPassword + R"(")";
+        body += R"(,"lobbyPassword":")" + *lobbyPassword + R"(")";
     }
     body += "}";
 
@@ -47,12 +52,14 @@ bool createLobby(const std::string &lobbyName, const std::optional<std::string> 
         cpr::Header{{"Authorization", "Bearer " + jwtToken}, {"Content-Type", "application/json"}},
         cpr::Body{body});
 
-    return response.status_code == 200;
+    std::cout << "createLobby response: " << response.text << " (Status: " << response.status_code << ")" << std::endl;
+
+    return response.text;
 }
 
 int main()
 {
-    std::string username = "Puffito";
+    std::string username = "s;dfg123dfgdfg;";
     std::string password = "123";
 
     createUser(username, password);
@@ -61,8 +68,7 @@ int main()
 
     if (token)
     {
-        bool lobbyCreated = createLobby("TestLobby", std::nullopt, *token);
-        std::cout << "Lobby created: " << (lobbyCreated ? "Yes" : "No") << std::endl;
+        createLobby("123", std::nullopt, *token);
     }
 
     return 0;
