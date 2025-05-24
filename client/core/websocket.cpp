@@ -22,15 +22,17 @@ void _handle_websocket_download(Websocket* c)
 			// create a msgpack zone for allocation
 			msgpack::zone zone;
 			msgpack::object obj = msgpack::unpack(raw_data,data_size,nullptr,&zone).get();
-			COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<obj).str().c_str());
+			//COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<obj).str().c_str());
 
 			// try to convert to our ServerMessage structure
 			ServerMessage message;
 			obj.convert(message);
 			c->mutex_server_messages.lock();
 			c->server_messages.push(message);
+			/*
 			COMM_LOG("Parsed Response -> ID: %s, QSize: %li",
 					 message.request_data.target_user_id.c_str(),c->server_messages.size());
+			*/
 			c->mutex_server_messages.unlock();
 		}
 		catch (const std::exception& e) { COMM_ERR("parsing server response -> %s",e.what()); }
@@ -83,7 +85,9 @@ Websocket::Websocket(string host,string port)
 
 		// start traffic handler
 		m_HandleWebsocketDownload = std::thread(_handle_websocket_download,this);
+		m_HandleWebsocketDownload.detach();
 		m_HandleWebsocketUpload = std::thread(_handle_websocket_upload,this);
+		m_HandleWebsocketUpload.detach();
 		connected = true;
 	}
 	catch (std::exception const &e) { COMM_ERR("Connection Error: %s",e.what()); }
@@ -123,6 +127,6 @@ void Websocket::exit()
 {
 	if (!connected) return;
 	running = false;
-	m_HandleWebsocketDownload.join();
-	m_HandleWebsocketUpload.join();
+	//m_HandleWebsocketDownload.join();
+	//m_HandleWebsocketUpload.join();
 }

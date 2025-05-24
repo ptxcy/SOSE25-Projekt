@@ -4,7 +4,7 @@ use calculation_unit::{
 	game::coordinate::Coordinate,
 	logger::log_with_time,
 	messages::{
-		client_message::{ClientMessage, ClientRequest, DummySetVelocity},
+		client_message::{ClientMessage, ClientRequest, DummySetVelocity, SetClientFPS},
 		server_message::ServerMessage,
 	},
 };
@@ -16,6 +16,22 @@ pub fn request_spawn(id: &String) -> Vec<u8> {
 	// Example ClientMessage to send
 	let client_message = ClientMessage {
 		request_data: ClientRequest::new_spawn_dummy(id),
+		..Default::default()
+	};
+
+	// Serialize ClientMessage to MessagePack
+	let serialized_message =
+		rmp_serde::to_vec(&client_message).expect("Failed to serialize message");
+	serialized_message
+}
+
+pub fn request_set_fps(id: &String, fps: f64) -> Vec<u8> {
+	// Example ClientMessage to send
+	let client_message = ClientMessage {
+		request_data: ClientRequest::new_set_client_fps(SetClientFPS {
+			id: id.clone(),
+			fps,
+		}),
 		..Default::default()
 	};
 
@@ -76,6 +92,13 @@ async fn main() {
 			.await
 			.expect("Failed to send message");
 		log_with_time(format!("Message sent to server! trying to spawn"));
+
+		let serialized_message = request_set_fps(&id, 5.);
+		write
+			.send(Message::Binary(serialized_message))
+			.await
+			.expect("Failed to send message");
+		log_with_time(format!("Message sent to server! trying to set fps to 5"));
 
 		// move dummy_1
 		loop {

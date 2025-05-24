@@ -1,6 +1,11 @@
+use std::collections::HashMap;
+
 use super::websocket_format::RequestInfo;
 use crate::{
-	game::{coordinate::Coordinate, dummy::DummyObject, game_objects::GameObjects},
+	game::{
+		calculation_unit::ServerMessageSenderChannel, coordinate::Coordinate, dummy::DummyObject,
+		game_objects::GameObjects,
+	},
 	logger::log_with_time,
 };
 use serde::{Deserialize, Serialize};
@@ -12,22 +17,41 @@ pub struct DummySetVelocity {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
+pub struct SetClientFPS {
+	pub id: String,
+	pub fps: f64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct ClientRequest {
-	pub set_client_fps: Option<f64>,
+	pub set_client_fps: Option<SetClientFPS>,
 	pub spawn_dummy: Option<String>,
 	pub dummy_set_velocity: Option<DummySetVelocity>,
 }
 
 pub fn set_client_fps(
 	game_objects: &mut GameObjects,
+	server_message_senders: &mut HashMap<String, ServerMessageSenderChannel>,
 	delta_seconds: f64,
-	value: f64,
+	value: SetClientFPS,
 ) -> std::result::Result<(), String> {
-	// TODO
+	match server_message_senders.get_mut(&value.id) {
+		Some(client) => {
+			client.update_threshold = 1. / value.fps;
+		}
+		None => {
+			return Err(format!(
+				"couldnt find servermessagesenderchannel of id {}",
+				value.id
+			));
+		}
+	};
 	Ok(())
 }
+
 pub fn spawn_dummy(
 	game_objects: &mut GameObjects,
+	server_message_senders: &mut HashMap<String, ServerMessageSenderChannel>,
 	delta_seconds: f64,
 	id: String,
 ) -> std::result::Result<(), String> {
@@ -52,8 +76,10 @@ pub fn spawn_dummy(
 	dummies.insert(id, dummy);
 	Ok(())
 }
+
 pub fn dummy_set_velocity(
 	game_objects: &mut GameObjects,
+	server_message_senders: &mut HashMap<String, ServerMessageSenderChannel>,
 	delta_seconds: f64,
 	value: DummySetVelocity,
 ) -> std::result::Result<(), String> {
@@ -75,7 +101,7 @@ pub fn dummy_set_velocity(
 
 impl ClientRequest {
 	// executes a clients input data on the game
-	pub fn new_set_client_fps(value: f64) -> Self {
+	pub fn new_set_client_fps(value: SetClientFPS) -> Self {
 		Self {
 			set_client_fps: Some(value),
 			..Default::default()
@@ -96,14 +122,15 @@ impl ClientRequest {
 	pub fn execute(
 		self,
 		game_objects: &mut GameObjects,
+		server_message_senders: &mut HashMap<String, ServerMessageSenderChannel>,
 		delta_seconds: f64,
 	) -> std::result::Result<(), String> {
 		if let Some(value) = self.dummy_set_velocity {
-			dummy_set_velocity(game_objects, delta_seconds, value)?;
+			dummy_set_velocity(game_objects, server_message_senders, delta_seconds, value)?;
 		} else if let Some(value) = self.spawn_dummy {
-			spawn_dummy(game_objects, delta_seconds, value)?;
+			spawn_dummy(game_objects, server_message_senders, delta_seconds, value)?;
 		} else if let Some(value) = self.set_client_fps {
-			set_client_fps(game_objects, delta_seconds, value)?;
+			set_client_fps(game_objects, server_message_senders, delta_seconds, value)?;
 		}
 		Ok(())
 	}
