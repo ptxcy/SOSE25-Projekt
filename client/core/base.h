@@ -265,6 +265,7 @@ struct ThreadSignal
 {
 	// utility
 	void wait();
+	void stall();
 	void proceed();
 	void exit();
 
@@ -274,7 +275,7 @@ struct ThreadSignal
 #endif
 	std::mutex mutex;
 	std::condition_variable cv;
-	bool active = false;
+	u8 wcount = 0;
 	bool running = true;
 };
 

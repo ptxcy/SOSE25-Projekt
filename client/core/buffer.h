@@ -112,7 +112,6 @@ struct Font
 	PixelBufferComponent tex[96];
 	Glyph glyphs[96];
 	u16 size;
-	ThreadSignal signal;
 };
 
 constexpr u16 BUFFER_MAXIMUM_TEXTURE_COUNT = 1024;
@@ -139,6 +138,7 @@ struct GPUPixelBuffer
 			= InPlaceArray<PixelBufferComponent>(BUFFER_MAXIMUM_TEXTURE_COUNT);
 	std::mutex mutex_texture_requests;
 	std::queue<TextureData> load_requests;
+	ThreadSignal signal;
 };
 
 

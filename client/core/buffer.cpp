@@ -291,11 +291,13 @@ void GPUPixelBuffer::allocate(u32 width,u32 height,u32 format)
 void GPUPixelBuffer::load_texture(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,const char* path)
 {
 	// load information from texture file
+	gpb->signal.stall();
 	TextureData __TextureData;
 	__TextureData.load(path);
 
 	// upload to gpu memory
 	_load(gpb,pbc,&__TextureData);
+	gpb->signal.proceed();
 }
 
 /**
@@ -341,7 +343,7 @@ void GPUPixelBuffer::load_font(GPUPixelBuffer* gpb,Font* font,const char* path,u
 		memcpy(__TextureData.data,__Face->glyph->bitmap.buffer,__Mem);
 		_load(gpb,&font->tex[i],&__TextureData);
 	}
-	font->signal.proceed();
+	gpb->signal.proceed();
 
 	// store & clear
 	FT_Done_Face(__Face);

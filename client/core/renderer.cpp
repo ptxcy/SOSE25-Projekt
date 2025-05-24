@@ -164,12 +164,14 @@ Renderer::Renderer()
 	// Start Subprocesses
 
 	COMM_LOG("starting renderer subprocesses");
+	_sprite_signal.stall();
+	_sprite_texture_signal.stall();
+
 	std::thread __SpriteCollector(Renderer::_collector<Sprite>,&m_Sprites,&_sprite_signal);
 	__SpriteCollector.detach();
 	std::thread __SpriteTextureCollector(Renderer::_collector<PixelBufferComponent>,
 										 &m_GPUSpriteTextures.textures,&_sprite_texture_signal);
 	__SpriteTextureCollector.detach();
-
 	COMM_SCC("render system ready.");
 }
 
@@ -244,6 +246,7 @@ Sprite* Renderer::register_sprite(PixelBufferComponent* texture,vec2 position,ve
  */
 void Renderer::assign_sprite_texture(Sprite* sprite,PixelBufferComponent* texture)
 {
+	m_GPUSpriteTextures.signal.wait();
 	sprite->tex_position = texture->offset;
 	sprite->tex_dimension = texture->dimensions;
 }
@@ -296,7 +299,7 @@ void Renderer::register_font(Font* font,const char* path,u16 size)
  */
 u16 Renderer::write_text(Font* font,string data,vec2 position,f32 scale,vec4 colour,ScreenAlignment align)
 {
-	font->signal.wait();
+	m_GPUFontTextures.signal.wait();
 	m_Texts.push_back({
 			.font = font,
 			.position = position,
@@ -376,7 +379,7 @@ template<typename T> void Renderer::_collector(InPlaceArray<T>* xs,ThreadSignal*
 	while (signal->running)
 	{
 		signal->wait();
-		signal->active = false;
+		signal->stall();
 		if (!signal->running) break;
 		COMM_LOG("%s collector is searching for removed objects...",signal->name);
 

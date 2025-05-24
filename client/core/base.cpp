@@ -49,7 +49,15 @@ BitwiseWords::~BitwiseWords()
 void ThreadSignal::wait()
 {
 	std::unique_lock<std::mutex> lock(mutex);
-	cv.wait(lock,[this]{ return active; });
+	cv.wait(lock,[this]{ return !wcount; });
+}
+
+/**
+ *	add a stall reason to lock signal
+ */
+void ThreadSignal::stall()
+{
+	wcount++;
 }
 
 /**
@@ -59,7 +67,7 @@ void ThreadSignal::proceed()
 {
 	{
 		std::lock_guard<std::mutex> lock(mutex);
-		active = true;
+		wcount--;
 	}
 	cv.notify_one();
 }
