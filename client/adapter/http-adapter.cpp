@@ -15,11 +15,9 @@ bool createUser(const std::string &username, const std::string &password)
 
 std::optional<std::string> authenticateOnServer(const std::string &username, const std::string &password)
 {
-    std::string basicAuth = "Basic " + base64::encode(username + ":" + password);
-
     cpr::Response response = cpr::Get(
         cpr::Url{"http://localhost:8080/authenticate"},
-        cpr::Header{{"Authorization", basicAuth}});
+        cpr::Header{{"Authorization", "Basic " + username + ":" + password}});
 
     if (response.status_code == 200)
     {
@@ -52,8 +50,8 @@ bool createLobby(const std::string &lobbyName, const std::optional<std::string> 
 
 int main()
 {
-    std::string username = "Puffito";
-    std::string password = "123";
+    std::string username = "UsernameIstHier";
+    std::string password = "PAssowrt123istsicher";
 
     createUser(username, password);
 

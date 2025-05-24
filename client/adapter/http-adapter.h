@@ -2,7 +2,6 @@
 #define HTTP_ADAPTER_H
 
 #include <cpr/cpr.h>
-#include "base64.h"
 #include <string>
 #include <optional>
 
