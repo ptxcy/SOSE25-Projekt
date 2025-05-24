@@ -49,3 +49,21 @@ bool createLobby(const std::string &lobbyName, const std::optional<std::string> 
 
     return response.status_code == 200;
 }
+
+int main()
+{
+    std::string username = "Puffito";
+    std::string password = "123";
+
+    createUser(username, password);
+
+    auto token = authenticateOnServer(username, password);
+
+    if (token)
+    {
+        bool lobbyCreated = createLobby("TestLobby", std::nullopt, *token);
+        std::cout << "Lobby created: " << (lobbyCreated ? "Yes" : "No") << std::endl;
+    }
+
+    return 0;
+}
