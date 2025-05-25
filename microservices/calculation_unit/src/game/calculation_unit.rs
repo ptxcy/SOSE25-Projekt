@@ -16,6 +16,7 @@ use super::{
 	game_objects::GameObjects,
 };
 
+/// container of the sender where the calculation unit game thread can send servermessages to the calculation units websocket handling thread
 pub struct ServerMessageSenderChannel {
 	pub id: String,
 	pub sender: Sender<Arc<ServerMessage>>,
@@ -72,15 +73,15 @@ pub async fn broadcast(
 }
 
 pub fn update_game(
-	game_objects: &mut GameObjects,
+	game_objects: &GameObjects,
 	delta_seconds: f64,
 ) -> std::result::Result<(), String> {
 	let mut actions = Vec::<SafeAction>::new();
 
 	// get actions
-	update_dummies(&mut actions, &mut game_objects.dummies, delta_seconds)?;
+	update_dummies(&mut actions, &game_objects.dummies, delta_seconds)?;
 
-	// execute operations on data
+	// execute operations on data via raw pointers
 	for action in actions {
 		action.execute();
 	}
@@ -89,10 +90,10 @@ pub fn update_game(
 
 pub fn update_dummies(
 	actions: &mut Vec<SafeAction>,
-	dummies: &mut HashMap<String, DummyObject>,
+	dummies: &HashMap<String, DummyObject>,
 	delta_seconds: f64,
 ) -> std::result::Result<(), String> {
-	for (id, dummy) in dummies.iter_mut() {
+	for (id, dummy) in dummies.iter() {
 		// dummy.position.addd(&dummy.velocity, delta_seconds);
 		actions.push(SafeAction::AddCoordinate {
 			coordinate: dummy.position.raw_mut(),
@@ -133,7 +134,7 @@ pub async fn start(
 		last_time = now;
 		let delta_seconds = delta_time.as_secs_f64();
 
-		// receive client input
+		// receive client messages
 		while let Ok(client_message) = client_message_receiver.try_recv() {
 			let result = client_message
 				.request_data
@@ -146,7 +147,7 @@ pub async fn start(
 		}
 
 		// game logic calculation
-		let update_result = update_game(&mut game_objects, delta_seconds).log();
+		let update_result = update_game(&game_objects, delta_seconds).log();
 
 		// sending message
 		// log_with_time(format!("broadcasting to clients"));

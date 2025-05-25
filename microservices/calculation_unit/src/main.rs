@@ -92,14 +92,13 @@ async fn handle_ws_msgpack(
 				Err(_) => continue,
 			};
 
-			match &client_message.request_data.spawn_dummy {
+			match &client_message.request_data.connect {
 				Some(id) => {
 					// send the server_message_tx to the calculation task
 					let sender_sender = sender_sender.clone();
 					let server_message_tx = server_message_tx.clone();
 					let id = id.clone();
 					tokio::spawn(async move {
-						log_with_time("new connection");
 						let result = sender_sender
 							.send(ServerMessageSenderChannel::new(id, server_message_tx))
 							.await

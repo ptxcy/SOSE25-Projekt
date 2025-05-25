@@ -27,6 +27,7 @@ pub struct ClientRequest {
 	pub set_client_fps: Option<SetClientFPS>,
 	pub spawn_dummy: Option<String>,
 	pub dummy_set_velocity: Option<DummySetVelocity>,
+	pub connect: Option<String>,
 }
 
 pub fn set_client_fps(
@@ -68,7 +69,7 @@ pub fn spawn_dummy(
 	};
 
 	// spawn dummy
-	log_with_time("spawn dummy client");
+	log_with_time("spawn dummy");
 	let dummy = DummyObject {
 		id: id.clone(),
 		..Default::default()
@@ -100,25 +101,34 @@ pub fn dummy_set_velocity(
 }
 
 impl ClientRequest {
-	// executes a clients input data on the game
+	pub fn new_connect(id: &str) -> Self {
+		Self {
+			connect: Some(id.to_string()),
+			..Default::default()
+		}
+	}
+	/// create a new client requests to set the wanted fps of a client
 	pub fn new_set_client_fps(value: SetClientFPS) -> Self {
 		Self {
 			set_client_fps: Some(value),
 			..Default::default()
 		}
 	}
+	/// create a new client requests to spawn a dummy
 	pub fn new_spawn_dummy(id: &str) -> Self {
 		Self {
 			spawn_dummy: Some(id.to_owned()),
 			..Default::default()
 		}
 	}
+	/// create a new client requests to set the velocity of a dummy
 	pub fn new_dummy_set_velocity(value: DummySetVelocity) -> Self {
 		Self {
 			dummy_set_velocity: Some(value),
 			..Default::default()
 		}
 	}
+	/// executes a clients input data on the game
 	pub fn execute(
 		self,
 		game_objects: &mut GameObjects,
@@ -131,11 +141,14 @@ impl ClientRequest {
 			spawn_dummy(game_objects, server_message_senders, delta_seconds, value)?;
 		} else if let Some(value) = self.set_client_fps {
 			set_client_fps(game_objects, server_message_senders, delta_seconds, value)?;
+		} else if let Some(value) = self.connect {
+			log_with_time(format!("a new connection with id {}", value));
 		}
 		Ok(())
 	}
 }
 
+/// message that the client sends to the calculation unit containing a request to do something
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct ClientMessage {
 	pub request_info: RequestInfo,

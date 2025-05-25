@@ -2,6 +2,7 @@ use super::websocket_format::RequestInfo;
 use crate::game::game_objects::GameObjects;
 use serde::{Deserialize, Serialize};
 
+/// data that is going to be rendered
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ObjectData {
 	pub target_user_id: String,
@@ -17,6 +18,7 @@ impl ObjectData {
 	}
 }
 
+/// message that is being sent from server to clients via auth proxy
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ServerMessage {
 	pub request_info: RequestInfo,
