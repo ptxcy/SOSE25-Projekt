@@ -1,5 +1,7 @@
 use std::env;
+use std::sync::Arc;
 
+use bytes::Bytes;
 use calculation_unit::{
 	game::coordinate::Coordinate,
 	logger::log_with_time,
@@ -10,6 +12,7 @@ use calculation_unit::{
 };
 use futures_util::{SinkExt, stream::StreamExt};
 use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
+use tokio::sync::Mutex;
 use url::Url;
 
 pub fn request_spawn(id: &String) -> Vec<u8> {
@@ -72,7 +75,7 @@ async fn main() {
 	let id = args[1].clone();
 
 	// Define the WebSocket server URL
-	let url = Url::parse("ws://127.0.0.1:8082/msgpack").expect("Invalid WebSocket URL");
+	let url = "ws://127.0.0.1:8082/msgpack";
 
 	// Connect to the WebSocket server
 	let (ws_stream, _) = connect_async(url)
@@ -81,30 +84,34 @@ async fn main() {
 
 	log_with_time(format!("Connected to WebSocket server!"));
 
-	let (mut write, mut read) = ws_stream.split();
+	let (write, mut read) = ws_stream.split();
+	let write = Arc::new(Mutex::new(write));
 
 	// Send a message to the server
+	let write_clone = Arc::clone(&write);
+	let id_clone = id.clone();
 	tokio::spawn(async move {
+		let mut write = write_clone.lock().await;
 		// spawn dummy_1
-		let serialized_message = request_spawn(&id);
+		let serialized_message = request_spawn(&id_clone);
 		write
-			.send(Message::Binary(serialized_message))
+			.send(Message::Binary(Bytes::from(serialized_message)))
 			.await
 			.expect("Failed to send message");
 		log_with_time(format!("Message sent to server! trying to spawn"));
 
-		let serialized_message = request_set_fps(&id, 5.);
+		let serialized_message = request_set_fps(&id_clone, 5.);
 		write
-			.send(Message::Binary(serialized_message))
+			.send(Message::Binary(Bytes::from(serialized_message)))
 			.await
 			.expect("Failed to send message");
 		log_with_time(format!("Message sent to server! trying to set fps to 5"));
 
 		// move dummy_1
 		loop {
-			let serialized_message = request_move(&id);
+			let serialized_message = request_move(&id_clone);
 			write
-				.send(Message::Binary(serialized_message))
+				.send(Message::Binary(Bytes::from(serialized_message)))
 				.await
 				.expect("Failed to send message");
 		}
