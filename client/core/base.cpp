@@ -54,12 +54,14 @@ void ThreadSignal::wait()
 
 /**
  *	signal all threads listening to continue with procedure
+ *	\param force: (default=false) force proceeding regardless of semaphore state
  */
-void ThreadSignal::proceed()
+void ThreadSignal::proceed(bool force)
 {
 	{
 		std::lock_guard<std::mutex> lock(mutex);
 		semaphore--;
+		semaphore *= !force;
 	}
 	cv.notify_one();
 }
@@ -70,7 +72,7 @@ void ThreadSignal::proceed()
 void ThreadSignal::exit()
 {
 	running = false;
-	proceed();
+	proceed(true);
 }
 
 

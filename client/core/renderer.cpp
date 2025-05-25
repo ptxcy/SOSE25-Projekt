@@ -211,6 +211,7 @@ PixelBufferComponent* Renderer::register_sprite_texture(string path)
 
 	return p_Comp;
 }
+// TODO maybe change string back to const char pointer. this was a copy fix attempt and target has been solved
 
 /**
  *	register a new sprite instance for rendering
@@ -283,22 +284,31 @@ void Renderer::delete_sprite(Sprite* sprite)
 
 /**
  *	rasterize a vector font and upload pixel buffer to gpu memory
- *	\param font: font data memory, to use later when writing text with or in style of it
  *	\param path: path to .ttf vector font file
  *	\param size: rasterization size
+ *	\returns font data memory, to use later when writing text with or in style of it
  */
-void Renderer::register_font(Font* font,const char* path,u16 size)
+Font* Renderer::register_font(const char* path,u16 size)
 {
 	COMM_LOG("font register from source %s",path);
+	Font* p_Font = m_Fonts.next_free();
 	m_GPUFontTextures.signal.stall();
-	std::thread __LoadThread(GPUPixelBuffer::load_font,&m_GPUFontTextures,font,path,size);
+	thread __LoadThread(GPUPixelBuffer::load_font,&m_GPUFontTextures,p_Font,path,size);
 	__LoadThread.detach();
+	return p_Font;
 }
 
 /**
- *	TODO
+ *	write text on screen
+ *	\param font: pointer to loaded font
+ *	\param data: text content to be displayed in given font
+ *	\param position: positional offset of the text based on screen alignment
+ *	\param scale: intuitive absolute text scaling in pixels, supported by automatic adaptive resolution
+ *	\param colour: (default vec4(1)) text starting colour of all characters
+ *	\param align: (default SCREEN_ALIGN_BOTTOMLEFT) text alignment on screen, modified by positional offset
+ *	\returns pointer to created text
  */
-u16 Renderer::write_text(Font* font,string data,vec2 position,f32 scale,vec4 colour,ScreenAlignment align)
+Text* Renderer::write_text(Font* font,string data,vec2 position,f32 scale,vec4 colour,ScreenAlignment align)
 {
 	m_GPUFontTextures.signal.wait();
 	m_Texts.push_back({
@@ -310,11 +320,11 @@ u16 Renderer::write_text(Font* font,string data,vec2 position,f32 scale,vec4 col
 			.data = data
 		});
 
-	m_Texts.back().align();
-	m_Texts.back().load_buffer();
-	return m_Texts.size()-1;
+	Text* p_Text = &m_Texts.back();
+	p_Text->align();
+	p_Text->load_buffer();
+	return p_Text;
 }
-// FIXME experimental memory management, this should happen ideally over the entirety of the possible text range
 
 // TODO add an option to delete text once no longer needed
 // TODO cleanup memory on renderer close for all allocated text memory

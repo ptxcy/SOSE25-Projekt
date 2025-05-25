@@ -7,10 +7,13 @@
 
 
 constexpr f32 RENDERER_POSITIONAL_DELETION_CODE = -1247.f;
+
+constexpr u16 RENDERER_MAXIMUM_FONT_COUNT = 2;
 constexpr u16 RENDERER_SPRITE_MEMORY_WIDTH = 1500;
 constexpr u16 RENDERER_SPRITE_MEMORY_HEIGHT = 1500;
 constexpr u16 RENDERER_FONT_MEMORY_WIDTH = 1500;
 constexpr u16 RENDERER_FONT_MEMORY_HEIGHT = 1500;
+// TODO those belong into a configuration definition to make this up to the engine user
 
 
 // ----------------------------------------------------------------------------------------------------
@@ -93,9 +96,9 @@ public:
 	static void delete_sprite(Sprite* sprite);
 
 	// text
-	void register_font(Font* font,const char* path,u16 size);
-	u16 write_text(Font* font,string data,vec2 position,f32 scale,
-				   vec4 colour=vec4(1),ScreenAlignment align=SCREEN_ALIGN_BOTTOMLEFT);
+	Font* register_font(const char* path,u16 size);
+	Text* write_text(Font* font,string data,vec2 position,f32 scale,
+					 vec4 colour=vec4(1),ScreenAlignment align=SCREEN_ALIGN_BOTTOMLEFT);
 
 private:
 	void _gpu_upload();
@@ -143,7 +146,9 @@ private:
 	InPlaceArray<Sprite> m_Sprites = InPlaceArray<Sprite>(BUFFER_MAXIMUM_TEXTURE_COUNT);
 
 	// text
-	std::vector<Text> m_Texts;
+	InPlaceArray<Font> m_Fonts = InPlaceArray<Font>(RENDERER_MAXIMUM_FONT_COUNT);
+	std::list<Text> m_Texts;
+	// TODO deleting texts like this will be a pain, in dire need of some better entity management
 };
 
 inline Renderer g_Renderer = Renderer();

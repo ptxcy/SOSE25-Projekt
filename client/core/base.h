@@ -15,6 +15,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <list>
 #include <queue>
 #include <map>
 #include <chrono>
@@ -267,7 +268,7 @@ struct ThreadSignal
 	// utility
 	void wait();
 	inline void stall() { semaphore++; }
-	void proceed();
+	void proceed(bool force=false);
 	void exit();
 
 	// data
