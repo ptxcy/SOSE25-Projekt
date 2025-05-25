@@ -60,6 +60,27 @@ fn main() {
 		.marker(Marker::new().size(8).color("yellow"));
 	plot.add_trace(sun);
 
+	// Planet positions at t=0
+	let planet_markers = [
+		(&mercury_xyz, "Mercury", "gray"),
+		(&venus_xyz, "Venus", "orange"),
+		(&earth_xyz, "Earth", "blue"),
+		(&mars_xyz, "Mars", "red"),
+		(&jupiter_xyz, "Jupiter", "brown"),
+		(&saturn_xyz, "Saturn", "gold"),
+		(&uranus_xyz, "Uranus", "cyan"),
+		(&neptune_xyz, "Neptune", "purple"),
+	];
+
+	for (coords, name, color) in planet_markers.iter() {
+		let c = coords[0];
+		let marker = Scatter3D::new(vec![c[0]], vec![c[1]], vec![c[2]])
+			.mode(Mode::Markers)
+			.name(&format!("{name} (now)"))
+			.marker(Marker::new().size(3).color(*color));
+		plot.add_trace(marker);
+	}
+
 	// Planeten
 	plot.add_trace(trace_planet(&mercury_xyz, "Mercury"));
 	plot.add_trace(trace_planet(&venus_xyz, "Venus"));
