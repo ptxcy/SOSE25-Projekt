@@ -5,12 +5,12 @@
 
 ### 👥 Team
 
-| Name             | Matrikelnummer | E-Mail                          |
-|------------------|----------------|----------------------------------|
-| Jonas Kernchen   | 106005         | joke2169@bht-berlin.de           |
-| Patrick Kloss    | 107259         | pakl8536@bht-berlin.de           |
-| Philipp Niclas   | 106932         | phni9317@bht-berlin.de           |
-| Lovis Trüstedt   | 103717         | lotr7201@bht-berlin.de           |
+| Name             | Matrikelnummer | E-Mail                           | GitHub Name |
+|------------------|----------------|----------------------------------|----------------------------------
+| Jonas Kernchen   | 106005         | joke2169@bht-berlin.de           | SneakyChoclate |
+| Patrick Kloss    | 107259         | pakl8536@bht-berlin.de           | ptxy |
+| Philipp Niclas   | 106932         | phni9317@bht-berlin.de           | SilentNille |
+| Lovis Trüstedt   | 103717         | lotr7201@bht-berlin.de           | callidaria |
 
 ---
 
