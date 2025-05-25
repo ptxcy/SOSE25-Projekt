@@ -1,83 +1,76 @@
 import {IUser} from "../user/UserModel";
-import {WebSocket, RawData, OPEN} from "ws";
-import {CalculationRequest, decodeToObject} from "../datatypes/MessagePackDataTypes";
-import {loadLobby} from "./LobbyService";
+import {WebSocket, RawData} from "ws";
 import {ILobby} from "./LobbyModel";
-import {encode} from "@msgpack/msgpack";
+import {searchLobbyOfMember} from "./LobbyService";
+import {ClientMessage, decodeToObject, encodeObject} from "../datatypes/MessagePackDataTypes";
 
-export enum LobbyState {
-    OPEN,
-    CLOSED
-}
-
-export interface LobbyComponent {
+export interface LobbyRegistryEntry {
     lobbyName: string;
-    lobbyPassword: string | undefined;
-    lobbyStatus: LobbyState;
-    lobbyInfo: ILobby
-
     members: IUser[];
     memberSockets: WebSocket[];
     calculationSocket: WebSocket | null;
 }
 
-const registeredLobbys: LobbyComponent[] = [];
+const registeredLobbys = new Set<LobbyRegistryEntry>();
 
-export function addLobby(lobby: LobbyComponent) {
-    registeredLobbys.push(lobby);
+export function isRegistered(lobbyName: string): LobbyRegistryEntry | null {
+    return [...registeredLobbys].find(l => l.lobbyName === lobbyName) || null;
+}
+
+export function addToRegister(lobby: LobbyRegistryEntry): boolean {
+    if (isRegistered(lobby.lobbyName)) {
+        return false;
+    }
+    registeredLobbys.add(lobby);
+    return true
 }
 
 export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userData: IUser) {
-    const calc_request: CalculationRequest = await decodeToObject(data.toString());
-    let lobbyComponent: LobbyComponent | undefined = registeredLobbys.find(lc => lc.lobbyName === calc_request.request_info.lobbyName);
-    if (lobbyComponent) {
-        if (!lobbyComponent.members.includes(userData) && lobbyComponent.lobbyInfo.members.includes(userData.username)) {
-            lobbyComponent.members.push(userData);
-            lobbyComponent.memberSockets.push(ws);
-        }
+    if (userData === undefined || userData.username === undefined) {
+        console.error("User data could not be read properly! Please Check ducking tocking!");
+        ws.close();
+        return;
     }
 
-    if (!lobbyComponent) {
-        lobbyComponent = await validateLobby(ws, calc_request, userData);
-        if (!lobbyComponent) {
-            console.error("Malformed Websocket Request from Authorized User!");
-            ws.close();
+    const userLobby: ILobby | null = await searchLobbyOfMember(userData.username);
+    if (!userLobby) {
+        console.error("User is not in a lobby!");
+        ws.close();
+        return;
+    }
+
+    let registerLobby: LobbyRegistryEntry | null = isRegistered(userLobby.lobbyName);
+    if (registerLobby) {
+        if (!registerLobby.memberSockets.includes(ws)) {
+            registerLobby.memberSockets.push(ws);
+        }
+    } else {
+        registerLobby = {lobbyName: userLobby.lobbyName, members: [userData], memberSockets: [ws], calculationSocket: null};
+        registerLobby.calculationSocket = await connectToCalcluationServer(registerLobby);
+        addToRegister(registerLobby);
+    }
+
+    const clientRequest: ClientMessage | null = await decodeToObject(data.toString());
+    if(!clientRequest){
+        return;
+    }
+
+    const encoded = await encodeObject(clientRequest);
+    if(encoded === null){
+        return;
+    }
+
+    const calc_unit_socket: WebSocket | null = registerLobby.calculationSocket;
+    registerLobby.memberSockets.forEach(member => {
+        if(!calc_unit_socket){
+            console.error("No calculation socket found!");
             return;
         }
-        addLobby(lobbyComponent);
-    }
-
-    if(lobbyComponent.calculationSocket !== null) {
-        lobbyComponent.calculationSocket.send(data);
-    }
+        member.send(encoded);
+    })
 }
 
-export async function validateLobby(ws: WebSocket, calc_request: CalculationRequest, userData: IUser): Promise<LobbyComponent | undefined> {
-    const lobbyName = calc_request.request_info.lobbyName;
-    const databaseLoadedLobby = await loadLobby(lobbyName);
-    if (databaseLoadedLobby === null) {
-        return undefined;
-    }
-
-    if (!databaseLoadedLobby.members.includes(userData.username)) {
-        return undefined;
-    }
-
-    const lcompo: LobbyComponent = {
-        lobbyName: databaseLoadedLobby.lobbyName,
-        lobbyPassword: databaseLoadedLobby.lobbyPassword,
-        lobbyStatus: OPEN,
-        lobbyInfo: databaseLoadedLobby,
-        members: [userData],
-        memberSockets: [ws],
-        calculationSocket: null,
-    };
-
-    lcompo.calculationSocket = await connectToCalcluationServer(lcompo);
-    return lcompo;
-}
-
-async function connectToCalcluationServer(lcomp: LobbyComponent): Promise<WebSocket> {
+async function connectToCalcluationServer(lcomp: LobbyRegistryEntry): Promise<WebSocket> {
     const socket = new WebSocket(`ws://calculation_unit:8082/msgpack`, {
         headers: {
             Origin: 'http://authproxy:8080'

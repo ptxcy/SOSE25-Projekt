@@ -1,24 +1,54 @@
 import { decode, encode } from "@msgpack/msgpack";
 
+export interface Coordinate {
+    x: number;
+    y: number;
+    z: number;
+}
+
+export interface DummySetVelocity {
+    id: string;
+    position: Coordinate;
+}
+
+export interface SetClientFPS {
+    id: string;
+    fps: number;
+}
+
+export interface ClientRequest {
+    set_client_fps?: SetClientFPS;
+    spawn_dummy?: string;
+    dummy_set_velocity?: DummySetVelocity;
+}
+
 export interface RequestInfo {
-    lobbyName: string;
     client: { sent_time: number };
     authproxy: { sent_time: number };
     request_sync: { sent_time: number };
     calculation_unit: { sent_time: number };
 }
 
-export interface CalculationRequest {
+export interface ClientMessage {
     request_info: RequestInfo;
-    request_data: object;
+    request_data: ClientRequest;
 }
 
-export async function encodeObject(object: CalculationRequest): Promise<Uint8Array> {
-    return encode(object);
+export async function encodeObject(object: ClientMessage): Promise<Uint8Array | null> {
+    try {
+        return encode(object);
+    } catch (error) {
+        console.error("Failed To Encode Message:", error);
+        return null;
+    }
 }
 
-export async function decodeToObject(data: string): Promise<CalculationRequest> {
-    const uint8Array = new Uint8Array(Buffer.from(data, "binary"));
-    return decode(uint8Array) as CalculationRequest;
+export async function decodeToObject(data: string): Promise<ClientMessage | null> {
+    try {
+        const uint8Array = new Uint8Array(Buffer.from(data, "binary"));
+        return decode(uint8Array) as ClientMessage;
+    } catch (error) {
+        console.error("Failed To Decode Object because:", error);
+        return null;
+    }
 }
-

@@ -11,7 +11,7 @@ const server = createServer(app);
 const wss = new WebSocketServer({server});
 
 wss.on("connection", async (ws: WebSocket, req) => {
-    console.log("connecfsajfaasfjhhhhhsasjfsaklfsalkjfsahlsafljafslahfashljklfajsfjasjhfhjahjasfhjasfjhasfhjafs");
+    console.log("Somebody is trying to connect to the websocket");
     if (req.url !== "/calculate") {
         console.error("Somebody tryed to connect to the wrong websocket route");
         ws.close();

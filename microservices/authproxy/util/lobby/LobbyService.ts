@@ -1,8 +1,17 @@
-import { ILobby, LobbyModel } from "./LobbyModel";
+import {ILobby, LobbyModel} from "./LobbyModel";
 import mongoose from "mongoose";
 
 export async function loadLobby(lobbyName: string): Promise<ILobby | null> {
     return LobbyModel.findOne({ lobbyName: lobbyName });
+}
+
+export async function searchLobbyOfMember(member: string): Promise<ILobby | null> {
+    try {
+        return await LobbyModel.findOne({members: member}).exec();
+    } catch (error) {
+        console.error("Fehler beim Suchen der Lobby:", error);
+        return null;
+    }
 }
 
 export async function createLobby(lobbyName: string, lobbyPassword: string | null, members: string[]): Promise<ILobby | null> {
