@@ -3,6 +3,59 @@ import {validateAuthorization} from "../../middleware/is-jwt-token-valid";
 import {ILobby} from "../../util/lobby/LobbyModel";
 import {loadLobby, updateLobby} from "../../util/lobby/LobbyService";
 
+/**
+ * @swagger
+ * /lobbies:
+ *   put:
+ *     summary: Tritt einer bestehenden Lobby bei
+ *     description: Fügt einen Benutzer zu einer Lobby hinzu, falls sie existiert und der Benutzer noch nicht drin ist.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               lobbyName:
+ *                 type: string
+ *                 example: "Meine Lobby"
+ *               lobbyPassword:
+ *                 type: string
+ *                 example: "geheimespasswort"
+ *     responses:
+ *       200:
+ *         description: Erfolgreich der Lobby beigetreten
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Successfully Joined lobby!"
+ *       400:
+ *         description: Fehlerhafte Anfrage oder ungültige Lobby
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "lobby name is required!"
+ *       409:
+ *         description: Benutzer ist bereits in der Lobby
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "User Has Already Joined Lobby!"
+ */
 async function put(request: Request, response: Response) {
     const lobbyData: ILobby = request.body;
     if (!lobbyData.lobbyName) {

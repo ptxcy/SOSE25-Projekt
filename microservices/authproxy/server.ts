@@ -4,15 +4,21 @@ import path from "path";
 import {connectToMongoDatabase} from "./util/Database";
 import "./routes/ws_calculate/ws_server"
 import cors from "cors";
+import swaggerUi from "swagger-ui-express";
+import {specs} from "./util/swagger";
 
 const routesPath = path.join(__dirname, "routes");
 export const app = express();
 app.use(express.json());
+
 app.use(cors({
     exposedHeaders: ["Authorization"]
 }));
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+
 app.listen(8080, () => {
-    console.log(`Server läuft auf http://localhost:${8080}`);
+    console.log(`Server läuft auf http://localhost:8080`);
 });
 
 // Custom Function for loading HTTP dynamic routes in /routes/endpoint/method.ts
