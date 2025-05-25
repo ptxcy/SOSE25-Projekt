@@ -6,7 +6,7 @@
 
 s32 main(s32 argc,char** argv)
 {
-	// ui test
+	// test ui
 	UIBatch uib;// = UIBatch(1);
 	Button* btn = uib.add_button("not yet ready","./res/kid.png","./res/test.png","./res/maps.png",
 								 vec2(100,100),vec2(100,100));

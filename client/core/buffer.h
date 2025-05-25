@@ -52,7 +52,7 @@ struct TextureData
 public:
 	TextureData(s32 format=GL_RGBA);
 
-	void load(const char* path);
+	void load(string& path);
 	void gpu_upload();
 	void gpu_upload_subtexture();
 
@@ -120,7 +120,7 @@ struct GPUPixelBuffer
 {
 	// utilty
 	void allocate(u32 width,u32 height,u32 format);
-	static void load_texture(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,const char* path);
+	static void load_texture(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,string path);
 	static void load_font(GPUPixelBuffer* gpb,Font* font,const char* path,u16 size);
 	static void _load(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,TextureData* data);
 	void gpu_upload();

@@ -70,8 +70,9 @@ typedef glm::vec4 vec4;
 typedef glm::quat quat;
 typedef glm::mat4 mat4;
 
-// basic stringamagickgg
+// basic magic
 typedef std::string string;
+typedef std::thread thread;
 
 
 // constants
@@ -138,7 +139,7 @@ static inline void produce_timestamp(bool padding=true)
 #define COMM_ERR(...) printf("%serror: ",LOG_RED),printf(__VA_ARGS__),printf("%s\n",LOG_CLEAR);
 
 // logger features conditional
-#define COMM_MSG_COND(cnd,col,...) if (cnd) { COMM_MSG(col,__VA_ARGS); }
+#define COMM_MSG_COND(cnd,col,...) if (cnd) { COMM_MSG(col,__VA_ARGS__); }
 #define COMM_LOG_COND(cnd,...) if (cnd) { COMM_LOG(__VA_ARGS__); }
 #define COMM_SCC_COND(cnd,...) if (cnd) { COMM_SCC(__VA_ARGS__); }
 #define COMM_ERR_COND(cnd,...) if (cnd) { COMM_ERR(__VA_ARGS__); }
@@ -215,7 +216,7 @@ public:
 	inline bool operator[](size_t i) { return (*(m_Data+(i>>MEM_SHIFT))>>(i&MEM_MASK))&1u; }
 	inline void set(size_t i) { *(m_Data+(i>>MEM_SHIFT))|=1u<<(i&MEM_MASK); }
 	inline void unset(size_t i) { *(m_Data+(i>>MEM_SHIFT))&=~1u<<(i&MEM_MASK); }
-	inline void reset() { memset(m_Data,0,m_Size); }
+	inline void reset() { memset(m_Data,0,m_Size*sizeof(__system_word)); }
 
 private:
 	__system_word* m_Data;
@@ -265,7 +266,7 @@ struct ThreadSignal
 {
 	// utility
 	void wait();
-	void stall();
+	inline void stall() { semaphore++; }
 	void proceed();
 	void exit();
 
@@ -275,7 +276,7 @@ struct ThreadSignal
 #endif
 	std::mutex mutex;
 	std::condition_variable cv;
-	u8 wcount = 0;
+	s8 semaphore = 0;
 	bool running = true;
 };
 

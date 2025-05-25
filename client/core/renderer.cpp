@@ -165,13 +165,10 @@ Renderer::Renderer()
 
 	COMM_LOG("starting renderer subprocesses");
 	_sprite_signal.stall();
+	m_SpriteCollector = thread(Renderer::_collector<Sprite>,&m_Sprites,&_sprite_signal);
 	_sprite_texture_signal.stall();
-
-	std::thread __SpriteCollector(Renderer::_collector<Sprite>,&m_Sprites,&_sprite_signal);
-	__SpriteCollector.detach();
-	std::thread __SpriteTextureCollector(Renderer::_collector<PixelBufferComponent>,
-										 &m_GPUSpriteTextures.textures,&_sprite_texture_signal);
-	__SpriteTextureCollector.detach();
+	m_SpriteTextureCollector = thread(Renderer::_collector<PixelBufferComponent>,
+									  &m_GPUSpriteTextures.textures,&_sprite_texture_signal);
 	COMM_SCC("render system ready.");
 }
 
@@ -194,6 +191,8 @@ void Renderer::exit()
 {
 	_sprite_texture_signal.exit();
 	_sprite_signal.exit();
+	m_SpriteCollector.join();
+	m_SpriteTextureCollector.join();
 }
 
 /**
@@ -201,12 +200,13 @@ void Renderer::exit()
  *	\param path: path to texture file
  *	\returns pointer to texture component info to assign to a sprite later
  */
-PixelBufferComponent* Renderer::register_sprite_texture(const char* path)
+PixelBufferComponent* Renderer::register_sprite_texture(string path)
 {
 	PixelBufferComponent* p_Comp = m_GPUSpriteTextures.textures.next_free();
+	m_GPUSpriteTextures.signal.stall();
 
-	COMM_LOG("sprite texture register of %s",path);
-	std::thread __LoadThread(GPUPixelBuffer::load_texture,&m_GPUSpriteTextures,p_Comp,path);
+	COMM_LOG("sprite texture register of %s",path.c_str());
+	thread __LoadThread(GPUPixelBuffer::load_texture,&m_GPUSpriteTextures,p_Comp,path);
 	__LoadThread.detach();
 
 	return p_Comp;
@@ -290,6 +290,7 @@ void Renderer::delete_sprite(Sprite* sprite)
 void Renderer::register_font(Font* font,const char* path,u16 size)
 {
 	COMM_LOG("font register from source %s",path);
+	m_GPUFontTextures.signal.stall();
 	std::thread __LoadThread(GPUPixelBuffer::load_font,&m_GPUFontTextures,font,path,size);
 	__LoadThread.detach();
 }

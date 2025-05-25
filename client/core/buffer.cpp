@@ -92,10 +92,10 @@ TextureData::TextureData(s32 format)
  *	make the cpu load the texture data & dimensions from file
  *	\param path: path to texture
  */
-void TextureData::load(const char* path)
+void TextureData::load(string& path)
 {
-	COMM_ERR_COND(!check_file_exists(path),"texture %s could not be found",path);
-	data = stbi_load(path,&width,&height,0,STBI_rgb_alpha);
+	COMM_ERR_COND(!check_file_exists(path.c_str()),"texture %s could not be found",path.c_str());
+	data = stbi_load(path.c_str(),&width,&height,0,STBI_rgb_alpha);
 	m_TextureFlag = true;
 }
 
@@ -288,16 +288,15 @@ void GPUPixelBuffer::allocate(u32 width,u32 height,u32 format)
  *	\param path: path to texture file
  *	NOTE this is supposed to run as a subthread, hence the mutex and load request queue pointer
  */
-void GPUPixelBuffer::load_texture(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,const char* path)
+void GPUPixelBuffer::load_texture(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,string path)
 {
 	// load information from texture file
-	gpb->signal.stall();
 	TextureData __TextureData;
 	__TextureData.load(path);
-
-	// upload to gpu memory
-	_load(gpb,pbc,&__TextureData);
 	gpb->signal.proceed();
+
+	// upload to gpu memory & signal data safety
+	_load(gpb,pbc,&__TextureData);
 }
 
 /**
@@ -379,6 +378,7 @@ void GPUPixelBuffer::_load(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,Texture
 
 	// get memory segment pointer
 	COMM_ERR_COND(__MemoryIndex==-1,"sprite texture memory is populated or segmented. texture upload failed!");
+	COMM_MSG_COND(__MemoryIndex==-1,LOG_CYAN,"attempted load dimensions -> (%i,%i)",data->width,data->height);
 	PixelBufferComponent* p_CloseFitComponent = &gpb->memory_segments[__MemoryIndex];
 
 	// write atlas information
@@ -430,11 +430,8 @@ void GPUPixelBuffer::gpu_upload()
 	while (load_requests.size())
 	{
 		TextureData& p_Data = load_requests.front();
-
-		COMM_AWT("uploading pixel buffer at %d,%d to gpu",p_Data.x,p_Data.y);
 		p_Data.gpu_upload_subtexture();
 		load_requests.pop();
-		COMM_CNF();
 	}
 
 	// controversial pixel buffer lod creation
