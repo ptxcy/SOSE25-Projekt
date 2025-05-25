@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { logRequest } from "../../middleware/request-logger";
 import { WebSocket } from "ws";
 import {encode} from "@msgpack/msgpack";
 
@@ -38,4 +37,4 @@ function get(request: Request, response: Response) {
 }
 
 // Export Middleware + Handler
-export default [logRequest, get];
+export default [ get];

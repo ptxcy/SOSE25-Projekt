@@ -3,17 +3,21 @@ import fs from "fs";
 import path from "path";
 import {connectToMongoDatabase} from "./util/Database";
 import "./routes/ws_calculate/ws_server"
+import cors from "cors";
 
 const routesPath = path.join(__dirname, "routes");
 export const app = express();
 app.use(express.json());
+app.use(cors({
+    exposedHeaders: ["Authorization"]
+}));
 app.listen(8080, () => {
     console.log(`Server läuft auf http://localhost:${8080}`);
 });
 
 // Custom Function for loading HTTP dynamic routes in /routes/endpoint/method.ts
 async function loadRoutes() {
-    const folders = fs.readdirSync(routesPath, { withFileTypes: true })
+    const folders = fs.readdirSync(routesPath, {withFileTypes: true})
         .filter(dirent => dirent.isDirectory() && !dirent.name.startsWith("ws_"))
         .map(dirent => dirent.name);
 

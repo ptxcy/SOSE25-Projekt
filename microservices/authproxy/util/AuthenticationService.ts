@@ -26,18 +26,23 @@ export async function validateAuthentication(authHeaderValue: string): Promise<A
         return createAuthResult(null, false, error);
     }
 
+    let tokenRaw = "";
     if (authHeaderValue.startsWith("Bearer ")) {
-        authHeaderValue = authHeaderValue.substring(7);
+        console.log("Bearer Token detected!");
+        tokenRaw = authHeaderValue.substring(7);
+    }else {
+        console.error("Expected Bearer Token, but got: ", authHeaderValue);
     }
 
-    const token = jwt.verify(authHeaderValue, PRIVATE_KEY);
+    console.log("Token: ", tokenRaw);
+    const token = jwt.verify(tokenRaw, PRIVATE_KEY);
     if(!token || typeof token === "string") {
         const error = "AuthHeader was invalid!";
         console.error(error);
         return createAuthResult(null, false, error);
     }
 
-    const username: string = token.username;
+    const username: string = token._doc.username;
     const userData: IUser | null = await loadUser(username);
     if (!userData) {
         const error = "user did not exist!";

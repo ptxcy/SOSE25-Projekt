@@ -11,7 +11,7 @@ async function post(request: Request, response: Response) {
 
     const tryToCreateUser: IUser | null = await createUser(userData.username, userData.password);
     if (tryToCreateUser === null) {
-        response.status(400).json({message: "Failed to create user!"});
+        response.status(409).json({message: "User Already Exists Or Malformed Data!"});
     }
     response.status(200).json({message: "Successfully created user!"});
 }

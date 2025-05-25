@@ -43,12 +43,12 @@ export async function encodeObject(object: ClientMessage): Promise<Uint8Array | 
     }
 }
 
-export async function decodeToObject(data: string): Promise<ClientMessage | null> {
+export async function decodeToObject(data: Uint8Array): Promise<ClientMessage | null> {
     try {
-        const uint8Array = new Uint8Array(Buffer.from(data, "binary"));
-        return decode(uint8Array) as ClientMessage;
+        return decode(data) as ClientMessage;
     } catch (error) {
         console.error("Failed To Decode Object because:", error);
         return null;
     }
 }
+

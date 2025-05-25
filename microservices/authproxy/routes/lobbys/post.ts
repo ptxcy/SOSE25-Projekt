@@ -1,5 +1,4 @@
 import {Request, Response} from "express";
-import {logRequest} from "../../middleware/request-logger";
 import {validateAuthorization} from "../../middleware/is-jwt-token-valid";
 import {ILobby} from "../../util/lobby/LobbyModel";
 import {createLobby} from "../../util/lobby/LobbyService";
@@ -32,4 +31,4 @@ async function post(request: Request, response: Response) {
 }
 
 //Export middleware and handler calls for dynamic routing
-export default [logRequest, validateAuthorization, post];
+export default [validateAuthorization, post];

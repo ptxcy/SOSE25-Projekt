@@ -1,8 +1,8 @@
 import {Request, Response} from "express";
-import {logRequest} from "../../middleware/request-logger";
 import {AuthenticationResult, generateJWTToken, validateBasicAuthentication} from "../../util/AuthenticationService";
 
 async function get(request: Request, response: Response) {
+    console.log("Somebody tried to authenticate");
     let authHeaderValue = request.headers?.authorization;
     if (!authHeaderValue) {
         response.status(400).json({message: 'Authorization header required!'});
@@ -14,11 +14,12 @@ async function get(request: Request, response: Response) {
         response.status(400).json({message: authenticationResult.errorMessage});
         return;
     }
-    
+
+    console.log("Authentication was successful!");
     response.status(200)
         .setHeader("Authorization", "Bearer " + await generateJWTToken(authenticationResult.userData))
         .json({message: "Authentication was successful!"});
 }
 
 //Export middleware and handler calls for dynamic routing
-export default [logRequest, get];
+export default [get];

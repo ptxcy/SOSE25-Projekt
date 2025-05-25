@@ -1,5 +1,4 @@
 import {Request, Response} from "express";
-import {logRequest} from "../../middleware/request-logger";
 import {validateAuthorization} from "../../middleware/is-jwt-token-valid";
 import {ILobby} from "../../util/lobby/LobbyModel";
 import {loadLobby, updateLobby} from "../../util/lobby/LobbyService";
@@ -28,6 +27,11 @@ async function put(request: Request, response: Response) {
         return
     }
 
+    if(alreadyExistendLobby.members.includes(userNameFromCreator)) {
+        response.status(409).json({message: "User Has Already Joined Lobby!"});
+        return
+    }
+
     alreadyExistendLobby.members.push(userNameFromCreator);
     const tryToUpdateLobby: ILobby | null = await updateLobby(lobbyData.lobbyName, alreadyExistendLobby);
     if (tryToUpdateLobby === null) {
@@ -39,4 +43,4 @@ async function put(request: Request, response: Response) {
 }
 
 //Export middleware and handler calls for dynamic routing
-export default [logRequest, validateAuthorization, put];
+export default [validateAuthorization, put];

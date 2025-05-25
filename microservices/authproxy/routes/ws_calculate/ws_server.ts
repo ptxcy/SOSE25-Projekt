@@ -12,16 +12,18 @@ const wss = new WebSocketServer({server});
 
 wss.on("connection", async (ws: WebSocket, req) => {
     console.log("Somebody is trying to connect to the websocket");
-    if (req.url !== "/calculate") {
-        console.error("Somebody tryed to connect to the wrong websocket route");
+    const path = req.url?.split("?")[0];
+    if (path !== "/calculate") {
+        console.error("Somebody tried to connect to the wrong websocket route");
         ws.close();
         return;
     }
 
-    console.log("WebSocket connected on /calculate");
-    const authorization: string | undefined = req.headers["authorization"];
+    const queryParams = req.url?.split("?")[1];
+    const params = new URLSearchParams(queryParams);
+    let authorization: string | null = params.get("authToken");
     if (!authorization) {
-        console.error("Somebody tryed to connect but was not authenticated");
+        console.error("Somebody tried to connect but was not authenticated");
         ws.close();
         return;
     }
@@ -33,8 +35,9 @@ wss.on("connection", async (ws: WebSocket, req) => {
         return;
     }
 
+    console.log("✅ Authentifizierung erfolgreich!");
     ws.on("message", async (message: RawData) => {
-        console.log("Received message", message);
+        console.error("Received message", message);
         if (valid.userData) {
             await handleWebsocketMessage(ws, message, valid.userData);
         }

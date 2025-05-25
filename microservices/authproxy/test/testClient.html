@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch & WebSocket Demo</title>
+    <script type="module">
+        import * as msgpack from "https://unpkg.com/@msgpack/msgpack?module";
+
+        window.msgpack = msgpack;
+    </script>
+
+    <script>
+        let authToken = null;
+
+        async function createUser(username, password) {
+            const response = await fetch("http://localhost:8080/user", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Origin": "http://localhost:8080"
+                },
+                body: JSON.stringify({username, password})
+            });
+
+            if (!response.ok) {
+                console.error("❌ Fehler beim Erstellen des Nutzers");
+                return;
+            }
+
+            const data = await response.json();
+            console.log("✅ Nutzer erstellt:", data);
+        }
+
+        async function authenticateUser(username, password) {
+            const response = await fetch("http://localhost:8080/authenticate", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Origin": "http://localhost:8080",
+                    "Authorization": "Basic " + btoa(`${username}:${password}`)
+                },
+            });
+
+            console.log("Response:", await response.json());
+
+            if (!response.ok) {
+                console.error("❌ Fehler bei der Authentifizierung");
+                return;
+            }
+
+            authToken = response.headers.get("Authorization");
+            if (!authToken) {
+                console.error("❌ Kein Token im Response-Header gefunden!");
+                response.headers.forEach((value, key) => {
+                    console.log(`${key}: ${value}`);
+                });
+                return;
+            }
+
+            console.log("✅ Nutzer authentifiziert. Token gespeichert.", authToken);
+        }
+
+
+        async function createLobby(lobbyName) {
+            if (!authToken) {
+                console.error("❌ Fehler: Nutzer ist nicht authentifiziert!");
+                return;
+            }
+
+            const response = await fetch("http://localhost:8080/lobbys", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `${authToken}`,
+                    "Origin": "http://localhost:8080"
+                },
+                body: JSON.stringify({lobbyName})
+            });
+
+            if (!response.ok) {
+                console.error("❌ Fehler beim Erstellen der Lobby");
+                return;
+            }
+
+            const data = await response.json();
+            console.log("✅ Lobby erstellt:", data);
+        }
+
+        async function joinLobby(lobbyName) {
+            if (!authToken) {
+                console.error("❌ Fehler: Nutzer ist nicht authentifiziert!");
+                return;
+            }
+
+            const response = await fetch(`http://localhost:8080/lobbys`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `${authToken}`,
+                    "Origin": "http://localhost:8080"
+                },
+                body: JSON.stringify({lobbyName})
+            });
+
+            if (!response.ok) {
+                console.error("❌ Fehler beim Beitreten der Lobby");
+                return;
+            }
+
+            const data = await response.json();
+            console.log("✅ Lobby beigetreten:", data);
+        }
+
+        function connectToWebSocketWithLobbyCreator() {
+            if (!authToken) {
+                console.error("❌ Fehler: Nutzer ist nicht authentifiziert!");
+                return;
+            }
+
+            try {
+                const ws = new WebSocket(`ws://localhost:8083/calculate?authToken=${encodeURIComponent(authToken)}`);
+
+                ws.onopen = () => {
+                    console.log("✅ WebSocket verbunden als Lobby-Mitglied!");
+
+                    // 5-Sekunden-Verzögerung bevor die Nachricht gesendet wird
+                    setTimeout(() => {
+                        const mockMessage = {
+                            request_info: {
+                                client: {sent_time: Date.now()},
+                                authproxy: {sent_time: Date.now()},
+                                request_sync: {sent_time: Date.now()},
+                                calculation_unit: {sent_time: Date.now()}
+                            },
+                            request_data: {
+                                spawn_dummy: "user1"
+                            }
+                        };
+
+                        // Nachricht mit MessagePack kodieren und senden
+                        const packedMessage = msgpack.encode(mockMessage);
+                        ws.send(packedMessage);
+                        console.log("📤 Nachricht gesendet nach 5 Sekunden:", mockMessage);
+                    }, 5000);
+                };
+
+                ws.onmessage = (event) => console.log("📩 Nachricht erhalten:", event.data);
+                ws.onerror = (error) => console.error("⚠️ Fehler:", error);
+                ws.onclose = () => console.log("❌ WebSocket getrennt.");
+            } catch (error) {
+                console.error("❌ Fehler bei der WebSocket-Verbindung:", error);
+            }
+        }
+
+
+        function connectToWebSocketWithLobbyMember() {
+            if (!authToken) {
+                console.error("❌ Fehler: Nutzer ist nicht authentifiziert!");
+                return;
+            }
+
+            try {
+                const ws = new WebSocket(`ws://localhost:8083/calculate?authToken=${encodeURIComponent(authToken)}`);
+
+                ws.onopen = () => {
+                    console.log("✅ WebSocket verbunden als Lobby-Mitglied!");
+
+                    // 5-Sekunden-Verzögerung bevor die Nachricht gesendet wird
+                    setTimeout(() => {
+                        const mockMessage = {
+                            request_info: {
+                                client: {sent_time: Date.now()},
+                                authproxy: {sent_time: Date.now()},
+                                request_sync: {sent_time: Date.now()},
+                                calculation_unit: {sent_time: Date.now()}
+                            },
+                            request_data: {
+                                spawn_dummy: "user2"
+                            }
+                        };
+
+                        // Nachricht mit MessagePack kodieren und senden
+                        const packedMessage = msgpack.encode(mockMessage);
+                        ws.send(packedMessage);
+                        console.log("📤 Nachricht gesendet nach 5 Sekunden:", mockMessage);
+                    }, 5000);
+                };
+
+                ws.onmessage = (event) => console.log("📩 Nachricht erhalten:", event.data);
+                ws.onerror = (error) => console.error("⚠️ Fehler:", error);
+                ws.onclose = () => console.log("❌ WebSocket getrennt.");
+            } catch (error) {
+                console.error("❌ Fehler bei der WebSocket-Verbindung:", error);
+            }
+        }
+
+    </script>
+</head>
+<body>
+<h1>API Fetch & WebSocket Demo</h1>
+
+<button onclick="createUser('user1', 'userpass')">👤 Nutzer erstellen</button>
+<button onclick="authenticateUser('user1', 'userpass')">🔐 Nutzer authentifizieren</button>
+<button onclick="createLobby('testLobby')">🏠 Lobby erstellen</button>
+<button onclick="connectToWebSocketWithLobbyCreator()">🖥 WebSocket mit Ersteller verbinden</button>
+
+<button onclick="createUser('user2', 'userpass')">👤 Nutzer erstellen</button>
+<button onclick="authenticateUser('user2', 'userpass')">🔐 Nutzer authentifizieren</button>
+<button onclick="joinLobby('testLobby')">🔗 Lobby beitreten</button>
+<button onclick="connectToWebSocketWithLobbyMember()">🙋 WebSocket mit Mitglied verbinden</button>
+</body>
+</html>
