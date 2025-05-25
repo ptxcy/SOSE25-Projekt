@@ -10,6 +10,7 @@ use plotly::{Plot, Scatter3D};
 fn trace_planet(
 	coords: &Vec<[f64; 3]>,
 	name: &str,
+	color: &'static str,
 ) -> std::boxed::Box<plotly::Scatter3D<f64, f64, f64>> {
 	let x: Vec<f64> = coords.iter().map(|c| c[0]).collect();
 	let y: Vec<f64> = coords.iter().map(|c| c[1]).collect();
@@ -19,7 +20,7 @@ fn trace_planet(
 	trace
 		.name(name)
 		.mode(Mode::Lines)
-		.line(plotly::common::Line::new().width(2.0))
+		.line(plotly::common::Line::new().width(2.0).color(color))
 }
 
 fn main() {
@@ -82,14 +83,15 @@ fn main() {
 	}
 
 	// Planeten
-	plot.add_trace(trace_planet(&mercury_xyz, "Mercury"));
-	plot.add_trace(trace_planet(&venus_xyz, "Venus"));
-	plot.add_trace(trace_planet(&earth_xyz, "Earth"));
-	plot.add_trace(trace_planet(&mars_xyz, "Mars"));
-	plot.add_trace(trace_planet(&jupiter_xyz, "Jupiter"));
-	plot.add_trace(trace_planet(&saturn_xyz, "Saturn"));
-	plot.add_trace(trace_planet(&uranus_xyz, "Uranus"));
-	plot.add_trace(trace_planet(&neptune_xyz, "Neptune"));
+
+	plot.add_trace(trace_planet(&mercury_xyz, "Mercury", "gray"));
+	plot.add_trace(trace_planet(&venus_xyz, "Venus", "orange"));
+	plot.add_trace(trace_planet(&earth_xyz, "Earth", "blue"));
+	plot.add_trace(trace_planet(&mars_xyz, "Mars", "red"));
+	plot.add_trace(trace_planet(&jupiter_xyz, "Jupiter", "brown"));
+	plot.add_trace(trace_planet(&saturn_xyz, "Saturn", "gold"));
+	plot.add_trace(trace_planet(&uranus_xyz, "Uranus", "cyan"));
+	plot.add_trace(trace_planet(&neptune_xyz, "Neptune", "purple"));
 
 	plot.set_layout(
 		Layout::new()
