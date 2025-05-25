@@ -1,21 +1,20 @@
 use super::planet::{
-	anomaly, cartesian_coordinates, distance_vector, get_curve, get_distance, trim_down,
-	true_anomaly,
+	get_curve, trim_down,
 };
 
 /// N = Länge des aufsteigenden Knotens (oft auch als großes Omega geschrieben)
 /// Diese definiert die Drehung der Schnittgraden von der Ebene der Erdbahnellipse mit der Ebene der jeweiligen Planetenbahnellipse um die z-Achse.
-/// 
+///
 /// i = Bahnneigung in Relation zur Ebene der Erdbahn
-/// 
+///
 /// w = Periapsisabstand (oft auch als kleines Omega geschrieben)
 /// Definiert die Rotation der Periapsis auf der jeweiligen Planetenbahnellipse
-/// 
+///
 /// a = Länge der großen Halbachse oder auch Hauptachse in AE
-/// 
+///
 /// e = Exzentrizität der Ellipse (für )
 /// Diese Variable definiert die Form der Ellipse, wobei 0 kreisförmig ist und bei steigendem Wert die beiden Foci der Ellipse weiter auseinandergehen.
-/// 
+///
 /// M = Mittlere Anomalie
 pub struct OrbitInfo {
 	pub N: f64,
@@ -30,14 +29,6 @@ impl OrbitInfo {
 	pub fn new(N: f64, i: f64, w: f64, a: f64, e: f64, M: f64) -> Self {
 		Self { N, i, w, a, e, M }
 	}
-}
-
-pub fn calculate_planet(info: &OrbitInfo) -> [f64; 3] {
-	let E = anomaly(info.M, info.e);
-	let vxy = distance_vector(info.a, E, info.e);
-	let r = get_distance(&vxy);
-	let v = true_anomaly(info.e, E);
-	cartesian_coordinates(r, info.N, v, info.w, info.i)
 }
 
 pub fn get_mercury(t: f64) -> OrbitInfo {
