@@ -82,8 +82,9 @@ struct ServerMessage
 // Message structures for client requests
 struct SetClientFPS
 {
+	string id;
 	f64 fps;
-	MSGPACK_DEFINE(fps);
+	MSGPACK_DEFINE(id,fps);
 };
 
 struct SpawnDummy
@@ -101,7 +102,7 @@ struct DummySetVelocity
 
 struct ClientRequest
 {
-	std::optional<double> set_client_fps;
+	std::optional<SetClientFPS> set_client_fps;
 	std::optional<string> spawn_dummy;
 	std::optional<DummySetVelocity> dummy_set_velocity;
 	MSGPACK_DEFINE(set_client_fps,spawn_dummy,dummy_set_velocity);
