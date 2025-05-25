@@ -51,18 +51,18 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
     }
 
     const clientRequest: ClientMessage | null = await decodeToObject(data.toString());
-    if(!clientRequest){
+    if (!clientRequest) {
         return;
     }
 
     const encoded = await encodeObject(clientRequest);
-    if(encoded === null){
+    if (encoded === null) {
         return;
     }
 
     const calc_unit_socket: WebSocket | null = registerLobby.calculationSocket;
     registerLobby.memberSockets.forEach(member => {
-        if(!calc_unit_socket){
+        if (!calc_unit_socket) {
             console.error("No calculation socket found!");
             return;
         }
