@@ -11,36 +11,44 @@
  *	\param scale: dimensions of the button
  *	\returns address of button to later read interaction state from
  */
-Button* UIBatch::add_button(string label,string tidle,string thover,string taction,vec2 position,vec2 scale)
+lptr<Button> UIBatch::add_button(const char* label,string tidle,string thover,string taction,
+								 vec2 position,vec2 scale)
 {
+	buttons.push_back({  });
+	lptr<Button> p_Button = std::prev(buttons.end());
+
 	// graphics setup
-	Button* out = buttons.next_free();
-	out->idle = g_Renderer.register_sprite_texture(tidle.c_str());
-	out->hover = g_Renderer.register_sprite_texture(thover.c_str());
-	out->action = g_Renderer.register_sprite_texture(taction.c_str());
-	out->canvas = g_Renderer.register_sprite(out->idle,position,scale);
+	p_Button->idle = g_Renderer.register_sprite_texture(tidle.c_str());
+	p_Button->hover = g_Renderer.register_sprite_texture(thover.c_str());
+	p_Button->action = g_Renderer.register_sprite_texture(taction.c_str());
+	p_Button->canvas = g_Renderer.register_sprite(p_Button->idle,position,scale);
+
+	// label text
+	p_Button->label = g_Renderer.write_text(font,label,position-dimensions*.5f,scale.y);
+	
 
 	// intersection boundaries
 	vec2 hscale = scale*vec2(.5f);
-	out->bounds = {
+	p_Button->bounds = {
 		.position = position-hscale,
 		.extent = position+hscale
 	};
-	return out;
+	return p_Button;
 }
-// TODO write a text label across the button surface, this needs text support
+
+// TODO allow to only remove batch as a whole, as a consequence buttons dont have to be linked containers
+
 
 /**
  *	update ui
  */
 void UI::update()
 {
-	for (UIBatch* p_Batch : batches)
+	for (UIBatch& p_Batch : m_Batches)
 	{
 		// button updates
-		for (u16 i=0;i<p_Batch->buttons.active_range;i++)
+		for (Button& p_Button : p_Batch.buttons)
 		{
-			Button& p_Button = p_Batch->buttons.mem[i];
 			bool __Intersect = p_Button.bounds.intersect(g_Input.mouse.position);
 
 			// button confirmation
@@ -65,3 +73,15 @@ void UI::update()
 	}
 	// TODO check for removed ui batches during iteration
 }
+
+/**
+ *	create a ui batch
+ *	\param font: button label and text box font for created batch
+ */
+lptr<UIBatch> UI::add_batch(Font* font)
+{
+	m_Batches.push_back({ .font = font });
+	return std::prev(m_Batches.end());
+}
+
+// TODO routine to remove batch assets from renderer

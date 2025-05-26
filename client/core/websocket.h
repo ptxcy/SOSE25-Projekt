@@ -34,7 +34,7 @@ private:
 
 
 #ifdef FEAT_MULTIPLAYER
-inline Websocket g_Websocket = Websocket("92.252.72.59");
+inline Websocket g_Websocket = Websocket();
 #endif
 
 

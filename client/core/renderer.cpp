@@ -29,18 +29,18 @@ void Text::align()
 {
 	offset = position;
 
+	// calculate text dimensions
+	f32 wordlen = .0f;
+	for (char c : data) wordlen += font->glyphs[c-32].advance*scale;
+	dimensions = vec2(wordlen,font->size*scale);
+
 	// adjust vertical alignment
 	u8 vertical_alignment = 2-(alignment%3);
-	offset.y += vertical_alignment*(MATH_CENTER_Y-(font->size*scale*.5));
+	offset.y += vertical_alignment*(MATH_CENTER_Y-(dimensions.y*.5));
 
 	// adjust horizontal alignment
 	u8 horizontal_alignment = alignment/3;
-	if (!!horizontal_alignment)
-	{
-		f32 wordlen = 0;
-		for (char c : data) wordlen += font->glyphs[c-32].advance*scale;
-		offset.x += horizontal_alignment*(MATH_CENTER_X-wordlen*.5f);
-	}
+	if (!!horizontal_alignment) offset.x += horizontal_alignment*(MATH_CENTER_X-dimensions.x*.5f);
 }
 
 /**

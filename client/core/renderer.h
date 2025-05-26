@@ -70,6 +70,7 @@ struct Text
 	vec2 position;
 	vec2 offset;
 	f32 scale;
+	vec2 dimensions;
 	vec4 colour;
 	ScreenAlignment alignment;
 	string data;

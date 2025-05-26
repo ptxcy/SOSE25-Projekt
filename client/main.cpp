@@ -7,12 +7,12 @@
 
 s32 main(s32 argc,char** argv)
 {
+	Font* __Ubuntu = g_Renderer.register_font("./res/font/ubuntu.ttf",25);
+	lptr<UIBatch> uib = g_UI.add_batch(__Ubuntu);
+	lptr<Button> btn = uib->add_button("confirm","./res/ui/button_hover.png","./res/ui/button_on.png",
+									   "./res/ui/button_hover.png",vec2(640,360),vec2(150,35));
+
 	/*
-	UIBatch uib;// = UIBatch(1);
-	Button* btn = uib.add_button("not yet ready","./res/kid.png","./res/test.png","./res/maps.png",
-								 vec2(100,100),vec2(100,100));
-	g_UI.batches.push_back(&uib);
-	*/
 	string name = argv[1];
 	std::map<string,Sprite*> entities;
 	PixelBufferComponent* t0 = g_Renderer.register_sprite_texture("./res/kid.png");
@@ -31,6 +31,7 @@ s32 main(s32 argc,char** argv)
 				})
 			}
 		});
+	*/
 
 	bool running = true;
 	while (running)
@@ -39,6 +40,7 @@ s32 main(s32 argc,char** argv)
 		g_Input.update(running);
 
 		// send updates
+		/*
 		g_Websocket.send_message({
 				.request_info = {},
 				.request_data = {
@@ -67,6 +69,7 @@ s32 main(s32 argc,char** argv)
 				entities[msg.first]->offset = vec3(msg.second.position.x,msg.second.position.y,msg.second.position.z);
 			}
 		}
+		*/
 
 		g_UI.update();
 		g_Renderer.update();
