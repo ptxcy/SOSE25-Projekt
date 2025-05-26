@@ -15,14 +15,17 @@ s32 main(s32 argc,char** argv)
 	g_UI.batches.push_back(&uib);
 	*/
 
+	Adapter ddd = Adapter("0.0.0.0","8080");
 	string name = argv[1];
 	string pass = argv[2];
 	string lnom = argv[3];
-	COMM_ERR_COND(createUser(name,pass),"fuck din workk");
-	std::optional<string> tokken = authenticateOnServer(name,pass);
-	createLobby(lnom,std::nullopt,*tokken);
+	string macher = argv[4];
+	COMM_ERR_COND(ddd.createUser(name,pass),"fuck din workk");
+	std::optional<string> tokken = ddd.authenticateOnServer(name,pass);
+	if (macher=="kool") ddd.createLobby(lnom,std::nullopt,*tokken);
+	else ddd.joinLobby(lnom,std::nullopt,*tokken);
 	COMM_LOG("%s",tokken.value().c_str());
-	Websocket g_Websocket = Websocket(tokken.value());
+	Websocket g_Websocket = Websocket(tokken.value(),"0.0.0.0","8083");
 
 	std::map<string,Sprite*> entities;
 	PixelBufferComponent* t0 = g_Renderer.register_sprite_texture("./res/kid.png");

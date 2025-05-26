@@ -12,7 +12,7 @@ typedef boost::beast::websocket::stream<boost::asio::ip::tcp::socket> socket_str
 class Websocket
 {
 public:
-	Websocket(string token,string host="localhost",string port="8080");
+	Websocket(string token,string host="localhost",string port="8083");
 	ServerMessage receive_message();
 	void send_message(ClientMessage msg);
 	void exit();

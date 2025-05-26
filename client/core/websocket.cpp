@@ -65,6 +65,23 @@ void _handle_websocket_upload(Websocket* c)
 	}
 }
 
+std::string url_encode(const std::string& value) {
+    std::ostringstream escaped;
+    escaped.fill('0');
+    escaped << std::hex;
+
+    for (char c : value) {
+        // Keep alphanumerics and -_.~ safe
+        if (isalnum(static_cast<unsigned char>(c)) || c == '-' || c == '_' || c == '.' || c == '~') {
+            escaped << c;
+        } else {
+            escaped << '%' << std::setw(2) << std::uppercase << int((unsigned char)c);
+        }
+    }
+
+    return escaped.str();
+}
+
 
 /**
  *	automatically run the necessary setup to update & process the websocket queues
@@ -76,10 +93,10 @@ Websocket::Websocket(string token,string host,string port)
 {
 	try
 	{
-		COMM_LOG("Connecting to WebSocket server at %s:%s/msgpack...",host.c_str(),port.c_str());
+		COMM_LOG("Connecting to WebSocket server at %s:%s...",host.c_str(),port.c_str());
 		auto results = boost::asio::ip::tcp::resolver{ioc}.resolve(host,port);
 		auto ep = boost::asio::connect(ws.next_layer(),results);
-		ws.handshake(host+':'+std::to_string(ep.port()),"/calculate?authToken="+token);
+		ws.handshake(host+':'+std::to_string(ep.port()),"/calculate?authToken="+url_encode(token));
 		ws.binary(true);
 		COMM_SCC("Connected to server successfully!");
 		// FIXME find out if the ep.port call has merit and if not replace it by predefined parameter
