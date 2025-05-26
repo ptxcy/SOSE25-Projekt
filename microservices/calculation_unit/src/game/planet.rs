@@ -143,8 +143,10 @@ pub fn get_distance(v: &(f64, f64)) -> f64 {
 /// - True anomaly in degrees.
 pub fn true_anomaly(e: f64, E_deg: f64) -> f64 {
 	let E_rad = E_deg.to_radians();
-	let factor = ((1.0 + e) / (1.0 - e)).sqrt() * E_rad.tan();
-	2.0 * factor.atan().to_degrees()
+	let sqrt = ((1.0 + e) / (1.0 - e)).sqrt();
+	let tan_v2 = sqrt * (E_rad / 2.0).tan();
+	let v_rad = 2.0 * tan_v2.atan();
+	v_rad.to_degrees()
 }
 
 /// Converts orbital elements to 3D cartesian coordinates.
