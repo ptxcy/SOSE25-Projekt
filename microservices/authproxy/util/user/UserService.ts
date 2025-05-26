@@ -8,7 +8,6 @@ export async function createUser(username: string, password: string): Promise<IU
     try {
         return await UserModel.create({username, password});
     } catch (error) {
-        console.error("Fehler beim Erstellen des Benutzers:", error);
         return null;
     }
 }

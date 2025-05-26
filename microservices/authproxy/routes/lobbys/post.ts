@@ -66,7 +66,7 @@ async function post(request: Request, response: Response) {
 
     const tryToCreateLobby: ILobby | null = await createLobby(lobbyData.lobbyName, lobbyPassword, [userNameFromCreator]);
     if (tryToCreateLobby === null) {
-        response.status(400).json({message: "Failed to create lobby!"});
+        response.status(409).json({message: "Failed to create lobby! Lobby Probably exists alreaday"});
         return;
     }
 
