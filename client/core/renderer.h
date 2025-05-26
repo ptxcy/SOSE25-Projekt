@@ -73,7 +73,7 @@ struct Text
 	vec4 colour;
 	ScreenAlignment alignment;
 	string data;
-	std::vector<TextCharacter> buffer;
+	vector<TextCharacter> buffer;
 };
 
 
@@ -89,7 +89,7 @@ public:
 	void exit();
 
 	// sprite
-	PixelBufferComponent* register_sprite_texture(string path);
+	PixelBufferComponent* register_sprite_texture(const char* path);
 	Sprite* register_sprite(PixelBufferComponent* texture,vec2 position,vec2 size,f32 rotation=.0f,f32 alpha=1.f);
 	void assign_sprite_texture(Sprite* sprite,PixelBufferComponent* texture);
 	void delete_sprite_texture(PixelBufferComponent* texture);
@@ -97,8 +97,9 @@ public:
 
 	// text
 	Font* register_font(const char* path,u16 size);
-	Text* write_text(Font* font,string data,vec2 position,f32 scale,
-					 vec4 colour=vec4(1),ScreenAlignment align=SCREEN_ALIGN_BOTTOMLEFT);
+	lptr<Text> write_text(Font* font,string data,vec2 position,f32 scale,
+						  vec4 colour=vec4(1),ScreenAlignment align=SCREEN_ALIGN_BOTTOMLEFT);
+	inline void delete_text(lptr<Text> text) { m_Texts.erase(text); }
 
 private:
 	void _gpu_upload();
@@ -147,7 +148,7 @@ private:
 
 	// text
 	InPlaceArray<Font> m_Fonts = InPlaceArray<Font>(RENDERER_MAXIMUM_FONT_COUNT);
-	std::list<Text> m_Texts;
+	list<Text> m_Texts;
 	// TODO deleting texts like this will be a pain, in dire need of some better entity management
 };
 

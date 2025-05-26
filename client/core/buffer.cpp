@@ -70,7 +70,7 @@ void VertexBuffer::upload_elements(u32* elements,size_t size)
  *	\param elements: vector list of optional element indices to upload, mapping the vertex order
  *	NOTE vertex buffer has to be bound beforehand
  */
-void VertexBuffer::upload_elements(std::vector<u32> elements)
+void VertexBuffer::upload_elements(vector<u32> elements)
 {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,elements.size()*sizeof(u32),&elements[0],GL_STATIC_DRAW);
 }
@@ -92,10 +92,10 @@ TextureData::TextureData(s32 format)
  *	make the cpu load the texture data & dimensions from file
  *	\param path: path to texture
  */
-void TextureData::load(string& path)
+void TextureData::load(const char* path)
 {
-	COMM_ERR_COND(!check_file_exists(path.c_str()),"texture %s could not be found",path.c_str());
-	data = stbi_load(path.c_str(),&width,&height,0,STBI_rgb_alpha);
+	COMM_ERR_COND(!check_file_exists(path),"texture %s could not be found",path);
+	data = stbi_load(path,&width,&height,0,STBI_rgb_alpha);
 	m_TextureFlag = true;
 }
 
@@ -288,7 +288,7 @@ void GPUPixelBuffer::allocate(u32 width,u32 height,u32 format)
  *	\param path: path to texture file
  *	NOTE this is supposed to run as a subthread, hence the mutex and load request queue pointer
  */
-void GPUPixelBuffer::load_texture(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,string path)
+void GPUPixelBuffer::load_texture(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,const char* path)
 {
 	// load information from texture file
 	TextureData __TextureData;

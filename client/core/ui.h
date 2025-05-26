@@ -34,7 +34,7 @@ public:
 	void update();
 
 public:
-	std::vector<UIBatch*> batches = std::vector<UIBatch*>();
+	vector<UIBatch*> batches = vector<UIBatch*>();
 };
 
 inline UI g_UI = UI();

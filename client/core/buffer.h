@@ -36,11 +36,11 @@ public:
 	 */
 	template<typename T> inline void upload_vertices(T* vertices,size_t size,GLenum memtype=GL_STATIC_DRAW)
 	{ glBufferData(GL_ARRAY_BUFFER,size*sizeof(T),vertices,memtype); }
-	template<typename T> inline void upload_vertices(std::vector<T> vertices,GLenum memtype=GL_STATIC_DRAW)
+	template<typename T> inline void upload_vertices(vector<T> vertices,GLenum memtype=GL_STATIC_DRAW)
 	{ glBufferData(GL_ARRAY_BUFFER,vertices.size()*sizeof(T),&vertices[0],memtype); }
 
 	void upload_elements(u32* elements,size_t size);
-	void upload_elements(std::vector<u32> elements);
+	void upload_elements(vector<u32> elements);
 
 private:
 	u32 m_VBO;
@@ -52,7 +52,7 @@ struct TextureData
 public:
 	TextureData(s32 format=GL_RGBA);
 
-	void load(string& path);
+	void load(const char* path);
 	void gpu_upload();
 	void gpu_upload_subtexture();
 
@@ -120,7 +120,7 @@ struct GPUPixelBuffer
 {
 	// utilty
 	void allocate(u32 width,u32 height,u32 format);
-	static void load_texture(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,string path);
+	static void load_texture(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,const char* path);
 	static void load_font(GPUPixelBuffer* gpb,Font* font,const char* path,u16 size);
 	static void _load(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,TextureData* data);
 	void gpu_upload();
@@ -132,12 +132,12 @@ struct GPUPixelBuffer
 	// data
 	Texture atlas;
 	vec2 dimensions_inv;
-	std::vector<PixelBufferComponent> memory_segments;
+	vector<PixelBufferComponent> memory_segments;
 	std::mutex mutex_memory_segments;
 	InPlaceArray<PixelBufferComponent> textures
 			= InPlaceArray<PixelBufferComponent>(BUFFER_MAXIMUM_TEXTURE_COUNT);
 	std::mutex mutex_texture_requests;
-	std::queue<TextureData> load_requests;
+	queue<TextureData> load_requests;
 	ThreadSignal signal;
 };
 

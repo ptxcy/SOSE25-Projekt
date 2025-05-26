@@ -50,7 +50,7 @@ void Text::load_buffer()
 {
 	bool reallocate = buffer.size()<data.size();
 	COMM_LOG_COND(reallocate,"allocating memory for text buffer");
-	if (reallocate) buffer = std::vector<TextCharacter>(data.size());
+	if (reallocate) buffer = vector<TextCharacter>(data.size());
 
 	// load font information for characters
 	vec2 __Cursor = offset;
@@ -166,11 +166,14 @@ Renderer::Renderer()
 	COMM_LOG("starting renderer subprocesses");
 	_sprite_signal.stall();
 	m_SpriteCollector = thread(Renderer::_collector<Sprite>,&m_Sprites,&_sprite_signal);
+	m_SpriteCollector.detach();
 	_sprite_texture_signal.stall();
 	m_SpriteTextureCollector = thread(Renderer::_collector<PixelBufferComponent>,
 									  &m_GPUSpriteTextures.textures,&_sprite_texture_signal);
+	m_SpriteTextureCollector.detach();
 	COMM_SCC("render system ready.");
 }
+// TODO join collector processes when exiting renderer, or maybe just let the os handle that and not care?
 
 /**
  *	render visual result
@@ -191,8 +194,6 @@ void Renderer::exit()
 {
 	_sprite_texture_signal.exit();
 	_sprite_signal.exit();
-	m_SpriteCollector.join();
-	m_SpriteTextureCollector.join();
 }
 
 /**
@@ -200,18 +201,17 @@ void Renderer::exit()
  *	\param path: path to texture file
  *	\returns pointer to texture component info to assign to a sprite later
  */
-PixelBufferComponent* Renderer::register_sprite_texture(string path)
+PixelBufferComponent* Renderer::register_sprite_texture(const char* path)
 {
 	PixelBufferComponent* p_Comp = m_GPUSpriteTextures.textures.next_free();
 	m_GPUSpriteTextures.signal.stall();
 
-	COMM_LOG("sprite texture register of %s",path.c_str());
+	COMM_LOG("sprite texture register of %s",path);
 	thread __LoadThread(GPUPixelBuffer::load_texture,&m_GPUSpriteTextures,p_Comp,path);
 	__LoadThread.detach();
 
 	return p_Comp;
 }
-// TODO maybe change string back to const char pointer. this was a copy fix attempt and target has been solved
 
 /**
  *	register a new sprite instance for rendering
@@ -306,9 +306,9 @@ Font* Renderer::register_font(const char* path,u16 size)
  *	\param scale: intuitive absolute text scaling in pixels, supported by automatic adaptive resolution
  *	\param colour: (default vec4(1)) text starting colour of all characters
  *	\param align: (default SCREEN_ALIGN_BOTTOMLEFT) text alignment on screen, modified by positional offset
- *	\returns pointer to created text
+ *	\returns list container of created text
  */
-Text* Renderer::write_text(Font* font,string data,vec2 position,f32 scale,vec4 colour,ScreenAlignment align)
+lptr<Text> Renderer::write_text(Font* font,string data,vec2 position,f32 scale,vec4 colour,ScreenAlignment align)
 {
 	m_GPUFontTextures.signal.wait();
 	m_Texts.push_back({
@@ -320,14 +320,11 @@ Text* Renderer::write_text(Font* font,string data,vec2 position,f32 scale,vec4 c
 			.data = data
 		});
 
-	Text* p_Text = &m_Texts.back();
+	lptr<Text> p_Text = std::prev(m_Texts.end());
 	p_Text->align();
 	p_Text->load_buffer();
 	return p_Text;
 }
-
-// TODO add an option to delete text once no longer needed
-// TODO cleanup memory on renderer close for all allocated text memory
 
 /**
  *	helper to unclutter the automatic load callbacks for gpu data
@@ -395,7 +392,7 @@ template<typename T> void Renderer::_collector(InPlaceArray<T>* xs,ThreadSignal*
 		COMM_LOG("%s collector is searching for removed objects...",signal->name);
 
 		// iterate active sprite memory
-		xs->overwrites = std::queue<u16>();
+		xs->overwrites = queue<u16>();
 		u16 __Streak = 0;
 		for (int i=0;i<xs->active_range;i++)
 		{

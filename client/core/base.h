@@ -17,7 +17,7 @@
 #include <vector>
 #include <list>
 #include <queue>
-#include <map>
+#include <unordered_map>
 #include <chrono>
 #include <thread>
 #include <mutex>
@@ -74,6 +74,11 @@ typedef glm::mat4 mat4;
 // basic magic
 typedef std::string string;
 typedef std::thread thread;
+template<typename T> using vector = std::vector<T>;
+template<typename T> using list = std::list<T>;
+template<typename T> using queue = std::queue<T>;
+template<typename T,typename U> using map = std::unordered_map<T,U>;
+template<typename T> using lptr = typename std::list<T>::iterator;
 
 
 // constants
@@ -255,7 +260,7 @@ public:
 public:
 	u16 active_range = 0;
 	T* mem;
-	std::queue<u16> overwrites;
+	queue<u16> overwrites;
 
 #ifdef DEBUG
 private: u16 m_Size;
