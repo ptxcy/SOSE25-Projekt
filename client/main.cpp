@@ -10,7 +10,7 @@ s32 main(s32 argc,char** argv)
 	/*
 	UIBatch uib;// = UIBatch(1);
 	Button* btn = uib.add_button("not yet ready","./res/kid.png","./res/test.png","./res/maps.png",
-								 vec2(150,150),vec2(200,150));
+								 vec2(100,100),vec2(100,100));
 	g_UI.batches.push_back(&uib);
 	*/
 	string name = argv[1];

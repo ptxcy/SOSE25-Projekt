@@ -4,9 +4,6 @@
 // ----------------------------------------------------------------------------------------------------
 // Background Process Signals
 
-// texture upload locking
-std::mutex _mutex_sprite_requests;
-
 // texture collector signals
 ThreadSignal _sprite_texture_signal
 #ifdef DEBUG
@@ -23,6 +20,61 @@ ThreadSignal _sprite_signal
 
 
 // ----------------------------------------------------------------------------------------------------
+// Text Component
+
+/**
+ *	dynamically align text content based on content dimensions
+ */
+void Text::align()
+{
+	offset = position;
+
+	// adjust vertical alignment
+	u8 vertical_alignment = 2-(alignment%3);
+	offset.y += vertical_alignment*(MATH_CENTER_Y-(font->size*scale*.5));
+
+	// adjust horizontal alignment
+	u8 horizontal_alignment = alignment/3;
+	if (!!horizontal_alignment)
+	{
+		f32 wordlen = 0;
+		for (char c : data) wordlen += font->glyphs[c-32].advance*scale;
+		offset.x += horizontal_alignment*(MATH_CENTER_X-wordlen*.5f);
+	}
+}
+
+/**
+ *	load instance buffer for text content according to specified font
+ */
+void Text::load_buffer()
+{
+	bool reallocate = buffer.size()<data.size();
+	COMM_LOG_COND(reallocate,"allocating memory for text buffer");
+	if (reallocate) buffer = vector<TextCharacter>(data.size());
+
+	// load font information for characters
+	vec2 __Cursor = offset;
+	for (u32 i=0;i<data.size();i++)
+	{
+		TextCharacter& p_Character = buffer[i];
+		PixelBufferComponent& p_Component = font->tex[data[i]-32];
+		Glyph& p_Glyph = font->glyphs[data[i]-32];
+
+		// load text data
+		p_Character = {
+			.offset = __Cursor,
+			.scale = p_Glyph.scale*scale,
+			.bearing = p_Glyph.bearing*scale,
+			.colour = colour,
+			.comp = p_Component
+		};
+
+		__Cursor.x += p_Glyph.advance*scale;
+	}
+}
+
+
+// ----------------------------------------------------------------------------------------------------
 // Renderer Main Features
 
 /**
@@ -31,6 +83,10 @@ ThreadSignal _sprite_signal
 Renderer::Renderer()
 {
 	COMM_MSG(LOG_CYAN,"starting render system");
+
+	COMM_LOG("starting font rasterizer");
+	bool _failed = FT_Init_FreeType(&g_FreetypeLibrary);
+	COMM_ERR_COND(_failed,"text rasterizer not available");
 
 	COMM_LOG("pre-loading basic geometry data");
 	f32 __QuadVertices[] = {
@@ -41,9 +97,12 @@ Renderer::Renderer()
 	COMM_LOG("compiling shaders");
 	Shader __SpriteVertexShader = Shader("core/shader/sprite.vert",GL_VERTEX_SHADER);
 	Shader __DirectFragmentShader = Shader("core/shader/sprite.frag",GL_FRAGMENT_SHADER);
+	Shader __TextVertexShader = Shader("core/shader/text.vert",GL_VERTEX_SHADER);
+	Shader __TextFragmentShader = Shader("core/shader/text.frag",GL_FRAGMENT_SHADER);
 
 	// ----------------------------------------------------------------------------------------------------
 	// Sprite Pipeline
+
 	COMM_LOG("assembling pipelines:");
 	COMM_LOG("sprite pipeline");
 	m_SpritePipeline.assemble(__SpriteVertexShader,__DirectFragmentShader,4,10,"sprite");
@@ -66,25 +125,55 @@ Renderer::Renderer()
 	m_SpritePipeline.upload("tex",0);
 	m_SpritePipeline.upload_coordinate_system();
 
+	COMM_LOG("text pipeline");
+	m_TextPipeline.assemble(__TextVertexShader,__TextFragmentShader,4,14,"text");
+	m_TextVertexArray.bind();
+	m_SpriteVertexBuffer.bind();
+
+	m_TextPipeline.enable();
+	m_TextPipeline.define_attribute("position",2);
+	m_TextPipeline.define_attribute("edge_coordinates",2);
+
+	m_TextInstanceBuffer.bind();
+	m_TextPipeline.define_index_attribute("offset",2);
+	m_TextPipeline.define_index_attribute("scale",2);
+	m_TextPipeline.define_index_attribute("bearing",2);
+	m_TextPipeline.define_index_attribute("colour",4);
+	m_TextPipeline.define_index_attribute("atlas_position",2);
+	m_TextPipeline.define_index_attribute("atlas_dimension",2);
+
+	m_TextPipeline.upload("tex",0);
+	m_TextPipeline.upload_coordinate_system();
+
 	// ----------------------------------------------------------------------------------------------------
 	// GPU Memory
 
-	// allocate sprite memory
+	COMM_LOG("allocating sprite memory");
 	m_GPUSpriteTextures.atlas.bind();
-	m_GPUSpriteTextures.allocate(1500,1500,GL_RGBA);
+	m_GPUSpriteTextures.allocate(RENDERER_SPRITE_MEMORY_WIDTH,RENDERER_SPRITE_MEMORY_HEIGHT,GL_RGBA);
+	Texture::set_texture_parameter_linear_mipmap();
+	Texture::set_texture_parameter_clamp_to_edge();
+
+	COMM_LOG("allocating font memory");
+	m_GPUFontTextures.atlas.bind();
+	m_GPUFontTextures.allocate(RENDERER_FONT_MEMORY_WIDTH,RENDERER_FONT_MEMORY_HEIGHT,GL_RED);
 	Texture::set_texture_parameter_linear_mipmap();
 	Texture::set_texture_parameter_clamp_to_edge();
 
 	// ----------------------------------------------------------------------------------------------------
 	// Start Subprocesses
-	std::thread __SpriteCollector(Renderer::_collector<Sprite>,&m_Sprites,&_sprite_signal);
-	__SpriteCollector.detach();
-	std::thread __SpriteTextureCollector(Renderer::_collector<PixelBufferComponent>,
-										 &m_SpriteTextures,&_sprite_texture_signal);
-	__SpriteTextureCollector.detach();
 
+	COMM_LOG("starting renderer subprocesses");
+	_sprite_signal.stall();
+	m_SpriteCollector = thread(Renderer::_collector<Sprite>,&m_Sprites,&_sprite_signal);
+	m_SpriteCollector.detach();
+	_sprite_texture_signal.stall();
+	m_SpriteTextureCollector = thread(Renderer::_collector<PixelBufferComponent>,
+									  &m_GPUSpriteTextures.textures,&_sprite_texture_signal);
+	m_SpriteTextureCollector.detach();
 	COMM_SCC("render system ready.");
 }
+// TODO join collector processes when exiting renderer, or maybe just let the os handle that and not care?
 
 /**
  *	render visual result
@@ -93,6 +182,7 @@ void Renderer::update()
 {
 	PROF_STA(m_ProfilerFullFrame);
 	_update_sprites();
+	_update_text();
 	_gpu_upload();
 	PROF_STP(m_ProfilerFullFrame);
 }
@@ -109,16 +199,17 @@ void Renderer::exit()
 /**
  *	register sprite texture to load and move to sprite pixel buffer
  *	\param path: path to texture file
- *	\returns pointer to texture component info to assign the texture to a sprite later
+ *	\returns pointer to texture component info to assign to a sprite later
  */
 PixelBufferComponent* Renderer::register_sprite_texture(const char* path)
 {
-	PixelBufferComponent* p_Comp = m_SpriteTextures.next_free();
-	COMM_LOG("sprite texture register of %s",path);
+	PixelBufferComponent* p_Comp = m_GPUSpriteTextures.textures.next_free();
+	m_GPUSpriteTextures.signal.stall();
 
-	std::thread __LoadThread(GPUPixelBuffer::load,
-							 &m_GPUSpriteTextures,&m_SpriteLoadRequests,p_Comp,&_mutex_sprite_requests,path);
+	COMM_LOG("sprite texture register of %s",path);
+	thread __LoadThread(GPUPixelBuffer::load_texture,&m_GPUSpriteTextures,p_Comp,path);
 	__LoadThread.detach();
+
 	return p_Comp;
 }
 
@@ -156,6 +247,7 @@ Sprite* Renderer::register_sprite(PixelBufferComponent* texture,vec2 position,ve
  */
 void Renderer::assign_sprite_texture(Sprite* sprite,PixelBufferComponent* texture)
 {
+	m_GPUSpriteTextures.signal.wait();
 	sprite->tex_position = texture->offset;
 	sprite->tex_dimension = texture->dimensions;
 }
@@ -191,29 +283,61 @@ void Renderer::delete_sprite(Sprite* sprite)
 }
 
 /**
+ *	rasterize a vector font and upload pixel buffer to gpu memory
+ *	\param path: path to .ttf vector font file
+ *	\param size: rasterization size
+ *	\returns font data memory, to use later when writing text with or in style of it
+ */
+Font* Renderer::register_font(const char* path,u16 size)
+{
+	COMM_LOG("font register from source %s",path);
+	Font* p_Font = m_Fonts.next_free();
+	m_GPUFontTextures.signal.stall();
+	thread __LoadThread(GPUPixelBuffer::load_font,&m_GPUFontTextures,p_Font,path,size);
+	__LoadThread.detach();
+	return p_Font;
+}
+
+/**
+ *	write text on screen
+ *	\param font: pointer to loaded font
+ *	\param data: text content to be displayed in given font
+ *	\param position: positional offset of the text based on screen alignment
+ *	\param scale: intuitive absolute text scaling in pixels, supported by automatic adaptive resolution
+ *	\param colour: (default vec4(1)) text starting colour of all characters
+ *	\param align: (default SCREEN_ALIGN_BOTTOMLEFT) text alignment on screen, modified by positional offset
+ *	\returns list container of created text
+ */
+lptr<Text> Renderer::write_text(Font* font,string data,vec2 position,f32 scale,vec4 colour,ScreenAlignment align)
+{
+	m_GPUFontTextures.signal.wait();
+	m_Texts.push_back({
+			.font = font,
+			.position = position,
+			.scale = (f32)scale/font->size,
+			.colour = colour,
+			.alignment = align,
+			.data = data
+		});
+
+	lptr<Text> p_Text = std::prev(m_Texts.end());
+	p_Text->align();
+	p_Text->load_buffer();
+	return p_Text;
+}
+
+/**
  *	helper to unclutter the automatic load callbacks for gpu data
  */
 void Renderer::_gpu_upload()
 {
-	m_GPUSpriteTextures.atlas.bind();
-	_mutex_sprite_requests.lock();
-	while (m_SpriteLoadRequests.size())
-	{
-		TextureData& __Data = m_SpriteLoadRequests.front();
-
-		COMM_AWT("uploading sprite texture buffer at %d,%d to gpu",__Data.x,__Data.y);
-		__Data.gpu_upload(__Data.x,__Data.y);
-		m_SpriteLoadRequests.pop();
-		COMM_CNF();
-	}
-	_mutex_sprite_requests.unlock();
-	Texture::generate_mipmap();
+	m_GPUSpriteTextures.gpu_upload();
+	m_GPUFontTextures.gpu_upload();
 }
-// FIXME performance will suffer when generating mipmap every time the loop condition breaks
 // TODO stall until next frame when frametime budget is used up to avoid framerate issues
 
 /**
- *	helper to unclutter the update to all sprites
+ *	update all registered sprites
  */
 void Renderer::_update_sprites()
 {
@@ -221,8 +345,27 @@ void Renderer::_update_sprites()
 	m_GPUSpriteTextures.atlas.bind();
 	m_SpritePipeline.enable();
 	m_SpriteInstanceBuffer.bind();
-	m_SpriteInstanceBuffer.upload_vertices(m_Sprites.mem,RENDERER_MAXIMUM_SPRITE_COUNT,GL_DYNAMIC_DRAW);
+	m_SpriteInstanceBuffer.upload_vertices(m_Sprites.mem,BUFFER_MAXIMUM_TEXTURE_COUNT,GL_DYNAMIC_DRAW);
 	glDrawArraysInstanced(GL_TRIANGLES,0,6,m_Sprites.active_range);
+}
+
+/**
+ *	update all registered text
+ */
+void Renderer::_update_text()
+{
+	// prepare gpu
+	m_TextVertexArray.bind();
+	m_TextInstanceBuffer.bind();
+	m_TextPipeline.enable();
+	m_GPUFontTextures.atlas.bind();
+
+	// iterate text entities
+	for (Text& p_Text : m_Texts)
+	{
+		m_TextInstanceBuffer.upload_vertices(p_Text.buffer,GL_DYNAMIC_DRAW);
+		glDrawArraysInstanced(GL_TRIANGLES,0,6,p_Text.buffer.size());
+	}
 }
 
 
@@ -244,11 +387,12 @@ template<typename T> void Renderer::_collector(InPlaceArray<T>* xs,ThreadSignal*
 	while (signal->running)
 	{
 		signal->wait();
+		signal->stall();
 		if (!signal->running) break;
 		COMM_LOG("%s collector is searching for removed objects...",signal->name);
 
 		// iterate active sprite memory
-		xs->overwrites = std::queue<u16>();
+		xs->overwrites = queue<u16>();
 		u16 __Streak = 0;
 		for (int i=0;i<xs->active_range;i++)
 		{

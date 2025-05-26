@@ -25,9 +25,9 @@ bool check_file_exists(const char* path)
  *	\param size: size of bit sequence. this is the exact amount of needed bits, not in fact a bytelength
  */
 BitwiseWords::BitwiseWords(size_t size)
-	: m_Size(size/sizeof(__system_word)+1)
+	: m_Size(size/MEM_WIDTH+1)
 {
-	m_Data = (__system_word*)malloc(m_Size);
+	m_Data = (__system_word*)malloc(m_Size*sizeof(__system_word));
 	reset();
 }
 
@@ -49,18 +49,19 @@ BitwiseWords::~BitwiseWords()
 void ThreadSignal::wait()
 {
 	std::unique_lock<std::mutex> lock(mutex);
-	cv.wait(lock,[this]{ return active; });
-	active = false;
+	cv.wait(lock,[this]{ return !semaphore; });
 }
 
 /**
  *	signal all threads listening to continue with procedure
+ *	\param force: (default=false) force proceeding regardless of semaphore state
  */
-void ThreadSignal::proceed()
+void ThreadSignal::proceed(bool force)
 {
 	{
 		std::lock_guard<std::mutex> lock(mutex);
-		active = true;
+		semaphore--;
+		semaphore *= !force;
 	}
 	cv.notify_one();
 }
@@ -71,7 +72,7 @@ void ThreadSignal::proceed()
 void ThreadSignal::exit()
 {
 	running = false;
-	proceed();
+	proceed(true);
 }
 
 

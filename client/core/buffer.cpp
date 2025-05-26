@@ -70,7 +70,7 @@ void VertexBuffer::upload_elements(u32* elements,size_t size)
  *	\param elements: vector list of optional element indices to upload, mapping the vertex order
  *	NOTE vertex buffer has to be bound beforehand
  */
-void VertexBuffer::upload_elements(std::vector<u32> elements)
+void VertexBuffer::upload_elements(vector<u32> elements)
 {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,elements.size()*sizeof(u32),&elements[0],GL_STATIC_DRAW);
 }
@@ -81,46 +81,53 @@ void VertexBuffer::upload_elements(std::vector<u32> elements)
 
 /**
  *	allocation and setup for texture data load
- *	\param path: path to texture file
- *	\param corrected: (default false) true if texture is corrected sRGB colourspace instead of regular RGBA
+ *	\param format: (default GL_RGBA) texture buffer upload format
  */
-TextureData::TextureData(string path,bool corrected)
-	: m_Path(path)
-{
-	m_Format = GL_RGBA+corrected*0x7338;
-}
+TextureData::TextureData(s32 format)
+	: m_Format(format) {  }
+//m_Format = GL_RGBA+corrected*0x7338;
+// TODO outsource correction format adjustment
 
 /**
  *	make the cpu load the texture data & dimensions from file
+ *	\param path: path to texture
  */
-void TextureData::load()
+void TextureData::load(const char* path)
 {
-	COMM_ERR_COND(!check_file_exists(m_Path.c_str()),"texture %s could not be found",m_Path.c_str());
-	m_Data = stbi_load(m_Path.c_str(),&width,&height,0,STBI_rgb_alpha);
+	COMM_ERR_COND(!check_file_exists(path),"texture %s could not be found",path);
+	data = stbi_load(path,&width,&height,0,STBI_rgb_alpha);
+	m_TextureFlag = true;
 }
 
 /**
  *	upload data to gpu
- *	NOTE has to be uploaded on main thread
+ *	NOTE has to be uploaded in main thread
  *	NOTE target texture has to be bound before uploading
  */
 void TextureData::gpu_upload()
 {
-	glTexImage2D(GL_TEXTURE_2D,0,m_Format,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,m_Data);
-	stbi_image_free(m_Data);
+	glTexImage2D(GL_TEXTURE_2D,0,m_Format,width,height,0,m_Format,GL_UNSIGNED_BYTE,data);
+	_free();
 }
 
 /**
- *	upload data as subtexture to atlas on gpu
- *	\param x: x-axis atlas location of the subtexture
- *	\param y: y-axis atlas location of the subtexture
+ *	upload data as subtexture to atlas on gpu based on saved x & y axis offset
  *	NOTE has to be uploaded in main thread
  *	NOTE target texture has to be bound and allocated before uploading
  */
-void TextureData::gpu_upload(u32 x,u32 y)
+void TextureData::gpu_upload_subtexture()
 {
-	glTexSubImage2D(GL_TEXTURE_2D,0,x,y,width,height,m_Format,GL_UNSIGNED_BYTE,m_Data);
-	stbi_image_free(m_Data);
+	glTexSubImage2D(GL_TEXTURE_2D,0,x,y,width,height,m_Format,GL_UNSIGNED_BYTE,data);
+	_free();
+}
+
+/**
+ *	free buffer memory
+ */
+void TextureData::_free()
+{
+	if (m_TextureFlag) stbi_image_free(data);
+	else free(data);
 }
 
 
@@ -261,8 +268,6 @@ void Texture::generate_mipmap()
 void GPUPixelBuffer::allocate(u32 width,u32 height,u32 format)
 {
 	// store info
-	//m_Format = format;
-	//m_Dimensions = vec2(width,height);
 	dimensions_inv = vec2(1.f/width,1.f/height);
 
 	// allocate memory
@@ -274,36 +279,96 @@ void GPUPixelBuffer::allocate(u32 width,u32 height,u32 format)
 }
 // FIXME inconsistent formatting, the allocation format can easily be detached from texture data structure
 // FIXME in case of sRGB colourspace for example the format in internalformat and format won't be the same
-//		furthermore this is absolutely necessary to be of dynamic nature, due to monocrome buffers being a thing
+//		furthermore this is absolutely necessary to be of dynamic nature, due to monochrome buffers being a thing
+
+/**
+ *	load texture from path and finally upload to gpu memory
+ *	\param gpb: target pixel buffer
+ *	\param pbc: pointer to atlas component information, this will be overwritten
+ *	\param path: path to texture file
+ *	NOTE this is supposed to run as a subthread, hence the mutex and load request queue pointer
+ */
+void GPUPixelBuffer::load_texture(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,const char* path)
+{
+	// load information from texture file
+	TextureData __TextureData;
+	__TextureData.load(path);
+	gpb->signal.proceed();
+
+	// upload to gpu memory & signal data safety
+	_load(gpb,pbc,&__TextureData);
+}
+
+/**
+ *	load font data and finally upload to gpu memory
+ *	\param gpb: target pixel buffer
+ *	\param font: pointer to target font memory
+ *	\param path: path to font file
+ *	\param size: target rasterization size of vector font
+ *	NOTE this is supposed to run as a subthread, hence the mutex and load request queue pointer
+ */
+void GPUPixelBuffer::load_font(GPUPixelBuffer* gpb,Font* font,const char* path,u16 size)
+{
+	font->size = size;
+
+	// load ttf file
+	FT_Face __Face;
+	bool _failed = FT_New_Face(g_FreetypeLibrary,path,0,&__Face);
+	COMM_ERR_COND(_failed,"font loading unsuccessful");
+	FT_Set_Pixel_Sizes(__Face,0,size);
+
+	// iterate font glyphs
+	for (u8 i=0;i<96;i++)
+	{
+		// rasterize glyph
+		_failed = FT_Load_Char(__Face,i+32,FT_LOAD_RENDER);
+		COMM_ERR_COND(_failed,"rasterization of character %c failed",(char)i+32);
+
+		// subtexture attributes
+		TextureData __TextureData = TextureData(GL_RED);
+		__TextureData.width = __Face->glyph->bitmap.width;
+		__TextureData.height = __Face->glyph->bitmap.rows;
+
+		// glyph attributes
+		font->glyphs[i] = {
+			.scale = vec2(__Face->glyph->bitmap.width,__Face->glyph->bitmap.rows),
+			.bearing = vec2(__Face->glyph->bitmap_left,__Face->glyph->bitmap_top),
+			.advance = (__Face->glyph->advance.x>>6)
+		};
+
+		// upload glyph as texture buffer
+		size_t __Mem = __Face->glyph->bitmap.pitch*__Face->glyph->bitmap.rows;
+		__TextureData.data = (u8*)malloc(__Mem);
+		memcpy(__TextureData.data,__Face->glyph->bitmap.buffer,__Mem);
+		_load(gpb,&font->tex[i],&__TextureData);
+	}
+	gpb->signal.proceed();
+
+	// store & clear
+	FT_Done_Face(__Face);
+}
 
 /**
  *	write texture buffer to preallocated gpu memory
  *	\param gpb: target pixel buffer
- *	\param requests: pointer to load request queue, receiving the gpu upload request when loading is done
  *	\param pbc: pointer to atlas component information, this will be overwritten
- *	\param mutex_requests: simple mutual exclusion, blocking the access to the load request queue
- *	\param path: path to texture file
+ *	\param data: texture data
  *	NOTE this is supposed to run as a subthread, hence the mutex and load request queue pointer
  */
-void GPUPixelBuffer::load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,PixelBufferComponent* pbc,
-						  std::mutex* mutex_requests,const char* path)
+void GPUPixelBuffer::_load(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,TextureData* data)
 {
-	// load information from texture file
-	TextureData __TextureData = TextureData(path);
-	__TextureData.load();
-
 	// locate best position for texture on free memory space
 	f32 __BestDifference = 0x7f800000;
 	u32 __MemoryIndex = -1;
 	for (u32 i=0;i<gpb->memory_segments.size();i++)
 	{
 		PixelBufferComponent* p_FreeComponent = &gpb->memory_segments[i];
-		if (__TextureData.width>p_FreeComponent->dimensions.x
-			||__TextureData.height>p_FreeComponent->dimensions.y) continue;
+		if (data->width>p_FreeComponent->dimensions.x
+			||data->height>p_FreeComponent->dimensions.y) continue;
 
 		// find closest fit
 		f32 __AreaDifference = p_FreeComponent->dimensions.x*p_FreeComponent->dimensions.y
-				- __TextureData.width*__TextureData.height;
+				- data->width*data->height;
 		if (__AreaDifference<__BestDifference)
 		{
 			__MemoryIndex = i;
@@ -313,16 +378,17 @@ void GPUPixelBuffer::load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,
 
 	// get memory segment pointer
 	COMM_ERR_COND(__MemoryIndex==-1,"sprite texture memory is populated or segmented. texture upload failed!");
+	COMM_MSG_COND(__MemoryIndex==-1,LOG_CYAN,"attempted load dimensions -> (%i,%i)",data->width,data->height);
 	PixelBufferComponent* p_CloseFitComponent = &gpb->memory_segments[__MemoryIndex];
 
 	// write atlas information
-	__TextureData.x = p_CloseFitComponent->offset.x, __TextureData.y = p_CloseFitComponent->offset.y;
+	data->x = p_CloseFitComponent->offset.x, data->y = p_CloseFitComponent->offset.y;
 	pbc->offset = p_CloseFitComponent->offset*gpb->dimensions_inv;
-	pbc->dimensions = vec2(__TextureData.width,__TextureData.height)*gpb->dimensions_inv;
+	pbc->dimensions = vec2(data->width,data->height)*gpb->dimensions_inv;
 
 	// segment free memory to reserve pixel space for upload
-	s32 __PaddedWidth = __TextureData.width+BUFFER_ATLAS_BORDER_PADDING;
-	s32 __PaddedHeight = __TextureData.height+BUFFER_ATLAS_BORDER_PADDING;
+	s32 __PaddedWidth = data->width+BUFFER_ATLAS_BORDER_PADDING;
+	s32 __PaddedHeight = data->height+BUFFER_ATLAS_BORDER_PADDING;
 	PixelBufferComponent __Side = {
 		.offset = p_CloseFitComponent->offset+vec2(__PaddedWidth,0),
 		.dimensions = vec2(p_CloseFitComponent->dimensions.x-__PaddedWidth,__PaddedHeight)
@@ -346,7 +412,30 @@ void GPUPixelBuffer::load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,
 	// TODO when deleting and segmenting, check if free subspaces can be merged back into each other
 
 	// write buffer
-	mutex_requests->lock();
-	requests->push(__TextureData);
-	mutex_requests->unlock();
+	gpb->mutex_texture_requests.lock();
+	gpb->load_requests.push(*data);
+	gpb->mutex_texture_requests.unlock();
 }
+
+/**
+ *	automatically uploads the loaded subtextures to the gpu
+ *	NOTE this has to be run in main thread due to the gpu upload being context sensitive
+ */
+void GPUPixelBuffer::gpu_upload()
+{
+	atlas.bind();
+	mutex_texture_requests.lock();
+
+	// iterate waiting requests
+	while (load_requests.size())
+	{
+		TextureData& p_Data = load_requests.front();
+		p_Data.gpu_upload_subtexture();
+		load_requests.pop();
+	}
+
+	// controversial pixel buffer lod creation
+	mutex_texture_requests.unlock();
+	Texture::generate_mipmap();
+}
+// FIXME performance will suffer when generating mipmap every time the loop condition breaks

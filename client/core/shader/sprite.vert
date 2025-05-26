@@ -25,9 +25,9 @@ void main()
 	float rotation_sin = sin(rd_rotation);
 	float rotation_cos = cos(rd_rotation);
 	vec2 Position = mat2(rotation_cos,-rotation_sin,rotation_sin,rotation_cos)*position;
+	gl_Position = proj*view*vec4(Position*scale+offset,.0,1.);
 
 	// pass
-	gl_Position = proj*view*vec4(Position*scale+offset,.0,1.);
 	EdgeCoordinates = tex_position+tex_dimension*edge_coordinates;
 	Alpha = alpha;
 }
