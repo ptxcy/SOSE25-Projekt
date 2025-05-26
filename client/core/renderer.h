@@ -7,9 +7,34 @@
 
 
 constexpr f32 RENDERER_POSITIONAL_DELETION_CODE = -1247.f;
-constexpr u16 RENDERER_MAXIMUM_STEXTURE_COUNT = 512;
-constexpr u16 RENDERER_MAXIMUM_SPRITE_COUNT = 512;
 
+constexpr u16 RENDERER_MAXIMUM_FONT_COUNT = 2;
+constexpr u16 RENDERER_SPRITE_MEMORY_WIDTH = 1500;
+constexpr u16 RENDERER_SPRITE_MEMORY_HEIGHT = 1500;
+constexpr u16 RENDERER_FONT_MEMORY_WIDTH = 1500;
+constexpr u16 RENDERER_FONT_MEMORY_HEIGHT = 1500;
+// TODO those belong into a configuration definition to make this up to the engine user
+
+
+// ----------------------------------------------------------------------------------------------------
+// States
+
+enum ScreenAlignment
+{
+	SCREEN_ALIGN_TOPLEFT,
+	SCREEN_ALIGN_CENTERLEFT,
+	SCREEN_ALIGN_BOTTOMLEFT,
+	SCREEN_ALIGN_TOPCENTER,
+	SCREEN_ALIGN_CENTER,
+	SCREEN_ALIGN_BOTTOMCENTER,
+	SCREEN_ALIGN_TOPRIGHT,
+	SCREEN_ALIGN_CENTERRIGHT,
+	SCREEN_ALIGN_BOTTOMRIGHT
+};
+
+
+// ----------------------------------------------------------------------------------------------------
+// GPU Data Structures
 
 struct Sprite
 {
@@ -21,6 +46,39 @@ struct Sprite
 	vec2 tex_dimension;
 };
 
+struct TextCharacter
+{
+	vec2 offset = vec2(0);
+	vec2 scale = vec2(0);
+	vec2 bearing = vec2(0);
+	vec4 colour = vec4(1);
+	PixelBufferComponent comp;
+};
+
+
+// ----------------------------------------------------------------------------------------------------
+// Entity Data
+
+struct Text
+{
+	// utility
+	void align();
+	void load_buffer();
+
+	// data
+	Font* font;
+	vec2 position;
+	vec2 offset;
+	f32 scale;
+	vec4 colour;
+	ScreenAlignment alignment;
+	string data;
+	vector<TextCharacter> buffer;
+};
+
+
+// ----------------------------------------------------------------------------------------------------
+// Renderer Component
 
 class Renderer
 {
@@ -37,9 +95,16 @@ public:
 	void delete_sprite_texture(PixelBufferComponent* texture);
 	static void delete_sprite(Sprite* sprite);
 
+	// text
+	Font* register_font(const char* path,u16 size);
+	lptr<Text> write_text(Font* font,string data,vec2 position,f32 scale,
+						  vec4 colour=vec4(1),ScreenAlignment align=SCREEN_ALIGN_BOTTOMLEFT);
+	inline void delete_text(lptr<Text> text) { m_Texts.erase(text); }
+
 private:
 	void _gpu_upload();
 	void _update_sprites();
+	void _update_text();
 
 	// background procedures
 	template<typename T> static void _collector(InPlaceArray<T>* xs,ThreadSignal* signal);
@@ -53,25 +118,38 @@ private:
 #endif
 
 	// ----------------------------------------------------------------------------------------------------
+	// Threading
+
+	thread m_SpriteCollector;
+	thread m_SpriteTextureCollector;
+
+	// ----------------------------------------------------------------------------------------------------
 	// Data Management & Pipelines
+
 	VertexArray m_SpriteVertexArray;
+	VertexArray m_TextVertexArray;
 
 	VertexBuffer m_SpriteVertexBuffer;
 	VertexBuffer m_SpriteInstanceBuffer;
+	VertexBuffer m_TextInstanceBuffer;
 
 	ShaderPipeline m_SpritePipeline;
+	ShaderPipeline m_TextPipeline;
 
 	// ----------------------------------------------------------------------------------------------------
 	// Render Object Information
 
 	// textures
 	GPUPixelBuffer m_GPUSpriteTextures;
-	InPlaceArray<PixelBufferComponent> m_SpriteTextures
-			= InPlaceArray<PixelBufferComponent>(RENDERER_MAXIMUM_STEXTURE_COUNT);
-	std::queue<TextureData> m_SpriteLoadRequests;
+	GPUPixelBuffer m_GPUFontTextures;
 
 	// sprites
-	InPlaceArray<Sprite> m_Sprites = InPlaceArray<Sprite>(RENDERER_MAXIMUM_SPRITE_COUNT);
+	InPlaceArray<Sprite> m_Sprites = InPlaceArray<Sprite>(BUFFER_MAXIMUM_TEXTURE_COUNT);
+
+	// text
+	InPlaceArray<Font> m_Fonts = InPlaceArray<Font>(RENDERER_MAXIMUM_FONT_COUNT);
+	list<Text> m_Texts;
+	// TODO deleting texts like this will be a pain, in dire need of some better entity management
 };
 
 inline Renderer g_Renderer = Renderer();

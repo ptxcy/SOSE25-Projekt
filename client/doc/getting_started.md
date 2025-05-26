@@ -31,4 +31,4 @@ s32 main(s32 argc,char** argv)
 
 ## Where to go from here
 
-look up how to use the engine features in the "basic features" section [here](index.md)
+look up how to use the engine features in the "basic features" section [here](../README.md)

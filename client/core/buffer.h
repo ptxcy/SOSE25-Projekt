@@ -36,34 +36,37 @@ public:
 	 */
 	template<typename T> inline void upload_vertices(T* vertices,size_t size,GLenum memtype=GL_STATIC_DRAW)
 	{ glBufferData(GL_ARRAY_BUFFER,size*sizeof(T),vertices,memtype); }
-	template<typename T> inline void upload_vertices(std::vector<T> vertices,GLenum memtype=GL_STATIC_DRAW)
+	template<typename T> inline void upload_vertices(vector<T> vertices,GLenum memtype=GL_STATIC_DRAW)
 	{ glBufferData(GL_ARRAY_BUFFER,vertices.size()*sizeof(T),&vertices[0],memtype); }
 
 	void upload_elements(u32* elements,size_t size);
-	void upload_elements(std::vector<u32> elements);
+	void upload_elements(vector<u32> elements);
 
 private:
 	u32 m_VBO;
 };
 
 
-class TextureData
+struct TextureData
 {
 public:
-	TextureData(string path,bool corrected=false);
+	TextureData(s32 format=GL_RGBA);
 
-	void load();
+	void load(const char* path);
 	void gpu_upload();
-	void gpu_upload(u32 x,u32 y);
+	void gpu_upload_subtexture();
+
+private:
+	void _free();
 
 public:
 	u32 x,y;
 	s32 width,height;
+	u8* data;
 
 private:
-	string m_Path;
 	s32 m_Format;
-	void* m_Data;
+	bool m_TextureFlag = false;
 };
 
 
@@ -97,22 +100,45 @@ struct PixelBufferComponent
 	vec2 dimensions;
 };
 
+struct Glyph
+{
+	vec2 scale;
+	vec2 bearing;
+	s64 advance;
+};
+
+struct Font
+{
+	PixelBufferComponent tex[96];
+	Glyph glyphs[96];
+	u16 size;
+};
+
+constexpr u16 BUFFER_MAXIMUM_TEXTURE_COUNT = 1024;
 constexpr u8 BUFFER_ATLAS_BORDER_PADDING = 2;
 struct GPUPixelBuffer
 {
 	// utilty
 	void allocate(u32 width,u32 height,u32 format);
-	static void load(GPUPixelBuffer* gpb,std::queue<TextureData>* requests,PixelBufferComponent* pbc,
-					 std::mutex* mutex_requests,const char* path);
+	static void load_texture(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,const char* path);
+	static void load_font(GPUPixelBuffer* gpb,Font* font,const char* path,u16 size);
+	static void _load(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,TextureData* data);
+	void gpu_upload();
 	// TODO allocate & write for statically written texture atlas
 	// TODO when allocating, rotation boolean can be stored in alpha by signing the float
 	// TODO allow to merge deleted rects when using a dynamic texture atlas
+	// FIXME format can be assigned when allocating but load instructions are format dependent
 
 	// data
 	Texture atlas;
 	vec2 dimensions_inv;
-	std::vector<PixelBufferComponent> memory_segments;
+	vector<PixelBufferComponent> memory_segments;
 	std::mutex mutex_memory_segments;
+	InPlaceArray<PixelBufferComponent> textures
+			= InPlaceArray<PixelBufferComponent>(BUFFER_MAXIMUM_TEXTURE_COUNT);
+	std::mutex mutex_texture_requests;
+	queue<TextureData> load_requests;
+	ThreadSignal signal;
 };
 
 

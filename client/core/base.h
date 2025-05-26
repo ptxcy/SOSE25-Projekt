@@ -16,8 +16,9 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <list>
 #include <queue>
-#include <map>
+#include <unordered_map>
 #include <chrono>
 #include <thread>
 #include <mutex>
@@ -40,6 +41,10 @@
 #define STB_IMAGE_STATIC
 #include "include/stb_image.h"
 #endif
+
+// font
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 
 // ----------------------------------------------------------------------------------------------------
@@ -67,8 +72,14 @@ typedef glm::vec4 vec4;
 typedef glm::quat quat;
 typedef glm::mat4 mat4;
 
-// basic stringamagickgg
+// basic magic
 typedef std::string string;
+typedef std::thread thread;
+template<typename T> using vector = std::vector<T>;
+template<typename T> using list = std::list<T>;
+template<typename T> using queue = std::queue<T>;
+template<typename T,typename U> using map = std::unordered_map<T,U>;
+template<typename T> using lptr = typename std::list<T>::iterator;
 
 
 // constants
@@ -79,6 +90,8 @@ constexpr f32 MATH_CARTESIAN_XRANGE = 1280.f;
 constexpr f32 MATH_CARTESIAN_YRANGE = 720.f;
 constexpr f32 MATH_CARTESIAN_XRANGE_INV = 1.f/MATH_CARTESIAN_XRANGE;
 constexpr f32 MATH_CARTESIAN_YRANGE_INV = 1.f/MATH_CARTESIAN_YRANGE;
+constexpr f32 MATH_CENTER_X = MATH_CARTESIAN_XRANGE*.5f;
+constexpr f32 MATH_CENTER_Y = MATH_CARTESIAN_YRANGE*.5f;
 constexpr f64 MATH_PI = 3.141592653;
 constexpr f64 MATH_E = 2.7182818284;
 constexpr f64 MATH_CONVERSION_MS = .000001;
@@ -133,7 +146,7 @@ static inline void produce_timestamp(bool padding=true)
 #define COMM_ERR(...) printf("%serror: ",LOG_RED),printf(__VA_ARGS__),printf("%s\n",LOG_CLEAR);
 
 // logger features conditional
-#define COMM_MSG_COND(cnd,col,...) if (cnd) { COMM_MSG(col,__VA_ARGS); }
+#define COMM_MSG_COND(cnd,col,...) if (cnd) { COMM_MSG(col,__VA_ARGS__); }
 #define COMM_LOG_COND(cnd,...) if (cnd) { COMM_LOG(__VA_ARGS__); }
 #define COMM_SCC_COND(cnd,...) if (cnd) { COMM_SCC(__VA_ARGS__); }
 #define COMM_ERR_COND(cnd,...) if (cnd) { COMM_ERR(__VA_ARGS__); }
@@ -210,7 +223,7 @@ public:
 	inline bool operator[](size_t i) { return (*(m_Data+(i>>MEM_SHIFT))>>(i&MEM_MASK))&1u; }
 	inline void set(size_t i) { *(m_Data+(i>>MEM_SHIFT))|=1u<<(i&MEM_MASK); }
 	inline void unset(size_t i) { *(m_Data+(i>>MEM_SHIFT))&=~1u<<(i&MEM_MASK); }
-	inline void reset() { memset(m_Data,0,m_Size); }
+	inline void reset() { memset(m_Data,0,m_Size*sizeof(__system_word)); }
 
 private:
 	__system_word* m_Data;
@@ -248,7 +261,7 @@ public:
 public:
 	u16 active_range = 0;
 	T* mem;
-	std::queue<u16> overwrites;
+	queue<u16> overwrites;
 
 #ifdef DEBUG
 private: u16 m_Size;
@@ -260,7 +273,8 @@ struct ThreadSignal
 {
 	// utility
 	void wait();
-	void proceed();
+	inline void stall() { semaphore++; }
+	void proceed(bool force=false);
 	void exit();
 
 	// data
@@ -269,7 +283,7 @@ struct ThreadSignal
 #endif
 	std::mutex mutex;
 	std::condition_variable cv;
-	bool active = false;
+	s8 semaphore = 0;
 	bool running = true;
 };
 
@@ -296,6 +310,12 @@ public:
 };
 
 inline CoordinateSystem2D g_CoordinateSystem = CoordinateSystem2D(MATH_CARTESIAN_XRANGE,MATH_CARTESIAN_YRANGE);
+
+
+// ----------------------------------------------------------------------------------------------------
+// Additional Globals
+
+inline FT_Library g_FreetypeLibrary;
 
 
 #endif
