@@ -12,7 +12,7 @@ typedef boost::beast::websocket::stream<boost::asio::ip::tcp::socket> socket_str
 class Websocket
 {
 public:
-	Websocket(string host="localhost",string port="8082");
+	Websocket(string token,string host="localhost",string port="8080");
 	ServerMessage receive_message();
 	void send_message(ClientMessage msg);
 	void exit();
@@ -34,7 +34,7 @@ private:
 
 
 #ifdef FEAT_MULTIPLAYER
-inline Websocket g_Websocket = Websocket("92.252.72.59");
+//inline Websocket g_Websocket = Websocket();
 #endif
 
 

@@ -2,6 +2,7 @@
 #include "core/input.h"
 #include "core/renderer.h"
 #include "core/ui.h"
+#include "core/http-adapter.h"
 #include "core/websocket.h"
 
 
@@ -13,7 +14,16 @@ s32 main(s32 argc,char** argv)
 								 vec2(100,100),vec2(100,100));
 	g_UI.batches.push_back(&uib);
 	*/
+
 	string name = argv[1];
+	string pass = argv[2];
+	string lnom = argv[3];
+	COMM_ERR_COND(createUser(name,pass),"fuck din workk");
+	std::optional<string> tokken = authenticateOnServer(name,pass);
+	createLobby(lnom,std::nullopt,*tokken);
+	COMM_LOG("%s",tokken.value().c_str());
+	Websocket g_Websocket = Websocket(tokken.value());
+
 	std::map<string,Sprite*> entities;
 	PixelBufferComponent* t0 = g_Renderer.register_sprite_texture("./res/kid.png");
 	entities[name] = g_Renderer.register_sprite(t0,vec2(150),vec2(100));

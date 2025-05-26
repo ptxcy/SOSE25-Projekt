@@ -70,15 +70,16 @@ void _handle_websocket_upload(Websocket* c)
  *	automatically run the necessary setup to update & process the websocket queues
  *	\param host: (default=localhost) websocket host
  *	\param port: (default=8082) websocket port
+ *	TODO
  */
-Websocket::Websocket(string host,string port)
+Websocket::Websocket(string token,string host,string port)
 {
 	try
 	{
 		COMM_LOG("Connecting to WebSocket server at %s:%s/msgpack...",host.c_str(),port.c_str());
 		auto results = boost::asio::ip::tcp::resolver{ioc}.resolve(host,port);
 		auto ep = boost::asio::connect(ws.next_layer(),results);
-		ws.handshake(host+':'+std::to_string(ep.port()),"/msgpack");
+		ws.handshake(host+':'+std::to_string(ep.port()),"/calculate?authToken="+token);
 		ws.binary(true);
 		COMM_SCC("Connected to server successfully!");
 		// FIXME find out if the ep.port call has merit and if not replace it by predefined parameter
