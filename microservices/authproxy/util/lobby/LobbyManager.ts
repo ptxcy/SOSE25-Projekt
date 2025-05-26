@@ -87,7 +87,7 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
         await new Promise(resolve => setTimeout(resolve, 500));
     }
 
-    console.log("✅ Calculation socket is open, sending data...");
+    console.log("Calculation socket is open, sending data...");
     calc_unit_socket.send(encoded);
 }
 

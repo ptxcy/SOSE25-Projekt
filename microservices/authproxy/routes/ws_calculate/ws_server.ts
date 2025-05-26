@@ -35,7 +35,7 @@ wss.on("connection", async (ws: WebSocket, req) => {
         return;
     }
 
-    console.log("✅ Authentifizierung erfolgreich!");
+    console.log("Authentifizierung erfolgreich!");
     ws.on("message", async (message: RawData) => {
         console.error("Received message", message);
         if (valid.userData) {
