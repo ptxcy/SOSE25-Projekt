@@ -1,6 +1,123 @@
 #include "websocket.h"
 
 
+// ----------------------------------------------------------------------------------------------------
+// HTTP Adapter
+
+/**
+ *	helper to encode into base64
+ *	\param input: string to encode into base64
+ *	\returns input encoded into base64
+ */
+static const char* chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+string _encode(const std::string& input)
+{
+	string result;
+	int val = 0;
+	int valb = -6;
+	for (unsigned char c : input)
+	{
+		val = (val << 8) + c;
+		valb += 8;
+		while (valb >= 0)
+		{
+			result.push_back(chars[(val >> valb) & 0x3F]);
+			valb -= 6;
+		}
+	}
+	if (valb > -6) result.push_back(chars[((val << 8) >> (valb + 8)) & 0x3F]);
+
+	// Add padding
+	while (result.size() % 4) result.push_back('=');
+	return result;
+}
+
+/**
+ *	contruct adapter address and store for further use
+ *	\param host: adapter host
+ *	\param port: adapter port
+ */
+HTTPAdapter::HTTPAdapter(string& host,string& port)
+	: m_Addr("http://"+host+':'+port)
+{  }
+
+/**
+ *	create a user for login
+ *	\param username: username for login
+ *	\param password: password for login
+ *	\returns true if user has been created successfully
+ */
+bool HTTPAdapter::create_user(string& username,string& password)
+{
+	string body = R"({"username":")" + username + R"(","password":")" + password + R"("})";
+	COMM_LOG("%s,%s",m_Addr.c_str(),body.c_str());
+	cpr::Response response = cpr::Post(
+		cpr::Url{m_Addr+"/user"},
+		cpr::Header{{"Content-Type", "application/json"}},
+		cpr::Body{body});
+	COMM_LOG("[ADAPTER] user creation response -> %s (Status: %ld)",response.text.c_str(),response.status_code);
+	return response.status_code == 200;
+}
+
+/**
+ *	authenticate user on server
+ *	\param username: username for authentication
+ *	\param password: password for authentication
+ *	\returns authentication token
+ */
+string HTTPAdapter::authenticate_on_server(string& username,string& password)
+{
+	string basicAuth = "Basic " + _encode(username + ":" + password);
+	cpr::Response response = cpr::Get(
+		cpr::Url{m_Addr+"/authenticate"},
+		cpr::Header{{"Authorization", basicAuth}});
+	COMM_LOG("[ADAPTER] server auth response -> %s (Status: %ld)",response.text.c_str(),response.status_code);
+
+	string authHeader = response.header["Authorization"];
+	if (response.status_code==200&&authHeader.find("Bearer ")==0) return authHeader;
+	return "";
+}
+
+/**
+ *	create or join a lobby
+ *	\param lobby_name: name of the lobby
+ *	\param lobby_password: password of the lobby
+ *	\param jwt_token: authentication token for lobby interaction
+ *	\param create: true if new lobby should be created, false if existing lobby should be joined
+ */
+void HTTPAdapter::open_lobby(string& lobby_name,string& lobby_password,string& jwt_token,bool create)
+{
+	string body = R"({"lobbyName":")" + lobby_name + R"(")";
+	body += R"(,"lobbyPassword":")" + lobby_password + R"(")";
+	body += "}";
+
+	// create lobby
+	if (create)
+	{
+		cpr::Response response = cpr::Post(
+				cpr::Url{m_Addr+"/lobbys"},
+				cpr::Header{{"Authorization",jwt_token}, {"Content-Type", "application/json"}},
+				cpr::Body{body}
+			);
+		COMM_LOG("lobby creation response -> %s (Status: %ld)",response.text.c_str(),response.status_code);
+	}
+
+	// join lobby
+	else
+	{
+		cpr::Response response = cpr::Put(
+			cpr::Url{m_Addr+"/lobbys"},
+			cpr::Header{{"Authorization",jwt_token}, {"Content-Type", "application/json"}},
+			cpr::Body{body}
+			);
+		COMM_LOG("lobby join response -> %s (Status: %ld)",response.text.c_str(),response.status_code);
+	}
+}
+
+
+// ----------------------------------------------------------------------------------------------------
+// Websocket Connection
+
 /**
  *	function to handle websocket download traffic
  *	\param c: websocket data
@@ -65,13 +182,17 @@ void _handle_websocket_upload(Websocket* c)
 	}
 }
 
-std::string url_encode(const std::string& value) {
+/**
+ *	encode url parameters
+ *	\param value: parameter value to encode
+ *	\returns encoded parameter
+ */
+std::string _url_encode(string& value) {
     std::ostringstream escaped;
     escaped.fill('0');
     escaped << std::hex;
 
     for (char c : value) {
-        // Keep alphanumerics and -_.~ safe
         if (isalnum(static_cast<unsigned char>(c)) || c == '-' || c == '_' || c == '.' || c == '~') {
             escaped << c;
         } else {
@@ -82,21 +203,33 @@ std::string url_encode(const std::string& value) {
     return escaped.str();
 }
 
-
 /**
  *	automatically run the necessary setup to update & process the websocket queues
- *	\param host: (default=localhost) websocket host
- *	\param port: (default=8082) websocket port
- *	TODO
+ *	\param host: websocket host
+ *	\param port_ap: adapter port
+ *	\param port_ws: websocket port
+ *	\param name: username for connection
+ *	\param pass: connection password
+ *	\param lnom: lobby name
+ *	\param lpass: lobby password
+ *	\param creator: true if connection attempt creates a new lobby, false if user joins a created lobby
  */
-Websocket::Websocket(string token,string host,string port)
+Websocket::Websocket(string host,string port_ad,string port_ws,string name,string pass,string lnom,
+					 string lpass,bool create)
 {
+	// adapter connection
+	HTTPAdapter __Adapter = HTTPAdapter(host,port_ad);
+	COMM_ERR_COND(__Adapter.create_user(name,pass),"user creation did not work");
+	string token = __Adapter.authenticate_on_server(name,pass);
+	__Adapter.open_lobby(lnom,lpass,token,create);
+
+	// websocket connection
 	try
 	{
-		COMM_LOG("Connecting to WebSocket server at %s:%s...",host.c_str(),port.c_str());
-		auto results = boost::asio::ip::tcp::resolver{ioc}.resolve(host,port);
+		COMM_LOG("Connecting to WebSocket server at %s:%s...",host.c_str(),port_ws.c_str());
+		auto results = boost::asio::ip::tcp::resolver{ioc}.resolve(host,port_ws);
 		auto ep = boost::asio::connect(ws.next_layer(),results);
-		ws.handshake(host+':'+std::to_string(ep.port()),"/calculate?authToken="+url_encode(token));
+		ws.handshake(host+':'+std::to_string(ep.port()),"/calculate?authToken="+_url_encode(token));
 		ws.binary(true);
 		COMM_SCC("Connected to server successfully!");
 		// FIXME find out if the ep.port call has merit and if not replace it by predefined parameter

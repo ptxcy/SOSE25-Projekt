@@ -2,7 +2,6 @@
 #include "core/input.h"
 #include "core/renderer.h"
 #include "core/ui.h"
-#include "core/http-adapter.h"
 #include "core/websocket.h"
 
 
@@ -15,17 +14,13 @@ s32 main(s32 argc,char** argv)
 	g_UI.batches.push_back(&uib);
 	*/
 
-	Adapter ddd = Adapter("0.0.0.0","8080");
+	//Adapter ddd = Adapter("0.0.0.0","8080");
 	string name = argv[1];
 	string pass = argv[2];
 	string lnom = argv[3];
-	string macher = argv[4];
-	COMM_ERR_COND(ddd.createUser(name,pass),"fuck din workk");
-	std::optional<string> tokken = ddd.authenticateOnServer(name,pass);
-	if (macher=="kool") ddd.createLobby(lnom,std::nullopt,*tokken);
-	else ddd.joinLobby(lnom,std::nullopt,*tokken);
-	COMM_LOG("%s",tokken.value().c_str());
-	Websocket g_Websocket = Websocket(tokken.value(),"0.0.0.0","8083");
+	string lpass = argv[4];
+	string macher = argv[5];
+	Websocket g_Websocket = Websocket("0.0.0.0","8080","8083",name,pass,lnom,lpass,macher=="yes");
 
 	std::map<string,Sprite*> entities;
 	PixelBufferComponent* t0 = g_Renderer.register_sprite_texture("./res/kid.png");
@@ -86,9 +81,7 @@ s32 main(s32 argc,char** argv)
 		g_Frame.update();
 	}
 
-#ifdef FEAT_MULTIPLAYER
 	g_Websocket.exit();
-#endif
 	g_Renderer.exit();
 	g_Frame.close();
 	return 0;
