@@ -3,16 +3,31 @@
 
 
 #include "base.h"
+#include <cpr/cpr.h>
 #include "../adapter/definition.h"
 
 
 typedef boost::beast::websocket::stream<boost::asio::ip::tcp::socket> socket_stream;
 
 
+class HTTPAdapter
+{
+public:
+	HTTPAdapter(string& host,string& port);
+	bool create_user(string& username,string& password);
+	string authenticate_on_server(string& username,string& password);
+	void open_lobby(string& lobby_name,string& lobby_password,string& jwt_token,bool create);
+
+private:
+	string m_Addr;
+};
+
+
 class Websocket
 {
 public:
-	Websocket(string host="localhost",string port="8082");
+	Websocket(string host,string port_ad,string port_ws,string name,string pass,string lnom,
+			  string lpass,bool create);
 	ServerMessage receive_message();
 	void send_message(ClientMessage msg);
 	void exit();
@@ -31,11 +46,6 @@ private:
 	std::thread m_HandleWebsocketUpload;
 	bool connected = false;
 };
-
-
-#ifdef FEAT_MULTIPLAYER
-inline Websocket g_Websocket = Websocket("92.252.72.59");
-#endif
 
 
 #endif

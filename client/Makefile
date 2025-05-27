@@ -5,11 +5,11 @@ LDST = core/lib/
 TARGET = build
 
 INCLUDE = -I/usr/include/freetype2 -I/usr/include/libpng16
-LINKER = -lGL -lGLEW -lSDL2 -lpthread -lfreetype
+LINKER = -lGL -lGLEW -lSDL2 -lpthread -lfreetype -lcpr -lcurl -lssl -lcrypto -lz
 
 DEBUG_SUFFIX = -pg -g -O0 -DDEBUG
 RELEASE_SUFFIX = -O3 -fno-gcse
-SETTINGS_SUFFIX = -DFRAME_RESOLUTION_X=1600 -DFRAME_RESOLUTION_Y=900 -DFEAT_MULTIPLAYER
+SETTINGS_SUFFIX = -DFRAME_RESOLUTION_X=1600 -DFRAME_RESOLUTION_Y=900
 
 SRCS = $(wildcard $(SDST)*.cpp)
 OBJS = $(SRCS:$(SDST)%.cpp=$(LDST)%.o)

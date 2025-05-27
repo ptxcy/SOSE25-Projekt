@@ -13,7 +13,15 @@ s32 main(s32 argc,char** argv)
 								 vec2(100,100),vec2(100,100));
 	g_UI.batches.push_back(&uib);
 	*/
+
+	//Adapter ddd = Adapter("0.0.0.0","8080");
 	string name = argv[1];
+	string pass = argv[2];
+	string lnom = argv[3];
+	string lpass = argv[4];
+	string macher = argv[5];
+	Websocket g_Websocket = Websocket("0.0.0.0","8080","8083",name,pass,lnom,lpass,macher=="yes");
+
 	std::map<string,Sprite*> entities;
 	PixelBufferComponent* t0 = g_Renderer.register_sprite_texture("./res/kid.png");
 	entities[name] = g_Renderer.register_sprite(t0,vec2(150),vec2(100));
@@ -73,9 +81,7 @@ s32 main(s32 argc,char** argv)
 		g_Frame.update();
 	}
 
-#ifdef FEAT_MULTIPLAYER
 	g_Websocket.exit();
-#endif
 	g_Renderer.exit();
 	g_Frame.close();
 	return 0;
