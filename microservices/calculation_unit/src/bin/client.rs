@@ -13,56 +13,7 @@ use calculation_unit::{
 use futures_util::{SinkExt, stream::StreamExt};
 use tokio::sync::Mutex;
 use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
-use url::Url;
 
-pub fn request_spawn(id: &String) -> Vec<u8> {
-	// Example ClientMessage to send
-	let client_message = ClientMessage {
-		request_data: ClientRequest::new_spawn_dummy(id),
-		..Default::default()
-	};
-
-	// Serialize ClientMessage to MessagePack
-	let serialized_message =
-		rmp_serde::to_vec(&client_message).expect("Failed to serialize message");
-	serialized_message
-}
-
-pub fn request_set_fps(id: &String, fps: f64) -> Vec<u8> {
-	// Example ClientMessage to send
-	let client_message = ClientMessage {
-		request_data: ClientRequest::new_set_client_fps(SetClientFPS {
-			id: id.clone(),
-			fps,
-		}),
-		..Default::default()
-	};
-
-	// Serialize ClientMessage to MessagePack
-	let serialized_message =
-		rmp_serde::to_vec(&client_message).expect("Failed to serialize message");
-	serialized_message
-}
-
-pub fn request_move(id: &String) -> Vec<u8> {
-	// Example ClientMessage to send
-	let client_message = ClientMessage {
-		request_data: ClientRequest::new_dummy_set_velocity(DummySetVelocity {
-			id: id.clone(),
-			position: Coordinate {
-				x: 2.,
-				y: 0.,
-				z: 0.,
-			},
-		}),
-		..Default::default()
-	};
-
-	// Serialize ClientMessage to MessagePack
-	let serialized_message =
-		rmp_serde::to_vec(&client_message).expect("Failed to serialize message");
-	serialized_message
-}
 
 #[tokio::main]
 async fn main() {
@@ -92,6 +43,14 @@ async fn main() {
 	let id_clone = id.clone();
 	tokio::spawn(async move {
 		let mut write = write_clone.lock().await;
+		// request connection so that client is able to receive messages
+		let serialized_message = request_connect(&id_clone);
+		write
+			.send(Message::Binary(Bytes::from(serialized_message)))
+			.await
+			.expect("Failed to send message");
+		log_with_time(format!("Message sent to server! trying to connect"));
+
 		// spawn dummy_1
 		let serialized_message = request_spawn(&id_clone);
 		write
@@ -139,4 +98,58 @@ async fn main() {
 			}
 		}
 	}
+}
+
+pub fn request_connect(id: &String) -> Vec<u8> {
+	let client_message = ClientMessage {
+		request_data: ClientRequest::new_connect(id),
+		..Default::default()
+	};
+
+	let serialized_message =
+		rmp_serde::to_vec(&client_message).expect("Failed to serialize message");
+	serialized_message
+}
+
+pub fn request_spawn(id: &String) -> Vec<u8> {
+	let client_message = ClientMessage {
+		request_data: ClientRequest::new_spawn_dummy(id),
+		..Default::default()
+	};
+
+	let serialized_message =
+		rmp_serde::to_vec(&client_message).expect("Failed to serialize message");
+	serialized_message
+}
+
+pub fn request_set_fps(id: &String, fps: f64) -> Vec<u8> {
+	let client_message = ClientMessage {
+		request_data: ClientRequest::new_set_client_fps(SetClientFPS {
+			id: id.clone(),
+			fps,
+		}),
+		..Default::default()
+	};
+
+	let serialized_message =
+		rmp_serde::to_vec(&client_message).expect("Failed to serialize message");
+	serialized_message
+}
+
+pub fn request_move(id: &String) -> Vec<u8> {
+	let client_message = ClientMessage {
+		request_data: ClientRequest::new_dummy_set_velocity(DummySetVelocity {
+			id: id.clone(),
+			position: Coordinate {
+				x: 2.,
+				y: 0.,
+				z: 0.,
+			},
+		}),
+		..Default::default()
+	};
+
+	let serialized_message =
+		rmp_serde::to_vec(&client_message).expect("Failed to serialize message");
+	serialized_message
 }

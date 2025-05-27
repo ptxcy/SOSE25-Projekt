@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use super::dummy::DummyObject;
 
+/// objects that are going to be rendered by client
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct GameObjects {
 	pub dummies: HashMap<String, DummyObject>,
