@@ -54,7 +54,7 @@ impl<T, E: fmt::Debug> Loggable for Result<T, E> {
 		match &self {
 			Ok(_) => {}
 			Err(e) => {
-				println!("{}", message_with_time(e));
+				log_with_time(e)
 			}
 		}
 		self
