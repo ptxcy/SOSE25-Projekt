@@ -15,12 +15,15 @@ s32 main(s32 argc,char** argv)
 	*/
 
 	//Adapter ddd = Adapter("0.0.0.0","8080");
-	string name = argv[1];
-	string pass = argv[2];
-	string lnom = argv[3];
-	string lpass = argv[4];
-	string macher = argv[5];
-	Websocket g_Websocket = Websocket("0.0.0.0","8080","8083",name,pass,lnom,lpass,macher=="yes");
+	string host = argv[1];
+	string port_ap = argv[2];
+	string port_ws = argv[3];
+	string name = argv[4];
+	string pass = argv[5];
+	string lnom = argv[6];
+	string lpass = argv[7];
+	string macher = argv[8];
+	Websocket g_Websocket = Websocket(host,port_ap,port_ws,name,pass,lnom,lpass,macher=="yes");
 
 	std::map<string,Sprite*> entities;
 	PixelBufferComponent* t0 = g_Renderer.register_sprite_texture("./res/kid.png");
