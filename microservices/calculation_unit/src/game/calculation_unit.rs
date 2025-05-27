@@ -17,16 +17,16 @@ use super::{
 };
 
 /// container of the sender where the calculation unit game thread can send servermessages to the calculation units websocket handling thread
-pub struct ServerMessageSenderChannel {
+pub struct ServerMessageSenderChannel<'a> {
 	pub id: String,
-	pub sender: Sender<Arc<ServerMessage>>,
+	pub sender: Sender<Arc<ServerMessage<'a>>>,
 	// FPS
 	pub update_threshold: f64,
 	pub tick_counter: f64,
 }
 
-impl ServerMessageSenderChannel {
-	pub fn new(id: String, sender: Sender<Arc<ServerMessage>>) -> Self {
+impl<'a> ServerMessageSenderChannel<'a> {
+	pub fn new(id: String, sender: Sender<Arc<ServerMessage<'a>>>) -> Self {
 		Self {
 			id,
 			sender,
@@ -39,14 +39,14 @@ impl ServerMessageSenderChannel {
 
 // send message to all client receivers
 pub async fn broadcast(
-	senders: &mut HashMap<String, ServerMessageSenderChannel>,
+	senders: &mut HashMap<String, ServerMessageSenderChannel<'_>>,
 	game_objects: &GameObjects,
 	delta_seconds: f64,
 ) {
 	// TODO user specific messages
 	let server_message = ServerMessage {
 		request_info: RequestInfo::new(get_time() as f64),
-		request_data: ObjectData::prepare_for("all".to_owned(), game_objects),
+		request_data: ObjectData::prepare_for(&"all".to_string(), game_objects),
 	};
 	let shared_message = Arc::new(server_message.clone()); // Wrap the message in an Arc
 	let mut to_be_removed = Vec::<String>::new();
