@@ -34,6 +34,12 @@ void Text::align()
 	for (char c : data) wordlen += font->glyphs[c-32].advance*scale;
 	dimensions = vec2(wordlen,font->size*scale);
 
+	if (alignment==SCREEN_ALIGN_NEUTRAL)
+	{
+		offset -= dimensions*.5f;
+		return;
+	}
+
 	// adjust vertical alignment
 	u8 vertical_alignment = 2-(alignment%3);
 	offset.y += vertical_alignment*(MATH_CENTER_Y-(dimensions.y*.5));
