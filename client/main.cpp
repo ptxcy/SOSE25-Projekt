@@ -9,8 +9,12 @@ s32 main(s32 argc,char** argv)
 {
 	Font* __Ubuntu = g_Renderer.register_font("./res/font/ubuntu.ttf",25);
 	lptr<UIBatch> uib = g_UI.add_batch(__Ubuntu);
-	lptr<Button> btn = uib->add_button("confirm","./res/ui/button_hover.png","./res/ui/button_on.png",
-									   "./res/ui/button_hover.png",vec2(640,360),vec2(150,35));
+	lptr<Button> btn0 = uib->add_button("destroy","./res/ui/button_hover.png","./res/ui/button_on.png",
+									   "./res/ui/button_hover.png",vec2(100,100),vec2(150,40));
+	lptr<Button> btn1 = uib->add_button("erase","./res/ui/button_hover.png","./res/ui/button_on.png",
+									   "./res/ui/button_hover.png",vec2(300,100),vec2(150,40));
+	lptr<Button> btn2 = uib->add_button("improve","./res/ui/button_hover.png","./res/ui/button_on.png",
+										"./res/ui/button_hover.png",vec2(500,100),vec2(150,40));
 
 	/*
 	string name = argv[1];

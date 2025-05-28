@@ -27,26 +27,19 @@ ThreadSignal _sprite_signal
  */
 void Text::align()
 {
-	offset = position;
-
 	// calculate text dimensions
 	f32 wordlen = .0f;
 	for (char c : data) wordlen += font->glyphs[c-32].advance*scale;
 	dimensions = vec2(wordlen,font->size*scale);
 
-	if (alignment==SCREEN_ALIGN_NEUTRAL)
+	// calculate position based on alignment and dimensions
+	if (alignment<SCREEN_ALIGN_NEUTRAL)
 	{
-		offset -= dimensions*.5f;
+		offset = Renderer::align({ position,dimensions },
+								 { vec2(0,0),vec2(MATH_CARTESIAN_XRANGE,MATH_CARTESIAN_YRANGE) },alignment);
 		return;
 	}
-
-	// adjust vertical alignment
-	u8 vertical_alignment = 2-(alignment%3);
-	offset.y += vertical_alignment*(MATH_CENTER_Y-(dimensions.y*.5));
-
-	// adjust horizontal alignment
-	u8 horizontal_alignment = alignment/3;
-	if (!!horizontal_alignment) offset.x += horizontal_alignment*(MATH_CENTER_X-dimensions.x*.5f);
+	offset = position-vec2(dimensions.x*.5f,dimensions.y*.33f);
 }
 
 /**
@@ -187,8 +180,16 @@ Renderer::Renderer()
 void Renderer::update()
 {
 	PROF_STA(m_ProfilerFullFrame);
+
+	// 2D segment
+	glDisable(GL_DEPTH_TEST);
 	_update_sprites();
 	_update_text();
+
+	// 3D segment
+	glEnable(GL_DEPTH_TEST);
+
+	// end-frame gpu management
 	_gpu_upload();
 	PROF_STP(m_ProfilerFullFrame);
 }
@@ -330,6 +331,30 @@ lptr<Text> Renderer::write_text(Font* font,string data,vec2 position,f32 scale,v
 	p_Text->align();
 	p_Text->load_buffer();
 	return p_Text;
+}
+
+/**
+ *	geometry realignment based on position
+ *	\param geom: intersection rectangle over aligning geometry
+ *	\param border: rectangle describing the bounds to align geometry in relation to
+ *	\param alignment: target alignment within specified border
+ *	\returns new position of geometry after alignment process
+ */
+vec2 Renderer::align(Rect geom,Rect border,ScreenAlignment alignment)
+{
+	// setup
+	vec2 __Position = geom.position;
+	vec2 __GeomCenter = geom.extent*vec2(.5f);
+	vec2 __BorderCenter = border.extent*vec2(.5f)+border.position;
+
+	// adjust vertical alignment
+	u8 vertical_alignment = 2-(alignment%3);
+	__Position.y += vertical_alignment*(__BorderCenter.y-__GeomCenter.y);
+
+	// adjust horizontal alignment
+	u8 horizontal_alignment = alignment/3;
+	if (!!horizontal_alignment) __Position.x += horizontal_alignment*(__BorderCenter.x-__GeomCenter.x);
+	return __Position;
 }
 
 /**

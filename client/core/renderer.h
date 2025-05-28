@@ -103,6 +103,9 @@ public:
 						  vec4 colour=vec4(1),ScreenAlignment align=SCREEN_ALIGN_BOTTOMLEFT);
 	inline void delete_text(lptr<Text> text) { m_Texts.erase(text); }
 
+	// utility
+	static vec2 align(Rect geom,Rect border,ScreenAlignment alignment);
+
 private:
 	void _gpu_upload();
 	void _update_sprites();

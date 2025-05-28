@@ -24,7 +24,7 @@ lptr<Button> UIBatch::add_button(const char* label,string tidle,string thover,st
 	p_Button->canvas = g_Renderer.register_sprite(p_Button->idle,position,scale);
 
 	// label text
-	p_Button->label = g_Renderer.write_text(font,label,position,scale.y*.75f,vec4(1),SCREEN_ALIGN_NEUTRAL);
+	p_Button->label = g_Renderer.write_text(font,label,position,scale.y*.6f,vec4(1),SCREEN_ALIGN_NEUTRAL);
 
 	// intersection boundaries
 	vec2 hscale = scale*vec2(.5f);
