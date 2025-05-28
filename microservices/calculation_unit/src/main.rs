@@ -1,10 +1,9 @@
 use calculation_unit::{
 	game::calculation_unit::ServerMessageSenderChannel,
 	logger::{Loggable, log_with_time},
-	messages::{client_message::ClientMessage, server_message::ServerMessage},
+	messages::client_message::ClientMessage,
 };
 use futures::{SinkExt, StreamExt};
-use std::sync::Arc;
 use tokio::sync::mpsc::*;
 use warp::Filter;
 use warp::ws::{Message, WebSocket};

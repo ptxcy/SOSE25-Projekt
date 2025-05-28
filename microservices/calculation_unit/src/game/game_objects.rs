@@ -24,10 +24,14 @@ impl GameObjects {
 	}
 	pub fn prepare_for(&self, user: &String) -> SendGameObjects {
 		SendGameObjects {
-			dummies: self.dummies.iter().filter(|(id, dummy)| {
-				false
-			})
-			.collect::<HashMap<&String, &DummyObject>>()
+			dummies: self
+				.dummies
+				.iter()
+				.filter(|(id, dummy)| {
+					// TODO filter for each user
+					true
+				})
+				.collect::<HashMap<&String, &DummyObject>>(),
 		}
 	}
 }
