@@ -80,7 +80,7 @@ async fn handle_ws_msgpack(
 	sender_sender: Sender<ServerMessageSenderChannel>,
 ) {
 	let (mut websocket_tx, mut websocket_rx) = ws.split();
-	let (server_message_tx, mut server_message_rx) = channel::<Arc<ServerMessage>>(32);
+	let (server_message_tx, mut server_message_rx) = channel::<Vec<u8>>(32);
 
 	log_with_time("new websocket client connected");
 
@@ -115,14 +115,7 @@ async fn handle_ws_msgpack(
 
 	// sending messages from calculation_unit to client async
 	while let Some(msg) = server_message_rx.recv().await {
-		let response = match std::panic::catch_unwind(|| {
-			let msgpack_bytes = rmp_serde::to_vec(&*msg).log().unwrap();
-			msgpack_bytes
-		}) {
-			Ok(r) => r,
-			Err(_) => continue,
-		};
-		if websocket_tx.send(Message::binary(response)).await.is_err() {
+		if websocket_tx.send(Message::binary(msg)).await.is_err() {
 			break;
 		}
 	}

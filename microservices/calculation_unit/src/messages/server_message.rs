@@ -1,5 +1,5 @@
 use super::websocket_format::RequestInfo;
-use crate::game::game_objects::GameObjects;
+use crate::game::game_objects::{GameObjects, SendGameObjects};
 use serde::{Deserialize, Serialize};
 
 /// data that is going to be rendered
@@ -9,8 +9,14 @@ pub struct ObjectData {
 	pub game_objects: GameObjects,
 }
 
-impl ObjectData {
-	pub fn prepare_for(user: &String, game_objects: &GameObjects) -> Self {
+#[derive(Serialize, Debug, Clone)]
+pub struct SendObjectData<'a> {
+	pub target_user_id: String,
+	pub game_objects: SendGameObjects<'a>,
+}
+
+impl<'a> SendObjectData<'a> {
+	pub fn prepare_for(user: &String, game_objects: &'a GameObjects) -> Self {
 		Self {
 			target_user_id: user.clone(),
 			game_objects: game_objects.prepare_for(user),
@@ -25,14 +31,8 @@ pub struct ServerMessage {
 	pub request_data: ObjectData,
 }
 
-impl ServerMessage {
-	pub fn test() -> Self {
-		Self {
-			request_info: Default::default(),
-			request_data: ObjectData {
-				game_objects: GameObjects::new(),
-				target_user_id: "all".to_owned(),
-			},
-		}
-	}
+#[derive(Serialize, Debug, Clone)]
+pub struct SendServerMessage<'a> {
+	pub request_info: RequestInfo,
+	pub request_data: SendObjectData<'a>,
 }
