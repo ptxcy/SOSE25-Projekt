@@ -14,7 +14,6 @@ use futures_util::{SinkExt, stream::StreamExt};
 use tokio::sync::Mutex;
 use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
 
-
 #[tokio::main]
 async fn main() {
 	let args = env::args().collect::<Vec<String>>();

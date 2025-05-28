@@ -16,4 +16,8 @@ impl GameObjects {
 			dummies: HashMap::<String, DummyObject>::new(),
 		}
 	}
+	pub fn prepare_for(&self, user: &String) -> Self {
+		// TODO make more leight weight
+		self.clone()
+	}
 }

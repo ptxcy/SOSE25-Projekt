@@ -44,14 +44,14 @@ pub async fn broadcast(
 	delta_seconds: f64,
 ) {
 	// TODO user specific messages
-	let server_message = ServerMessage {
-		request_info: RequestInfo::new(get_time() as f64),
-		request_data: ObjectData::prepare_for("all".to_owned(), game_objects),
-	};
-	let shared_message = Arc::new(server_message.clone()); // Wrap the message in an Arc
 	let mut to_be_removed = Vec::<String>::new();
 	// send messages to all
 	for (i, (id, sender_channel)) in senders.iter_mut().enumerate() {
+		let server_message = ServerMessage {
+			request_info: RequestInfo::new(get_time() as f64),
+			request_data: ObjectData::prepare_for(id, game_objects),
+		};
+		let shared_message = Arc::new(server_message);
 		sender_channel.tick_counter += delta_seconds;
 		if sender_channel.tick_counter >= sender_channel.update_threshold {
 			// send message to client

@@ -10,10 +10,10 @@ pub struct ObjectData {
 }
 
 impl ObjectData {
-	pub fn prepare_for(user: String, game_objects: &GameObjects) -> Self {
+	pub fn prepare_for(user: &String, game_objects: &GameObjects) -> Self {
 		Self {
-			target_user_id: user,
-			game_objects: game_objects.clone(),
+			target_user_id: user.clone(),
+			game_objects: game_objects.prepare_for(user),
 		}
 	}
 }
