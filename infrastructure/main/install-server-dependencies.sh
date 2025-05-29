@@ -3,9 +3,10 @@
 PRIVATE_KEY=$1
 
 echo "Pipeline is running install server dependencies check"
-echo "DEBUG: Private Key Inhalt:"
 echo "$PRIVATE_KEY" | wc -c
+ls
 echo "$PRIVATE_KEY" > ~/.ssh/temp_key.pem
+ls
 chmod 400 ~/.ssh/temp_key.pem
 
 ssh -o StrictHostKeyChecking=no -i ~/.ssh/temp_key.pem ec2-user@ec2-3-66-164-207.eu-central-1.compute.amazonaws.com << EOF
