@@ -1,0 +1,15 @@
+name: Deploy to AWS
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v3
+
+      - name: Check if server has everything installed
+        run: ./infrastructure/main/install-server-dependencies.sh
