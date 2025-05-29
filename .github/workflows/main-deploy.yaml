@@ -11,8 +11,20 @@ jobs:
       - name: Repository auschecken
         uses: actions/checkout@v3
 
-      - name: Setze Berechtigungen install-server-dependencies.sh
+      - name: Change Access Rights for install-server-dependencies.sh
         run: chmod +x ./infrastructure/main/install-server-dependencies.sh
 
       - name: Check if server has everything installed
-        run: ./infrastructure/main/install-server-dependencies.sh
+        run: ./infrastructure/main/install-server-dependencies.sh "${{ secrets.AWS_SSH_KEY }}"
+
+      - name: Change Access Rights for clean-docker-and-pull-repository.sh
+        run: chmod +x ./infrastructure/main/clean-docker-and-pull-repository.sh
+
+      - name: Clean Docker and Pull Repository
+        run: ./infrastructure/main/clean-docker-and-pull-repository.sh "${{ secrets.AWS_SSH_KEY }}"
+
+      - name: Change Access Rights for start-server.sh
+        run: chmod +x ./infrastructure/main/start-server.sh
+
+      - name: Restart or Start the server
+        run: ./infrastructure/main/start-server.sh "${{ secrets.AWS_SSH_KEY }}"

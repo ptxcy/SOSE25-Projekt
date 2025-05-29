@@ -1,4 +1,36 @@
 #!/bin/bash
 
+PRIVATE_KEY=$1
+
 echo "Pipeline is running install server dependencies check"
-echo "Server finished install server dependencies check"
+
+ssh -o StrictHostKeyChecking=no -i <(echo "$PRIVATE_KEY") ec2-user@ec2-3-66-164-207.eu-central-1.compute.amazonaws.com << EOF
+  echo "Server connected via SSH"
+
+  if ! command -v git &> /dev/null; then
+    echo "Git nicht gefunden, Installation beginnt..."
+    sudo yum install -y git
+  else
+    echo "Git ist bereits installiert!"
+  fi
+
+  if ! command -v docker &> /dev/null; then
+    echo "Docker nicht gefunden, Installation beginnt..."
+    sudo yum update -y
+    sudo yum install -y docker
+    sudo systemctl enable docker
+    sudo systemctl start docker
+  else
+    echo "Docker ist bereits installiert!"
+  fi
+
+  if ! command -v docker-compose &> /dev/null; then
+    echo "Docker Compose nicht gefunden, Installation beginnt..."
+    sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    sudo chmod +x /usr/local/bin/docker-compose
+  else
+    echo "Docker Compose ist bereits installiert!"
+  fi
+
+  echo "Server finished install server dependencies check"
+EOF
