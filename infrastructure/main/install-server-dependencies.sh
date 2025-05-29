@@ -3,8 +3,6 @@
 PRIVATE_KEY=$1
 
 echo "Pipeline is running install server dependencies check"
-echo "$PRIVATE_KEY"
-
 ssh -o StrictHostKeyChecking=no -i <(echo "$PRIVATE_KEY") ec2-user@ec2-3-66-164-207.eu-central-1.compute.amazonaws.com << EOF
   echo "Server connected via SSH"
 
