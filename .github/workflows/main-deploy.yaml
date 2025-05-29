@@ -11,6 +11,9 @@ jobs:
       - name: Repository auschecken
         uses: actions/checkout@v3
 
+      - name: Warten auf Secrets
+        run: sleep 10
+
       - name: Change Access Rights for install-server-dependencies.sh
         run: chmod +x ./infrastructure/main/install-server-dependencies.sh
 
