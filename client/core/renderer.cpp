@@ -33,10 +33,9 @@ void Text::align()
 	dimensions = vec2(wordlen,font->size*scale);
 
 	// calculate position based on alignment and dimensions
-	if (alignment<SCREEN_ALIGN_NEUTRAL)
+	if (alignment.align<SCREEN_ALIGN_NEUTRAL)
 	{
-		offset = Renderer::align({ position,dimensions },
-								 { vec2(0,0),vec2(MATH_CARTESIAN_XRANGE,MATH_CARTESIAN_YRANGE) },alignment);
+		offset = Renderer::align({ position,dimensions },alignment);
 		return;
 	}
 	offset = position-vec2(dimensions.x*.5f,dimensions.y*.33f);
@@ -227,14 +226,23 @@ PixelBufferComponent* Renderer::register_sprite_texture(const char* path)
  *	\param size: width and height of the sprite
  *	\param rotation: (default .0f) rotation of the sprite in degrees
  *	\param alpha: (default 1.f) transparency of sprite clamped between 0 and 1. 0 = invisible -> 1 = opaque
+ *	\param alignment: (default fullscreen neutral) sprite position alignment within borders
  *	\returns pointer to sprite data for modification purposes
  */
-Sprite* Renderer::register_sprite(PixelBufferComponent* texture,vec2 position,vec2 size,f32 rotation,f32 alpha)
+Sprite* Renderer::register_sprite(PixelBufferComponent* texture,vec2 position,vec2 size,f32 rotation,
+								  f32 alpha,Alignment alignment)
 {
 	// determine memory location, overwrite has priority over appending
 	Sprite* p_Sprite = m_Sprites.next_free();
 	COMM_LOG("sprite register at: (%f,%f), %fx%f, %f° -> count = %d",
 			 position.x,position.y,size.x,size.y,rotation,m_Sprites.active_range);
+
+	// align sprite into borders
+	if (alignment.align!=SCREEN_ALIGN_NEUTRAL)
+	{
+		vec2 hsize = size*.5f;
+		position = align({ position-hsize,size },alignment)+size;
+	}
 
 	// write information to memory
 	(*p_Sprite) = {
@@ -315,7 +323,7 @@ Font* Renderer::register_font(const char* path,u16 size)
  *	\param align: (default SCREEN_ALIGN_BOTTOMLEFT) text alignment on screen, modified by positional offset
  *	\returns list container of created text
  */
-lptr<Text> Renderer::write_text(Font* font,string data,vec2 position,f32 scale,vec4 colour,ScreenAlignment align)
+lptr<Text> Renderer::write_text(Font* font,string data,vec2 position,f32 scale,vec4 colour,Alignment align)
 {
 	m_GPUFontTextures.signal.wait();
 	m_Texts.push_back({
@@ -336,23 +344,22 @@ lptr<Text> Renderer::write_text(Font* font,string data,vec2 position,f32 scale,v
 /**
  *	geometry realignment based on position
  *	\param geom: intersection rectangle over aligning geometry
- *	\param border: rectangle describing the bounds to align geometry in relation to
- *	\param alignment: target alignment within specified border
+ *	\param alignment: (default fullscreen neutral) target alignment within specified border
  *	\returns new position of geometry after alignment process
  */
-vec2 Renderer::align(Rect geom,Rect border,ScreenAlignment alignment)
+vec2 Renderer::align(Rect geom,Alignment alignment)
 {
 	// setup
 	vec2 __Position = geom.position;
 	vec2 __GeomCenter = geom.extent*vec2(.5f);
-	vec2 __BorderCenter = border.extent*vec2(.5f)+border.position;
+	vec2 __BorderCenter = alignment.border.extent*vec2(.5f)+alignment.border.position;
 
 	// adjust vertical alignment
-	u8 vertical_alignment = 2-(alignment%3);
+	u8 vertical_alignment = 2-(alignment.align%3);
 	__Position.y += vertical_alignment*(__BorderCenter.y-__GeomCenter.y);
 
 	// adjust horizontal alignment
-	u8 horizontal_alignment = alignment/3;
+	u8 horizontal_alignment = alignment.align/3;
 	if (!!horizontal_alignment) __Position.x += horizontal_alignment*(__BorderCenter.x-__GeomCenter.x);
 	return __Position;
 }

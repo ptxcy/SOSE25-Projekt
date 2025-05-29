@@ -9,10 +9,11 @@
  *	\param taction: action texture, in case button is clicked and held
  *	\param position: center position of button
  *	\param scale: dimensions of the button
+ *	\param alignment: (default neutral fullscreen) screen alignment within given borders
  *	\returns address of button to later read interaction state from
  */
-lptr<Button> UIBatch::add_button(const char* label,string tidle,string thover,string taction,
-								 vec2 position,vec2 scale)
+lptr<Button> UIBatch::add_button(const char* label,string tidle,string thover,string taction,vec2 position,
+								 vec2 scale,Alignment alignment)
 {
 	buttons.push_back({  });
 	lptr<Button> p_Button = std::prev(buttons.end());
@@ -21,16 +22,16 @@ lptr<Button> UIBatch::add_button(const char* label,string tidle,string thover,st
 	p_Button->idle = g_Renderer.register_sprite_texture(tidle.c_str());
 	p_Button->hover = g_Renderer.register_sprite_texture(thover.c_str());
 	p_Button->action = g_Renderer.register_sprite_texture(taction.c_str());
-	p_Button->canvas = g_Renderer.register_sprite(p_Button->idle,position,scale);
+	p_Button->canvas = g_Renderer.register_sprite(p_Button->idle,position,scale,.0f,1.f,alignment);
 
 	// label text
-	p_Button->label = g_Renderer.write_text(font,label,position,scale.y*.6f,vec4(1),SCREEN_ALIGN_NEUTRAL);
+	p_Button->label = g_Renderer.write_text(font,label,p_Button->canvas->offset,scale.y*.6f,vec4(1));
 
 	// intersection boundaries
 	vec2 hscale = scale*vec2(.5f);
 	p_Button->bounds = {
-		.position = position-hscale,
-		.extent = position+hscale
+		.position = p_Button->canvas->offset-hscale,
+		.extent = p_Button->canvas->offset+hscale
 	};
 	return p_Button;
 }

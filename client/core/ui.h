@@ -21,7 +21,8 @@ struct Button
 struct UIBatch
 {
 	// utility
-	lptr<Button> add_button(const char* label,string tidle,string thover,string taction,vec2 position,vec2 scale);
+	lptr<Button> add_button(const char* label,string tidle,string thover,string taction,vec2 position,
+							vec2 scale,Alignment alignment={});
 
 	// data
 	Font* font;

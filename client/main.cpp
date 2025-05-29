@@ -12,9 +12,11 @@ s32 main(s32 argc,char** argv)
 	lptr<Button> btn0 = uib->add_button("destroy","./res/ui/button_hover.png","./res/ui/button_on.png",
 									   "./res/ui/button_hover.png",vec2(100,100),vec2(150,40));
 	lptr<Button> btn1 = uib->add_button("erase","./res/ui/button_hover.png","./res/ui/button_on.png",
-									   "./res/ui/button_hover.png",vec2(300,100),vec2(150,40));
+										"./res/ui/button_hover.png",vec2(0,0),vec2(150,40),
+										{ .align=SCREEN_ALIGN_TOPCENTER });
 	lptr<Button> btn2 = uib->add_button("improve","./res/ui/button_hover.png","./res/ui/button_on.png",
-										"./res/ui/button_hover.png",vec2(500,100),vec2(150,40));
+										"./res/ui/button_hover.png",vec2(0,0),vec2(150,40),
+										{ .align=SCREEN_ALIGN_BOTTOMRIGHT });
 
 	/*
 	string name = argv[1];
