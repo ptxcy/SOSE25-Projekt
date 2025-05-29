@@ -5,6 +5,7 @@ PRIVATE_KEY=$1
 echo "Pipeline is running install server dependencies check"
 echo "$PRIVATE_KEY" | wc -c
 echo "$HOME"
+ls -la /home/runner
 echo "$PRIVATE_KEY" > ~/.ssh/temp_key.pem
 chmod 400 ~/.ssh/temp_key.pem
 
