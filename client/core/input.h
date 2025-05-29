@@ -30,12 +30,17 @@ class Input
 public:
 	void update(bool& running);
 
+	// text input
+	void set_input_mode(string* buffer);
+	static inline void unset_input_mode() { SDL_StopTextInput(); }
+
 public:
 	static inline Keyboard keyboard;
 	static inline Mouse mouse;
 
 private:
 	SDL_Event m_Event;
+	string* m_TextBuffer;
 };
 
 inline Input g_Input;

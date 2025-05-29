@@ -17,6 +17,15 @@ s32 main(s32 argc,char** argv)
 	lptr<Button> btn2 = uib->add_button("improve","./res/ui/button_hover.png","./res/ui/button_on.png",
 										"./res/ui/button_hover.png",vec2(0,0),vec2(150,40),
 										{ .align=SCREEN_ALIGN_BOTTOMRIGHT });
+	lptr<TextField> tf0 = uib->add_text_field("./res/ui/button_hover.png","./res/ui/button_on.png",
+											  "./res/ui/button_on.png",vec2(0,65),vec2(300,50),
+											  { .align=SCREEN_ALIGN_CENTER });
+	lptr<TextField> tf1 = uib->add_text_field("./res/ui/button_hover.png","./res/ui/button_on.png",
+											  "./res/ui/button_on.png",vec2(0,0),vec2(300,50),
+											  { .align=SCREEN_ALIGN_CENTER });
+	lptr<TextField> tf2 = uib->add_text_field("./res/ui/button_hover.png","./res/ui/button_on.png",
+											  "./res/ui/button_on.png",vec2(0,-65),vec2(300,50),
+											  { .align=SCREEN_ALIGN_CENTER });
 
 	/*
 	string name = argv[1];

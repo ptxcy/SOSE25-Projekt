@@ -46,9 +46,9 @@ void Text::align()
  */
 void Text::load_buffer()
 {
-	bool reallocate = buffer.size()<data.size();
+	bool reallocate = buffer.capacity()<data.size();
 	COMM_LOG_COND(reallocate,"allocating memory for text buffer");
-	if (reallocate) buffer = vector<TextCharacter>(data.size());
+	buffer.resize(data.size());
 
 	// load font information for characters
 	vec2 __Cursor = offset;
