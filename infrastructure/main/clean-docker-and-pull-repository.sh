@@ -3,6 +3,7 @@
 PRIVATE_KEY=$1
 
 echo "Pipeline is running: Stop Docker, clean up, and clone repository"
+echo "$PRIVATE_KEY" | wc -c
 echo "$PRIVATE_KEY" > ~/.ssh/temp_key.pem
 chmod 400 ~/.ssh/temp_key.pem
 

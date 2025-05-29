@@ -3,6 +3,8 @@
 PRIVATE_KEY=$1
 
 echo "Pipeline is running install server dependencies check"
+echo "DEBUG: Private Key Inhalt:"
+echo "$PRIVATE_KEY" | wc -c
 echo "$PRIVATE_KEY" > ~/.ssh/temp_key.pem
 chmod 400 ~/.ssh/temp_key.pem
 
