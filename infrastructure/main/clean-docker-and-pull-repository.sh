@@ -18,8 +18,8 @@ ssh -o StrictHostKeyChecking=no -i <(echo "$PRIVATE_KEY") ec2-user@ec2-3-66-164-
 
   echo "Cloning repository..."
   cd /home/ec2-user
-  if [ -d "project-repo" ]; then
-    rm -rf project-repo
+  if [ -d "SOSE25-Projekt" ]; then
+    rm -rf SOSE25-Projekt
   fi
   git clone https://github.com/ptxcy/SOSE25-Projekt.git
 
