@@ -31,6 +31,8 @@ ssh -o StrictHostKeyChecking=no -i ~/.ssh/temp_key.pem ec2-user@ec2-3-66-164-207
     echo "Docker ist bereits installiert!"
   fi
 
+  sudo usermod -aG docker ec2-user
+
   # Docker Compose Installation prüfen und ggf. installieren
   if ! command -v docker-compose &> /dev/null; then
     echo "Docker Compose nicht gefunden, Installation beginnt..."
