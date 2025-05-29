@@ -3,12 +3,9 @@
 PRIVATE_KEY=$1
 
 echo "Pipeline is running install server dependencies check"
-
-# Speichere den Private Key temporär in einer Datei
 echo "$PRIVATE_KEY" > ~/.ssh/temp_key.pem
 chmod 400 ~/.ssh/temp_key.pem
 
-# Versuche SSH-Verbindung
 ssh -o StrictHostKeyChecking=no -i ~/.ssh/temp_key.pem ec2-user@ec2-3-66-164-207.eu-central-1.compute.amazonaws.com << EOF
   echo "Server connected via SSH"
 
