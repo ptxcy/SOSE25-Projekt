@@ -3,9 +3,16 @@
 PRIVATE_KEY=$1
 
 echo "Pipeline is running install server dependencies check"
-ssh -o StrictHostKeyChecking=no -i <(echo "$PRIVATE_KEY") ec2-user@ec2-3-66-164-207.eu-central-1.compute.amazonaws.com << EOF
+
+# Speichere den Private Key temporär in einer Datei
+echo "$PRIVATE_KEY" > ~/.ssh/temp_key.pem
+chmod 600 ~/.ssh/temp_key.pem
+
+# Versuche SSH-Verbindung
+ssh -o StrictHostKeyChecking=no -i ~/.ssh/temp_key.pem ec2-user@ec2-3-66-164-207.eu-central-1.compute.amazonaws.com << EOF
   echo "Server connected via SSH"
 
+  # Git Installation prüfen und ggf. installieren
   if ! command -v git &> /dev/null; then
     echo "Git nicht gefunden, Installation beginnt..."
     sudo yum install -y git
@@ -13,6 +20,7 @@ ssh -o StrictHostKeyChecking=no -i <(echo "$PRIVATE_KEY") ec2-user@ec2-3-66-164-
     echo "Git ist bereits installiert!"
   fi
 
+  # Docker Installation prüfen und ggf. installieren
   if ! command -v docker &> /dev/null; then
     echo "Docker nicht gefunden, Installation beginnt..."
     sudo yum update -y
@@ -23,6 +31,7 @@ ssh -o StrictHostKeyChecking=no -i <(echo "$PRIVATE_KEY") ec2-user@ec2-3-66-164-
     echo "Docker ist bereits installiert!"
   fi
 
+  # Docker Compose Installation prüfen und ggf. installieren
   if ! command -v docker-compose &> /dev/null; then
     echo "Docker Compose nicht gefunden, Installation beginnt..."
     sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
@@ -33,3 +42,5 @@ ssh -o StrictHostKeyChecking=no -i <(echo "$PRIVATE_KEY") ec2-user@ec2-3-66-164-
 
   echo "Server finished install server dependencies check"
 EOF
+
+rm -f ~/.ssh/temp_key.pem
