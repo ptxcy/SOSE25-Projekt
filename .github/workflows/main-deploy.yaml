@@ -11,5 +11,8 @@ jobs:
       - name: Repository auschecken
         uses: actions/checkout@v3
 
+      - name: Setze Berechtigungen install-server-dependencies.sh
+        run: chmod +x ./infrastructure/main/install-server-dependencies.sh
+
       - name: Check if server has everything installed
         run: ./infrastructure/main/install-server-dependencies.sh
