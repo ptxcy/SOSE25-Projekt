@@ -20,23 +20,26 @@ struct Button
 
 struct TextField
 {
+	// utility
+	inline string& get_content() { return content->data; }
+
+	// data
 	Sprite* canvas;
 	PixelBufferComponent* idle;
 	PixelBufferComponent* hover;
-	PixelBufferComponent* action;
+	PixelBufferComponent* select;
 	lptr<Text> content;
 	Rect bounds;
 	bool active = false;
 };
-// TODO load textures for idle, hover and action once for each entity to save massive VRAM
 
 struct UIBatch
 {
 	// utility
-	lptr<Button> add_button(const char* label,string tidle,string thover,string taction,vec2 position,
-							vec2 scale,Alignment alignment={});
-	lptr<TextField> add_text_field(string tidle,string thover,string tselect,vec2 position,
-								   vec2 scale,Alignment alignment={});
+	lptr<Button> add_button(const char* label,PixelBufferComponent* tidle,PixelBufferComponent* thover,
+							PixelBufferComponent* taction,vec2 position,vec2 scale,Alignment alignment={});
+	lptr<TextField> add_text_field(PixelBufferComponent* tidle,PixelBufferComponent* thover,
+								   PixelBufferComponent* tselect,vec2 position,vec2 scale,Alignment alignment={});
 
 	// data
 	Font* font;
@@ -50,8 +53,9 @@ class UI
 public:
 	void update();
 
-	// registration
+	// registration/deregistration
 	lptr<UIBatch> add_batch(Font* font);
+	void remove_batch(lptr<UIBatch> batch);
 
 private:
 	Font* m_Font;

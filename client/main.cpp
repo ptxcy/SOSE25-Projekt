@@ -7,25 +7,22 @@
 
 s32 main(s32 argc,char** argv)
 {
-	Font* __Ubuntu = g_Renderer.register_font("./res/font/ubuntu.ttf",25);
+	Font* __Ubuntu = g_Renderer.register_font("./res/font/ubuntu.ttf",50);
+	PixelBufferComponent* __ButtonHover = g_Renderer.register_sprite_texture("./res/ui/button_hover.png");
+	PixelBufferComponent* __ButtonSelect = g_Renderer.register_sprite_texture("./res/ui/button_on.png");
 	lptr<UIBatch> uib = g_UI.add_batch(__Ubuntu);
-	lptr<Button> btn0 = uib->add_button("destroy","./res/ui/button_hover.png","./res/ui/button_on.png",
-									   "./res/ui/button_hover.png",vec2(100,100),vec2(150,40));
-	lptr<Button> btn1 = uib->add_button("erase","./res/ui/button_hover.png","./res/ui/button_on.png",
-										"./res/ui/button_hover.png",vec2(0,0),vec2(150,40),
-										{ .align=SCREEN_ALIGN_TOPCENTER });
-	lptr<Button> btn2 = uib->add_button("improve","./res/ui/button_hover.png","./res/ui/button_on.png",
-										"./res/ui/button_hover.png",vec2(0,0),vec2(150,40),
-										{ .align=SCREEN_ALIGN_BOTTOMRIGHT });
-	lptr<TextField> tf0 = uib->add_text_field("./res/ui/button_hover.png","./res/ui/button_on.png",
-											  "./res/ui/button_on.png",vec2(0,65),vec2(300,50),
-											  { .align=SCREEN_ALIGN_CENTER });
-	lptr<TextField> tf1 = uib->add_text_field("./res/ui/button_hover.png","./res/ui/button_on.png",
-											  "./res/ui/button_on.png",vec2(0,0),vec2(300,50),
-											  { .align=SCREEN_ALIGN_CENTER });
-	lptr<TextField> tf2 = uib->add_text_field("./res/ui/button_hover.png","./res/ui/button_on.png",
-											  "./res/ui/button_on.png",vec2(0,-65),vec2(300,50),
-											  { .align=SCREEN_ALIGN_CENTER });
+	lptr<Button> btn0 = uib->add_button("destroy",__ButtonHover,__ButtonSelect,__ButtonHover,
+										vec2(100,100),vec2(150,40));
+	lptr<Button> btn1 = uib->add_button("erase",__ButtonHover,__ButtonSelect,__ButtonHover,
+										vec2(0,0),vec2(150,40),{ .align=SCREEN_ALIGN_TOPCENTER });
+	lptr<Button> btn2 = uib->add_button("improve",__ButtonHover,__ButtonSelect,__ButtonHover,
+										vec2(0,0),vec2(150,40),{ .align=SCREEN_ALIGN_BOTTOMRIGHT });
+	lptr<TextField> tf0 = uib->add_text_field(__ButtonHover,__ButtonSelect,__ButtonSelect,vec2(0,65),
+											  vec2(700,50),{ .align=SCREEN_ALIGN_CENTER });
+	lptr<TextField> tf1 = uib->add_text_field(__ButtonHover,__ButtonSelect,__ButtonSelect,vec2(0,0),
+											  vec2(700,50),{ .align=SCREEN_ALIGN_CENTER });
+	lptr<TextField> tf2 = uib->add_text_field(__ButtonHover,__ButtonSelect,__ButtonSelect,vec2(0,-65),
+											  vec2(700,50),{ .align=SCREEN_ALIGN_CENTER });
 
 	/*
 	string name = argv[1];
@@ -49,10 +46,17 @@ s32 main(s32 argc,char** argv)
 	*/
 
 	bool running = true;
+	bool logic = true;
 	while (running)
 	{
 		g_Frame.clear();
 		g_Input.update(running);
+
+		if (logic&&btn0->confirm)
+		{
+			g_UI.remove_batch(uib);
+			logic = false;
+		}
 
 		// send updates
 		/*

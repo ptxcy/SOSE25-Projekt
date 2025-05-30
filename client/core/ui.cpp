@@ -1,6 +1,9 @@
 #include "ui.h"
 
 
+// ----------------------------------------------------------------------------------------------------
+// Interface Batch
+
 /**
  *	add a button to the batch
  *	\param label: button label writing across button surface
@@ -12,16 +15,16 @@
  *	\param alignment: (default neutral fullscreen) screen alignment within given borders
  *	\returns address of button to later read interaction state from
  */
-lptr<Button> UIBatch::add_button(const char* label,string tidle,string thover,string taction,vec2 position,
-								 vec2 scale,Alignment alignment)
+lptr<Button> UIBatch::add_button(const char* label,PixelBufferComponent* tidle,PixelBufferComponent* thover,
+								 PixelBufferComponent* taction,vec2 position,vec2 scale,Alignment alignment)
 {
-	buttons.push_back({  });
-	lptr<Button> p_Button = std::prev(buttons.end());
-
 	// graphics setup
-	p_Button->idle = g_Renderer.register_sprite_texture(tidle.c_str());
-	p_Button->hover = g_Renderer.register_sprite_texture(thover.c_str());
-	p_Button->action = g_Renderer.register_sprite_texture(taction.c_str());
+	buttons.push_back({
+			.idle = tidle,
+			.hover = thover,
+			.action = taction
+		});
+	lptr<Button> p_Button = std::prev(buttons.end());
 	p_Button->canvas = g_Renderer.register_sprite(p_Button->idle,position,scale,.0f,1.f,alignment);
 
 	// label text
@@ -46,16 +49,17 @@ lptr<Button> UIBatch::add_button(const char* label,string tidle,string thover,st
  *	\param alignment: (default neutral fullscreen) screen alignment within given borders
  *	\returns address of text field to later read written contents from
  */
-lptr<TextField> UIBatch::add_text_field(string tidle,string thover,string tselect,vec2 position,
-							   vec2 scale,Alignment alignment)
+lptr<TextField> UIBatch::add_text_field(PixelBufferComponent* tidle,PixelBufferComponent* thover,
+										PixelBufferComponent* tselect,vec2 position,vec2 scale,
+										Alignment alignment)
 {
-	tfields.push_back({  });
-	lptr<TextField> p_TextField = std::prev(tfields.end());
-
 	// graphics setup
-	p_TextField->idle = g_Renderer.register_sprite_texture(tidle.c_str());
-	p_TextField->hover = g_Renderer.register_sprite_texture(thover.c_str());
-	p_TextField->action = g_Renderer.register_sprite_texture(tselect.c_str());
+	tfields.push_back({
+			.idle = tidle,
+			.hover = thover,
+			.select = tselect
+		});
+	lptr<TextField> p_TextField = std::prev(tfields.end());
 	p_TextField->canvas = g_Renderer.register_sprite(p_TextField->idle,position,scale,.0f,1.f,alignment);
 
 	// setup content draw
@@ -72,8 +76,9 @@ lptr<TextField> UIBatch::add_text_field(string tidle,string thover,string tselec
 	return p_TextField;
 }
 
-// TODO allow to only remove batch as a whole, as a consequence components dont have to be linked containers
 
+// ----------------------------------------------------------------------------------------------------
+// Interface Management
 
 /**
  *	update ui
@@ -125,7 +130,7 @@ void UI::update()
 			}
 			else if (__Intersect&&g_Input.mouse.buttons[0])
 			{
-				g_Renderer.assign_sprite_texture(p_TextField.canvas,p_TextField.action);
+				g_Renderer.assign_sprite_texture(p_TextField.canvas,p_TextField.select);
 				g_Input.set_input_mode(&p_TextField.content->data);
 				p_TextField.active = true;
 				__SwitchedFields = true;
@@ -139,7 +144,7 @@ void UI::update()
 }
 
 /**
- *	create a ui batch
+ *	create an ui batch
  *	\param font: button label and text box font for created batch
  */
 lptr<UIBatch> UI::add_batch(Font* font)
@@ -148,4 +153,26 @@ lptr<UIBatch> UI::add_batch(Font* font)
 	return std::prev(m_Batches.end());
 }
 
-// TODO routine to remove batch assets from renderer
+/**
+ *	remove an ui batch
+ *	\param batch: batch target by removal
+ */
+void UI::remove_batch(lptr<UIBatch> batch)
+{
+	// remove button components
+	for (Button& p_Button : batch->buttons)
+	{
+		Renderer::delete_sprite(p_Button.canvas);
+		g_Renderer.delete_text(p_Button.label);
+	}
+
+	// remove text field components
+	for (TextField& p_TextField : batch->tfields)
+	{
+		Renderer::delete_sprite(p_TextField.canvas);
+		g_Renderer.delete_text(p_TextField.content);
+	}
+
+	// finish by removing batch from memory
+	m_Batches.erase(batch);
+}
