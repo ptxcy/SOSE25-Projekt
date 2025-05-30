@@ -2,7 +2,12 @@ import {IUser} from "../user/UserModel";
 import {WebSocket, RawData} from "ws";
 import {ILobby} from "./LobbyModel";
 import {searchLobbyOfMember} from "./LobbyService";
-import {ClientMessage, decodeToObject, encodeObject} from "../datatypes/MessagePackDataTypes";
+import {
+    ClientMessage,
+    decodeToClientMessage,
+    decodeToServerMessage,
+    encodeClientMessage, encodeServerMessage, printServerMessage, ServerMessage
+} from "../datatypes/MessagePackDataTypes";
 
 export interface LobbyRegistryEntry {
     lobbyName: string;
@@ -57,7 +62,7 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
     const uint8Array = data instanceof Buffer
         ? new Uint8Array(data)
         : new Uint8Array(data as ArrayBuffer);
-    const clientRequest: ClientMessage | null = await decodeToObject(uint8Array);
+    const clientRequest: ClientMessage | null = await decodeToClientMessage(uint8Array);
     if (!clientRequest) {
         console.error("Could not decode message");
         ws.close();
@@ -65,7 +70,7 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
     }
 
     console.log("Encode");
-    const encoded = await encodeObject(clientRequest);
+    const encoded = await encodeClientMessage(clientRequest);
     if (encoded === null) {
         console.error("Could not encode message");
         ws.close();
@@ -80,8 +85,6 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
     }
 
     console.log("Waiting for readyState before sending...");
-
-    // Warte in einer Schleife alle 0.5 Sekunden, bis der Socket bereit ist
     while (calc_unit_socket.readyState !== WebSocket.OPEN) {
         console.log("⏳ Waiting for WebSocket to open...");
         await new Promise(resolve => setTimeout(resolve, 500));
@@ -92,6 +95,7 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
 }
 
 async function connectToCalcluationServer(lcomp: LobbyRegistryEntry): Promise<WebSocket> {
+    //TODO Close Socket If all user connections are closed
     console.log("Connecting to calculation server...");
     const socket = new WebSocket(`ws://calculation_unit:8082/msgpack`);
 
@@ -99,11 +103,39 @@ async function connectToCalcluationServer(lcomp: LobbyRegistryEntry): Promise<We
         console.log("WebSocket erfolgreich verbunden mit der Berechnungseinheit!");
     };
 
-    socket.on("message", (msg) => {
-        console.log("Received message From Calculation", msg);
-        lcomp.memberSockets.forEach(member => {
-            member.send(msg);
-        })
+    socket.on("message", async (msg) => {
+        const uint8Array = msg instanceof Buffer
+            ? new Uint8Array(msg)
+            : new Uint8Array(msg as ArrayBuffer);
+
+        const serverMessage: ServerMessage | null = await decodeToServerMessage(uint8Array);
+        if(!serverMessage) {
+            console.error("Could not decode server message");
+            return;
+        }
+
+        const targetUsername: string | undefined = serverMessage?.request_data?.target_user_id;
+        if (!targetUsername) {
+            console.error("No target username found!");
+            printServerMessage(serverMessage);
+            return;
+        }
+
+
+        const userIndex = lcomp.members.findIndex(member => member.username === targetUsername);
+        const userSocket = lcomp.memberSockets[userIndex];
+        if(!userSocket) {
+            console.error("No user socket!");
+            return;
+        }
+
+        const sendMessage = await encodeServerMessage(serverMessage);
+        if(!sendMessage) {
+            console.error("ReEncoding Server Message Failed");
+            return;
+        }
+
+        userSocket.send(sendMessage);
     })
 
     socket.on('close', () => {

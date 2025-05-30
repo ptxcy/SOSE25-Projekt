@@ -134,7 +134,7 @@
                                 calculation_unit: {sent_time: Date.now()}
                             },
                             request_data: {
-                                spawn_dummy: "user1"
+                                connect: "user1"
                             }
                         };
 
@@ -143,6 +143,28 @@
                         ws.send(packedMessage);
                         console.log("📤 Nachricht gesendet nach 5 Sekunden:", mockMessage);
                     }, 5000);
+
+                    // 5-Sekunden-Verzögerung bevor die Nachricht gesendet wird
+                    /*
+                    setTimeout(() => {
+                        const mockMessage = {
+                            request_info: {
+                                client: {sent_time: Date.now()},
+                                authproxy: {sent_time: Date.now()},
+                                request_sync: {sent_time: Date.now()},
+                                calculation_unit: {sent_time: Date.now()}
+                            },
+                            request_data: {
+                                spawn_dummy: "user1"
+                            }
+                        };
+
+                        // Nachricht mit MessagePack kodieren und senden
+                        const packedMessage = msgpack.encode(mockMessage);
+                        ws.send(packedMessage);
+                        console.log("📤 Nachricht gesendet nach 5 Sekunden:", mockMessage);
+                    }, 10000);
+                    */
                 };
 
                 ws.onmessage = (event) => console.log("📩 Nachricht erhalten:", event.data);
@@ -165,6 +187,25 @@
 
                 ws.onopen = () => {
                     console.log("✅ WebSocket verbunden als Lobby-Mitglied!");
+                    // 5-Sekunden-Verzögerung bevor die Nachricht gesendet wird
+                    setTimeout(() => {
+                        const mockMessage = {
+                            request_info: {
+                                client: {sent_time: Date.now()},
+                                authproxy: {sent_time: Date.now()},
+                                request_sync: {sent_time: Date.now()},
+                                calculation_unit: {sent_time: Date.now()}
+                            },
+                            request_data: {
+                                connect: "user2"
+                            }
+                        };
+
+                        // Nachricht mit MessagePack kodieren und senden
+                        const packedMessage = msgpack.encode(mockMessage);
+                        ws.send(packedMessage);
+                        console.log("📤 Nachricht gesendet nach 5 Sekunden:", mockMessage);
+                    }, 5000);
 
                     // 5-Sekunden-Verzögerung bevor die Nachricht gesendet wird
                     setTimeout(() => {
@@ -184,7 +225,7 @@
                         const packedMessage = msgpack.encode(mockMessage);
                         ws.send(packedMessage);
                         console.log("📤 Nachricht gesendet nach 5 Sekunden:", mockMessage);
-                    }, 5000);
+                    }, 10000);
                 };
 
                 ws.onmessage = (event) => console.log("📩 Nachricht erhalten:", event.data);
