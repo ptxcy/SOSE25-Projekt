@@ -8,6 +8,7 @@ import {
     decodeToServerMessage,
     encodeClientMessage, encodeServerMessage, printServerMessage, ServerMessage
 } from "../datatypes/MessagePackDataTypes";
+import {decode} from "@msgpack/msgpack";
 
 export interface LobbyRegistryEntry {
     lobbyName: string;
@@ -62,6 +63,8 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
     const uint8Array = data instanceof Buffer
         ? new Uint8Array(data)
         : new Uint8Array(data as ArrayBuffer);
+
+    console.log("recieved message pack", decode(uint8Array));
     const clientRequest: ClientMessage | null = await decodeToClientMessage(uint8Array);
     if (!clientRequest) {
         console.error("Could not decode message");
@@ -107,6 +110,9 @@ async function connectToCalcluationServer(lcomp: LobbyRegistryEntry): Promise<We
         const uint8Array = msg instanceof Buffer
             ? new Uint8Array(msg)
             : new Uint8Array(msg as ArrayBuffer);
+
+        console.log("Received message", uint8Array);
+        console.log("decoded message", decode(uint8Array));
 
         const serverMessage: ServerMessage | null = await decodeToServerMessage(uint8Array);
         if(!serverMessage) {
