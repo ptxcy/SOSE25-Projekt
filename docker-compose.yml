@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   authproxy:
     build:
@@ -8,6 +10,9 @@ services:
       - "8083:8083"
     networks:
       - intern-network
+    profiles:
+      - local
+      - deploy
 
   request-sync:
     build:
@@ -17,6 +22,9 @@ services:
       - "8081:8081"
     networks:
       - intern-network
+    profiles:
+      - local
+      - deploy
 
   calculation_unit:
     build:
@@ -26,6 +34,8 @@ services:
       - "8082:8082"
     networks:
       - intern-network
+    profiles:
+      - local
 
   mongodb:
     image: mongo:latest
@@ -34,6 +44,9 @@ services:
       - "27017:27017"
     networks:
       - intern-network
+    profiles:
+      - local
+      - deploy
 
 networks:
   intern-network:

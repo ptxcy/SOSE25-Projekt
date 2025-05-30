@@ -7,6 +7,23 @@
 
 s32 main(s32 argc,char** argv)
 {
+	Font* __Ubuntu = g_Renderer.register_font("./res/font/ubuntu.ttf",50);
+	PixelBufferComponent* __ButtonHover = g_Renderer.register_sprite_texture("./res/ui/button_hover.png");
+	PixelBufferComponent* __ButtonSelect = g_Renderer.register_sprite_texture("./res/ui/button_on.png");
+	lptr<UIBatch> uib = g_UI.add_batch(__Ubuntu);
+	lptr<Button> btn0 = uib->add_button("destroy",__ButtonHover,__ButtonSelect,__ButtonHover,
+										vec2(100,100),vec2(150,40));
+	lptr<Button> btn1 = uib->add_button("erase",__ButtonHover,__ButtonSelect,__ButtonHover,
+										vec2(0,0),vec2(150,40),{ .align=SCREEN_ALIGN_TOPCENTER });
+	lptr<Button> btn2 = uib->add_button("improve",__ButtonHover,__ButtonSelect,__ButtonHover,
+										vec2(0,0),vec2(150,40),{ .align=SCREEN_ALIGN_BOTTOMRIGHT });
+	lptr<TextField> tf0 = uib->add_text_field(__ButtonHover,__ButtonSelect,__ButtonSelect,vec2(0,65),
+											  vec2(700,50),{ .align=SCREEN_ALIGN_CENTER });
+	lptr<TextField> tf1 = uib->add_text_field(__ButtonHover,__ButtonSelect,__ButtonSelect,vec2(0,0),
+											  vec2(700,50),{ .align=SCREEN_ALIGN_CENTER });
+	lptr<TextField> tf2 = uib->add_text_field(__ButtonHover,__ButtonSelect,__ButtonSelect,vec2(0,-65),
+											  vec2(700,50),{ .align=SCREEN_ALIGN_CENTER });
+
 	/*
 	UIBatch uib;// = UIBatch(1);
 	Button* btn = uib.add_button("not yet ready","./res/kid.png","./res/test.png","./res/maps.png",
@@ -42,14 +59,23 @@ s32 main(s32 argc,char** argv)
 				})
 			}
 		});
+	*/
 
 	bool running = true;
+	bool logic = true;
 	while (running)
 	{
 		g_Frame.clear();
 		g_Input.update(running);
 
+		if (logic&&btn0->confirm)
+		{
+			g_UI.remove_batch(uib);
+			logic = false;
+		}
+
 		// send updates
+		/*
 		g_Websocket.send_message({
 				.request_info = {},
 				.request_data = {
@@ -78,6 +104,7 @@ s32 main(s32 argc,char** argv)
 				entities[msg.first]->offset = vec3(msg.second.position.x,msg.second.position.y,msg.second.position.z);
 			}
 		}
+		*/
 
 		g_UI.update();
 		g_Renderer.update();

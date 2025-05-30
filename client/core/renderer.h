@@ -9,8 +9,8 @@
 constexpr f32 RENDERER_POSITIONAL_DELETION_CODE = -1247.f;
 
 constexpr u16 RENDERER_MAXIMUM_FONT_COUNT = 2;
-constexpr u16 RENDERER_SPRITE_MEMORY_WIDTH = 1500;
-constexpr u16 RENDERER_SPRITE_MEMORY_HEIGHT = 1500;
+constexpr u16 RENDERER_SPRITE_MEMORY_WIDTH = 4000;
+constexpr u16 RENDERER_SPRITE_MEMORY_HEIGHT = 4000;
 constexpr u16 RENDERER_FONT_MEMORY_WIDTH = 1500;
 constexpr u16 RENDERER_FONT_MEMORY_HEIGHT = 1500;
 // TODO those belong into a configuration definition to make this up to the engine user
@@ -29,7 +29,14 @@ enum ScreenAlignment
 	SCREEN_ALIGN_BOTTOMCENTER,
 	SCREEN_ALIGN_TOPRIGHT,
 	SCREEN_ALIGN_CENTERRIGHT,
-	SCREEN_ALIGN_BOTTOMRIGHT
+	SCREEN_ALIGN_BOTTOMRIGHT,
+	SCREEN_ALIGN_NEUTRAL,
+};
+
+struct Alignment
+{
+	Rect border = { vec2(0),vec2(MATH_CARTESIAN_XRANGE,MATH_CARTESIAN_YRANGE) };
+	ScreenAlignment align = SCREEN_ALIGN_NEUTRAL;
 };
 
 
@@ -70,8 +77,9 @@ struct Text
 	vec2 position;
 	vec2 offset;
 	f32 scale;
+	vec2 dimensions;
 	vec4 colour;
-	ScreenAlignment alignment;
+	Alignment alignment;
 	string data;
 	vector<TextCharacter> buffer;
 };
@@ -90,16 +98,19 @@ public:
 
 	// sprite
 	PixelBufferComponent* register_sprite_texture(const char* path);
-	Sprite* register_sprite(PixelBufferComponent* texture,vec2 position,vec2 size,f32 rotation=.0f,f32 alpha=1.f);
+	Sprite* register_sprite(PixelBufferComponent* texture,vec2 position,vec2 size,f32 rotation=.0f,
+							f32 alpha=1.f,Alignment alignment={});
 	void assign_sprite_texture(Sprite* sprite,PixelBufferComponent* texture);
 	void delete_sprite_texture(PixelBufferComponent* texture);
 	static void delete_sprite(Sprite* sprite);
 
 	// text
 	Font* register_font(const char* path,u16 size);
-	lptr<Text> write_text(Font* font,string data,vec2 position,f32 scale,
-						  vec4 colour=vec4(1),ScreenAlignment align=SCREEN_ALIGN_BOTTOMLEFT);
+	lptr<Text> write_text(Font* font,string data,vec2 position,f32 scale,vec4 colour=vec4(1),Alignment align={});
 	inline void delete_text(lptr<Text> text) { m_Texts.erase(text); }
+
+	// utility
+	static vec2 align(Rect geom,Alignment alignment);
 
 private:
 	void _gpu_upload();
