@@ -5,10 +5,9 @@ import {searchLobbyOfMember} from "./LobbyService";
 import {
     ClientMessage,
     decodeToClientMessage,
-    decodeToServerMessage,
     encodeClientMessage, encodeServerMessage, printServerMessage, ServerMessage
 } from "../datatypes/MessagePackDataTypes";
-import {decode} from "@msgpack/msgpack";
+import {decode, ExtensionCodec} from "@msgpack/msgpack";
 
 export interface LobbyRegistryEntry {
     lobbyName: string;
@@ -22,6 +21,26 @@ const registeredLobbys = new Set<LobbyRegistryEntry>();
 export function isRegistered(lobbyName: string): LobbyRegistryEntry | null {
     return [...registeredLobbys].find(l => l.lobbyName === lobbyName) || null;
 }
+
+export function startCleanupScheduler() {
+    setInterval(() => {
+        for (const lobby of registeredLobbys) {
+            const allClosed = lobby.memberSockets.every(socket => socket.readyState === WebSocket.CLOSED);
+
+            if (allClosed) {
+                console.log(`Lobby ${lobby.lobbyName} wird geschlossen...`);
+                if (lobby.calculationSocket) {
+                    lobby.calculationSocket.close();
+                    console.log(`Calculation-Socket für ${lobby.lobbyName} geschlossen.`);
+                }
+
+                registeredLobbys.delete(lobby);
+                console.log(`Lobby ${lobby.lobbyName} aus Registry entfernt.`);
+            }
+        }
+    }, 5000);
+}
+startCleanupScheduler();
 
 export function addToRegister(lobby: LobbyRegistryEntry): boolean {
     if (isRegistered(lobby.lobbyName)) {
@@ -54,7 +73,12 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
             registerLobby.memberSockets.push(ws);
         }
     } else {
-        registerLobby = {lobbyName: userLobby.lobbyName, members: [userData], memberSockets: [ws], calculationSocket: null};
+        registerLobby = {
+            lobbyName: userLobby.lobbyName,
+            members: [userData],
+            memberSockets: [ws],
+            calculationSocket: null
+        };
         registerLobby.calculationSocket = await connectToCalcluationServer(registerLobby);
         addToRegister(registerLobby);
     }
@@ -111,11 +135,34 @@ async function connectToCalcluationServer(lcomp: LobbyRegistryEntry): Promise<We
             ? new Uint8Array(msg)
             : new Uint8Array(msg as ArrayBuffer);
 
-        console.log("Received message", uint8Array);
-        console.log("decoded message", decode(uint8Array));
+        const rawMessage: any = decode(uint8Array);
+        const serverMessage: ServerMessage = {
+            request_info: {
+                client: { sent_time: 0 },
+                authproxy: { sent_time: Date.now()},
+                request_sync: { sent_time: 0 },
+                calculation_unit: { sent_time: rawMessage[0][3] }
+            },
+            request_data: {
+                target_user_id: rawMessage[1][0],
+                game_objects: {
+                    dummies: {
+                        user1: {
+                            id: rawMessage[1][1][0].user1[0],
+                            position: { x: rawMessage[1][1][0].user1[1][0], y: rawMessage[1][1][0].user1[1][1], z: rawMessage[1][1][0].user1[1][2] },
+                            velocity: { x: rawMessage[1][1][0].user1[2][0], y: rawMessage[1][1][0].user1[2][1], z: rawMessage[1][1][0].user1[2][2] }
+                        },
+                        user2: {
+                            id: rawMessage[1][1][0].user2[0],
+                            position: { x: rawMessage[1][1][0].user2[1][0], y: rawMessage[1][1][0].user2[1][1], z: rawMessage[1][1][0].user2[1][2] },
+                            velocity: { x: rawMessage[1][1][0].user2[2][0], y: rawMessage[1][1][0].user2[2][1], z: rawMessage[1][1][0].user2[2][2] }
+                        }
+                    }
+                }
+            }
+        };
 
-        const serverMessage: ServerMessage | null = await decodeToServerMessage(uint8Array);
-        if(!serverMessage) {
+        if (!serverMessage) {
             console.error("Could not decode server message");
             return;
         }
@@ -123,20 +170,32 @@ async function connectToCalcluationServer(lcomp: LobbyRegistryEntry): Promise<We
         const targetUsername: string | undefined = serverMessage?.request_data?.target_user_id;
         if (!targetUsername) {
             console.error("No target username found!");
-            printServerMessage(serverMessage);
             return;
         }
 
+        if(targetUsername === "all"){
+            const sendMessage = await encodeServerMessage(serverMessage);
+            if (!sendMessage) {
+                console.error("ReEncoding Server Message Failed");
+                return;
+            }
+
+            printServerMessage(serverMessage);
+            lcomp.memberSockets.forEach((ws: WebSocket) => {
+                ws.send(sendMessage)
+            })
+            return;
+        }
 
         const userIndex = lcomp.members.findIndex(member => member.username === targetUsername);
         const userSocket = lcomp.memberSockets[userIndex];
-        if(!userSocket) {
+        if (!userSocket) {
             console.error("No user socket!");
             return;
         }
 
         const sendMessage = await encodeServerMessage(serverMessage);
-        if(!sendMessage) {
+        if (!sendMessage) {
             console.error("ReEncoding Server Message Failed");
             return;
         }
