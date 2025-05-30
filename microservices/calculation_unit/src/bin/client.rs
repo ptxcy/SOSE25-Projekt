@@ -81,10 +81,10 @@ async fn main() {
 			Ok(Message::Binary(data)) => {
 				// Deserialize MessagePack to ClientMessage
 				match rmp_serde::from_slice::<ServerMessage>(&data) {
-					Ok(client_message) => {
+					Ok(server_message) => {
 						log_with_time(format!(
 							"Received: {:?}",
-							client_message.request_data.game_objects
+							server_message.request_data.game_objects
 						));
 					}
 					Err(e) => log_with_time(format!("Failed to deserialize message: {}", e)),
