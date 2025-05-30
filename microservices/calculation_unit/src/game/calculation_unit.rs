@@ -3,7 +3,7 @@ use crate::{
 	logger::{Loggable, log_with_time},
 	messages::{
 		client_message::ClientMessage,
-		server_message::{ObjectData, ServerMessage},
+		server_message::{SendObjectData, SendServerMessage},
 		websocket_format::RequestInfo,
 	},
 };
@@ -19,14 +19,14 @@ use super::{
 /// container of the sender where the calculation unit game thread can send servermessages to the calculation units websocket handling thread
 pub struct ServerMessageSenderChannel {
 	pub id: String,
-	pub sender: Sender<Arc<ServerMessage>>,
+	pub sender: Sender<Vec<u8>>,
 	// FPS
 	pub update_threshold: f64,
 	pub tick_counter: f64,
 }
 
 impl ServerMessageSenderChannel {
-	pub fn new(id: String, sender: Sender<Arc<ServerMessage>>) -> Self {
+	pub fn new(id: String, sender: Sender<Vec<u8>>) -> Self {
 		Self {
 			id,
 			sender,
@@ -43,27 +43,26 @@ pub async fn broadcast(
 	game_objects: &GameObjects,
 	delta_seconds: f64,
 ) {
-	// TODO user specific messages
-	let server_message = ServerMessage {
-		request_info: RequestInfo::new(get_time() as f64),
-		request_data: ObjectData::prepare_for("all".to_owned(), game_objects),
-	};
-	let shared_message = Arc::new(server_message.clone()); // Wrap the message in an Arc
 	let mut to_be_removed = Vec::<String>::new();
 	// send messages to all
 	for (i, (id, sender_channel)) in senders.iter_mut().enumerate() {
+		let server_message = SendServerMessage {
+			request_info: RequestInfo::new(get_time() as f64),
+			request_data: SendObjectData::prepare_for(id, game_objects),
+		};
+		let shared_message = Arc::new(server_message);
 		sender_channel.tick_counter += delta_seconds;
 		if sender_channel.tick_counter >= sender_channel.update_threshold {
 			// send message to client
 			// log_with_time(format!("trying to send to client"));
 			sender_channel.tick_counter = 0.;
 			let message_clone = Arc::clone(&shared_message);
-			if let Err(e) = sender_channel.sender.send(message_clone).await {
+			let msgpack_bytes = rmp_serde::to_vec(&*message_clone).log().unwrap();
+			if let Err(e) = sender_channel.sender.send(msgpack_bytes).await {
 				log_with_time(format!("Failed to send message: {}", e));
 				// remove connection
 				to_be_removed.push(id.clone());
 			}
-		} else {
 		}
 	}
 	// remove senders that are closed

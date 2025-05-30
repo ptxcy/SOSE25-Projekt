@@ -27,20 +27,18 @@ ThreadSignal _sprite_signal
  */
 void Text::align()
 {
-	offset = position;
+	// calculate text dimensions
+	f32 wordlen = .0f;
+	for (char c : data) wordlen += font->glyphs[c-32].advance*scale;
+	dimensions = vec2(wordlen,font->size*scale);
 
-	// adjust vertical alignment
-	u8 vertical_alignment = 2-(alignment%3);
-	offset.y += vertical_alignment*(MATH_CENTER_Y-(font->size*scale*.5));
-
-	// adjust horizontal alignment
-	u8 horizontal_alignment = alignment/3;
-	if (!!horizontal_alignment)
+	// calculate position based on alignment and dimensions
+	if (alignment.align<SCREEN_ALIGN_NEUTRAL)
 	{
-		f32 wordlen = 0;
-		for (char c : data) wordlen += font->glyphs[c-32].advance*scale;
-		offset.x += horizontal_alignment*(MATH_CENTER_X-wordlen*.5f);
+		offset = Renderer::align({ position,dimensions },alignment);
+		return;
 	}
+	offset = position-vec2(dimensions.x*.5f,dimensions.y*.33f);
 }
 
 /**
@@ -48,9 +46,9 @@ void Text::align()
  */
 void Text::load_buffer()
 {
-	bool reallocate = buffer.size()<data.size();
+	bool reallocate = buffer.capacity()<data.size();
 	COMM_LOG_COND(reallocate,"allocating memory for text buffer");
-	if (reallocate) buffer = vector<TextCharacter>(data.size());
+	buffer.resize(data.size());
 
 	// load font information for characters
 	vec2 __Cursor = offset;
@@ -181,8 +179,16 @@ Renderer::Renderer()
 void Renderer::update()
 {
 	PROF_STA(m_ProfilerFullFrame);
+
+	// 2D segment
+	glDisable(GL_DEPTH_TEST);
 	_update_sprites();
 	_update_text();
+
+	// 3D segment
+	glEnable(GL_DEPTH_TEST);
+
+	// end-frame gpu management
 	_gpu_upload();
 	PROF_STP(m_ProfilerFullFrame);
 }
@@ -220,14 +226,23 @@ PixelBufferComponent* Renderer::register_sprite_texture(const char* path)
  *	\param size: width and height of the sprite
  *	\param rotation: (default .0f) rotation of the sprite in degrees
  *	\param alpha: (default 1.f) transparency of sprite clamped between 0 and 1. 0 = invisible -> 1 = opaque
+ *	\param alignment: (default fullscreen neutral) sprite position alignment within borders
  *	\returns pointer to sprite data for modification purposes
  */
-Sprite* Renderer::register_sprite(PixelBufferComponent* texture,vec2 position,vec2 size,f32 rotation,f32 alpha)
+Sprite* Renderer::register_sprite(PixelBufferComponent* texture,vec2 position,vec2 size,f32 rotation,
+								  f32 alpha,Alignment alignment)
 {
 	// determine memory location, overwrite has priority over appending
 	Sprite* p_Sprite = m_Sprites.next_free();
 	COMM_LOG("sprite register at: (%f,%f), %fx%f, %f° -> count = %d",
 			 position.x,position.y,size.x,size.y,rotation,m_Sprites.active_range);
+
+	// align sprite into borders
+	if (alignment.align!=SCREEN_ALIGN_NEUTRAL)
+	{
+		vec2 hsize = size*.5f;
+		position = align({ position-hsize,size },alignment)+size;
+	}
 
 	// write information to memory
 	(*p_Sprite) = {
@@ -308,7 +323,7 @@ Font* Renderer::register_font(const char* path,u16 size)
  *	\param align: (default SCREEN_ALIGN_BOTTOMLEFT) text alignment on screen, modified by positional offset
  *	\returns list container of created text
  */
-lptr<Text> Renderer::write_text(Font* font,string data,vec2 position,f32 scale,vec4 colour,ScreenAlignment align)
+lptr<Text> Renderer::write_text(Font* font,string data,vec2 position,f32 scale,vec4 colour,Alignment align)
 {
 	m_GPUFontTextures.signal.wait();
 	m_Texts.push_back({
@@ -324,6 +339,29 @@ lptr<Text> Renderer::write_text(Font* font,string data,vec2 position,f32 scale,v
 	p_Text->align();
 	p_Text->load_buffer();
 	return p_Text;
+}
+
+/**
+ *	geometry realignment based on position
+ *	\param geom: intersection rectangle over aligning geometry
+ *	\param alignment: (default fullscreen neutral) target alignment within specified border
+ *	\returns new position of geometry after alignment process
+ */
+vec2 Renderer::align(Rect geom,Alignment alignment)
+{
+	// setup
+	vec2 __Position = geom.position;
+	vec2 __GeomCenter = geom.extent*vec2(.5f);
+	vec2 __BorderCenter = alignment.border.extent*vec2(.5f)+alignment.border.position;
+
+	// adjust vertical alignment
+	u8 vertical_alignment = 2-(alignment.align%3);
+	__Position.y += vertical_alignment*(__BorderCenter.y-__GeomCenter.y);
+
+	// adjust horizontal alignment
+	u8 horizontal_alignment = alignment.align/3;
+	if (!!horizontal_alignment) __Position.x += horizontal_alignment*(__BorderCenter.x-__GeomCenter.x);
+	return __Position;
 }
 
 /**
