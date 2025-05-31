@@ -38,7 +38,7 @@ export function startCleanupScheduler() {
                 console.log(`Lobby ${lobby.lobbyName} aus Registry entfernt.`);
             }
         }
-    }, 5000);
+    }, 10000);
 }
 startCleanupScheduler();
 
@@ -136,31 +136,35 @@ async function connectToCalcluationServer(lcomp: LobbyRegistryEntry): Promise<We
             : new Uint8Array(msg as ArrayBuffer);
 
         const rawMessage: any = decode(uint8Array);
+        console.log("Received message From Calculation Unit", decode(uint8Array));
         const serverMessage: ServerMessage = {
             request_info: {
                 client: { sent_time: 0 },
-                authproxy: { sent_time: Date.now()},
+                authproxy: { sent_time: Date.now() },
                 request_sync: { sent_time: 0 },
                 calculation_unit: { sent_time: rawMessage[0][3] }
             },
             request_data: {
                 target_user_id: rawMessage[1][0],
                 game_objects: {
-                    dummies: {
-                        user1: {
-                            id: rawMessage[1][1][0].user1[0],
-                            position: { x: rawMessage[1][1][0].user1[1][0], y: rawMessage[1][1][0].user1[1][1], z: rawMessage[1][1][0].user1[1][2] },
-                            velocity: { x: rawMessage[1][1][0].user1[2][0], y: rawMessage[1][1][0].user1[2][1], z: rawMessage[1][1][0].user1[2][2] }
-                        },
-                        user2: {
-                            id: rawMessage[1][1][0].user2[0],
-                            position: { x: rawMessage[1][1][0].user2[1][0], y: rawMessage[1][1][0].user2[1][1], z: rawMessage[1][1][0].user2[1][2] },
-                            velocity: { x: rawMessage[1][1][0].user2[2][0], y: rawMessage[1][1][0].user2[2][1], z: rawMessage[1][1][0].user2[2][2] }
-                        }
-                    }
+                    dummies: {}
                 }
             }
         };
+
+        const users = rawMessage[1][1][0];
+        if (users && typeof users === 'object') {
+            for (const userKey in users) {
+                if (users.hasOwnProperty(userKey)) {
+                    serverMessage.request_data.game_objects.dummies[userKey] = {
+                        id: users[userKey][0],
+                        position: { x: users[userKey][1][0], y: users[userKey][1][1], z: users[userKey][1][2] },
+                        velocity: { x: users[userKey][2][0], y: users[userKey][2][1], z: users[userKey][2][2] }
+                    };
+                }
+            }
+        }
+
 
         if (!serverMessage) {
             console.error("Could not decode server message");
@@ -173,7 +177,7 @@ async function connectToCalcluationServer(lcomp: LobbyRegistryEntry): Promise<We
             return;
         }
 
-        if(targetUsername === "all"){
+        if (targetUsername === "all") {
             const sendMessage = await encodeServerMessage(serverMessage);
             if (!sendMessage) {
                 console.error("ReEncoding Server Message Failed");

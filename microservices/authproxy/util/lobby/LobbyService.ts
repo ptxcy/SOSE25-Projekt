@@ -7,7 +7,7 @@ export async function loadLobby(lobbyName: string): Promise<ILobby | null> {
 
 export async function searchLobbyOfMember(member: string): Promise<ILobby | null> {
     try {
-        return await LobbyModel.findOne({members: member}).exec();
+        return await LobbyModel.findOne({members: member});
     } catch (error) {
         console.error("Fehler beim Suchen der Lobby:", error);
         return null;

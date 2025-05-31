@@ -2,7 +2,6 @@ import express from "express";
 import fs from "fs";
 import path from "path";
 import {connectToMongoDatabase} from "./util/Database";
-import "./routes/ws_calculate/ws_server"
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import {specs} from "./util/swagger";
@@ -56,6 +55,8 @@ async function initServerRoutes() {
 
 async function startServer() {
     await establishDataBaseConnection();
+    //Start Ws Server After Database is connected
+    await import("./routes/ws_calculate/ws_server");
     await initServerRoutes();
 }
 
