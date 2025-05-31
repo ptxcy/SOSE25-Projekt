@@ -24,7 +24,7 @@ pub enum SafeAction {
 	SetCoordinate {
 		coordinate: *mut Coordinate,
 		other: *const Coordinate,
-	}
+	},
 }
 
 impl SafeAction {
