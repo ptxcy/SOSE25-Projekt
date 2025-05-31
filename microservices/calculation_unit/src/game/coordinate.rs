@@ -31,6 +31,14 @@ impl Coordinate {
 		self
 	}
 
+	/// mutates itself by setting each value to another
+	pub fn set(&mut self, other: &Self) -> &mut Self {
+		self.x = other.x;
+		self.y = other.y;
+		self.z = other.z;
+		self
+	}
+
 	/// mutates itself by subtracting another
 	pub fn sub(&mut self, other: &Self) -> &mut Self {
 		self.x -= other.x;

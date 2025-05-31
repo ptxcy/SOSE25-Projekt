@@ -21,6 +21,10 @@ pub enum SafeAction {
 		other: *const Coordinate,
 		multiplier: f64,
 	},
+	SetCoordinate {
+		coordinate: *mut Coordinate,
+		other: *const Coordinate,
+	}
 }
 
 impl SafeAction {
@@ -32,6 +36,9 @@ impl SafeAction {
 				multiplier,
 			} => unsafe {
 				(**coordinate).addd(&**other, *multiplier);
+			},
+			SafeAction::SetCoordinate { coordinate, other } => unsafe {
+				(**coordinate).set(&**other);
 			},
 		}
 	}

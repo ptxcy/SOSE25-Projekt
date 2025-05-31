@@ -11,10 +11,8 @@ use std::{collections::HashMap, sync::Arc, time::Instant};
 use tokio::sync::mpsc::*;
 
 use super::{
-	action::{AsRaw, SafeAction},
-	dummy::DummyObject,
-	game_objects::GameObjects,
-};
+	game_objects::GameObjects, orbit::initialize_orbit_info_map}
+;
 
 /// container of the sender where the calculation unit game thread can send servermessages to the calculation units websocket handling thread
 pub struct ServerMessageSenderChannel {
@@ -71,38 +69,6 @@ pub async fn broadcast(
 	}
 }
 
-pub fn update_game(
-	game_objects: &GameObjects,
-	delta_seconds: f64,
-) -> std::result::Result<(), String> {
-	let mut actions = Vec::<SafeAction>::new();
-
-	// get actions
-	update_dummies(&mut actions, &game_objects.dummies, delta_seconds)?;
-
-	// execute operations on data via raw pointers
-	for action in actions {
-		action.execute();
-	}
-	Ok(())
-}
-
-pub fn update_dummies(
-	actions: &mut Vec<SafeAction>,
-	dummies: &HashMap<String, DummyObject>,
-	delta_seconds: f64,
-) -> std::result::Result<(), String> {
-	for (id, dummy) in dummies.iter() {
-		// dummy.position.addd(&dummy.velocity, delta_seconds);
-		actions.push(SafeAction::AddCoordinate {
-			coordinate: dummy.position.raw_mut(),
-			other: dummy.velocity.raw(),
-			multiplier: delta_seconds,
-		});
-	}
-	Ok(())
-}
-
 pub async fn start(
 	mut sender_receiver: Receiver<ServerMessageSenderChannel>,
 	mut client_message_receiver: Receiver<ClientMessage>,
@@ -112,6 +78,7 @@ pub async fn start(
 
 	// initialise game objects
 	let mut game_objects = GameObjects::new();
+	let orbit_map = initialize_orbit_info_map();
 
 	// delta time init
 	let mut last_time = Instant::now();
@@ -146,7 +113,7 @@ pub async fn start(
 		}
 
 		// game logic calculation
-		let update_result = update_game(&game_objects, delta_seconds).log();
+		game_objects.update(delta_seconds).log().unwrap();
 
 		// sending message
 		// log_with_time(format!("broadcasting to clients"));

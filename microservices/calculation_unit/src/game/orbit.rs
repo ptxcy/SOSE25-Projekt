@@ -1,3 +1,7 @@
+use std::collections::HashMap;
+
+use serde::{Deserialize, Serialize};
+
 use super::planet::{get_curve, trim_down};
 
 /// N = Länge des aufsteigenden Knotens (oft auch als großes Omega geschrieben)
@@ -14,6 +18,7 @@ use super::planet::{get_curve, trim_down};
 /// Diese Variable definiert die Form der Ellipse, wobei 0 kreisförmig ist und bei steigendem Wert die beiden Foci der Ellipse weiter auseinandergehen.
 ///
 /// M = Mittlere Anomalie
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OrbitInfo {
 	pub N: f64,
 	pub i: f64,
@@ -27,6 +32,19 @@ impl OrbitInfo {
 	pub fn new(N: f64, i: f64, w: f64, a: f64, e: f64, M: f64) -> Self {
 		Self { N, i, w, a, e, M }
 	}
+}
+
+pub fn initialize_orbit_info_map() -> HashMap<String, fn(f64) -> OrbitInfo> {
+	let mut map = HashMap::new();
+	map.insert("mercury".to_string(), get_mercury as fn(f64) -> OrbitInfo);
+	map.insert("venus".to_string(), get_venus as fn(f64) -> OrbitInfo);
+	map.insert("mars".to_string(), get_mars as fn(f64) -> OrbitInfo);
+	map.insert("jupiter".to_string(), get_jupiter as fn(f64) -> OrbitInfo);
+	map.insert("saturn".to_string(), get_saturn as fn(f64) -> OrbitInfo);
+	map.insert("uranus".to_string(), get_uranus as fn(f64) -> OrbitInfo);
+	map.insert("neptune".to_string(), get_neptune as fn(f64) -> OrbitInfo);
+	map.insert("earth".to_string(), get_earth as fn(f64) -> OrbitInfo);
+	map
 }
 
 pub fn get_mercury(t: f64) -> OrbitInfo {

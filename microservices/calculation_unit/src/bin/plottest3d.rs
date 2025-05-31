@@ -1,3 +1,4 @@
+use calculation_unit::game::coordinate::Coordinate;
 use calculation_unit::game::orbit::*;
 use calculation_unit::game::planet::calculate_planet;
 use calculation_unit::game::planet::get_timefactor;
@@ -8,13 +9,13 @@ use plotly::common::Mode;
 use plotly::{Plot, Scatter3D};
 
 fn trace_planet(
-	coords: &Vec<[f64; 3]>,
+	coords: &Vec<Coordinate>,
 	name: &str,
 	color: &'static str,
 ) -> std::boxed::Box<plotly::Scatter3D<f64, f64, f64>> {
-	let x: Vec<f64> = coords.iter().map(|c| c[0]).collect();
-	let y: Vec<f64> = coords.iter().map(|c| c[1]).collect();
-	let z: Vec<f64> = coords.iter().map(|c| c[2]).collect();
+	let x: Vec<f64> = coords.iter().map(|c| c.x).collect();
+	let y: Vec<f64> = coords.iter().map(|c| c.y).collect();
+	let z: Vec<f64> = coords.iter().map(|c| c.z).collect();
 
 	let mut trace = Scatter3D::new(x, y, z);
 	trace
@@ -74,8 +75,8 @@ fn main() {
 	];
 
 	for (coords, name, color) in planet_markers.iter() {
-		let c = coords[0];
-		let marker = Scatter3D::new(vec![c[0]], vec![c[1]], vec![c[2]])
+		let c = &coords[0];
+		let marker = Scatter3D::new(vec![c.x], vec![c.y], vec![c.z])
 			.mode(Mode::Markers)
 			.name(&format!("{name} (now)"))
 			.marker(Marker::new().size(3).color(*color));
