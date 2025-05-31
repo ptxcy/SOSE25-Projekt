@@ -11,7 +11,7 @@ use std::{collections::HashMap, sync::Arc, time::Instant};
 use tokio::sync::mpsc::*;
 
 use super::{
-	game_objects::GameObjects, orbit::initialize_orbit_info_map}
+	game_objects::GameObjects, orbit::initialize_orbit_info_map, planet::{get_timefactor, julian_day}}
 ;
 
 /// container of the sender where the calculation unit game thread can send servermessages to the calculation units websocket handling thread
@@ -82,6 +82,8 @@ pub async fn start(
 
 	// delta time init
 	let mut last_time = Instant::now();
+	let mut julian_day = julian_day(2025, 5, 30);
+	let time_scale = 360.;
 
 	// game loop
 	loop {
@@ -113,7 +115,9 @@ pub async fn start(
 		}
 
 		// game logic calculation
-		game_objects.update(delta_seconds).log().unwrap();
+		game_objects.update(delta_seconds, get_timefactor(julian_day), &orbit_map).log().unwrap();
+
+		julian_day += delta_seconds * time_scale;
 
 		// sending message
 		// log_with_time(format!("broadcasting to clients"));

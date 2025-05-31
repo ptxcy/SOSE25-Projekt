@@ -175,7 +175,7 @@ pub fn cartesian_coordinates(r: f64, N: f64, v: f64, w: f64, i: f64) -> Coordina
 /// - `info`: Reference to an `OrbitInfo` struct containing the planet's orbital elements.
 ///
 /// # Returns
-/// - Array `[x, y, z]` representing the planet's position in 3D space.
+/// - Coordinate with x y z representing the planet's position in 3D space.
 pub fn calculate_planet(info: &OrbitInfo) -> Coordinate {
 	let E = anomaly(info.M, info.e);
 	let vxy = distance_vector(info.a, E, info.e);
