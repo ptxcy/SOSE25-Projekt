@@ -145,7 +145,7 @@
                     }, 5000);
 
                     // 5-Sekunden-Verzögerung bevor die Nachricht gesendet wird
-                    /*
+
                     setTimeout(() => {
                         const mockMessage = {
                             request_info: {
@@ -164,7 +164,7 @@
                         ws.send(packedMessage);
                         console.log("📤 Nachricht gesendet nach 5 Sekunden:", mockMessage);
                     }, 10000);
-                    */
+
                 };
 
                 ws.onmessage = (event) => console.log("📩 Nachricht erhalten:", event.data);

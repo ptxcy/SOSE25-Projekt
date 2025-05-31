@@ -40,6 +40,7 @@ export function startCleanupScheduler() {
         }
     }, 10000);
 }
+
 startCleanupScheduler();
 
 export function addToRegister(lobby: LobbyRegistryEntry): boolean {
@@ -137,17 +138,19 @@ async function connectToCalcluationServer(lcomp: LobbyRegistryEntry): Promise<We
 
         const rawMessage: any = decode(uint8Array);
         console.log("Received message From Calculation Unit", decode(uint8Array));
+
         const serverMessage: ServerMessage = {
             request_info: {
-                client: { sent_time: 0 },
-                authproxy: { sent_time: Date.now() },
-                request_sync: { sent_time: 0 },
-                calculation_unit: { sent_time: rawMessage[0][3] }
+                client: {sent_time: 0},
+                authproxy: {sent_time: Date.now()},
+                request_sync: {sent_time: 0},
+                calculation_unit: {sent_time: rawMessage[0][3][0]}
             },
             request_data: {
                 target_user_id: rawMessage[1][0],
                 game_objects: {
-                    dummies: {}
+                    dummies: {},
+                    planets: []
                 }
             }
         };
@@ -158,14 +161,26 @@ async function connectToCalcluationServer(lcomp: LobbyRegistryEntry): Promise<We
                 if (users.hasOwnProperty(userKey)) {
                     serverMessage.request_data.game_objects.dummies[userKey] = {
                         id: users[userKey][0],
-                        position: { x: users[userKey][1][0], y: users[userKey][1][1], z: users[userKey][1][2] },
-                        velocity: { x: users[userKey][2][0], y: users[userKey][2][1], z: users[userKey][2][2] }
+                        position: {x: users[userKey][1][0], y: users[userKey][1][1], z: users[userKey][1][2]},
+                        velocity: {x: users[userKey][2][0], y: users[userKey][2][1], z: users[userKey][2][2]}
                     };
                 }
             }
         }
 
+        const planetData = rawMessage[1][2];
+        if (Array.isArray(planetData)) {
+            for (const planet of planetData) {
+                if (planet && Array.isArray(planet) && planet.length >= 2) {
+                    serverMessage.request_data.game_objects.planets.push({
+                        name: planet[0],
+                        position: {x: planet[1][0], y: planet[1][1], z: planet[1][2]}
+                    });
+                }
+            }
+        }
 
+        console.log(serverMessage);
         if (!serverMessage) {
             console.error("Could not decode server message");
             return;
@@ -184,7 +199,7 @@ async function connectToCalcluationServer(lcomp: LobbyRegistryEntry): Promise<We
                 return;
             }
 
-            printServerMessage(serverMessage);
+            console.log("sending: ", String(sendMessage));
             lcomp.memberSockets.forEach((ws: WebSocket) => {
                 ws.send(sendMessage)
             })
@@ -204,6 +219,7 @@ async function connectToCalcluationServer(lcomp: LobbyRegistryEntry): Promise<We
             return;
         }
 
+        console.log("sending: ", String(sendMessage));
         userSocket.send(sendMessage);
     })
 

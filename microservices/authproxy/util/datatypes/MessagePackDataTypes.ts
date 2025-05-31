@@ -42,6 +42,12 @@ export interface ObjectData {
 
 export interface GameObjects {
     dummies: Record<string, DummyObject>;
+    planets: Planet[]
+}
+
+export interface Planet {
+    name: string;
+    position: Coordinate;
 }
 
 export interface ServerMessage {
