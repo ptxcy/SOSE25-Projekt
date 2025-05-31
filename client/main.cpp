@@ -10,8 +10,7 @@
 s32 main(s32 argc,char** argv)
 {
 	Font* __Ubuntu = g_Renderer.register_font("./res/font/ubuntu.ttf",50);
-	Menu __Menu;
-	__Menu.load(__Ubuntu);
+	Menu __Menu = Menu(__Ubuntu);
 
 	/*
 	std::map<string,Sprite*> entities;

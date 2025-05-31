@@ -7,16 +7,16 @@
 #include "../core/ui.h"
 
 
-struct Menu
+class Menu
 {
-	// utility
-	void load(Font* font);
-	static void update(u8* menu);
+public:
+	Menu(Font* font);
+	static inline void update(u8* menu) { Menu* p = (Menu*)menu; p->_update(); }
+	void _update();
 	void close();
 
-	// data
-	// correlation byte
-	u8 id = 0x00;
+private:
+	// correlation
 	lptr<UpdateRoutine> ref;
 
 	// textures
