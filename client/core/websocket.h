@@ -26,8 +26,9 @@ private:
 class Websocket
 {
 public:
-	Websocket(string host,string port_ad,string port_ws,string name,string pass,string lnom,
-			  string lpass,bool create);
+	Websocket() {  }
+	void connect(string host,string port_ad,string port_ws,string name,string pass,string lnom,
+				 string lpass,bool create);
 	ServerMessage receive_message();
 	void send_message(ClientMessage msg);
 	void exit();
@@ -46,6 +47,11 @@ private:
 	std::thread m_HandleWebsocketUpload;
 	bool connected = false;
 };
+
+
+#ifdef FEAT_MULTIPLAYER
+inline Websocket g_Websocket;
+#endif
 
 
 #endif

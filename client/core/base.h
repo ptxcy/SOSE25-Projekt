@@ -2,6 +2,9 @@
 #define CORE_BASE_HEADER
 
 
+#include "config.h"
+
+
 // system definition
 #if INTPTR_MAX == INT64_MAX
 #define __SYSTEM_64BIT
