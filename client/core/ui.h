@@ -12,19 +12,39 @@ struct Button
 	PixelBufferComponent* idle;
 	PixelBufferComponent* hover;
 	PixelBufferComponent* action;
+	lptr<Text> label;
 	Rect bounds;
 	bool holding = false;
 	bool confirm = false;
 };
-constexpr u16 UI_MAXIMUM_BUTTON_COUNT = 16;
+
+struct TextField
+{
+	// utility
+	inline string& get_content() { return content->data; }
+
+	// data
+	Sprite* canvas;
+	PixelBufferComponent* idle;
+	PixelBufferComponent* hover;
+	PixelBufferComponent* select;
+	lptr<Text> content;
+	Rect bounds;
+	bool active = false;
+};
 
 struct UIBatch
 {
 	// utility
-	Button* add_button(string label,string tidle,string thover,string taction,vec2 position,vec2 scale);
+	lptr<Button> add_button(const char* label,PixelBufferComponent* tidle,PixelBufferComponent* thover,
+							PixelBufferComponent* taction,vec2 position,vec2 scale,Alignment alignment={});
+	lptr<TextField> add_text_field(PixelBufferComponent* tidle,PixelBufferComponent* thover,
+								   PixelBufferComponent* tselect,vec2 position,vec2 scale,Alignment alignment={});
 
 	// data
-	InPlaceArray<Button> buttons = InPlaceArray<Button>(UI_MAXIMUM_BUTTON_COUNT);
+	Font* font;
+	list<Button> buttons;
+	list<TextField> tfields;
 };
 
 
@@ -33,8 +53,13 @@ class UI
 public:
 	void update();
 
-public:
-	vector<UIBatch*> batches = vector<UIBatch*>();
+	// registration/deregistration
+	lptr<UIBatch> add_batch(Font* font);
+	void remove_batch(lptr<UIBatch> batch);
+
+private:
+	Font* m_Font;
+	list<UIBatch> m_Batches;
 };
 
 inline UI g_UI = UI();

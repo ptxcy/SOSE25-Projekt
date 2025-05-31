@@ -3,7 +3,7 @@ use crate::{
 	logger::{Loggable, log_with_time},
 	messages::{
 		client_message::ClientMessage,
-		server_message::{ObjectData, ServerMessage},
+		server_message::{SendObjectData, SendServerMessage},
 		websocket_format::RequestInfo,
 	},
 };
@@ -11,22 +11,22 @@ use std::{collections::HashMap, sync::Arc, time::Instant};
 use tokio::sync::mpsc::*;
 
 use super::{
-	action::{AsRaw, SafeAction},
-	dummy::DummyObject,
 	game_objects::GameObjects,
+	orbit::initialize_orbit_info_map,
+	planet::{get_timefactor, julian_day},
 };
 
 /// container of the sender where the calculation unit game thread can send servermessages to the calculation units websocket handling thread
 pub struct ServerMessageSenderChannel {
 	pub id: String,
-	pub sender: Sender<Arc<ServerMessage>>,
+	pub sender: Sender<Vec<u8>>,
 	// FPS
 	pub update_threshold: f64,
 	pub tick_counter: f64,
 }
 
 impl ServerMessageSenderChannel {
-	pub fn new(id: String, sender: Sender<Arc<ServerMessage>>) -> Self {
+	pub fn new(id: String, sender: Sender<Vec<u8>>) -> Self {
 		Self {
 			id,
 			sender,
@@ -43,65 +43,32 @@ pub async fn broadcast(
 	game_objects: &GameObjects,
 	delta_seconds: f64,
 ) {
-	// TODO user specific messages
-	let server_message = ServerMessage {
-		request_info: RequestInfo::new(get_time() as f64),
-		request_data: ObjectData::prepare_for("all".to_owned(), game_objects),
-	};
-	let shared_message = Arc::new(server_message.clone()); // Wrap the message in an Arc
 	let mut to_be_removed = Vec::<String>::new();
 	// send messages to all
 	for (i, (id, sender_channel)) in senders.iter_mut().enumerate() {
+		let server_message = SendServerMessage {
+			request_info: RequestInfo::new(get_time() as f64),
+			request_data: SendObjectData::prepare_for(id, game_objects),
+		};
+		let shared_message = Arc::new(server_message);
 		sender_channel.tick_counter += delta_seconds;
 		if sender_channel.tick_counter >= sender_channel.update_threshold {
 			// send message to client
 			// log_with_time(format!("trying to send to client"));
 			sender_channel.tick_counter = 0.;
 			let message_clone = Arc::clone(&shared_message);
-			if let Err(e) = sender_channel.sender.send(message_clone).await {
+			let msgpack_bytes = rmp_serde::to_vec(&*message_clone).log().unwrap();
+			if let Err(e) = sender_channel.sender.send(msgpack_bytes).await {
 				log_with_time(format!("Failed to send message: {}", e));
 				// remove connection
 				to_be_removed.push(id.clone());
 			}
-		} else {
 		}
 	}
 	// remove senders that are closed
 	for i in to_be_removed.iter().rev() {
 		senders.remove(i);
 	}
-}
-
-pub fn update_game(
-	game_objects: &GameObjects,
-	delta_seconds: f64,
-) -> std::result::Result<(), String> {
-	let mut actions = Vec::<SafeAction>::new();
-
-	// get actions
-	update_dummies(&mut actions, &game_objects.dummies, delta_seconds)?;
-
-	// execute operations on data via raw pointers
-	for action in actions {
-		action.execute();
-	}
-	Ok(())
-}
-
-pub fn update_dummies(
-	actions: &mut Vec<SafeAction>,
-	dummies: &HashMap<String, DummyObject>,
-	delta_seconds: f64,
-) -> std::result::Result<(), String> {
-	for (id, dummy) in dummies.iter() {
-		// dummy.position.addd(&dummy.velocity, delta_seconds);
-		actions.push(SafeAction::AddCoordinate {
-			coordinate: dummy.position.raw_mut(),
-			other: dummy.velocity.raw(),
-			multiplier: delta_seconds,
-		});
-	}
-	Ok(())
 }
 
 pub async fn start(
@@ -113,9 +80,12 @@ pub async fn start(
 
 	// initialise game objects
 	let mut game_objects = GameObjects::new();
+	let orbit_map = initialize_orbit_info_map();
 
 	// delta time init
 	let mut last_time = Instant::now();
+	let mut julian_day = julian_day(2025, 5, 30);
+	let time_scale = 360.;
 
 	// game loop
 	loop {
@@ -147,7 +117,12 @@ pub async fn start(
 		}
 
 		// game logic calculation
-		let update_result = update_game(&game_objects, delta_seconds).log();
+		game_objects
+			.update(delta_seconds, get_timefactor(julian_day), &orbit_map)
+			.log()
+			.unwrap();
+
+		julian_day += delta_seconds * time_scale;
 
 		// sending message
 		// log_with_time(format!("broadcasting to clients"));

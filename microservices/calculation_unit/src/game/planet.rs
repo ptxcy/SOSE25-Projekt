@@ -1,6 +1,6 @@
 use std::f64::consts::PI;
 
-use super::orbit::OrbitInfo;
+use super::{coordinate::Coordinate, orbit::OrbitInfo};
 
 // basierend auf https://github.com/callidaria/modsim_planetary/blob/master/astro.ipynb
 
@@ -160,13 +160,13 @@ pub fn true_anomaly(e: f64, E_deg: f64) -> f64 {
 ///
 /// # Returns
 /// - Array [x, y, z] representing the 3D cartesian coordinates.
-pub fn cartesian_coordinates(r: f64, N: f64, v: f64, w: f64, i: f64) -> [f64; 3] {
+pub fn cartesian_coordinates(r: f64, N: f64, v: f64, w: f64, i: f64) -> Coordinate {
 	let vw = v + w;
-	[
-		r * (cos_deg(N) * cos_deg(vw) - sin_deg(N) * sin_deg(vw) * cos_deg(i)),
-		r * (sin_deg(N) * cos_deg(vw) + cos_deg(N) * sin_deg(vw) * cos_deg(i)),
-		r * (sin_deg(vw) * sin_deg(i)),
-	]
+	Coordinate {
+		x: r * (cos_deg(N) * cos_deg(vw) - sin_deg(N) * sin_deg(vw) * cos_deg(i)),
+		y: r * (sin_deg(N) * cos_deg(vw) + cos_deg(N) * sin_deg(vw) * cos_deg(i)),
+		z: r * (sin_deg(vw) * sin_deg(i)),
+	}
 }
 
 /// Calculates the 3D cartesian coordinates of a planet based on its orbital elements.
@@ -175,8 +175,8 @@ pub fn cartesian_coordinates(r: f64, N: f64, v: f64, w: f64, i: f64) -> [f64; 3]
 /// - `info`: Reference to an `OrbitInfo` struct containing the planet's orbital elements.
 ///
 /// # Returns
-/// - Array `[x, y, z]` representing the planet's position in 3D space.
-pub fn calculate_planet(info: &OrbitInfo) -> [f64; 3] {
+/// - Coordinate with x y z representing the planet's position in 3D space.
+pub fn calculate_planet(info: &OrbitInfo) -> Coordinate {
 	let E = anomaly(info.M, info.e);
 	let vxy = distance_vector(info.a, E, info.e);
 	let r = get_distance(&vxy);

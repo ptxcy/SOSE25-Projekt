@@ -21,11 +21,20 @@ void Input::update(bool& running)
 		{
 			// keyboard input
 		case SDL_KEYDOWN:
+
+			// action input
 			keyboard.keys.set(m_Event.key.keysym.scancode);
 			keyboard.triggered_keys.set(m_Event.key.keysym.scancode);
+
+			// text input
+			if (!SDL_IsTextInputActive()) break;
+			if (m_Event.key.keysym.scancode==SDL_SCANCODE_BACKSPACE&&!m_TextBuffer->empty())
+				m_TextBuffer->pop_back();
 			break;
 		case SDL_KEYUP: keyboard.keys.unset(m_Event.key.keysym.scancode);
 			break;
+		case SDL_TEXTINPUT:
+			(*m_TextBuffer) += m_Event.text.text;
 
 			// mouse input
 		case SDL_MOUSEMOTION:
@@ -48,4 +57,14 @@ void Input::update(bool& running)
 			break;
 		};
 	}
+}
+
+/**
+ *	enable text input mode
+ *	\param buffer: buffer memory pointer to write text input to
+ */
+void Input::set_input_mode(string* buffer)
+{
+	m_TextBuffer = buffer;
+	SDL_StartTextInput();
 }
