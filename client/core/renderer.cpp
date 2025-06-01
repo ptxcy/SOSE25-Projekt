@@ -371,7 +371,6 @@ void Renderer::_gpu_upload()
 	m_GPUSpriteTextures.gpu_upload(m_FrameStart);
 	m_GPUFontTextures.gpu_upload(m_FrameStart);
 }
-// TODO stall until next frame when frametime budget is used up to avoid framerate issues
 
 /**
  *	update all registered sprites
