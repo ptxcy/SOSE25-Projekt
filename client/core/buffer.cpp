@@ -428,7 +428,7 @@ void GPUPixelBuffer::gpu_upload(time& fstart)
 	mutex_texture_requests.lock();
 
 	// iterate waiting requests
-	while (load_requests.size()&&calculate_delta_time(fstart)<15.)
+	while (load_requests.size()&&calculate_delta_time(fstart)<FRAME_TIME_BUDGET_MS)
 	{
 		TextureData& p_Data = load_requests.front();
 		p_Data.gpu_upload_subtexture();
