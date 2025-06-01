@@ -36,6 +36,7 @@ services:
       - intern-network
     profiles:
       - local
+      - deploy
 
   mongodb:
     image: mongo:latest
