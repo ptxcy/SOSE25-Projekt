@@ -117,8 +117,10 @@ pub async fn start(
 		}
 
 		// game logic calculation
+		// wrap the inner values thread safely
 		let dummies = Arc::new(game_objects.dummies);
 		let planets = Arc::new(game_objects.planets);
+		// update multithreadd
 		GameObjects::update(
 			Arc::clone(&dummies),
 			Arc::clone(&planets),
@@ -129,8 +131,9 @@ pub async fn start(
 		.log()
 		.unwrap();
 
-		game_objects.dummies = Arc::try_unwrap(dummies).unwrap();
-		game_objects.planets = Arc::try_unwrap(planets).unwrap();
+		// extract the inner values back
+		game_objects.dummies = Arc::into_inner(dummies).unwrap();
+		game_objects.planets = Arc::into_inner(planets).unwrap();
 
 		julian_day += delta_seconds * time_scale;
 
