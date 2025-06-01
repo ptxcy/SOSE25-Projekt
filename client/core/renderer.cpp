@@ -178,7 +178,7 @@ Renderer::Renderer()
  */
 void Renderer::update()
 {
-	PROF_STA(m_ProfilerFullFrame);
+	m_FrameStart = clock::now();
 
 	// 2D segment
 	glDisable(GL_DEPTH_TEST);
@@ -190,7 +190,6 @@ void Renderer::update()
 
 	// end-frame gpu management
 	_gpu_upload();
-	PROF_STP(m_ProfilerFullFrame);
 }
 
 /**
@@ -369,8 +368,8 @@ vec2 Renderer::align(Rect geom,Alignment alignment)
  */
 void Renderer::_gpu_upload()
 {
-	m_GPUSpriteTextures.gpu_upload();
-	m_GPUFontTextures.gpu_upload();
+	m_GPUSpriteTextures.gpu_upload(m_FrameStart);
+	m_GPUFontTextures.gpu_upload(m_FrameStart);
 }
 // TODO stall until next frame when frametime budget is used up to avoid framerate issues
 

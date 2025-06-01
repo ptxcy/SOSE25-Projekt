@@ -123,7 +123,7 @@ struct GPUPixelBuffer
 	static void load_texture(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,const char* path);
 	static void load_font(GPUPixelBuffer* gpb,Font* font,const char* path,u16 size);
 	static void _load(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,TextureData* data);
-	void gpu_upload();
+	void gpu_upload(time& fstart);
 	// TODO allocate & write for statically written texture atlas
 	// TODO when allocating, rotation boolean can be stored in alpha by signing the float
 	// TODO allow to merge deleted rects when using a dynamic texture atlas

@@ -1,0 +1,11 @@
+#ifndef CORE_CONFIG_HEADER
+#define CORE_CONFIG_HEADER
+
+
+#define FRAME_RESOLUTION_X 1600
+#define FRAME_RESOLUTION_Y 900
+
+//#define FEAT_MULTIPLAYER 1
+
+
+#endif

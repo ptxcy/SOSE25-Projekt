@@ -1,4 +1,5 @@
 #include "websocket.h"
+#ifdef FEAT_MULTIPLAYER
 
 
 // ----------------------------------------------------------------------------------------------------
@@ -281,3 +282,5 @@ void Websocket::exit()
 	//m_HandleWebsocketDownload.join();
 	//m_HandleWebsocketUpload.join();
 }
+
+#endif
