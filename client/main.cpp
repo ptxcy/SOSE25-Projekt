@@ -32,6 +32,7 @@ s32 main(s32 argc,char** argv)
 	*/
 
 	//Adapter ddd = Adapter("0.0.0.0","8080");
+	/*
 	string host = argv[1];
 	string port_ap = argv[2];
 	string port_ws = argv[3];
@@ -111,7 +112,9 @@ s32 main(s32 argc,char** argv)
 		g_Frame.update();
 	}
 
+#ifdef FEAT_MULTIPLAYER
 	g_Websocket.exit();
+#endif
 	g_Renderer.exit();
 	g_Frame.close();
 	return 0;
