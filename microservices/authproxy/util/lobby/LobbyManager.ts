@@ -52,14 +52,12 @@ export function addToRegister(lobby: LobbyRegistryEntry): boolean {
 }
 
 export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userData: IUser) {
-    console.log("Received message", data);
     if (userData === undefined || userData.username === undefined) {
         console.error("User data could not be read properly! Please Check ducking tocking!");
         ws.close();
         return;
     }
 
-    console.log("Searching for Lobby of User: ", userData.username);
     const userLobby: ILobby | null = await searchLobbyOfMember(userData.username);
     if (!userLobby) {
         console.error("User is not in a lobby!");
@@ -67,7 +65,6 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
         return;
     }
 
-    console.log("Handle Lobby Registry");
     let registerLobby: LobbyRegistryEntry | null = isRegistered(userLobby.lobbyName);
     if (registerLobby) {
         if (!registerLobby.memberSockets.includes(ws)) {
@@ -84,12 +81,12 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
         addToRegister(registerLobby);
     }
 
-    console.log("Decode");
+
     const uint8Array = data instanceof Buffer
         ? new Uint8Array(data)
         : new Uint8Array(data as ArrayBuffer);
 
-    console.log("recieved message pack", decode(uint8Array));
+    console.log("Received ClientMessage: ", decode(uint8Array));
     const clientRequest: ClientMessage | null = await decodeToClientMessage(uint8Array);
     if (!clientRequest) {
         console.error("Could not decode message");
@@ -97,7 +94,7 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
         return;
     }
 
-    console.log("Encode");
+
     const encoded = await encodeClientMessage(clientRequest);
     if (encoded === null) {
         console.error("Could not encode message");
@@ -117,8 +114,8 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
         console.log("⏳ Waiting for WebSocket to open...");
         await new Promise(resolve => setTimeout(resolve, 500));
     }
-
     console.log("Calculation socket is open, sending data...");
+    console.log("Sending To CalcUnit: ", String(encoded));
     calc_unit_socket.send(encoded);
 }
 
@@ -128,7 +125,7 @@ async function connectToCalcluationServer(lcomp: LobbyRegistryEntry): Promise<We
     const socket = new WebSocket(`ws://calculation_unit:8082/msgpack`);
 
     socket.onopen = () => {
-        console.log("WebSocket erfolgreich verbunden mit der Berechnungseinheit!");
+        console.log("WebSocket Connected to CalcUnit");
     };
 
     socket.on("message", async (msg) => {
@@ -138,7 +135,6 @@ async function connectToCalcluationServer(lcomp: LobbyRegistryEntry): Promise<We
 
         const rawMessage: any = decode(uint8Array);
         console.log("Received message From Calculation Unit", decode(uint8Array));
-
         const serverMessage: ServerMessage = {
             request_info: {
                 client: {sent_time: 0},
