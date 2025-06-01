@@ -1,68 +1,42 @@
-# 🎮 Game Engineers want Multiplayer  
-## 🚀 Game Engine goes Multiplayer  
+# Playtesting Branch für Weltraum-Explorationsspiel
 
----
+Dieser Branch dient der Vorbereitung, Durchführung und Auswertung von Playtests für das sich in Entwicklung befindliche Weltraum-Explorations- und Ressourcenmanagement-Spiel.
 
-### 👥 Team
+## Beschreibung
 
-| Name             | Matrikelnummer | E-Mail                           | GitHub Name |
-|------------------|----------------|----------------------------------|----------------------------------
-| Jonas Kernchen   | 106005         | joke2169@bht-berlin.de           | SneakyChoclate |
-| Patrick Kloss    | 107259         | pakl8536@bht-berlin.de           | ptxy |
-| Philipp Niclas   | 106932         | phni9317@bht-berlin.de           | SilentNille |
-| Lovis Trüstedt   | 103717         | lotr7201@bht-berlin.de           | callidaria |
+Ziel des Playtestings ist es, frühes Feedback zur Spielmechanik, Benutzeroberfläche, zum Spielverständnis und zu geplanten Engine-Funktionen (insbesondere Modding) zu sammeln. Die Tests sind in zwei Hauptteile gegliedert:
 
----
+- **Spieltest:** Fokus auf die frühe Spielphase (Start auf der Erde), Bau von Fabriken und Ressourcenmanagement.
+- **Engine-/Modding-Test:** Evaluierung der Konzepte für geplante Modding-Funktionen, wie das Hinzufügen von Planeten oder das Anpassen von Spielparametern.
 
-### 🧩 Art des Projekts
-> **Multiplayer Game** aus eigener Game Engine
+Das gesammelte Feedback wird genutzt, um das Spieldesign und die technische Umsetzung iterativ zu verbessern.
 
----
+## Dateistruktur und Zweck
 
-### 🛠️ Geplante Technologien
+### [`Playertest.md`](./preperation/Playertest.md)
 
-- Datenbank  
-- Eigene Game Engine  
-- Multiplayer-System  
-- Login-System  
+Der detaillierte Plan für die Durchführung der Playtests. Beinhaltet Testziele, spezifische Anweisungen für die Tester für beide Testteile (Spieltest und Engine-/Modding-Test) und Protokollierungsrichtlinien für die Testleiter.
 
-#### 🔮 Wunsch-Technologien *(zeitabhängig)*
+### [`Anweisung-Test1.md`](./Anweisung-Test1.md)
 
-- Load Balancer  
-- Kubernetes  
+Enthält Anweisungen für den Tester, wie dieser sich während des Tests verhalten soll.
 
----
+### [`Anweisung-Test2.md`](./Anweisung-Test2.md)
 
-### 📜 Projektbeschreibung
+Enthält Anweisungen für den Tester, wie dieser sich während des Tests verhalten soll.
 
-Das Ziel dieses Projekts ist es, ein **plattformunabhängiges Multiplayer-Spiel** zu entwickeln, das auf einer **eigenen Rendering-Engine** basiert und ein **modular strukturiertes Backend** im Stil einer **Microservice-Architektur** bietet.
+### [`Fragebogen1.md`](./Fragebogen1.md)
 
-Die Microservices sorgen für eine **funktionale Trennung** zwischen Multiplayer-Logik und Rechen-Logik. Das erlaubt uns spätere **Skalierbarkeit** und erhöht die **Flexibilität**.  
-Wir setzen auf **Docker**, um eine einfache und schnelle Deploybarkeit der Services sicherzustellen.  
+Der Fragebogen, der von den Testern nach Durchführung des Playtest-Durchgangs ausgefüllt werden soll. Enthält spezifische Fragen zu UI, Spielverständnis etc. im Multiple-Choice-, Likert-Skala- und Text-Format.
 
-> **Zukunftsvision:**  
-> Wenn die Zeit es erlaubt, wollen wir **Kubernetes** und **Load Balancer** einbinden, um die **Last optimal zu verteilen**.
+### [`Fragebogen2.md`](./Fragebogen2.md)
 
----
+Der Fragebogen, der von den Testern nach Durchführung des Modding-Durchgangs ausgefüllt werden soll. Enthält spezifische Fragen zu <p style='color:red'>**TDOO**</p> im Multiple-Choice-, Likert-Skala- und Text-Format.
 
-### 🧱 Technische Basis
+### [`Playertesting-Task.md`](./preperation/Playertesting-Task.md)
 
-Unser Projektkern besteht aus **mehreren unabhängigen Komponenten**.
+Enthält die ursprüngliche Aufgabenstellung und allgemeine Richtlinien für die Erstellung von Playtests und Fragebögen, wie sie für dieses Projekt vorgesehen sind.
 
-#### 🎨 Rendering Engine
-- **OpenGL 3.3** für grafische Darstellung  
-  → Unterstützt auch **schwächere oder Onboard-GPUs**  
-  → Kein Einsatz der Fixed-Function Pipeline = mehr Erweiterbarkeit  
+### [`Game-Design.md`](./Game-Design.md)
 
-#### 🎮 Input Handling
-- **SDL2** für bessere Portierbarkeit und flexibles Event-Handling
-
----
-
-### 📦 Spielinhalt
-
-Das Spiel selbst dient als **Showcase** für unsere Engine.  
-Der Content wird **iterativ** während der Entwicklung erstellt.  
-Am Ende zählt:  
-- Präsentation der **Engine-Funktionalität**  
-- **Multiplayer-Anbindung** sichtbar und spielbar machen  
+Das übergeordnete Spieldesign-Dokument. Dient als Referenz für die Spielvision, Kernmechaniken und geplante Inhalte, die im Playtest relevant sind und getestet werden sollen.
