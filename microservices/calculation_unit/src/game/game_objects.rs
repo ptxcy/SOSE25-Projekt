@@ -154,6 +154,7 @@ impl GameObjects {
 		dummies_handle
 	}
 
+	/// updating the planet position in their orbits
 	pub fn update_planets(
 		actions: Arc<Mutex<Vec<SafeAction>>>,
 		dummies: Arc<HashMap<String, DummyObject>>,

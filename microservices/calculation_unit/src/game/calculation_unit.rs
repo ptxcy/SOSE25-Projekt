@@ -37,7 +37,7 @@ impl ServerMessageSenderChannel {
 	}
 }
 
-// send message to all client receivers
+/// send message to all client receivers
 pub async fn broadcast(
 	senders: &mut HashMap<String, ServerMessageSenderChannel>,
 	game_objects: &GameObjects,
@@ -71,6 +71,7 @@ pub async fn broadcast(
 	}
 }
 
+/// starting the game / game loop
 pub async fn start(
 	mut sender_receiver: Receiver<ServerMessageSenderChannel>,
 	mut client_message_receiver: Receiver<ClientMessage>,
@@ -109,6 +110,7 @@ pub async fn start(
 			let result = client_message
 				.request_data
 				.execute(
+					&client_message.username,
 					&mut game_objects,
 					&mut server_message_senders,
 					delta_seconds,

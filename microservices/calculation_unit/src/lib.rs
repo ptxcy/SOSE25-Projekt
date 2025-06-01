@@ -3,6 +3,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 pub mod logger;
 pub mod messages {
 	pub mod client_message;
+	pub mod client_request_execution;
 	pub mod server_message;
 	pub mod websocket_format;
 }
