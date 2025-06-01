@@ -18,14 +18,16 @@ impl<T> AsRaw for T {
 pub enum SafeAction {
 	AddCoordinate {
 		coordinate: *mut Coordinate,
-		other: *const Coordinate,
+		other: Coordinate,
 		multiplier: f64,
 	},
 	SetCoordinate {
 		coordinate: *mut Coordinate,
-		other: *const Coordinate,
+		other: Coordinate,
 	},
 }
+
+unsafe impl Send for SafeAction {}
 
 impl SafeAction {
 	pub fn execute(&self) {
@@ -35,10 +37,10 @@ impl SafeAction {
 				other,
 				multiplier,
 			} => unsafe {
-				(**coordinate).addd(&**other, *multiplier);
+				(**coordinate).addd(other, *multiplier);
 			},
 			SafeAction::SetCoordinate { coordinate, other } => unsafe {
-				(**coordinate).set(&**other);
+				(**coordinate).set(other);
 			},
 		}
 	}

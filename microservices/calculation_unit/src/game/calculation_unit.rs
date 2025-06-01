@@ -117,10 +117,20 @@ pub async fn start(
 		}
 
 		// game logic calculation
-		game_objects
-			.update(delta_seconds, get_timefactor(julian_day), &orbit_map)
-			.log()
-			.unwrap();
+		let dummies = Arc::new(game_objects.dummies);
+		let planets = Arc::new(game_objects.planets);
+		GameObjects::update(
+			Arc::clone(&dummies),
+			Arc::clone(&planets),
+			delta_seconds,
+			get_timefactor(julian_day),
+			&orbit_map,
+		)
+		.log()
+		.unwrap();
+
+		game_objects.dummies = Arc::try_unwrap(dummies).unwrap();
+		game_objects.planets = Arc::try_unwrap(planets).unwrap();
 
 		julian_day += delta_seconds * time_scale;
 

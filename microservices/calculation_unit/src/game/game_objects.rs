@@ -1,8 +1,9 @@
-use std::collections::HashMap;
+use std::{
+	collections::HashMap,
+	sync::{Arc, Mutex},
+};
 
 use serde::{Deserialize, Serialize};
-
-use crate::logger::log_with_time;
 
 use super::{
 	action::{AsRaw, SafeAction},
@@ -26,10 +27,17 @@ pub struct Planet {
 }
 
 impl Planet {
-	pub fn update(&mut self, time: f64, orbit_info_map: &HashMap<String, fn(f64) -> OrbitInfo>) {
+	pub fn update(
+		&self,
+		time: f64,
+		orbit_info_map: &HashMap<String, fn(f64) -> OrbitInfo>,
+	) -> SafeAction {
 		let get_planet = orbit_info_map.get(&self.name).unwrap();
 		let orbit_info = &(*get_planet)(time);
-		self.position = calculate_planet(&orbit_info);
+		SafeAction::SetCoordinate {
+			coordinate: self.position.raw_mut(),
+			other: calculate_planet(&orbit_info),
+		}
 	}
 	pub fn new(name: &str) -> Self {
 		Self {
@@ -81,20 +89,51 @@ impl GameObjects {
 
 	/// updates the game objects
 	pub fn update(
-		&mut self,
+		dummies: Arc<HashMap<String, DummyObject>>,
+		planets: Arc<Vec<Planet>>,
 		delta_seconds: f64,
 		ingame_time: f64,
 		orbit_info_map: &HashMap<String, fn(f64) -> OrbitInfo>,
 	) -> std::result::Result<(), String> {
-		let mut actions = Vec::<SafeAction>::new();
+		let actions = Arc::new(Mutex::new(Vec::<SafeAction>::new()));
 
-		// TODO multithreaded updates
-		// get actions
-		self.update_dummies(&mut actions, delta_seconds)?;
-		self.update_planets(ingame_time, orbit_info_map)?;
+		// get actions multithreaded
+		let dummies_handle = std::thread::spawn({
+			let actions_clone = actions.clone();
+			let delta_seconds = delta_seconds;
+			let dummies = Arc::clone(&dummies);
+			move || {
+				for (id, dummy) in dummies.iter() {
+					let mut actions = actions_clone.lock().unwrap();
+					actions.push(SafeAction::AddCoordinate {
+						coordinate: dummy.position.raw_mut(),
+						other: dummy.velocity.clone(),
+						multiplier: delta_seconds,
+					});
+				}
+			}
+		});
+
+		let planets_handle = std::thread::spawn({
+			let actions_clone = actions.clone();
+			let planets = Arc::clone(&planets);
+			let orbit_info_map = orbit_info_map.clone();
+			let ingame_time = ingame_time;
+			move || {
+				for planet in planets.iter() {
+					let mut actions = actions_clone.lock().unwrap();
+					actions.push(planet.update(ingame_time, &orbit_info_map));
+				}
+			}
+		});
+
+		dummies_handle.join().unwrap();
+		planets_handle.join().unwrap();
+
+		let actions = actions.lock().unwrap();
 
 		// execute operations on data via raw pointers
-		for action in actions {
+		for action in actions.iter() {
 			action.execute();
 		}
 		Ok(())
@@ -110,7 +149,7 @@ impl GameObjects {
 			// dummy.position.addd(&dummy.velocity, delta_seconds);
 			actions.push(SafeAction::AddCoordinate {
 				coordinate: dummy.position.raw_mut(),
-				other: dummy.velocity.raw(),
+				other: dummy.velocity.clone(),
 				multiplier: delta_seconds,
 			});
 		}
@@ -118,13 +157,13 @@ impl GameObjects {
 	}
 
 	pub fn update_planets(
-		&mut self,
+		&self,
+		actions: &mut Vec<SafeAction>,
 		ingame_time: f64,
 		orbit_info_map: &HashMap<String, fn(f64) -> OrbitInfo>,
 	) -> std::result::Result<(), String> {
-		// log_with_time("update planets");
-		for planet in self.planets.iter_mut() {
-			planet.update(ingame_time, orbit_info_map);
+		for planet in self.planets.iter() {
+			actions.push(planet.update(ingame_time, orbit_info_map));
 		}
 		Ok(())
 	}
