@@ -1,5 +1,6 @@
 #ifndef CORE_WEBSOCKET_HEADER
 #define CORE_WEBSOCKET_HEADER
+#ifdef FEAT_MULTIPLAYER
 
 
 #include "base.h"
@@ -48,4 +49,5 @@ private:
 };
 
 
+#endif
 #endif

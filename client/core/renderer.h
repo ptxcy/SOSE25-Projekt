@@ -127,6 +127,7 @@ private:
 #ifdef DEBUG
 	RuntimeProfilerData m_ProfilerFullFrame = PROF_CRT("full frametime");
 #endif
+	time m_FrameStart;
 
 	// ----------------------------------------------------------------------------------------------------
 	// Threading

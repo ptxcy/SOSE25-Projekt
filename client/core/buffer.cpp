@@ -419,20 +419,22 @@ void GPUPixelBuffer::_load(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,Texture
 
 /**
  *	automatically uploads the loaded subtextures to the gpu
+ *	\param fstart: time the current frame started
  *	NOTE this has to be run in main thread due to the gpu upload being context sensitive
  */
-void GPUPixelBuffer::gpu_upload()
+void GPUPixelBuffer::gpu_upload(time& fstart)
 {
 	atlas.bind();
 	mutex_texture_requests.lock();
 
 	// iterate waiting requests
-	while (load_requests.size())
+	while (load_requests.size()&&calculate_delta_time(fstart)<FRAME_TIME_BUDGET_MS)
 	{
 		TextureData& p_Data = load_requests.front();
 		p_Data.gpu_upload_subtexture();
 		load_requests.pop();
 	}
+	COMM_LOG_COND(load_requests.size(),"stalling upload in pixel buffer");
 
 	// controversial pixel buffer lod creation
 	mutex_texture_requests.unlock();
