@@ -11,7 +11,6 @@ pub struct DummySetVelocity {
 /// sets the incoming message rate, which is mostly objects that are going to be rendered, so fps
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct SetClientFPS {
-	pub id: String,
 	pub fps: f64,
 }
 

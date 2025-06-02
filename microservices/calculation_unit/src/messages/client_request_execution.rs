@@ -9,19 +9,20 @@ use crate::{
 };
 
 pub fn set_client_fps(
+	username: &String,
 	game_objects: &mut GameObjects,
 	server_message_senders: &mut HashMap<String, ServerMessageSenderChannel>,
 	delta_seconds: f64,
 	value: &SetClientFPS,
 ) -> std::result::Result<(), String> {
-	match server_message_senders.get_mut(&value.id) {
+	match server_message_senders.get_mut(username) {
 		Some(client) => {
 			client.update_threshold = 1. / value.fps;
 		}
 		None => {
 			return Err(format!(
 				"couldnt find servermessagesenderchannel of id {}",
-				value.id
+				username
 			));
 		}
 	};
@@ -29,6 +30,7 @@ pub fn set_client_fps(
 }
 
 pub fn spawn_dummy(
+	username: &String,
 	game_objects: &mut GameObjects,
 	server_message_senders: &mut HashMap<String, ServerMessageSenderChannel>,
 	delta_seconds: f64,
@@ -49,6 +51,7 @@ pub fn spawn_dummy(
 	// spawn dummy
 	log_with_time("spawn dummy");
 	let dummy = DummyObject {
+		owner: username.clone(),
 		id: id.clone(),
 		..Default::default()
 	};
@@ -57,6 +60,7 @@ pub fn spawn_dummy(
 }
 
 pub fn dummy_set_velocity(
+	username: &String,
 	game_objects: &mut GameObjects,
 	server_message_senders: &mut HashMap<String, ServerMessageSenderChannel>,
 	delta_seconds: f64,
@@ -65,7 +69,15 @@ pub fn dummy_set_velocity(
 	let dummies = &mut game_objects.dummies;
 	match dummies.get_mut(&value.id) {
 		Some(dummy) => {
-			dummy.velocity.set(&value.position);
+			if dummy.owner == *username {
+				dummy.velocity.set(&value.position);
+			}
+			else {
+				return Err(format!(
+					"{} tried moving dummy {} that is not owned",
+					username, dummy.id
+				));
+			}
 		}
 		None => {
 			// TODO handle connection if connection tried to move non existent object
@@ -114,12 +126,13 @@ impl ClientRequest {
 		server_message_senders: &mut HashMap<String, ServerMessageSenderChannel>,
 		delta_seconds: f64,
 	) -> std::result::Result<(), String> {
+		// TODO use username
 		if let Some(value) = &self.dummy_set_velocity {
-			dummy_set_velocity(game_objects, server_message_senders, delta_seconds, value)?;
+			dummy_set_velocity(username, game_objects, server_message_senders, delta_seconds, value)?;
 		} else if let Some(value) = &self.spawn_dummy {
-			spawn_dummy(game_objects, server_message_senders, delta_seconds, value)?;
+			spawn_dummy(username, game_objects, server_message_senders, delta_seconds, value)?;
 		} else if let Some(value) = &self.set_client_fps {
-			set_client_fps(game_objects, server_message_senders, delta_seconds, value)?;
+			set_client_fps(username, game_objects, server_message_senders, delta_seconds, value)?;
 		} else if let Some(value) = &self.connect {
 			log_with_time(format!("a new connection with id {}", value));
 		}

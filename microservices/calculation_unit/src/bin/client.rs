@@ -18,11 +18,14 @@ use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
 async fn main() {
 	let args = env::args().collect::<Vec<String>>();
 
-	if args.len() != 2 {
-		panic!("no id args, start using cargo run --bin client -- dummy1");
+	if args.len() != 3 {
+		panic!("no id args, start using cargo run --bin client -- dummy1 username");
 	}
 
-	let id = args[1].clone();
+	let dummy_id = args[1].clone();
+	let username = args[2].clone();
+
+	println!("username {} joins and spawn a dummy {}", username, dummy_id);
 
 	// Define the WebSocket server URL
 	let url = "ws://127.0.0.1:8082/msgpack";
@@ -39,11 +42,11 @@ async fn main() {
 
 	// Send a message to the server
 	let write_clone = Arc::clone(&write);
-	let id_clone = id.clone();
 	tokio::spawn(async move {
+		let dummy_id_clone = dummy_id.clone();
 		let mut write = write_clone.lock().await;
 		// request connection so that client is able to receive messages
-		let serialized_message = request_connect(&id_clone);
+		let serialized_message = request_connect(&username);
 		write
 			.send(Message::Binary(Bytes::from(serialized_message)))
 			.await
@@ -51,14 +54,14 @@ async fn main() {
 		log_with_time(format!("Message sent to server! trying to connect"));
 
 		// spawn dummy_1
-		let serialized_message = request_spawn(&id_clone);
+		let serialized_message = request_spawn(&dummy_id_clone, &username);
 		write
 			.send(Message::Binary(Bytes::from(serialized_message)))
 			.await
 			.expect("Failed to send message");
 		log_with_time(format!("Message sent to server! trying to spawn"));
 
-		let serialized_message = request_set_fps(&id_clone, 5.);
+		let serialized_message = request_set_fps(&dummy_id_clone, 5., &username);
 		write
 			.send(Message::Binary(Bytes::from(serialized_message)))
 			.await
@@ -66,13 +69,11 @@ async fn main() {
 		log_with_time(format!("Message sent to server! trying to set fps to 5"));
 
 		// move dummy_1
-		loop {
-			let serialized_message = request_move(&id_clone);
-			write
-				.send(Message::Binary(Bytes::from(serialized_message)))
-				.await
-				.expect("Failed to send message");
-		}
+		let serialized_message = request_move(&dummy_id_clone, &username);
+		write
+			.send(Message::Binary(Bytes::from(serialized_message)))
+			.await
+			.expect("Failed to send message");
 	});
 
 	// Read messages from the server
@@ -99,9 +100,10 @@ async fn main() {
 	}
 }
 
-pub fn request_connect(id: &String) -> Vec<u8> {
+pub fn request_connect(username: &String) -> Vec<u8> {
 	let client_message = ClientMessage {
-		request_data: ClientRequest::new_connect(id),
+		request_data: ClientRequest::new_connect(username),
+		username: username.clone(),
 		..Default::default()
 	};
 
@@ -110,9 +112,10 @@ pub fn request_connect(id: &String) -> Vec<u8> {
 	serialized_message
 }
 
-pub fn request_spawn(id: &String) -> Vec<u8> {
+pub fn request_spawn(id: &String, username: &String) -> Vec<u8> {
 	let client_message = ClientMessage {
 		request_data: ClientRequest::new_spawn_dummy(id),
+		username: username.clone(),
 		..Default::default()
 	};
 
@@ -121,12 +124,12 @@ pub fn request_spawn(id: &String) -> Vec<u8> {
 	serialized_message
 }
 
-pub fn request_set_fps(id: &String, fps: f64) -> Vec<u8> {
+pub fn request_set_fps(id: &String, fps: f64, username: &String) -> Vec<u8> {
 	let client_message = ClientMessage {
 		request_data: ClientRequest::new_set_client_fps(SetClientFPS {
-			id: id.clone(),
 			fps,
 		}),
+		username: username.clone(),
 		..Default::default()
 	};
 
@@ -135,7 +138,7 @@ pub fn request_set_fps(id: &String, fps: f64) -> Vec<u8> {
 	serialized_message
 }
 
-pub fn request_move(id: &String) -> Vec<u8> {
+pub fn request_move(id: &String, username: &String) -> Vec<u8> {
 	let client_message = ClientMessage {
 		request_data: ClientRequest::new_dummy_set_velocity(DummySetVelocity {
 			id: id.clone(),
@@ -145,6 +148,7 @@ pub fn request_move(id: &String) -> Vec<u8> {
 				z: 0.,
 			},
 		}),
+		username: username.clone(),
 		..Default::default()
 	};
 
