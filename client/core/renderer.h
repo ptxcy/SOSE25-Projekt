@@ -8,13 +8,6 @@
 
 constexpr f32 RENDERER_POSITIONAL_DELETION_CODE = -1247.f;
 
-constexpr u16 RENDERER_MAXIMUM_FONT_COUNT = 2;
-constexpr u16 RENDERER_SPRITE_MEMORY_WIDTH = 4000;
-constexpr u16 RENDERER_SPRITE_MEMORY_HEIGHT = 4000;
-constexpr u16 RENDERER_FONT_MEMORY_WIDTH = 1500;
-constexpr u16 RENDERER_FONT_MEMORY_HEIGHT = 1500;
-// TODO those belong into a configuration definition to make this up to the engine user
-
 
 // ----------------------------------------------------------------------------------------------------
 // States
@@ -161,7 +154,7 @@ private:
 	// text
 	InPlaceArray<Font> m_Fonts = InPlaceArray<Font>(RENDERER_MAXIMUM_FONT_COUNT);
 	list<Text> m_Texts;
-	// TODO deleting texts like this will be a pain, in dire need of some better entity management
+	// FIXME font memory is too strict and i don't think this is a nice approach in this case
 };
 
 inline Renderer g_Renderer = Renderer();

@@ -4,45 +4,15 @@
 #include "core/ui.h"
 #include "core/websocket.h"
 
+#include "script/menu.h"
+
 
 s32 main(s32 argc,char** argv)
 {
 	Font* __Ubuntu = g_Renderer.register_font("./res/font/ubuntu.ttf",50);
-	PixelBufferComponent* __ButtonHover = g_Renderer.register_sprite_texture("./res/ui/button_hover.png");
-	PixelBufferComponent* __ButtonSelect = g_Renderer.register_sprite_texture("./res/ui/button_on.png");
-	lptr<UIBatch> uib = g_UI.add_batch(__Ubuntu);
-	lptr<Button> btn0 = uib->add_button("destroy",__ButtonHover,__ButtonSelect,__ButtonHover,
-										vec2(100,100),vec2(150,40));
-	lptr<Button> btn1 = uib->add_button("erase",__ButtonHover,__ButtonSelect,__ButtonHover,
-										vec2(0,0),vec2(150,40),{ .align=SCREEN_ALIGN_TOPCENTER });
-	lptr<Button> btn2 = uib->add_button("improve",__ButtonHover,__ButtonSelect,__ButtonHover,
-										vec2(0,0),vec2(150,40),{ .align=SCREEN_ALIGN_BOTTOMRIGHT });
-	lptr<TextField> tf0 = uib->add_text_field(__ButtonHover,__ButtonSelect,__ButtonSelect,vec2(0,65),
-											  vec2(700,50),{ .align=SCREEN_ALIGN_CENTER });
-	lptr<TextField> tf1 = uib->add_text_field(__ButtonHover,__ButtonSelect,__ButtonSelect,vec2(0,0),
-											  vec2(700,50),{ .align=SCREEN_ALIGN_CENTER });
-	lptr<TextField> tf2 = uib->add_text_field(__ButtonHover,__ButtonSelect,__ButtonSelect,vec2(0,-65),
-											  vec2(700,50),{ .align=SCREEN_ALIGN_CENTER });
+	Menu __Menu = Menu(__Ubuntu);
 
 	/*
-	UIBatch uib;// = UIBatch(1);
-	Button* btn = uib.add_button("not yet ready","./res/kid.png","./res/test.png","./res/maps.png",
-								 vec2(100,100),vec2(100,100));
-	g_UI.batches.push_back(&uib);
-	*/
-
-	//Adapter ddd = Adapter("0.0.0.0","8080");
-	/*
-	string host = argv[1];
-	string port_ap = argv[2];
-	string port_ws = argv[3];
-	string name = argv[4];
-	string pass = argv[5];
-	string lnom = argv[6];
-	string lpass = argv[7];
-	string macher = argv[8];
-	Websocket g_Websocket = Websocket(host,port_ap,port_ws,name,pass,lnom,lpass,macher=="yes");
-
 	std::map<string,Sprite*> entities;
 	PixelBufferComponent* t0 = g_Renderer.register_sprite_texture("./res/kid.png");
 	entities[name] = g_Renderer.register_sprite(t0,vec2(150),vec2(100));
@@ -63,17 +33,11 @@ s32 main(s32 argc,char** argv)
 	*/
 
 	bool running = true;
-	bool logic = true;
+	bool conn_logic = true;
 	while (running)
 	{
 		g_Frame.clear();
 		g_Input.update(running);
-
-		if (logic&&btn0->confirm)
-		{
-			g_UI.remove_batch(uib);
-			logic = false;
-		}
 
 		// send updates
 		/*
@@ -107,6 +71,7 @@ s32 main(s32 argc,char** argv)
 		}
 		*/
 
+		g_Wheel.update();
 		g_UI.update();
 		g_Renderer.update();
 		g_Frame.update();

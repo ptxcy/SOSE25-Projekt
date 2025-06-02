@@ -205,7 +205,7 @@ std::string _url_encode(string& value) {
 }
 
 /**
- *	automatically run the necessary setup to update & process the websocket queues
+ *	run the necessary setup to update & process the websocket queues
  *	\param host: websocket host
  *	\param port_ap: adapter port
  *	\param port_ws: websocket port
@@ -215,12 +215,12 @@ std::string _url_encode(string& value) {
  *	\param lpass: lobby password
  *	\param creator: true if connection attempt creates a new lobby, false if user joins a created lobby
  */
-Websocket::Websocket(string host,string port_ad,string port_ws,string name,string pass,string lnom,
-					 string lpass,bool create)
+void Websocket::connect(string host,string port_ad,string port_ws,string name,string pass,string lnom,
+						string lpass,bool create)
 {
 	// adapter connection
 	HTTPAdapter __Adapter = HTTPAdapter(host,port_ad);
-	COMM_ERR_COND(__Adapter.create_user(name,pass),"user creation did not work");
+	COMM_ERR_COND(!__Adapter.create_user(name,pass),"user creation did not work");
 	string token = __Adapter.authenticate_on_server(name,pass);
 	__Adapter.open_lobby(lnom,lpass,token,create);
 

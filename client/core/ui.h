@@ -39,7 +39,8 @@ struct UIBatch
 	lptr<Button> add_button(const char* label,PixelBufferComponent* tidle,PixelBufferComponent* thover,
 							PixelBufferComponent* taction,vec2 position,vec2 scale,Alignment alignment={});
 	lptr<TextField> add_text_field(PixelBufferComponent* tidle,PixelBufferComponent* thover,
-								   PixelBufferComponent* tselect,vec2 position,vec2 scale,Alignment alignment={});
+								   PixelBufferComponent* tselect,vec2 position,vec2 scale,
+								   Alignment alignment={});
 
 	// data
 	Font* font;
