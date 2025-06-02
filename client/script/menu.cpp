@@ -41,9 +41,11 @@ void Menu::_update()
 	// react to confirmation
 	if (btjoin->confirm||btcreate->confirm)
 	{
+		/*
 		g_Websocket.connect(NETWORK_HOST,NETWORK_PORT_ADAPTER,NETWORK_PORT_WEBSOCKET,
 							tfname->get_content(),tfpass->get_content(),tflobby->get_content(),
 							tflpass->get_content(),btcreate->confirm);
+		*/
 		close();
 	}
 }
@@ -54,12 +56,10 @@ void Menu::_update()
 void Menu::close()
 {
 	g_UI.remove_batch(conn_batch);
-	/*
 	g_Renderer.delete_sprite_texture(button_hover);
 	g_Renderer.delete_sprite_texture(button_select);
 	g_Renderer.delete_sprite_texture(textbox_idle);
 	g_Renderer.delete_sprite_texture(textbox_hover);
 	g_Renderer.delete_sprite_texture(textbox_active);
-	*/
 	g_Wheel.routines.erase(ref);
 }

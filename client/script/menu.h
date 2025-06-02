@@ -18,6 +18,7 @@ public:
 private:
 	// correlation
 	lptr<UpdateRoutine> ref;
+	bool run = true;
 
 	// textures
 	PixelBufferComponent* button_hover;

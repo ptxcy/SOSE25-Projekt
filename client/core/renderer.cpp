@@ -275,7 +275,6 @@ void Renderer::delete_sprite_texture(PixelBufferComponent* texture)
 {
 	// signal cleanup
 	texture->offset.x = RENDERER_POSITIONAL_DELETION_CODE;
-	texture = nullptr;
 	_sprite_texture_signal.proceed();
 
 	// free texture atlas memory
