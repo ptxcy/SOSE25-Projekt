@@ -3,7 +3,11 @@
 
 
 #include "base.h"
+#include "blitter.h"
 
+
+// ----------------------------------------------------------------------------------------------------
+// Geometry Buffers
 
 class VertexArray
 {
@@ -46,6 +50,9 @@ private:
 	u32 m_VBO;
 };
 
+
+// ----------------------------------------------------------------------------------------------------
+// Colour Buffers
 
 struct TextureData
 {
@@ -142,6 +149,28 @@ struct GPUPixelBuffer
 };
 
 
-// TODO framebuffer
+// ----------------------------------------------------------------------------------------------------
+// Rendertarget Colour Buffers
+
+class Framebuffer
+{
+public:
+	Framebuffer(u8 compcount);
+	void define_colour_component(u8 index,f32 width,f32 height,bool fbuffer=false);
+	void define_depth_component(f32 width,f32 height);
+	void finalize();
+
+	// usage
+	void start();
+	static inline void stop() { glBindFramebuffer(GL_FRAMEBUFFER,0); }
+	inline void bind_colour_component(u8 i) { glBindTexture(GL_TEXTURE_2D,m_ColourComponents[i]); }
+	inline void bind_depth_component() { glBindTexture(GL_TEXTURE_2D,m_DepthComponent); }
+
+private:
+	u32 m_Buffer;
+	std::vector<u32> m_ColourComponents;  // TODO pointer here
+	u32 m_DepthComponent;
+};
+
 
 #endif

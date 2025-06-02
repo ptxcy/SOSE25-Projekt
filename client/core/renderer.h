@@ -109,6 +109,7 @@ private:
 	void _gpu_upload();
 	void _update_sprites();
 	void _update_text();
+	void _update_canvas();
 
 	// background procedures
 	template<typename T> static void _collector(InPlaceArray<T>* xs,ThreadSignal* signal);
@@ -133,13 +134,19 @@ private:
 
 	VertexArray m_SpriteVertexArray;
 	VertexArray m_TextVertexArray;
+	VertexArray m_CanvasVertexArray;
 
 	VertexBuffer m_SpriteVertexBuffer;
+	VertexBuffer m_CanvasVertexBuffer;
+
 	VertexBuffer m_SpriteInstanceBuffer;
 	VertexBuffer m_TextInstanceBuffer;
 
 	ShaderPipeline m_SpritePipeline;
 	ShaderPipeline m_TextPipeline;
+	ShaderPipeline m_CanvasPipeline;
+
+	Framebuffer m_SceneFrameBuffer = Framebuffer(1);
 
 	// ----------------------------------------------------------------------------------------------------
 	// Render Object Information

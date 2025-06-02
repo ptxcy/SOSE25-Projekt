@@ -91,12 +91,18 @@ Renderer::Renderer()
 		-.5f,.5f,.0f,.0f, .5f,-.5f,1.f,1.f, .5f,.5f,1.f,.0f,
 		.5f,-.5f,1.f,1.f, -.5f,.5f,.0f,.0f, -.5f,-.5f,.0f,1.f
 	};
+	f32 __CanvasVertices[] = {
+		-1.f,1.f,.0f,1.f, 1.f,-1.f,1.f,.0f, 1.f,1.f,1.f,1.f,
+		1.f,-1.f,1.f,.0f, -1.f,1.f,.0f,1.f, -1.f,-1.f,.0f,.0f
+	};
 
 	COMM_LOG("compiling shaders");
 	Shader __SpriteVertexShader = Shader("core/shader/sprite.vert",GL_VERTEX_SHADER);
 	Shader __DirectFragmentShader = Shader("core/shader/sprite.frag",GL_FRAGMENT_SHADER);
 	Shader __TextVertexShader = Shader("core/shader/text.vert",GL_VERTEX_SHADER);
 	Shader __TextFragmentShader = Shader("core/shader/text.frag",GL_FRAGMENT_SHADER);
+	Shader __CanvasVertexShader = Shader("core/shader/canvas.vert",GL_VERTEX_SHADER);
+	Shader __CanvasFragmentShader = Shader("core/shader/canvas.frag",GL_FRAGMENT_SHADER);
 
 	// ----------------------------------------------------------------------------------------------------
 	// Sprite Pipeline
@@ -143,6 +149,17 @@ Renderer::Renderer()
 	m_TextPipeline.upload("tex",0);
 	m_TextPipeline.upload_coordinate_system();
 
+	COMM_LOG("canvas pipeline");
+	m_CanvasPipeline.assemble(__CanvasVertexShader,__CanvasFragmentShader,4,0,"canvas");
+	m_CanvasVertexArray.bind();
+	m_CanvasVertexBuffer.bind();
+	m_CanvasVertexBuffer.upload_vertices(__CanvasVertices,24);
+
+	m_CanvasPipeline.enable();
+	m_CanvasPipeline.define_attribute("position",2);
+	m_CanvasPipeline.define_attribute("edge_coordinates",2);
+	m_CanvasPipeline.upload("tex",0);
+
 	// ----------------------------------------------------------------------------------------------------
 	// GPU Memory
 
@@ -157,6 +174,16 @@ Renderer::Renderer()
 	m_GPUFontTextures.allocate(RENDERER_FONT_MEMORY_WIDTH,RENDERER_FONT_MEMORY_HEIGHT,GL_RED);
 	Texture::set_texture_parameter_linear_mipmap();
 	Texture::set_texture_parameter_clamp_to_edge();
+
+	// ----------------------------------------------------------------------------------------------------
+	// Render Targets
+
+	COMM_LOG("creating scene render target");
+	m_SceneFrameBuffer.start();
+	m_SceneFrameBuffer.define_colour_component(0,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y);
+	m_SceneFrameBuffer.define_depth_component(FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y);
+	m_SceneFrameBuffer.finalize();
+	Framebuffer::stop();
 
 	// ----------------------------------------------------------------------------------------------------
 	// Start Subprocesses
@@ -180,13 +207,17 @@ void Renderer::update()
 {
 	m_FrameStart = clock::now();
 
-	// 2D segment
-	glDisable(GL_DEPTH_TEST);
-	_update_sprites();
-	_update_text();
-
 	// 3D segment
 	glEnable(GL_DEPTH_TEST);
+	m_SceneFrameBuffer.start();
+	// TODO
+	Framebuffer::stop();
+
+	// 2D segment
+	glDisable(GL_DEPTH_TEST);
+	_update_canvas();
+	_update_sprites();
+	_update_text();
 
 	// end-frame gpu management
 	_gpu_upload();
@@ -377,10 +408,10 @@ void Renderer::_gpu_upload()
 void Renderer::_update_sprites()
 {
 	m_SpriteVertexArray.bind();
-	m_GPUSpriteTextures.atlas.bind();
-	m_SpritePipeline.enable();
 	m_SpriteInstanceBuffer.bind();
 	m_SpriteInstanceBuffer.upload_vertices(m_Sprites.mem,BUFFER_MAXIMUM_TEXTURE_COUNT,GL_DYNAMIC_DRAW);
+	m_SpritePipeline.enable();
+	m_GPUSpriteTextures.atlas.bind();
 	glDrawArraysInstanced(GL_TRIANGLES,0,6,m_Sprites.active_range);
 }
 
@@ -401,6 +432,17 @@ void Renderer::_update_text()
 		m_TextInstanceBuffer.upload_vertices(p_Text.buffer,GL_DYNAMIC_DRAW);
 		glDrawArraysInstanced(GL_TRIANGLES,0,6,p_Text.buffer.size());
 	}
+}
+
+/**
+ *	update framebuffer representations
+ */
+void Renderer::_update_canvas()
+{
+	m_CanvasVertexArray.bind();
+	m_CanvasPipeline.enable();
+	m_SceneFrameBuffer.bind_colour_component(0);
+	glDrawArrays(GL_TRIANGLES,0,6);
 }
 
 

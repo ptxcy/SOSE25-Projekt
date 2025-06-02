@@ -41,11 +41,11 @@ void Menu::_update()
 	// react to confirmation
 	if (btjoin->confirm||btcreate->confirm)
 	{
-		/*
+#ifdef FEAT_MULTIPLAYER
 		g_Websocket.connect(NETWORK_HOST,NETWORK_PORT_ADAPTER,NETWORK_PORT_WEBSOCKET,
 							tfname->get_content(),tfpass->get_content(),tflobby->get_content(),
 							tflpass->get_content(),btcreate->confirm);
-		*/
+#endif
 		close();
 	}
 }

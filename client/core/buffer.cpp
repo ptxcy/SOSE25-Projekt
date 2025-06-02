@@ -77,7 +77,7 @@ void VertexBuffer::upload_elements(vector<u32> elements)
 
 
 // ----------------------------------------------------------------------------------------------------
-// Video Buffers
+// Colour Buffers
 
 /**
  *	allocation and setup for texture data load
@@ -441,3 +441,67 @@ void GPUPixelBuffer::gpu_upload(time& fstart)
 	Texture::generate_mipmap();
 }
 // FIXME performance will suffer when generating mipmap every time the loop condition breaks
+
+
+// ----------------------------------------------------------------------------------------------------
+// Rendertarget Colour Buffers
+
+/**
+ *	allocate memory for framebuffer
+ *	\param compcount: number of components, that will be defined for this framebuffer
+ */
+Framebuffer::Framebuffer(u8 compcount)
+{
+	glGenFramebuffers(1,&m_Buffer);
+	m_ColourComponents.resize(compcount);
+	glGenTextures(compcount,&m_ColourComponents[0]);
+}
+
+/**
+ *	colour component definition, allowed as many as the constructor has allocated
+ *	\param index: frambuffer component index
+ *	\param width: resolution width
+ *	\param height: resolution height
+ *	\param fbuffer: (default false) true if floatbuffer when extra precision is needed
+ */
+void Framebuffer::define_colour_component(u8 index,f32 width,f32 height,bool fbuffer)
+{
+	glBindTexture(GL_TEXTURE_2D,m_ColourComponents[index]);
+	glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA+0x6f12*fbuffer,width,height,0,GL_RGBA,GL_UNSIGNED_INT+fbuffer,NULL);
+	Texture::set_texture_parameter_nearest_unfiltered();
+	glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0+index,GL_TEXTURE_2D,m_ColourComponents[index],0);
+}
+
+/**
+ *	depth component definition, only a single one per framebuffer allowed for obvious reasons
+ *	\param width: resolution width
+ *	\param height: resolution height
+ */
+void Framebuffer::define_depth_component(f32 width,f32 height)
+{
+	glGenTextures(1,&m_DepthComponent);
+	glBindTexture(GL_TEXTURE_2D,m_DepthComponent);
+	glTexImage2D(GL_TEXTURE_2D,0,GL_DEPTH_COMPONENT,width,height,0,GL_DEPTH_COMPONENT,GL_UNSIGNED_INT,NULL);
+	Texture::set_texture_parameter_nearest_unfiltered();
+	glFramebufferTexture2D(GL_FRAMEBUFFER,GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,m_DepthComponent,0);
+}
+
+/**
+ *	combine previously defined framebuffer attachments
+ *	NOTE: this has to happen after definitions of all components
+ */
+void Framebuffer::finalize()
+{
+	u32 __Attachments[m_ColourComponents.size()];
+	for (u8 i=0;i<m_ColourComponents.size();i++) __Attachments[i] = GL_COLOR_ATTACHMENT0+i;
+	glDrawBuffers(m_ColourComponents.size(),__Attachments);
+}
+
+/**
+ *	clear buffer and start recording process
+ */
+void Framebuffer::start()
+{
+	glBindFramebuffer(GL_FRAMEBUFFER,m_Buffer);
+	Frame::clear();
+}
