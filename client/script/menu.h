@@ -21,6 +21,7 @@ private:
 	bool run = true;
 
 	// textures
+	PixelBufferComponent* button_idle;
 	PixelBufferComponent* button_hover;
 	PixelBufferComponent* button_select;
 	PixelBufferComponent* textbox_idle;

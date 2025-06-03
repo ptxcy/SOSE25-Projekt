@@ -8,6 +8,7 @@
 Menu::Menu(Font* font)
 {
 	// load textures
+	button_idle = g_Renderer.register_sprite_texture("./res/ui/button_idle.png");
 	button_hover = g_Renderer.register_sprite_texture("./res/ui/button_hover.png");
 	button_select = g_Renderer.register_sprite_texture("./res/ui/button_on.png");
 	textbox_idle = g_Renderer.register_sprite_texture("./res/ui/textbox.png");
@@ -24,9 +25,9 @@ Menu::Menu(Font* font)
 											{ .align=SCREEN_ALIGN_CENTER });
 	tflpass = conn_batch->add_text_field(textbox_idle,textbox_hover,textbox_active,vec2(0,-90),vec2(500,50),
 											{ .align=SCREEN_ALIGN_CENTER });
-	btjoin = conn_batch->add_button("Join Lobby",button_hover,button_select,button_hover,
+	btjoin = conn_batch->add_button("Join Lobby",button_idle,button_select,button_hover,
 									vec2(-125,-145),vec2(175,40),{ .align=SCREEN_ALIGN_CENTER });
-	btcreate = conn_batch->add_button("Create Lobby",button_hover,button_select,button_hover,
+	btcreate = conn_batch->add_button("Create Lobby",button_idle,button_select,button_hover,
 									  vec2(125,-145),vec2(175,40),{ .align=SCREEN_ALIGN_CENTER });
 
 	// register routine
@@ -56,6 +57,7 @@ void Menu::_update()
 void Menu::close()
 {
 	g_UI.remove_batch(conn_batch);
+	g_Renderer.delete_sprite_texture(button_idle);
 	g_Renderer.delete_sprite_texture(button_hover);
 	g_Renderer.delete_sprite_texture(button_select);
 	g_Renderer.delete_sprite_texture(textbox_idle);
