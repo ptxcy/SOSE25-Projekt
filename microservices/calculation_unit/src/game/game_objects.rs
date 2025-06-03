@@ -11,13 +11,15 @@ use super::{
 	dummy::DummyObject,
 	orbit::OrbitInfo,
 	planet::calculate_planet,
+	player::Player,
 };
 
 /// objects that are going to be rendered by client
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct GameObjects {
 	pub dummies: HashMap<String, DummyObject>,
 	pub planets: Vec<Planet>,
+	pub players: HashMap<String, Player>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
@@ -48,10 +50,11 @@ impl Planet {
 }
 
 // leight weight creating and no cloning needed
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone, Default)]
 pub struct SendGameObjects<'a> {
 	pub dummies: HashMap<&'a String, &'a DummyObject>,
 	pub planets: Vec<&'a Planet>,
+	pub players: HashMap<&'a String, &'a Player>,
 }
 
 impl GameObjects {
@@ -67,8 +70,8 @@ impl GameObjects {
 			Planet::new("earth"),
 		];
 		Self {
-			dummies: HashMap::<String, DummyObject>::new(),
 			planets,
+			..Default::default()
 		}
 	}
 
@@ -79,11 +82,19 @@ impl GameObjects {
 				.dummies
 				.iter()
 				.filter(|(id, dummy)| {
-					// TODO filter for each user
+					/* TODO filter for each user */
 					true
 				})
 				.collect::<HashMap<&String, &DummyObject>>(),
 			planets: self.planets.iter().collect(),
+			players: self
+				.players
+				.iter()
+				.filter(|(id, dummy)| {
+					/* TODO filter for each user */
+					true
+				})
+				.collect(),
 		}
 	}
 

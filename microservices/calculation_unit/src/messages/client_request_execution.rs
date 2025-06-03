@@ -71,8 +71,7 @@ pub fn dummy_set_velocity(
 		Some(dummy) => {
 			if dummy.owner == *username {
 				dummy.velocity.set(&value.position);
-			}
-			else {
+			} else {
 				return Err(format!(
 					"{} tried moving dummy {} that is not owned",
 					username, dummy.id
@@ -128,11 +127,29 @@ impl ClientRequest {
 	) -> std::result::Result<(), String> {
 		// TODO use username
 		if let Some(value) = &self.dummy_set_velocity {
-			dummy_set_velocity(username, game_objects, server_message_senders, delta_seconds, value)?;
+			dummy_set_velocity(
+				username,
+				game_objects,
+				server_message_senders,
+				delta_seconds,
+				value,
+			)?;
 		} else if let Some(value) = &self.spawn_dummy {
-			spawn_dummy(username, game_objects, server_message_senders, delta_seconds, value)?;
+			spawn_dummy(
+				username,
+				game_objects,
+				server_message_senders,
+				delta_seconds,
+				value,
+			)?;
 		} else if let Some(value) = &self.set_client_fps {
-			set_client_fps(username, game_objects, server_message_senders, delta_seconds, value)?;
+			set_client_fps(
+				username,
+				game_objects,
+				server_message_senders,
+				delta_seconds,
+				value,
+			)?;
 		} else if let Some(value) = &self.connect {
 			log_with_time(format!("a new connection with id {}", value));
 		}

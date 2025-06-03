@@ -14,11 +14,12 @@ use super::{
 	game_objects::GameObjects,
 	orbit::initialize_orbit_info_map,
 	planet::{get_timefactor, julian_day},
+	player::Player,
 };
 
 /// container of the sender where the calculation unit game thread can send servermessages to the calculation units websocket handling thread
 pub struct ServerMessageSenderChannel {
-	pub id: String,
+	pub username: String,
 	pub sender: Sender<Vec<u8>>,
 	// FPS
 	pub update_threshold: f64,
@@ -26,9 +27,9 @@ pub struct ServerMessageSenderChannel {
 }
 
 impl ServerMessageSenderChannel {
-	pub fn new(id: String, sender: Sender<Vec<u8>>) -> Self {
+	pub fn new(username: String, sender: Sender<Vec<u8>>) -> Self {
 		Self {
-			id,
+			username,
 			sender,
 			// default 60 fps value till updated
 			update_threshold: 1. / 2.,
@@ -45,23 +46,20 @@ pub async fn broadcast(
 ) {
 	let mut to_be_removed = Vec::<String>::new();
 	// send messages to all
-	for (i, (id, sender_channel)) in senders.iter_mut().enumerate() {
+	for (i, (username, sender_channel)) in senders.iter_mut().enumerate() {
 		let server_message = SendServerMessage {
 			request_info: RequestInfo::new(get_time() as f64),
-			request_data: SendObjectData::prepare_for(id, game_objects),
+			request_data: SendObjectData::prepare_for(username, game_objects),
 		};
-		let shared_message = Arc::new(server_message);
 		sender_channel.tick_counter += delta_seconds;
 		if sender_channel.tick_counter >= sender_channel.update_threshold {
 			// send message to client
-			// log_with_time(format!("trying to send to client"));
 			sender_channel.tick_counter = 0.;
-			let message_clone = Arc::clone(&shared_message);
-			let msgpack_bytes = rmp_serde::to_vec(&*message_clone).log().unwrap();
+			let msgpack_bytes = rmp_serde::to_vec(&server_message).log().unwrap();
 			if let Err(e) = sender_channel.sender.send(msgpack_bytes).await {
 				log_with_time(format!("Failed to send message: {}", e));
 				// remove connection
-				to_be_removed.push(id.clone());
+				to_be_removed.push(username.clone());
 			}
 		}
 	}
@@ -90,13 +88,14 @@ pub async fn start(
 
 	// game loop
 	loop {
+		// receive new players / sender for server messages
 		while let Ok(sender) = sender_receiver.try_recv() {
-			log_with_time(format!("getting sender {}", sender.id));
-			// if let Err(e) = sender.sender.try_send(Arc::new(ServerMessage::dummy())) {
-			// 	log_with_time(format!("Failed to send initial dummy message: {}", e));
-			// }
-
-			server_message_senders.insert(sender.id.clone(), sender);
+			let username = sender.username.clone();
+			log_with_time(format!("getting sender {}", username));
+			game_objects
+				.players
+				.insert(username.clone(), Player::new(username.clone()));
+			server_message_senders.insert(username, sender);
 		}
 
 		// delta time calculation here
