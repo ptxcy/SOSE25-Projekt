@@ -318,6 +318,19 @@ public:
 inline CoordinateSystem2D g_CoordinateSystem = CoordinateSystem2D(MATH_CARTESIAN_XRANGE,MATH_CARTESIAN_YRANGE);
 
 
+class Camera3D
+{
+public:
+	Camera3D(vec3 position,vec3 tgt,f32 width,f32 height,f32 fov);
+
+public:
+	mat4 view;
+	mat4 proj;
+};
+
+inline Camera3D g_Camera = Camera3D(vec3(.85f),vec3(0,.001,0),FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y,90);
+
+
 // ----------------------------------------------------------------------------------------------------
 // Additional Globals
 

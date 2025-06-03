@@ -73,6 +73,112 @@ void Text::load_buffer()
 
 
 // ----------------------------------------------------------------------------------------------------
+// Mesh Component
+
+/**
+ *	load mesh geometry from .obj file
+ *	\param path: path to .obj file explicitly defining geometry
+ */
+void Mesh::load(const char* path)
+{
+	vector<vec3> __Positions;
+	vector<vec2> __UVCoordinates;
+	vector<vec3> __Normals;
+	vector<u32> __PositionIndices;
+	vector<u32> __UVIndices;
+	vector<u32> __NormalIndices;
+
+	// open source file
+	FILE* __OBJFile = fopen(path,"r");
+	if (__OBJFile==NULL)
+	{
+		COMM_ERR("geometry definition file %s could not be found",path);
+		return;
+	}
+
+	// iterate and sort geometry information
+	char __Command[128];
+	while (fscanf(__OBJFile,"%s",__Command)!=EOF)
+	{
+		// process position prefix
+		if (!strcmp(__Command,"v"))
+		{
+			vec3 __Position;
+			fscanf(__OBJFile,"%f %f %f\n",&__Position.x,&__Position.y,&__Position.z);
+			__Positions.push_back(__Position);
+		}
+
+		// process uv coordinate prefix
+		else if (!strcmp(__Command,"vt"))
+		{
+			vec2 __UVCoordinate;
+			fscanf(__OBJFile,"%f %f\n",&__UVCoordinate.x,&__UVCoordinate.y);
+			__UVCoordinates.push_back(__UVCoordinate);
+		}
+
+		// process normal prefix
+		else if (!strcmp(__Command,"vn"))
+		{
+			vec3 __Normal;
+			fscanf(__OBJFile,"%f %f %f\n",&__Normal.x,&__Normal.y,&__Normal.z);
+			__Normals.push_back(__Normal);
+		}
+
+		// process face prefix
+		else if (!strcmp(__Command,"f"))
+		{
+			u32 __PositionIndex[3];
+			u32 __UVIndex[3];
+			u32 __NormalIndex[3];
+			fscanf(
+					__OBJFile,"%u/%u/%u %u/%u/%u %u/%u/%u\n",
+					&__PositionIndex[0],&__UVIndex[0],&__NormalIndex[0],
+					&__PositionIndex[1],&__UVIndex[1],&__NormalIndex[1],
+					&__PositionIndex[2],&__UVIndex[2],&__NormalIndex[2]
+				);
+			for (u8 i=0;i<3;i++)
+			{
+				__PositionIndices.push_back(__PositionIndex[i]);
+				__UVIndices.push_back(__UVIndex[i]);
+				__NormalIndices.push_back(__NormalIndex[i]);
+			}
+		}
+	}
+
+	// close file & allocate memory
+	fclose(__OBJFile);
+	vertices.reserve(__PositionIndices.size());
+
+	// iterate faces & write vertices
+	for (u32 i=0;i<__PositionIndices.size();i+=3)
+	{
+		for (u8 j=0;j<3;j++)
+		{
+			u32 n = i+j;
+			Vertex __Vertex = {
+				.position = __Positions[__PositionIndices[n]-1],
+				.uv = __UVCoordinates[__UVIndices[n]-1],
+				.normal = __Normals[__NormalIndices[n]-1]
+			};
+			vertices.push_back(__Vertex);
+		}
+
+		// precalculate tangent for gram-schmidt reorthogonalization & normal mapping
+		vec3 __EdgeDelta0 = vertices[i+1].position-vertices[i].position;
+		vec3 __EdgeDelta1 = vertices[i+2].position-vertices[i].position;
+		vec2 __UVDelta0 = vertices[i+1].uv-vertices[i].uv;
+		vec2 __UVDelta1 = vertices[i+2].uv-vertices[i].uv;
+		f32 __Factor = 1.f/(__UVDelta0.x*__UVDelta1.y-__UVDelta0.y*__UVDelta1.x);
+		glm::mat2x3 __CombinedEdges = glm::mat2x3(__EdgeDelta0,__EdgeDelta1);
+		vec2 __CombinedUVs = vec2(__UVDelta1.y,-__UVDelta0.y);
+		vec3 __Tangent = __Factor*(__CombinedEdges*__CombinedUVs);
+		__Tangent = glm::normalize(__Tangent);
+		for (u8 j=0;j<3;j++) vertices[i+j].tangent = __Tangent;
+	}
+}
+
+
+// ----------------------------------------------------------------------------------------------------
 // Renderer Main Features
 
 /**
@@ -103,6 +209,8 @@ Renderer::Renderer()
 	Shader __TextFragmentShader = Shader("core/shader/text.frag",GL_FRAGMENT_SHADER);
 	Shader __CanvasVertexShader = Shader("core/shader/canvas.vert",GL_VERTEX_SHADER);
 	Shader __CanvasFragmentShader = Shader("core/shader/canvas.frag",GL_FRAGMENT_SHADER);
+	Shader __MeshVertexShader = Shader("core/shader/mesh.vert",GL_VERTEX_SHADER);
+	Shader __MeshFragmentShader = Shader("core/shader/mesh.frag",GL_FRAGMENT_SHADER);
 
 	// ----------------------------------------------------------------------------------------------------
 	// Sprite Pipeline
@@ -160,6 +268,20 @@ Renderer::Renderer()
 	m_CanvasPipeline.define_attribute("edge_coordinates",2);
 	m_CanvasPipeline.upload("tex",0);
 
+	COMM_LOG("mesh pipeline");
+	m_MeshPipeline.assemble(__MeshVertexShader,__MeshFragmentShader,11,0,"mesh");
+	m_MeshVertexArray.bind();
+	m_MeshVertexBuffer.bind();
+
+	m_MeshPipeline.enable();
+	m_MeshPipeline.define_attribute("position",3);
+	m_MeshPipeline.define_attribute("uv",2);
+	m_MeshPipeline.define_attribute("normal",3);
+	m_MeshPipeline.define_attribute("tangent",3);
+
+	m_MeshPipeline.upload("tex",0);
+	m_MeshPipeline.upload_camera();
+
 	// ----------------------------------------------------------------------------------------------------
 	// GPU Memory
 
@@ -210,7 +332,7 @@ void Renderer::update()
 	// 3D segment
 	glEnable(GL_DEPTH_TEST);
 	m_SceneFrameBuffer.start();
-	// TODO
+	_update_mesh();
 	Framebuffer::stop();
 
 	// 2D segment
@@ -371,6 +493,30 @@ lptr<Text> Renderer::write_text(Font* font,string data,vec2 position,f32 scale,v
 }
 
 /**
+ *	load triangle mesh into memory
+ *	\param path: path to obj file explicitly defining mesh geometry
+ *	\returns mesh id
+ */
+u16 Renderer::register_mesh(const char* path)
+{
+	m_Meshes.push_back({  });
+	m_Meshes.back().load(path);
+	return m_Meshes.size()-1;
+}
+// TODO tweak id system
+// TODO make it usable
+
+/**
+ *	upload loaded mesh data into vram
+ */
+void Renderer::load_meshes()
+{
+	m_MeshVertexBuffer.bind();
+	m_MeshVertexBuffer.upload_vertices(m_Meshes.back().vertices);
+}
+// TODO make it usable
+
+/**
  *	geometry realignment based on position
  *	\param geom: intersection rectangle over aligning geometry
  *	\param alignment: (default fullscreen neutral) target alignment within specified border
@@ -443,6 +589,16 @@ void Renderer::_update_canvas()
 	m_CanvasPipeline.enable();
 	m_SceneFrameBuffer.bind_colour_component(0);
 	glDrawArrays(GL_TRIANGLES,0,6);
+}
+
+/**
+ *	update triangle meshes
+ */
+void Renderer::_update_mesh()
+{
+	m_MeshVertexArray.bind();
+	m_MeshPipeline.enable();
+	glDrawArrays(GL_TRIANGLES,0,m_Meshes.back().vertices.size());
 }
 
 

@@ -150,6 +150,16 @@ void ShaderPipeline::upload_coordinate_system()
 }
 
 /**
+ *	automatically upload the global 3D camera to the shader
+ *	the camera is uploaded to uniforms view = "view", proj = "proj"
+ */
+void ShaderPipeline::upload_camera()
+{
+	upload("view",g_Camera.view);
+	upload("proj",g_Camera.proj);
+}
+
+/**
  *	input attribute name and receive the attribute id
  *	\param name of the vertex/index attribute
  */

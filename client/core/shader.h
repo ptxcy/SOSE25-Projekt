@@ -39,6 +39,7 @@ public:
 	void upload(const char* varname,vec4 value);
 	void upload(const char* varname,mat4 value);
 	void upload_coordinate_system();
+	void upload_camera();
 
 private:
 	s32 _handle_attribute_location_by_name(const char* varname);

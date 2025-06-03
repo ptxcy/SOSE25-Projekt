@@ -55,6 +55,14 @@ struct TextCharacter
 	PixelBufferComponent comp;
 };
 
+struct Vertex
+{
+	vec3 position;
+	vec2 uv;
+	vec3 normal;
+	vec3 tangent;
+};
+
 
 // ----------------------------------------------------------------------------------------------------
 // Entity Data
@@ -75,6 +83,15 @@ struct Text
 	Alignment alignment;
 	string data;
 	vector<TextCharacter> buffer;
+};
+
+struct Mesh
+{
+	// utility
+	void load(const char* path);
+
+	// data
+	vector<Vertex> vertices;
 };
 
 
@@ -102,6 +119,10 @@ public:
 	lptr<Text> write_text(Font* font,string data,vec2 position,f32 scale,vec4 colour=vec4(1),Alignment align={});
 	inline void delete_text(lptr<Text> text) { m_Texts.erase(text); }
 
+	// mesh
+	u16 register_mesh(const char* path);
+	void load_meshes();
+
 	// utility
 	static vec2 align(Rect geom,Alignment alignment);
 
@@ -110,6 +131,7 @@ private:
 	void _update_sprites();
 	void _update_text();
 	void _update_canvas();
+	void _update_mesh();
 
 	// background procedures
 	template<typename T> static void _collector(InPlaceArray<T>* xs,ThreadSignal* signal);
@@ -135,9 +157,11 @@ private:
 	VertexArray m_SpriteVertexArray;
 	VertexArray m_TextVertexArray;
 	VertexArray m_CanvasVertexArray;
+	VertexArray m_MeshVertexArray;
 
 	VertexBuffer m_SpriteVertexBuffer;
 	VertexBuffer m_CanvasVertexBuffer;
+	VertexBuffer m_MeshVertexBuffer;
 
 	VertexBuffer m_SpriteInstanceBuffer;
 	VertexBuffer m_TextInstanceBuffer;
@@ -145,6 +169,7 @@ private:
 	ShaderPipeline m_SpritePipeline;
 	ShaderPipeline m_TextPipeline;
 	ShaderPipeline m_CanvasPipeline;
+	ShaderPipeline m_MeshPipeline;
 
 	Framebuffer m_SceneFrameBuffer = Framebuffer(1);
 
@@ -162,6 +187,9 @@ private:
 	InPlaceArray<Font> m_Fonts = InPlaceArray<Font>(RENDERER_MAXIMUM_FONT_COUNT);
 	list<Text> m_Texts;
 	// FIXME font memory is too strict and i don't think this is a nice approach in this case
+
+	// mesh
+	vector<Mesh> m_Meshes;
 };
 
 inline Renderer g_Renderer = Renderer();

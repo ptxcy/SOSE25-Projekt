@@ -103,3 +103,16 @@ CoordinateSystem2D::CoordinateSystem2D(f32 xaxis,f32 yaxis)
 	view = glm::lookAt(vec3(0,-.0001f,1),vec3(.0f),vec3(0,0,1));
 	proj = glm::ortho(.0f,xaxis,.0f,yaxis,.1f,10.f);
 }
+
+
+// ----------------------------------------------------------------------------------------------------
+// Camera
+
+/**
+ *	create 3D camera
+ */
+Camera3D::Camera3D(vec3 position,vec3 target,f32 width,f32 height,f32 fov)
+{
+	view = glm::lookAt(position,target,vec3(0,0,1));
+	proj = glm::perspective(glm::radians(fov),width/height,.1f,1000.f);
+}
