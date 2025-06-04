@@ -177,6 +177,19 @@ void Mesh::load(const char* path)
 	}
 }
 
+/**
+ *	load triangle mesh into batch memory
+ *	\param path: path to obj file explicitly defining mesh geometry
+ */
+void MeshBatch::register_mesh(const char* path)
+{
+	COMM_LOG("loading mesh geometry information");
+	meshes.push_back({  });
+	meshes.back().load(path);
+	mesh_vertex_size += meshes.back().vertices.size();
+}
+// TODO multithreaded geometry loading
+
 
 // ----------------------------------------------------------------------------------------------------
 // Renderer Main Features
@@ -269,18 +282,7 @@ Renderer::Renderer()
 	m_CanvasPipeline.upload("tex",0);
 
 	COMM_LOG("mesh pipeline");
-	m_MeshPipeline.assemble(__MeshVertexShader,__MeshFragmentShader,11,0,"mesh");
-	m_MeshVertexArray.bind();
-	m_MeshVertexBuffer.bind();
-
-	m_MeshPipeline.enable();
-	m_MeshPipeline.define_attribute("position",3);
-	m_MeshPipeline.define_attribute("uv",2);
-	m_MeshPipeline.define_attribute("normal",3);
-	m_MeshPipeline.define_attribute("tangent",3);
-
-	m_MeshPipeline.upload("tex",0);
-	m_MeshPipeline.upload_camera();
+	m_MeshPipeline.assemble(__MeshVertexShader,__MeshFragmentShader,RENDERER_VERTEX_SIZE,0,"mesh");
 
 	// ----------------------------------------------------------------------------------------------------
 	// GPU Memory
@@ -493,28 +495,34 @@ lptr<Text> Renderer::write_text(Font* font,string data,vec2 position,f32 scale,v
 }
 
 /**
- *	load triangle mesh into memory
- *	\param path: path to obj file explicitly defining mesh geometry
- *	\returns mesh id
+ *	register triangle mesh batch
+ *	\returns pointer to created triangle mesh batch
  */
-u16 Renderer::register_mesh(const char* path)
+lptr<MeshBatch> Renderer::register_mesh_batch()
 {
-	m_Meshes.push_back({  });
-	m_Meshes.back().load(path);
-	return m_Meshes.size()-1;
+	m_MeshBatches.push_back({  });
+	return std::prev(m_MeshBatches.end());
 }
-// TODO tweak id system
-// TODO make it usable
 
 /**
  *	upload loaded mesh data into vram
+ *	\param batch: triangle mesh batch, to be loaded
  */
-void Renderer::load_meshes()
+void Renderer::load(lptr<MeshBatch> batch)
 {
-	m_MeshVertexBuffer.bind();
-	m_MeshVertexBuffer.upload_vertices(m_Meshes.back().vertices);
+	COMM_LOG("uploading mesh geometry batch to gpu, %d faces found",batch->mesh_vertex_size);
+	m_MeshPipeline.enable();
+	batch->vao.bind();
+	batch->vbo.bind();
+	m_MeshPipeline.define_attribute("position",3);
+	m_MeshPipeline.define_attribute("uv",2);
+	m_MeshPipeline.define_attribute("normal",3);
+	m_MeshPipeline.define_attribute("tangent",3);
+	m_MeshPipeline.reset_upload();
+	m_MeshPipeline.upload("tex",0);
+	m_MeshPipeline.upload_camera();
+	batch->vbo.upload_vertices(batch->meshes[0].vertices);
 }
-// TODO make it usable
 
 /**
  *	geometry realignment based on position
@@ -596,9 +604,12 @@ void Renderer::_update_canvas()
  */
 void Renderer::_update_mesh()
 {
-	m_MeshVertexArray.bind();
 	m_MeshPipeline.enable();
-	glDrawArrays(GL_TRIANGLES,0,m_Meshes.back().vertices.size());
+	for (MeshBatch& p_Batch : m_MeshBatches)
+	{
+		p_Batch.vao.bind();
+		glDrawArrays(GL_TRIANGLES,0,p_Batch.mesh_vertex_size);
+	}
 }
 
 

@@ -1,8 +1,9 @@
 #version 330 core
 
 
-//in mat3 TBN;
+in vec2 UV;
 in vec3 Normal;
+in mat3 TBN;
 
 out vec4 pixelColour;
 

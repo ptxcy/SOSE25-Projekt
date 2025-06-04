@@ -62,6 +62,7 @@ struct Vertex
 	vec3 normal;
 	vec3 tangent;
 };
+constexpr u8 RENDERER_VERTEX_SIZE = sizeof(Vertex)/sizeof(f32);
 
 
 // ----------------------------------------------------------------------------------------------------
@@ -87,11 +88,21 @@ struct Text
 
 struct Mesh
 {
-	// utility
 	void load(const char* path);
+	vector<Vertex> vertices;
+};
+
+struct MeshBatch
+{
+	// utility
+	void register_mesh(const char* path);
+	void load(ShaderPipeline& shader);
 
 	// data
-	vector<Vertex> vertices;
+	VertexArray vao;
+	VertexBuffer vbo;
+	vector<Mesh> meshes;
+	u32 mesh_vertex_size = 0;
 };
 
 
@@ -119,9 +130,9 @@ public:
 	lptr<Text> write_text(Font* font,string data,vec2 position,f32 scale,vec4 colour=vec4(1),Alignment align={});
 	inline void delete_text(lptr<Text> text) { m_Texts.erase(text); }
 
-	// mesh
-	u16 register_mesh(const char* path);
-	void load_meshes();
+	// scene
+	lptr<MeshBatch> register_mesh_batch();
+	void load(lptr<MeshBatch> batch);
 
 	// utility
 	static vec2 align(Rect geom,Alignment alignment);
@@ -157,11 +168,9 @@ private:
 	VertexArray m_SpriteVertexArray;
 	VertexArray m_TextVertexArray;
 	VertexArray m_CanvasVertexArray;
-	VertexArray m_MeshVertexArray;
 
 	VertexBuffer m_SpriteVertexBuffer;
 	VertexBuffer m_CanvasVertexBuffer;
-	VertexBuffer m_MeshVertexBuffer;
 
 	VertexBuffer m_SpriteInstanceBuffer;
 	VertexBuffer m_TextInstanceBuffer;
@@ -189,7 +198,7 @@ private:
 	// FIXME font memory is too strict and i don't think this is a nice approach in this case
 
 	// mesh
-	vector<Mesh> m_Meshes;
+	list<MeshBatch> m_MeshBatches;
 };
 
 inline Renderer g_Renderer = Renderer();

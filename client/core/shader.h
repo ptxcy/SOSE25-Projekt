@@ -40,6 +40,7 @@ public:
 	void upload(const char* varname,mat4 value);
 	void upload_coordinate_system();
 	void upload_camera();
+	inline void reset_upload() { m_IndexCursor = 0; }
 
 private:
 	s32 _handle_attribute_location_by_name(const char* varname);

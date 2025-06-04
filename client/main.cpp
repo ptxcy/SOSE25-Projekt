@@ -11,8 +11,9 @@ s32 main(s32 argc,char** argv)
 {
 	Font* __Ubuntu = g_Renderer.register_font("./res/font/ubuntu.ttf",50);
 	Menu __Menu = Menu(__Ubuntu);
-	g_Renderer.register_mesh("./res/sphere.obj");
-	g_Renderer.load_meshes();
+	lptr<MeshBatch> __Batch = g_Renderer.register_mesh_batch();
+	__Batch->register_mesh("./res/sphere.obj");
+	g_Renderer.load(__Batch);
 
 	/*
 	std::map<string,Sprite*> entities;
