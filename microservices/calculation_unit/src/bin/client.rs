@@ -7,7 +7,9 @@ use calculation_unit::{
 	game::coordinate::Coordinate,
 	logger::log_with_time,
 	messages::{
-		client_message::{ClientMessage, ClientRequest, DummySetVelocity, SetClientFPS},
+		client_message::{
+			ClientMessage, ClientRequest, DummySetVelocity, SetClientFPS,
+		},
 		server_message::ServerMessage,
 	},
 };
@@ -20,7 +22,9 @@ async fn main() {
 	let args = env::args().collect::<Vec<String>>();
 
 	if args.len() != 3 {
-		panic!("no id args, start using cargo run --bin client -- dummy1 username");
+		panic!(
+			"no id args, start using cargo run --bin client -- dummy1 username"
+		);
 	}
 
 	let dummy_id = args[1].clone();
@@ -62,12 +66,15 @@ async fn main() {
 			.expect("Failed to send message");
 		log_with_time(format!("Message sent to server! trying to spawn"));
 
-		let serialized_message = request_set_fps(&dummy_id_clone, 5., &username);
+		let serialized_message =
+			request_set_fps(&dummy_id_clone, 5., &username);
 		write
 			.send(Message::Binary(Bytes::from(serialized_message)))
 			.await
 			.expect("Failed to send message");
-		log_with_time(format!("Message sent to server! trying to set fps to 5"));
+		log_with_time(format!(
+			"Message sent to server! trying to set fps to 5"
+		));
 
 		// move dummy with id 0
 		tokio::time::sleep(Duration::from_millis(500)).await;
@@ -90,10 +97,16 @@ async fn main() {
 							server_message.request_data.game_objects
 						));
 					}
-					Err(e) => log_with_time(format!("Failed to deserialize message: {}", e)),
+					Err(e) => log_with_time(format!(
+						"Failed to deserialize message: {}",
+						e
+					)),
 				}
 			}
-			Ok(other) => log_with_time(format!("Received non-binary message: {:?}", other)),
+			Ok(other) => log_with_time(format!(
+				"Received non-binary message: {:?}",
+				other
+			)),
 			Err(e) => {
 				log_with_time(format!("Error reading message: {}", e));
 				break;
@@ -109,8 +122,8 @@ pub fn request_connect(username: &String) -> Vec<u8> {
 		..Default::default()
 	};
 
-	let serialized_message =
-		rmp_serde::to_vec(&client_message).expect("Failed to serialize message");
+	let serialized_message = rmp_serde::to_vec(&client_message)
+		.expect("Failed to serialize message");
 	serialized_message
 }
 
@@ -121,8 +134,8 @@ pub fn request_spawn(id: &String, username: &String) -> Vec<u8> {
 		..Default::default()
 	};
 
-	let serialized_message =
-		rmp_serde::to_vec(&client_message).expect("Failed to serialize message");
+	let serialized_message = rmp_serde::to_vec(&client_message)
+		.expect("Failed to serialize message");
 	serialized_message
 }
 
@@ -133,8 +146,8 @@ pub fn request_set_fps(id: &String, fps: f64, username: &String) -> Vec<u8> {
 		..Default::default()
 	};
 
-	let serialized_message =
-		rmp_serde::to_vec(&client_message).expect("Failed to serialize message");
+	let serialized_message = rmp_serde::to_vec(&client_message)
+		.expect("Failed to serialize message");
 	serialized_message
 }
 
@@ -152,7 +165,7 @@ pub fn request_move(id: usize, username: &String) -> Vec<u8> {
 		..Default::default()
 	};
 
-	let serialized_message =
-		rmp_serde::to_vec(&client_message).expect("Failed to serialize message");
+	let serialized_message = rmp_serde::to_vec(&client_message)
+		.expect("Failed to serialize message");
 	serialized_message
 }

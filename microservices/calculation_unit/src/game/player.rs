@@ -1,9 +1,10 @@
 use serde::{Deserialize, Serialize};
 
 use super::{
-	coordinate::Coordinate, crafting_material::CraftingMaterial, gametraits::{Buyer, Crafter, IsOwned, Spawner}
+	coordinate::Coordinate,
+	crafting_material::CraftingMaterial,
+	gametraits::{Buyer, Crafter, IsOwned, Spawner},
 };
-
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct Player {
@@ -46,7 +47,7 @@ impl Player {
 }
 
 impl Spawner for Player {
-    fn spawn_at(&self) -> Coordinate {
-    	Coordinate::default()
-    }
+	fn spawn_at(&self) -> Coordinate {
+		Coordinate::default()
+	}
 }

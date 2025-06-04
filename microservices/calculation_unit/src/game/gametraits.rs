@@ -1,4 +1,6 @@
-use super::{coordinate::Coordinate, crafting_material::CraftingMaterial, game_objects::GameObjects};
+use super::{
+	coordinate::Coordinate, crafting_material::CraftingMaterial,
+};
 
 /// has a position or coordinate to spawn something
 pub trait Spawner {
@@ -17,7 +19,12 @@ pub trait IsOwned {
 /// anything that can buy something
 pub trait Buyer: IsOwned {
 	fn get_money_mut(&mut self) -> &mut f64;
-	fn buy<B: Buyer, O: IsOwned>(&mut self, object: &mut O, seller: &mut B, price: f64) {
+	fn buy<B: Buyer, O: IsOwned>(
+		&mut self,
+		object: &mut O,
+		seller: &mut B,
+		price: f64,
+	) {
 		*self.get_money_mut() -= price;
 		*seller.get_money_mut() += price;
 		self.transfer_ownership(object);
@@ -32,5 +39,10 @@ pub trait Crafter: IsOwned + Spawner {
 /// soemthing craftable form materials
 pub trait Craftable: IsOwned {
 	fn get_cost() -> CraftingMaterial;
-    fn craft<'a, T: Crafter>(crafter: &mut T, name: &'a String, game_objects: &'a mut super::game_objects::GameObjects, id_counter: &'a mut usize) -> &'a mut Self;
+	fn craft<'a, T: Crafter>(
+		crafter: &mut T,
+		name: &'a String,
+		game_objects: &'a mut super::game_objects::GameObjects,
+		id_counter: &'a mut usize,
+	) -> &'a mut Self;
 }

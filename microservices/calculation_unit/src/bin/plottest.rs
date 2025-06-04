@@ -1,5 +1,7 @@
 use calculation_unit::game::orbit::{get_mars, get_mercury};
-use calculation_unit::game::planet::{anomaly, distance_vector, get_timefactor, julian_day};
+use calculation_unit::game::planet::{
+	anomaly, distance_vector, get_timefactor, julian_day,
+};
 use plotters::prelude::*;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {

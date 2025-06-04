@@ -41,7 +41,8 @@ pub fn julian_day(mut yy: i32, mut mm: i32, dd: i32) -> f64 {
 		mm += 12;
 	}
 	let a = yy / 100;
-	let b = if yy > 1582 || (yy == 1582 && (mm > 10 || (mm == 10 && dd >= 15))) {
+	let b = if yy > 1582 || (yy == 1582 && (mm > 10 || (mm == 10 && dd >= 15)))
+	{
 		2 - a + a / 4
 	} else {
 		0
@@ -80,7 +81,9 @@ pub fn anomaly(m: f64, e: f64) -> f64 {
 
 	while (out - last).abs() > 0.00001 {
 		last = out;
-		out = last - (last - e * (180.0 / PI) * sin_deg(last) - m) / (1.0 - e * cos_deg(last));
+		out = last
+			- (last - e * (180.0 / PI) * sin_deg(last) - m)
+				/ (1.0 - e * cos_deg(last));
 	}
 	out
 }
@@ -160,11 +163,19 @@ pub fn true_anomaly(e: f64, E_deg: f64) -> f64 {
 ///
 /// # Returns
 /// - Array [x, y, z] representing the 3D cartesian coordinates.
-pub fn cartesian_coordinates(r: f64, N: f64, v: f64, w: f64, i: f64) -> Coordinate {
+pub fn cartesian_coordinates(
+	r: f64,
+	N: f64,
+	v: f64,
+	w: f64,
+	i: f64,
+) -> Coordinate {
 	let vw = v + w;
 	Coordinate {
-		x: r * (cos_deg(N) * cos_deg(vw) - sin_deg(N) * sin_deg(vw) * cos_deg(i)),
-		y: r * (sin_deg(N) * cos_deg(vw) + cos_deg(N) * sin_deg(vw) * cos_deg(i)),
+		x: r * (cos_deg(N) * cos_deg(vw)
+			- sin_deg(N) * sin_deg(vw) * cos_deg(i)),
+		y: r * (sin_deg(N) * cos_deg(vw)
+			+ cos_deg(N) * sin_deg(vw) * cos_deg(i)),
 		z: r * (sin_deg(vw) * sin_deg(i)),
 	}
 }

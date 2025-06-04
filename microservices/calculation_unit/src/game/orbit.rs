@@ -167,6 +167,6 @@ pub fn get_earth(t: f64) -> OrbitInfo {
 		r,
 		a,
 		get_curve(t, 0.01670863, -0.000042037, -0.0000001267, 0.00000000014), // e (Exzentrizität)
-		trim_down(l - r),                                                     // M (mittlere Anomalie)
+		trim_down(l - r), // M (mittlere Anomalie)
 	)
 }

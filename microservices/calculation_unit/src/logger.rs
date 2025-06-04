@@ -5,7 +5,8 @@ use std::{
 	time::{SystemTime, UNIX_EPOCH},
 };
 
-static last_log: Mutex<RefCell<Option<String>>> = Mutex::new(RefCell::new(None));
+static last_log: Mutex<RefCell<Option<String>>> =
+	Mutex::new(RefCell::new(None));
 static repeat_log_count: Mutex<RefCell<usize>> = Mutex::new(RefCell::new(0));
 
 fn message_with_time<E: fmt::Debug>(message: E) -> String {

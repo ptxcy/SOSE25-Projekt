@@ -12,6 +12,7 @@ pub mod game {
 	pub mod action;
 	pub mod calculation_unit;
 	pub mod coordinate;
+	pub mod crafting_material;
 	pub mod dummy;
 	pub mod game_objects;
 	pub mod gametraits;
@@ -19,7 +20,6 @@ pub mod game {
 	pub mod orbit;
 	pub mod planet;
 	pub mod player;
-pub mod crafting_material;
 }
 
 pub fn get_time() -> u128 {

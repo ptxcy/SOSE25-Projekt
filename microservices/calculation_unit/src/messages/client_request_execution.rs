@@ -3,7 +3,8 @@ use std::collections::HashMap;
 use super::client_message::{ClientRequest, DummySetVelocity, SetClientFPS};
 use crate::{
 	game::{
-		calculation_unit::ServerMessageSenderChannel, dummy::DummyObject, game_objects::GameObjects, gametraits::Buyer,
+		calculation_unit::ServerMessageSenderChannel, dummy::DummyObject,
+		game_objects::GameObjects, gametraits::{Buyer, Craftable},
 	},
 	logger::log_with_time,
 };
@@ -37,8 +38,9 @@ pub fn spawn_dummy(
 
 	// spawn dummy
 	log_with_time("spawn dummy");
-	let dummy = DummyObject::new(username, name, id_counter);
-	dummies.insert(dummy.id, dummy);
+	// FIXME overlapping mutable reference
+	// let player = game_objects.players.get_mut(username).unwrap();
+	// DummyObject::craft(player, &"name".to_string(), game_objects, id_counter);
 	Ok(())
 }
 
@@ -103,29 +105,19 @@ impl ClientRequest {
 		&self,
 		username: &String,
 		game_objects: &mut GameObjects,
-		server_message_senders: &mut HashMap<String, ServerMessageSenderChannel>,
+		server_message_senders: &mut HashMap<
+			String,
+			ServerMessageSenderChannel,
+		>,
 		delta_seconds: f64,
 		id_counter: &mut usize,
 	) -> std::result::Result<(), String> {
 		if let Some(value) = &self.dummy_set_velocity {
-			dummy_set_velocity(
-				username,
-				game_objects,
-				value,
-			)?;
+			dummy_set_velocity(username, game_objects, value)?;
 		} else if let Some(value) = &self.spawn_dummy {
-			spawn_dummy(
-				username,
-				game_objects,
-				value,
-				id_counter,
-			)?;
+			spawn_dummy(username, game_objects, value, id_counter)?;
 		} else if let Some(value) = &self.set_client_fps {
-			set_client_fps(
-				username,
-				server_message_senders,
-				value,
-			)?;
+			set_client_fps(username, server_message_senders, value)?;
 		} else if let Some(value) = &self.connect {
 			log_with_time(format!("a new connection with id {}", value));
 		}

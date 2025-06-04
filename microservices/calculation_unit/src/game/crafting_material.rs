@@ -7,8 +7,9 @@ pub struct CraftingMaterial {
 }
 
 impl CraftingMaterial {
-	pub fn sub(&mut self, other: &Self) {
+	/// chainable altering operation to subract
+	pub fn sub(&mut self, other: &Self) -> &mut Self {
 		self.copper -= other.copper;
+		self
 	}
 }
-

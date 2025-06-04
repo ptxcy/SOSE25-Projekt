@@ -11,7 +11,10 @@ use std::{collections::HashMap, sync::Arc, time::Instant};
 use tokio::sync::mpsc::*;
 
 use super::{
-	game_objects::GameObjects, orbit::initialize_orbit_info_map, planet::{get_timefactor, julian_day}, player::Player
+	game_objects::GameObjects,
+	orbit::initialize_orbit_info_map,
+	planet::{get_timefactor, julian_day},
+	player::Player,
 };
 
 /// container of the sender where the calculation unit game thread can send servermessages to the calculation units websocket handling thread
@@ -52,7 +55,8 @@ pub async fn broadcast(
 		if sender_channel.tick_counter >= sender_channel.update_threshold {
 			// send message to client
 			sender_channel.tick_counter = 0.;
-			let msgpack_bytes = rmp_serde::to_vec(&server_message).log().unwrap();
+			let msgpack_bytes =
+				rmp_serde::to_vec(&server_message).log().unwrap();
 			if let Err(e) = sender_channel.sender.send(msgpack_bytes).await {
 				log_with_time(format!("Failed to send message: {}", e));
 				// remove connection
@@ -72,7 +76,8 @@ pub async fn start(
 	mut client_message_receiver: Receiver<ClientMessage>,
 ) {
 	// client channels
-	let mut server_message_senders = HashMap::<String, ServerMessageSenderChannel>::new();
+	let mut server_message_senders =
+		HashMap::<String, ServerMessageSenderChannel>::new();
 
 	// initialise game objects
 	let mut game_objects = GameObjects::new();
@@ -91,9 +96,7 @@ pub async fn start(
 			let username = sender.username.clone();
 			log_with_time(format!("getting sender {}", username));
 			let player = Player::new(username.clone());
-			game_objects
-				.players
-				.insert(username.clone(), player);
+			game_objects.players.insert(username.clone(), player);
 			server_message_senders.insert(username, sender);
 		}
 
@@ -140,7 +143,8 @@ pub async fn start(
 
 		// sending message
 		// log_with_time(format!("broadcasting to clients"));
-		broadcast(&mut server_message_senders, &game_objects, delta_seconds).await;
+		broadcast(&mut server_message_senders, &game_objects, delta_seconds)
+			.await;
 
 		// let other tokio tasks do stuff
 		tokio::task::yield_now().await;
