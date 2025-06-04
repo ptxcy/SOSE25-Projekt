@@ -3,8 +3,7 @@ use std::collections::HashMap;
 use super::client_message::{ClientRequest, DummySetVelocity, SetClientFPS};
 use crate::{
 	game::{
-		calculation_unit::ServerMessageSenderChannel, dummy::DummyObject,
-		game_objects::GameObjects, gametraits::{Buyer, Craftable},
+		action::AsRaw, calculation_unit::ServerMessageSenderChannel, dummy::DummyObject, game_objects::GameObjects, gametraits::{Buyer, Craftable}, player::Player
 	},
 	logger::log_with_time,
 };
@@ -34,13 +33,11 @@ pub fn spawn_dummy(
 	name: &String,
 	id_counter: &mut usize,
 ) -> std::result::Result<(), String> {
-	let dummies = &mut game_objects.dummies;
-
 	// spawn dummy
 	log_with_time("spawn dummy");
-	// FIXME overlapping mutable reference
-	// let player = game_objects.players.get_mut(username).unwrap();
-	// DummyObject::craft(player, &"name".to_string(), game_objects, id_counter);
+	let go = game_objects as *mut GameObjects;
+	let player = game_objects.players.get_mut(username).unwrap();
+	DummyObject::craft(player, &"name".to_string(), go, id_counter);
 	Ok(())
 }
 
