@@ -11,10 +11,7 @@ use std::{collections::HashMap, sync::Arc, time::Instant};
 use tokio::sync::mpsc::*;
 
 use super::{
-	game_objects::GameObjects,
-	orbit::initialize_orbit_info_map,
-	planet::{get_timefactor, julian_day},
-	player::Player,
+	dummy::DummyObject, game_objects::GameObjects, gametraits::Buyable, orbit::initialize_orbit_info_map, planet::{get_timefactor, julian_day}, player::Player
 };
 
 /// container of the sender where the calculation unit game thread can send servermessages to the calculation units websocket handling thread
@@ -93,9 +90,10 @@ pub async fn start(
 		while let Ok(sender) = sender_receiver.try_recv() {
 			let username = sender.username.clone();
 			log_with_time(format!("getting sender {}", username));
+			let player = Player::new(username.clone());
 			game_objects
 				.players
-				.insert(username.clone(), Player::new(username.clone()));
+				.insert(username.clone(), player);
 			server_message_senders.insert(username, sender);
 		}
 

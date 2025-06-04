@@ -14,6 +14,7 @@ pub mod game {
 	pub mod coordinate;
 	pub mod dummy;
 	pub mod game_objects;
+	pub mod gametraits;
 	pub mod network;
 	pub mod orbit;
 	pub mod planet;
