@@ -19,6 +19,7 @@ pub mod game {
 	pub mod orbit;
 	pub mod planet;
 	pub mod player;
+pub mod crafting_material;
 }
 
 pub fn get_time() -> u128 {

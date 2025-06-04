@@ -1,9 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use super::{
-	coordinate::Coordinate,
-	game_objects::GameObjects,
-	gametraits::{Buyable, Buyer, Craftable, Crafter, IsOwned},
+	coordinate::Coordinate, crafting_material::CraftingMaterial, gametraits::{Craftable, IsOwned}
 };
 
 /// dummy object for square rendering
@@ -29,28 +27,10 @@ impl DummyObject {
 	}
 }
 
-impl Buyable for DummyObject {
-	fn buy<T: Buyer>(buyer: &mut T, game_objects: &mut GameObjects) {
-		// TODO actual money management
-		(*buyer.get_money_mut()) -= 10.;
-		let dummy = DummyObject {
-			owner: buyer.get_owner().to_owned(),
-			..Default::default()
-		};
-		game_objects.dummies.insert(dummy.id, dummy);
-	}
-}
-
 impl Craftable for DummyObject {
-	fn craft<T: Crafter>(crafter: &mut T, game_objects: &mut GameObjects) {
-		// TODO reduce crafting material
-		let materials = crafter.get_crafting_material_mut();
-		let dummy = DummyObject {
-			owner: crafter.get_owner().to_owned(),
-			..Default::default()
-		};
-		game_objects.dummies.insert(dummy.id, dummy);
-	}
+    fn get_cost(&self) -> &CraftingMaterial {
+    	&CraftingMaterial{}
+    }
 }
 
 impl IsOwned for DummyObject {

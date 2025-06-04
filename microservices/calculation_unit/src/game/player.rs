@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 
 use super::{
-	coordinate::Coordinate,
-	gametraits::{Buyer, Crafter, IsOwned},
+	coordinate::Coordinate, crafting_material::CraftingMaterial, gametraits::{Buyer, Crafter, IsOwned, Spawner}
 };
+
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct Player {
@@ -26,23 +26,11 @@ impl Buyer for Player {
 	fn get_money_mut(&mut self) -> &mut f64 {
 		&mut self.money
 	}
-	fn get_position(&self) -> Coordinate {
-		// TODO spawn on base or something
-		Coordinate::default()
-	}
-
-	fn get_owner(&self) -> &String {
-		&self.username
-	}
 }
 
 impl Crafter for Player {
 	fn get_crafting_material_mut(&mut self) -> &mut CraftingMaterial {
 		&mut self.crafting_material
-	}
-	fn get_position(&self) -> Coordinate {
-		// TODO spawn on base or something
-		Coordinate::default()
 	}
 }
 
@@ -56,8 +44,8 @@ impl Player {
 	}
 }
 
-/// materials used for crafting something
-#[derive(Serialize, Deserialize, Debug, Clone, Default)]
-pub struct CraftingMaterial {
-	// TODO
+impl Spawner for Player {
+    fn spawn_at(&self) -> Coordinate {
+    	Coordinate::default()
+    }
 }

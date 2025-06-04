@@ -11,7 +11,7 @@ use std::{collections::HashMap, sync::Arc, time::Instant};
 use tokio::sync::mpsc::*;
 
 use super::{
-	dummy::DummyObject, game_objects::GameObjects, gametraits::Buyable, orbit::initialize_orbit_info_map, planet::{get_timefactor, julian_day}, player::Player
+	game_objects::GameObjects, orbit::initialize_orbit_info_map, planet::{get_timefactor, julian_day}, player::Player
 };
 
 /// container of the sender where the calculation unit game thread can send servermessages to the calculation units websocket handling thread

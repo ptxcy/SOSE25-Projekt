@@ -1,36 +1,35 @@
-use super::{coordinate::Coordinate, game_objects::GameObjects, player::CraftingMaterial};
+use super::{coordinate::Coordinate, crafting_material::CraftingMaterial};
 
-/// anything that can buy something
-pub trait Buyer {
-	fn get_money_mut(&mut self) -> &mut f64;
-	fn get_position(&self) -> Coordinate;
-	fn get_owner(&self) -> &String;
-	// sell to another buyer
-	fn sell<B: Buyer, O: IsOwned>(&mut self, object: &mut O, buyer: &mut B, price: f64) {
-		*self.get_money_mut() += price;
-		*buyer.get_money_mut() -= price;
-		*object.get_owner_mut() = buyer.get_owner().clone();
-	}
-}
-
-/// anything that can craft a Craftable
-pub trait Crafter: IsOwned {
-	fn get_crafting_material_mut(&mut self) -> &mut CraftingMaterial;
-	fn get_position(&self) -> Coordinate;
+/// has a position or coordinate to spawn something
+pub trait Spawner {
+	fn spawn_at(&self) -> Coordinate;
 }
 
 /// something that is owned by a user / player
 pub trait IsOwned {
 	fn get_owner<'a>(&'a self) -> &'a String;
 	fn get_owner_mut<'a>(&'a mut self) -> &'a mut String;
+	fn transfer_ownership<T: IsOwned>(&self, object: &mut T) {
+		*object.get_owner_mut() = self.get_owner().clone();
+	}
 }
 
-/// buying something fresh from the system
-pub trait Buyable {
-	fn buy<T: Buyer>(buyer: &mut T, game_objects: &mut GameObjects);
+/// anything that can buy something
+pub trait Buyer: IsOwned {
+	fn get_money_mut(&mut self) -> &mut f64;
+	fn buy<B: Buyer, O: IsOwned>(&mut self, object: &mut O, seller: &mut B, price: f64) {
+		*self.get_money_mut() -= price;
+		*seller.get_money_mut() += price;
+		self.transfer_ownership(object);
+	}
+}
+
+/// anything that can craft a Craftable
+pub trait Crafter: IsOwned + Spawner {
+	fn get_crafting_material_mut(&mut self) -> &mut CraftingMaterial;
 }
 
 /// soemthing craftable form materials
-pub trait Craftable {
-	fn craft<T: Crafter>(crafter: &mut T, game_objects: &mut GameObjects);
+pub trait Craftable: IsOwned {
+	fn get_cost(&self) -> &CraftingMaterial;
 }

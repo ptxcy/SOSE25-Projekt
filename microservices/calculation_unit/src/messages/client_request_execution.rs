@@ -3,16 +3,14 @@ use std::collections::HashMap;
 use super::client_message::{ClientRequest, DummySetVelocity, SetClientFPS};
 use crate::{
 	game::{
-		calculation_unit::ServerMessageSenderChannel, dummy::DummyObject, game_objects::GameObjects,
+		calculation_unit::ServerMessageSenderChannel, dummy::DummyObject, game_objects::GameObjects, gametraits::Buyer,
 	},
 	logger::log_with_time,
 };
 
 pub fn set_client_fps(
 	username: &String,
-	game_objects: &mut GameObjects,
 	server_message_senders: &mut HashMap<String, ServerMessageSenderChannel>,
-	delta_seconds: f64,
 	value: &SetClientFPS,
 ) -> std::result::Result<(), String> {
 	match server_message_senders.get_mut(username) {
@@ -32,12 +30,9 @@ pub fn set_client_fps(
 pub fn spawn_dummy(
 	username: &String,
 	game_objects: &mut GameObjects,
-	server_message_senders: &mut HashMap<String, ServerMessageSenderChannel>,
-	delta_seconds: f64,
 	name: &String,
 	id_counter: &mut usize,
 ) -> std::result::Result<(), String> {
-	// check if dummy with id already exists
 	let dummies = &mut game_objects.dummies;
 
 	// spawn dummy
@@ -50,8 +45,6 @@ pub fn spawn_dummy(
 pub fn dummy_set_velocity(
 	username: &String,
 	game_objects: &mut GameObjects,
-	server_message_senders: &mut HashMap<String, ServerMessageSenderChannel>,
-	delta_seconds: f64,
 	value: &DummySetVelocity,
 ) -> std::result::Result<(), String> {
 	let dummies = &mut game_objects.dummies;
@@ -118,25 +111,19 @@ impl ClientRequest {
 			dummy_set_velocity(
 				username,
 				game_objects,
-				server_message_senders,
-				delta_seconds,
 				value,
 			)?;
 		} else if let Some(value) = &self.spawn_dummy {
 			spawn_dummy(
 				username,
 				game_objects,
-				server_message_senders,
-				delta_seconds,
 				value,
 				id_counter,
 			)?;
 		} else if let Some(value) = &self.set_client_fps {
 			set_client_fps(
 				username,
-				game_objects,
 				server_message_senders,
-				delta_seconds,
 				value,
 			)?;
 		} else if let Some(value) = &self.connect {
