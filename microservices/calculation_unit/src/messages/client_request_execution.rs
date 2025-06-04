@@ -34,28 +34,16 @@ pub fn spawn_dummy(
 	game_objects: &mut GameObjects,
 	server_message_senders: &mut HashMap<String, ServerMessageSenderChannel>,
 	delta_seconds: f64,
-	id: &String,
+	name: &String,
+	id_counter: &mut usize,
 ) -> std::result::Result<(), String> {
 	// check if dummy with id already exists
 	let dummies = &mut game_objects.dummies;
-	match dummies.get(id) {
-		Some(_) => {
-			return Err(format!(
-				"couldnt spawn dummy, dummy already exists! id: {}",
-				id
-			));
-		}
-		None => {}
-	};
 
 	// spawn dummy
 	log_with_time("spawn dummy");
-	let dummy = DummyObject {
-		owner: username.clone(),
-		id: id.clone(),
-		..Default::default()
-	};
-	dummies.insert(id.clone(), dummy);
+	let dummy = DummyObject::new(username, name, id_counter);
+	dummies.insert(dummy.id, dummy);
 	Ok(())
 }
 
@@ -90,9 +78,9 @@ pub fn dummy_set_velocity(
 }
 
 impl ClientRequest {
-	pub fn new_connect(id: &str) -> Self {
+	pub fn new_connect(username: &str) -> Self {
 		Self {
-			connect: Some(id.to_string()),
+			connect: Some(username.to_string()),
 			..Default::default()
 		}
 	}
@@ -104,9 +92,9 @@ impl ClientRequest {
 		}
 	}
 	/// create a new client requests to spawn a dummy
-	pub fn new_spawn_dummy(id: &str) -> Self {
+	pub fn new_spawn_dummy(name: &str) -> Self {
 		Self {
-			spawn_dummy: Some(id.to_owned()),
+			spawn_dummy: Some(name.to_owned()),
 			..Default::default()
 		}
 	}
@@ -124,8 +112,8 @@ impl ClientRequest {
 		game_objects: &mut GameObjects,
 		server_message_senders: &mut HashMap<String, ServerMessageSenderChannel>,
 		delta_seconds: f64,
+		id_counter: &mut usize,
 	) -> std::result::Result<(), String> {
-		// TODO use username
 		if let Some(value) = &self.dummy_set_velocity {
 			dummy_set_velocity(
 				username,
@@ -141,6 +129,7 @@ impl ClientRequest {
 				server_message_senders,
 				delta_seconds,
 				value,
+				id_counter,
 			)?;
 		} else if let Some(value) = &self.set_client_fps {
 			set_client_fps(

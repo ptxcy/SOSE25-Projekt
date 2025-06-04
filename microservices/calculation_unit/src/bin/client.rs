@@ -1,5 +1,6 @@
-use std::env;
 use std::sync::Arc;
+use std::time::Duration;
+use std::{env, thread};
 
 use bytes::Bytes;
 use calculation_unit::{
@@ -68,8 +69,9 @@ async fn main() {
 			.expect("Failed to send message");
 		log_with_time(format!("Message sent to server! trying to set fps to 5"));
 
-		// move dummy_1
-		let serialized_message = request_move(&dummy_id_clone, &username);
+		// move dummy with id 0
+		tokio::time::sleep(Duration::from_millis(500)).await;
+		let serialized_message = request_move(0, &username);
 		write
 			.send(Message::Binary(Bytes::from(serialized_message)))
 			.await
@@ -136,10 +138,10 @@ pub fn request_set_fps(id: &String, fps: f64, username: &String) -> Vec<u8> {
 	serialized_message
 }
 
-pub fn request_move(id: &String, username: &String) -> Vec<u8> {
+pub fn request_move(id: usize, username: &String) -> Vec<u8> {
 	let client_message = ClientMessage {
 		request_data: ClientRequest::new_dummy_set_velocity(DummySetVelocity {
-			id: id.clone(),
+			id,
 			position: Coordinate {
 				x: 2.,
 				y: 0.,

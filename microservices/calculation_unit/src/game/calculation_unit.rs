@@ -85,6 +85,7 @@ pub async fn start(
 	let mut last_time = Instant::now();
 	let mut julian_day = julian_day(2025, 5, 30);
 	let time_scale = 360.;
+	let mut dummy_id_counter: usize = 0;
 
 	// game loop
 	loop {
@@ -113,6 +114,7 @@ pub async fn start(
 					&mut game_objects,
 					&mut server_message_senders,
 					delta_seconds,
+					&mut dummy_id_counter,
 				)
 				.log();
 		}

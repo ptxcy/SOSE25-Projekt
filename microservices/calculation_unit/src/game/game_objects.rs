@@ -14,10 +14,13 @@ use super::{
 	player::Player,
 };
 
+type DummyMap = HashMap<usize, DummyObject>;
+type SendDummyMap<'a> = HashMap<&'a usize, &'a DummyObject>;
+
 /// objects that are going to be rendered by client
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct GameObjects {
-	pub dummies: HashMap<String, DummyObject>,
+	pub dummies: DummyMap,
 	pub planets: Vec<Planet>,
 	pub players: HashMap<String, Player>,
 }
@@ -52,7 +55,7 @@ impl Planet {
 // leight weight creating and no cloning needed
 #[derive(Serialize, Debug, Clone, Default)]
 pub struct SendGameObjects<'a> {
-	pub dummies: HashMap<&'a String, &'a DummyObject>,
+	pub dummies: SendDummyMap<'a>,
 	pub planets: Vec<&'a Planet>,
 	pub players: HashMap<&'a String, &'a Player>,
 }
@@ -85,7 +88,7 @@ impl GameObjects {
 					/* TODO filter for each user */
 					true
 				})
-				.collect::<HashMap<&String, &DummyObject>>(),
+				.collect::<SendDummyMap>(),
 			planets: self.planets.iter().collect(),
 			players: self
 				.players
@@ -100,7 +103,7 @@ impl GameObjects {
 
 	/// updates the game objects
 	pub fn update(
-		dummies: Arc<HashMap<String, DummyObject>>,
+		dummies: Arc<DummyMap>,
 		planets: Arc<Vec<Planet>>,
 		delta_seconds: f64,
 		ingame_time: f64,
@@ -141,7 +144,7 @@ impl GameObjects {
 	/// store the actions that are going to be executed on dummies
 	pub fn update_dummies(
 		actions: Arc<Mutex<Vec<SafeAction>>>,
-		dummies: Arc<HashMap<String, DummyObject>>,
+		dummies: Arc<DummyMap>,
 		planets: Arc<Vec<Planet>>,
 		delta_seconds: f64,
 		ingame_time: f64,
@@ -168,7 +171,7 @@ impl GameObjects {
 	/// updating the planet position in their orbits
 	pub fn update_planets(
 		actions: Arc<Mutex<Vec<SafeAction>>>,
-		dummies: Arc<HashMap<String, DummyObject>>,
+		dummies: Arc<DummyMap>,
 		planets: Arc<Vec<Planet>>,
 		delta_seconds: f64,
 		ingame_time: f64,

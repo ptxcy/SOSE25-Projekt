@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct DummySetVelocity {
-	pub id: String,
+	pub id: usize,
 	pub position: Coordinate,
 }
 
