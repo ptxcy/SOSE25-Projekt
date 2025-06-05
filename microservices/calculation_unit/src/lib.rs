@@ -10,6 +10,7 @@ pub mod messages {
 
 pub mod game {
 	pub mod action;
+	pub mod building_region;
 	pub mod calculation_unit;
 	pub mod coordinate;
 	pub mod crafting_material;
@@ -22,7 +23,6 @@ pub mod game {
 	pub mod planet;
 	pub mod planet_util;
 	pub mod player;
-pub mod building_region;
 }
 
 pub fn get_time() -> u128 {

@@ -18,6 +18,9 @@ impl Default for Coordinate {
 }
 
 impl Coordinate {
+	pub fn new(x: f64, y: f64, z: f64) -> Self {
+		Self { x, y, z }
+	}
 	/// clones itself and returns it
 	pub fn c(&self) -> Self {
 		self.clone()
@@ -69,5 +72,14 @@ impl Coordinate {
 		self.y *= value;
 		self.z *= value;
 		self
+	}
+
+	pub fn norm(&self) -> f64 {
+		(self.x.powi(2) + self.y.powi(2) + self.z.powi(2)).sqrt()
+	}
+
+	pub fn normalize(&mut self, value: f64) -> &mut Self {
+		let div = 1. / self.norm() * value;
+		self.scale(div)
 	}
 }

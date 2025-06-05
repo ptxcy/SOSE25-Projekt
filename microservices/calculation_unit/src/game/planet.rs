@@ -1,5 +1,9 @@
 use super::{
-	action::{AsRaw, SafeAction}, building_region::BuildingRegion, coordinate::Coordinate, orbit::OrbitInfo, planet_util::calculate_planet
+	action::{AsRaw, SafeAction},
+	building_region::BuildingRegion,
+	coordinate::Coordinate,
+	orbit::OrbitInfo,
+	planet_util::calculate_planet,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -9,6 +13,7 @@ pub struct Planet {
 	name: String,
 	position: Coordinate,
 	building_regions: Vec<BuildingRegion>,
+	size: f64,
 }
 
 impl Planet {
@@ -24,10 +29,55 @@ impl Planet {
 			other: calculate_planet(&orbit_info),
 		}
 	}
-	pub fn new(name: &str) -> Self {
+	pub fn new(name: &str, building_regions: Vec<BuildingRegion>) -> Self {
 		Self {
 			name: name.to_string(),
+			building_regions,
+			size: 1.,
 			..Default::default()
 		}
+	}
+	pub fn add_building_region(mut self, mut direction: Coordinate) -> Self {
+		direction.normalize(self.size);
+		self.building_regions.push(BuildingRegion::new(direction));
+		self
+	}
+
+	pub fn solar_system() -> Vec<Self> {
+		let planets = vec![
+			Planet::new(
+				"mercury",
+				vec![],
+			).add_building_region(Coordinate::new(1.0, -1.0, 0.0)),
+			Planet::new(
+				"venus",
+				vec![],
+			).add_building_region(Coordinate::new(1.0, -1.0, 0.0)),
+			Planet::new(
+				"mars",
+				vec![],
+			).add_building_region(Coordinate::new(1.0, -1.0, 0.0)),
+			Planet::new(
+				"jupiter",
+				vec![],
+			).add_building_region(Coordinate::new(1.0, -1.0, 0.0)),
+			Planet::new(
+				"saturn",
+				vec![],
+			).add_building_region(Coordinate::new(1.0, -1.0, 0.0)),
+			Planet::new(
+				"uranus",
+				vec![],
+			).add_building_region(Coordinate::new(1.0, -1.0, 0.0)),
+			Planet::new(
+				"neptune",
+				vec![],
+			).add_building_region(Coordinate::new(1.0, -1.0, 0.0)),
+			Planet::new(
+				"earth",
+				vec![],
+			).add_building_region(Coordinate::new(1.0, -1.0, 0.0)),
+		];
+		planets
 	}
 }

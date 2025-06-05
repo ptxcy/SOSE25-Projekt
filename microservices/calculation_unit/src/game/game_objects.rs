@@ -34,16 +34,7 @@ pub struct SendGameObjects<'a> {
 
 impl GameObjects {
 	pub fn new() -> Self {
-		let planets = vec![
-			Planet::new("mercury"),
-			Planet::new("venus"),
-			Planet::new("mars"),
-			Planet::new("jupiter"),
-			Planet::new("saturn"),
-			Planet::new("uranus"),
-			Planet::new("neptune"),
-			Planet::new("earth"),
-		];
+		let planets = Planet::solar_system();
 		Self {
 			planets,
 			..Default::default()
