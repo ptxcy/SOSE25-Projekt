@@ -1,12 +1,13 @@
 use serde::{Deserialize, Serialize};
 
-use super::{coordinate::Coordinate, factory::Factory};
+use super::{coordinate::Coordinate, crafting_material::CraftingMaterial, factory::Factory};
 
 /// region to craft / placing buildings such as factories on
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct BuildingRegion {
-	relative_position: Coordinate,
-	factories: Vec<Factory>,
+	pub relative_position: Coordinate,
+	pub factories: Vec<Factory>,
+	pub factory_profit: CraftingMaterial,
 }
 
 impl BuildingRegion {

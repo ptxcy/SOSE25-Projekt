@@ -12,4 +12,8 @@ impl CraftingMaterial {
 		self.copper -= other.copper;
 		self
 	}
+	pub fn add(&mut self, other: &Self) -> &mut Self {
+		self.copper += other.copper;
+		self
+	}
 }

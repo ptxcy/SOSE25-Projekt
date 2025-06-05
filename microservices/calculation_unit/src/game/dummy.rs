@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
@@ -7,7 +6,7 @@ use crate::logger::log_with_time;
 use super::{
 	coordinate::Coordinate,
 	crafting_material::CraftingMaterial,
-	game_objects::{DummyMap, GameObjects},
+	game_objects::DummyMap,
 	gametraits::{Craftable, Crafter, IsOwned},
 };
 
