@@ -9,7 +9,7 @@ use super::{
 	action::{AsRaw, SafeAction},
 	dummy::DummyObject,
 	orbit::OrbitInfo,
-	planet::Planet,
+	planet::{Planet, PlanetReceive},
 	player::Player,
 };
 
@@ -17,10 +17,17 @@ pub type DummyMap = HashMap<usize, DummyObject>;
 pub type SendDummyMap<'a> = HashMap<&'a usize, &'a DummyObject>;
 
 /// objects that are going to be rendered by client
-#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[derive(Serialize, Debug, Clone, Default)]
 pub struct GameObjects {
 	pub dummies: DummyMap,
 	pub planets: Vec<Planet>,
+	pub players: HashMap<String, Player>,
+}
+
+#[derive(Deserialize, Debug, Clone, Default)]
+pub struct GameObjectsReceive {
+	pub dummies: DummyMap,
+	pub planets: Vec<PlanetReceive>,
 	pub players: HashMap<String, Player>,
 }
 

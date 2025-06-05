@@ -1,4 +1,7 @@
-use super::{coordinate::Coordinate, crafting_material::CraftingMaterial};
+use super::{
+	coordinate::Coordinate, crafting_material::CraftingMaterial,
+	game_objects::GameObjects,
+};
 
 /// has a position or coordinate to spawn something
 pub trait Spawner {
@@ -35,6 +38,10 @@ pub trait Crafter: IsOwned + Spawner {
 }
 
 /// soemthing craftable form materials
-pub trait Craftable: IsOwned {
+pub trait Craftable: IsOwned + Spawnable {
 	fn get_cost() -> CraftingMaterial;
+}
+
+pub trait Spawnable {
+	fn into_game_objects(self, game_objects: &mut GameObjects);
 }

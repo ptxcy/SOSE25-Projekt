@@ -18,6 +18,7 @@ pub mod game {
 	pub mod factory;
 	pub mod game_objects;
 	pub mod gametraits;
+	pub mod mine;
 	pub mod network;
 	pub mod orbit;
 	pub mod planet;

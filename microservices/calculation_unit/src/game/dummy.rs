@@ -1,4 +1,3 @@
-
 use serde::{Deserialize, Serialize};
 
 use crate::logger::log_with_time;
@@ -7,7 +6,7 @@ use super::{
 	coordinate::Coordinate,
 	crafting_material::CraftingMaterial,
 	game_objects::DummyMap,
-	gametraits::{Craftable, Crafter, IsOwned},
+	gametraits::{Craftable, Crafter, IsOwned, Spawnable},
 };
 
 /// dummy object for square rendering
@@ -74,5 +73,14 @@ impl IsOwned for DummyObject {
 
 	fn get_owner<'a>(&'a self) -> &'a String {
 		&self.owner
+	}
+}
+
+impl Spawnable for DummyObject {
+	fn into_game_objects(
+		self,
+		game_objects: &mut super::game_objects::GameObjects,
+	) {
+		game_objects.dummies.insert(self.id, self);
 	}
 }
