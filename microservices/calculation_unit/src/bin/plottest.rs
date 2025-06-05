@@ -1,5 +1,5 @@
 use calculation_unit::game::orbit::{get_mars, get_mercury};
-use calculation_unit::game::planet::{
+use calculation_unit::game::planet_util::{
 	anomaly, distance_vector, get_timefactor, julian_day,
 };
 use plotters::prelude::*;

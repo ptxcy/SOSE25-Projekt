@@ -11,6 +11,9 @@ pub struct Player {
 	pub username: String,
 	pub money: f64,
 	pub crafting_material: CraftingMaterial,
+
+	#[serde(skip)]
+	pub selected_building_region: Option<i32>,
 }
 
 impl IsOwned for Player {

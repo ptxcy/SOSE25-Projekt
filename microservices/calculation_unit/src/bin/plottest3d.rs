@@ -1,8 +1,8 @@
 use calculation_unit::game::coordinate::Coordinate;
 use calculation_unit::game::orbit::*;
-use calculation_unit::game::planet::calculate_planet;
-use calculation_unit::game::planet::get_timefactor;
-use calculation_unit::game::planet::julian_day;
+use calculation_unit::game::planet_util::calculate_planet;
+use calculation_unit::game::planet_util::get_timefactor;
+use calculation_unit::game::planet_util::julian_day;
 use plotly::Layout;
 use plotly::common::Marker;
 use plotly::common::Mode;

@@ -3,7 +3,12 @@ use std::collections::HashMap;
 use super::client_message::{ClientRequest, DummySetVelocity, SetClientFPS};
 use crate::{
 	game::{
-		action::AsRaw, calculation_unit::ServerMessageSenderChannel, dummy::DummyObject, game_objects::GameObjects, gametraits::{Buyer, Craftable}, player::Player
+		action::AsRaw,
+		calculation_unit::ServerMessageSenderChannel,
+		dummy::DummyObject,
+		game_objects::GameObjects,
+		gametraits::{Buyer, Craftable},
+		player::Player,
 	},
 	logger::log_with_time,
 };
@@ -35,9 +40,13 @@ pub fn spawn_dummy(
 ) -> std::result::Result<(), String> {
 	// spawn dummy
 	log_with_time("spawn dummy");
-	let go = game_objects as *mut GameObjects;
 	let player = game_objects.players.get_mut(username).unwrap();
-	DummyObject::craft(player, &"name".to_string(), go, id_counter);
+	DummyObject::craft(
+		player,
+		&"name".to_string(),
+		&mut game_objects.dummies,
+		id_counter,
+	);
 	Ok(())
 }
 

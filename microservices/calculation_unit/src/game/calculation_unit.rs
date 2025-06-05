@@ -13,7 +13,7 @@ use tokio::sync::mpsc::*;
 use super::{
 	game_objects::GameObjects,
 	orbit::initialize_orbit_info_map,
-	planet::{get_timefactor, julian_day},
+	planet_util::{get_timefactor, julian_day},
 	player::Player,
 };
 

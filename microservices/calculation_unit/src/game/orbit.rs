@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use super::planet::{get_curve, trim_down};
+use super::planet_util::{get_curve, trim_down};
 
 /// N = Länge des aufsteigenden Knotens (oft auch als großes Omega geschrieben)
 /// Diese definiert die Drehung der Schnittgraden von der Ebene der Erdbahnellipse mit der Ebene der jeweiligen Planetenbahnellipse um die z-Achse.
