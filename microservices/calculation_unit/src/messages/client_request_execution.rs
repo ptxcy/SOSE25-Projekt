@@ -115,7 +115,6 @@ impl ClientRequest {
 			String,
 			ServerMessageSenderChannel,
 		>,
-		delta_seconds: f64,
 		id_counter: &mut usize,
 	) -> std::result::Result<(), String> {
 		if let Some(value) = &self.dummy_set_velocity {

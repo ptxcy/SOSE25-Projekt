@@ -24,6 +24,7 @@ pub mod game {
 	pub mod planet;
 	pub mod planet_util;
 	pub mod player;
+	pub mod spaceship;
 }
 
 pub fn get_time() -> u128 {

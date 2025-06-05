@@ -93,7 +93,6 @@ async fn main() {
 				// Deserialize MessagePack to ClientMessage
 				match rmp_serde::from_slice::<ServerMessageReceive>(&data) {
 					Ok(server_message) => {
-						println!("{:#?}", server_message);
 						log_with_time(format!(
 							"Received: {:?}",
 							server_message.request_data.game_objects

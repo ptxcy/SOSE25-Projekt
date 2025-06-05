@@ -1,5 +1,7 @@
 use super::websocket_format::RequestInfo;
-use crate::game::game_objects::{GameObjects, GameObjectsReceive, SendGameObjects};
+use crate::game::game_objects::{
+	GameObjects, GameObjectsReceive, SendGameObjects,
+};
 use serde::{Deserialize, Serialize};
 
 /// data that is going to be rendered

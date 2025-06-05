@@ -3,8 +3,11 @@ use std::ptr::null;
 use serde::{Deserialize, Serialize};
 
 use super::{
-	coordinate::Coordinate, crafting_material::CraftingMaterial,
-	factory::{Factory, FactoryReceive}, mine::{Mine, MineReceive}, planet::Planet,
+	coordinate::Coordinate,
+	crafting_material::CraftingMaterial,
+	factory::{Factory, FactoryReceive},
+	mine::{Mine, MineReceive},
+	planet::Planet,
 };
 
 /// region to craft / placing buildings such as factories on
@@ -32,9 +35,9 @@ impl BuildingRegion {
 		Self {
 			relative_position,
 			planet,
-		    factories: Default::default(),
-		    mines: Default::default(),
-		    profit: Default::default(),
+			factories: Default::default(),
+			mines: Default::default(),
+			profit: Default::default(),
 		}
 	}
 }

@@ -24,7 +24,6 @@ pub struct PlanetReceive {
 	pub size: f64,
 }
 
-
 impl Planet {
 	pub fn update(
 		&self,
@@ -48,7 +47,8 @@ impl Planet {
 	}
 	pub fn add_building_region(mut self, mut direction: Coordinate) -> Self {
 		direction.normalize(self.size);
-		self.building_regions.push(BuildingRegion::new(direction, &self as *const Planet));
+		self.building_regions
+			.push(BuildingRegion::new(direction, &self as *const Planet));
 		self
 	}
 

@@ -1,8 +1,9 @@
-
 use serde::{Deserialize, Serialize};
 
 use super::{
-	building_region::BuildingRegion, crafting_material::CraftingMaterial, gametraits::{Craftable, IsOwned, Spawnable}
+	building_region::BuildingRegion,
+	crafting_material::CraftingMaterial,
+	gametraits::{Craftable, IsOwned, Spawnable},
 };
 
 #[derive(Serialize, Debug, Clone)]
@@ -41,14 +42,17 @@ impl Mine {
 		Self {
 			owner: owner.to_string(),
 			region: building_region,
-		    storage: Default::default(),
+			storage: Default::default(),
 		}
 	}
 }
 
 impl Spawnable for Mine {
-    fn into_game_objects(self, game_objects: &mut super::game_objects::GameObjects) {
-    	let region = unsafe {&mut *self.region};
-    	region.mines.push(self);
-    }
+	fn into_game_objects(
+		self,
+		game_objects: &mut super::game_objects::GameObjects,
+	) {
+		let region = unsafe { &mut *self.region };
+		region.mines.push(self);
+	}
 }

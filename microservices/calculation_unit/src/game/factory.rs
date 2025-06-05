@@ -1,4 +1,3 @@
-
 use serde::{Deserialize, Serialize};
 
 use crate::logger::log_with_time;
@@ -45,8 +44,8 @@ impl Craftable for Factory {
 
 impl Spawner for Factory {
 	fn spawn_at(&self) -> Coordinate {
-    	let region = unsafe {&mut *self.region};
-    	region.relative_position.c()
+		let region = unsafe { &mut *self.region };
+		region.relative_position.c()
 	}
 }
 
@@ -73,7 +72,10 @@ impl Factory {
 		crafter.get_crafting_material_mut().sub(&Self::get_cost());
 
 		// create object
-		let factory = Factory::new(crafter.get_owner(), building_region as *mut BuildingRegion);
+		let factory = Factory::new(
+			crafter.get_owner(),
+			building_region as *mut BuildingRegion,
+		);
 
 		building_region.factories.push(factory);
 		let index = building_region.factories.len() - 1;
@@ -86,7 +88,7 @@ impl Spawnable for Factory {
 		self,
 		game_objects: &mut super::game_objects::GameObjects,
 	) {
-    	let region = unsafe {&mut *self.region};
-    	region.factories.push(self);
+		let region = unsafe { &mut *self.region };
+		region.factories.push(self);
 	}
 }

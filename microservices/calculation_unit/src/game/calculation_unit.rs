@@ -86,7 +86,7 @@ pub async fn start(
 	// delta time init
 	let mut last_time = Instant::now();
 	let mut julian_day = julian_day(2025, 5, 30);
-	let time_scale = 360.;
+	let time_scale = 100.;
 	let mut dummy_id_counter: usize = 0;
 
 	// game loop
@@ -105,6 +105,7 @@ pub async fn start(
 		let delta_time = now.duration_since(last_time);
 		last_time = now;
 		let delta_seconds = delta_time.as_secs_f64();
+		let delta_ingame_days = delta_seconds * time_scale;
 
 		// receive client messages
 		while let Ok(client_message) = client_message_receiver.try_recv() {
@@ -114,7 +115,6 @@ pub async fn start(
 					&client_message.username,
 					&mut game_objects,
 					&mut server_message_senders,
-					delta_seconds,
 					&mut dummy_id_counter,
 				)
 				.log();
@@ -128,7 +128,7 @@ pub async fn start(
 		GameObjects::update(
 			Arc::clone(&dummies),
 			Arc::clone(&planets),
-			delta_seconds,
+			delta_ingame_days,
 			get_timefactor(julian_day),
 			&orbit_map,
 		)
@@ -139,7 +139,7 @@ pub async fn start(
 		game_objects.dummies = Arc::into_inner(dummies).unwrap();
 		game_objects.planets = Arc::into_inner(planets).unwrap();
 
-		julian_day += delta_seconds * time_scale;
+		julian_day += delta_ingame_days;
 
 		// sending message
 		// log_with_time(format!("broadcasting to clients"));
