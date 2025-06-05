@@ -3,7 +3,7 @@
 
 in vec2 EdgeCoordinates;
 
-out vec4 pixelColour;
+layout(location = 0) out vec4 pixelColour;
 
 uniform sampler2D tex;
 

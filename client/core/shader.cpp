@@ -8,8 +8,9 @@
  *	compile given shader program
  *	\param path: path to shader program (can be vertex, fragment or geometry)
  *	\param type: shader type GL_(VERTEX+GEOMETRY+FRAGMENT)
+ *	\returns compiled shader pipeline fragment
  */
-Shader::Shader(const char* path,GLenum type)
+u32 Shader::compile(const char* path,GLenum type)
 {
 	COMM_AWT("compiling shader: %s",path);
 
@@ -18,7 +19,7 @@ Shader::Shader(const char* path,GLenum type)
 	if (!__File)
 	{
 		COMM_ERR("no shader found at path: %s",path);
-		return;
+		return 0;
 	}
 
 	// read shader source
@@ -33,7 +34,7 @@ Shader::Shader(const char* path,GLenum type)
 	__File.close();
 
 	// compile shader
-	shader = glCreateShader(type);
+	u32 shader = glCreateShader(type);
 	glShaderSource(shader,1,&__SourceCompile,NULL);
 	glCompileShader(shader);
 
@@ -50,6 +51,62 @@ Shader::Shader(const char* path,GLenum type)
 #endif
 
 	COMM_CNF();
+	return shader;
+}
+
+/**
+ *	create a vertex shader from source
+ *	\param path: path to GLSL vertex source file
+ */
+VertexShader::VertexShader(const char* path)
+{
+	shader = Shader::compile(path,GL_VERTEX_SHADER);
+	if (!shader)
+	{
+		COMM_ERR("[SHADER] skipping input parser, vertex shader is corrupted");
+		return;
+	}
+
+	// assess input pattern for vbo/ibo automapping
+	std::ifstream __File(path);
+	string __Line;
+	while (!__File.eof())
+	{
+		std::getline(__File,__Line);
+		if (__Line.find("// engine: ibo")==0)
+		{
+			write_head = &ibo_attribs;
+			width_head = &ibo_width;
+			continue;
+		}
+		else if (__Line.find("in")!=0) continue;
+		else if (__Line.find("void main()")==0) break;
+
+		// extract input information
+		std::stringstream str(__Line);
+		string token;
+		vector<string> tokens;
+		while (str>>token) tokens.push_back(token);
+		tokens[2].pop_back();
+
+		// interpret input definition line
+		u8 dim = (tokens[1]=="float") ? 1 : tokens[1][3]-0x30;
+		write_head->push_back({ dim,tokens[2] });
+		(*width_head) += dim;
+	}
+
+	// convert widths to byte format
+	vbo_width *= SHADER_UPLOAD_VALUE_SIZE;
+	ibo_width *= SHADER_UPLOAD_VALUE_SIZE;
+}
+
+/**
+ *	create a fragment shader from source
+ *	\param path: path to GLSL fragment source file
+ */
+FragmentShader::FragmentShader(const char* path)
+{
+	shader = Shader::compile(path,GL_FRAGMENT_SHADER);
 }
 
 
@@ -59,26 +116,39 @@ Shader::Shader(const char* path,GLenum type)
 /**
  *	assemble shader pipeline from compiled shaders
  *	pipeline flow: vertex shader -> (geometry shader) -> fragment shader
- *	\param vs: reference to compiled vertex shader
+ *	\param vs: compiled vertex shader
  *	\param fs: reference to compiled fragment shader
- *	\param vertex_width: width of the upload raster in vertex buffer
- *	\param index_width: width of the upload raster in index buffer
- *	\param name: name - id correlation for assembled shader pipeline in case of issues
  */
-void ShaderPipeline::assemble(const Shader& vs,const Shader& fs,u8 vertex_width,u8 index_width,const char* name)
+void ShaderPipeline::assemble(VertexShader vs,FragmentShader& fs)
 {
-	// setup target width for vertex and index buffer
-	m_VertexWidth = vertex_width*SHADER_UPLOAD_VALUE_SIZE;
-	m_IndexWidth = index_width*SHADER_UPLOAD_VALUE_SIZE;
+	m_VertexShader = vs;
+	// FIXME this CAN and SHOULD be critisized! awful memory management through heavy copy!
 
 	// assemble program
 	m_ShaderProgram = glCreateProgram();
 	glAttachShader(m_ShaderProgram,vs.shader);
 	glAttachShader(m_ShaderProgram,fs.shader);
-	glBindFragDataLocation(m_ShaderProgram,0,"pixelColour");
 	glLinkProgram(m_ShaderProgram);
+}
 
-	COMM_MSG(LOG_YELLOW,"%s -> Shader ID = %d",name,m_ShaderProgram);
+/**
+ *	automatically map vertex buffer object to vertex shader input
+ *	NOTE shader pipeline needs to be active, as well as the vertex buffer object we want to map
+ */
+void ShaderPipeline::map_vbo()
+{
+	for (ShaderAttribute& attrib : m_VertexShader.vbo_attribs) _define_attribute(attrib);
+	m_VertexCursor = 0;
+}
+
+/**
+ *	automatically map index buffer object to vertex shader input
+ *	NOTE shader pipeline needs to be active, as well as the index buffer object we want to map
+ */
+void ShaderPipeline::map_ibo()
+{
+	for (ShaderAttribute& attrib : m_VertexShader.ibo_attribs) _define_index_attribute(attrib);
+	m_IndexCursor = 0;
 }
 
 /**
@@ -86,39 +156,6 @@ void ShaderPipeline::assemble(const Shader& vs,const Shader& fs,u8 vertex_width,
  */
 void ShaderPipeline::enable() { glUseProgram(m_ShaderProgram); }
 void ShaderPipeline::disable() { glUseProgram(0); }
-
-/**
- *	point to attribute in vertex buffer raster
- *	\param varname: variable name as defined as "in" in shader
- *	\param dim: variable dimension: 1 -> float, 2 -> vec2, 3 -> vec3, 4 -> vec4
- *	NOTE shader pipeline, vertex array & vertex buffer need to be active to point to attribute
- */
-void ShaderPipeline::define_attribute(const char* varname,u8 dim)
-{
-	COMM_ERR_COND(m_VertexCursor+dim*SHADER_UPLOAD_VALUE_SIZE>m_VertexWidth,
-				  "attribute dimension violates upload width");
-
-	s32 __Attribute = _handle_attribute_location_by_name(varname);
-	glVertexAttribPointer(__Attribute,dim,GL_FLOAT,GL_FALSE,m_VertexWidth,(void*)m_VertexCursor);
-	m_VertexCursor += dim*SHADER_UPLOAD_VALUE_SIZE;
-}
-
-/**
- *	point to attribute in index buffer raster
- *	\param varname: variable name as defined as "in" in shader
- *	\param dim: variable dimension as already described in define_attribute(...) document
- *	NOTE shader pipeline, vertex array & index buffer need to be active to point to attribute
- */
-void ShaderPipeline::define_index_attribute(const char* varname,u8 dim)
-{
-	COMM_ERR_COND(m_IndexCursor+dim*SHADER_UPLOAD_VALUE_SIZE>m_IndexWidth,
-				  "index dimension violates upload width");
-
-	s32 __Attribute = _handle_attribute_location_by_name(varname);
-	glVertexAttribPointer(__Attribute,dim,GL_FLOAT,GL_FALSE,m_IndexWidth,(void*)m_IndexCursor);
-	glVertexAttribDivisor(__Attribute,1);
-	m_IndexCursor += dim*SHADER_UPLOAD_VALUE_SIZE;
-}
 
 /**
  *	upload uniform variable to shader
@@ -157,6 +194,39 @@ void ShaderPipeline::upload_camera()
 {
 	upload("view",g_Camera.view);
 	upload("proj",g_Camera.proj);
+}
+
+/**
+ *	point to attribute in vertex buffer raster
+ *	\param attrib: shader attribute structure, holding attribute name and dimension
+ *	NOTE shader pipeline, vertex array & vertex buffer need to be active to point to attribute
+ */
+void ShaderPipeline::_define_attribute(ShaderAttribute& attrib)
+{
+	COMM_ERR_COND(m_VertexCursor+attrib.dim*SHADER_UPLOAD_VALUE_SIZE>m_VertexShader.vbo_width,
+				  "attribute dimension violates upload width");
+
+	s32 __Attribute = _handle_attribute_location_by_name(attrib.name.c_str());
+	glVertexAttribPointer(__Attribute,attrib.dim,GL_FLOAT,GL_FALSE,
+						  m_VertexShader.vbo_width,(void*)m_VertexCursor);
+	m_VertexCursor += attrib.dim*SHADER_UPLOAD_VALUE_SIZE;
+}
+
+/**
+ *	point to attribute in index buffer raster
+ *	\param attrib: shader attribute structure, holding attribute name and dimension
+ *	NOTE shader pipeline, vertex array & index buffer need to be active to point to attribute
+ */
+void ShaderPipeline::_define_index_attribute(ShaderAttribute& attrib)
+{
+	COMM_ERR_COND(m_IndexCursor+attrib.dim*SHADER_UPLOAD_VALUE_SIZE>m_VertexShader.ibo_width,
+				  "index dimension violates upload width");
+
+	s32 __Attribute = _handle_attribute_location_by_name(attrib.name.c_str());
+	glVertexAttribPointer(__Attribute,attrib.dim,GL_FLOAT,GL_FALSE,
+						  m_VertexShader.ibo_width,(void*)m_IndexCursor);
+	glVertexAttribDivisor(__Attribute,1);
+	m_IndexCursor += attrib.dim*SHADER_UPLOAD_VALUE_SIZE;
 }
 
 /**

@@ -216,73 +216,58 @@ Renderer::Renderer()
 	};
 
 	COMM_LOG("compiling shaders");
-	Shader __SpriteVertexShader = Shader("core/shader/sprite.vert",GL_VERTEX_SHADER);
-	Shader __DirectFragmentShader = Shader("core/shader/sprite.frag",GL_FRAGMENT_SHADER);
-	Shader __TextVertexShader = Shader("core/shader/text.vert",GL_VERTEX_SHADER);
-	Shader __TextFragmentShader = Shader("core/shader/text.frag",GL_FRAGMENT_SHADER);
-	Shader __CanvasVertexShader = Shader("core/shader/canvas.vert",GL_VERTEX_SHADER);
-	Shader __CanvasFragmentShader = Shader("core/shader/canvas.frag",GL_FRAGMENT_SHADER);
-	Shader __MeshVertexShader = Shader("core/shader/mesh.vert",GL_VERTEX_SHADER);
-	Shader __MeshFragmentShader = Shader("core/shader/mesh.frag",GL_FRAGMENT_SHADER);
+	VertexShader __SpriteVertexShader = VertexShader("core/shader/sprite.vert");
+	FragmentShader __DirectFragmentShader = FragmentShader("core/shader/sprite.frag");
+	VertexShader __TextVertexShader = VertexShader("core/shader/text.vert");
+	FragmentShader __TextFragmentShader = FragmentShader("core/shader/text.frag");
+	VertexShader __CanvasVertexShader = VertexShader("core/shader/canvas.vert");
+	FragmentShader __CanvasFragmentShader = FragmentShader("core/shader/canvas.frag");
+	VertexShader __MeshVertexShader = VertexShader("core/shader/mesh.vert");
+	FragmentShader __MeshFragmentShader = FragmentShader("core/shader/mesh.frag");
 
 	// ----------------------------------------------------------------------------------------------------
 	// Sprite Pipeline
 
 	COMM_LOG("assembling pipelines:");
 	COMM_LOG("sprite pipeline");
-	m_SpritePipeline.assemble(__SpriteVertexShader,__DirectFragmentShader,4,10,"sprite");
+	m_SpritePipeline.assemble(__SpriteVertexShader,__DirectFragmentShader);
 	m_SpriteVertexArray.bind();
 	m_SpriteVertexBuffer.bind();
 	m_SpriteVertexBuffer.upload_vertices(__QuadVertices,24);
 
 	m_SpritePipeline.enable();
-	m_SpritePipeline.define_attribute("position",2);
-	m_SpritePipeline.define_attribute("edge_coordinates",2);
-
+	m_SpritePipeline.map_vbo();
 	m_SpriteInstanceBuffer.bind();
-	m_SpritePipeline.define_index_attribute("offset",2);
-	m_SpritePipeline.define_index_attribute("scale",2);
-	m_SpritePipeline.define_index_attribute("rotation",1);
-	m_SpritePipeline.define_index_attribute("alpha",1);
-	m_SpritePipeline.define_index_attribute("tex_position",2);
-	m_SpritePipeline.define_index_attribute("tex_dimension",2);
+	m_SpritePipeline.map_ibo();
 
 	m_SpritePipeline.upload("tex",0);
 	m_SpritePipeline.upload_coordinate_system();
 
 	COMM_LOG("text pipeline");
-	m_TextPipeline.assemble(__TextVertexShader,__TextFragmentShader,4,14,"text");
+	m_TextPipeline.assemble(__TextVertexShader,__TextFragmentShader);
 	m_TextVertexArray.bind();
 	m_SpriteVertexBuffer.bind();
 
 	m_TextPipeline.enable();
-	m_TextPipeline.define_attribute("position",2);
-	m_TextPipeline.define_attribute("edge_coordinates",2);
-
+	m_TextPipeline.map_vbo();
 	m_TextInstanceBuffer.bind();
-	m_TextPipeline.define_index_attribute("offset",2);
-	m_TextPipeline.define_index_attribute("scale",2);
-	m_TextPipeline.define_index_attribute("bearing",2);
-	m_TextPipeline.define_index_attribute("colour",4);
-	m_TextPipeline.define_index_attribute("atlas_position",2);
-	m_TextPipeline.define_index_attribute("atlas_dimension",2);
+	m_TextPipeline.map_ibo();
 
 	m_TextPipeline.upload("tex",0);
 	m_TextPipeline.upload_coordinate_system();
 
 	COMM_LOG("canvas pipeline");
-	m_CanvasPipeline.assemble(__CanvasVertexShader,__CanvasFragmentShader,4,0,"canvas");
+	m_CanvasPipeline.assemble(__CanvasVertexShader,__CanvasFragmentShader);
 	m_CanvasVertexArray.bind();
 	m_CanvasVertexBuffer.bind();
 	m_CanvasVertexBuffer.upload_vertices(__CanvasVertices,24);
 
 	m_CanvasPipeline.enable();
-	m_CanvasPipeline.define_attribute("position",2);
-	m_CanvasPipeline.define_attribute("edge_coordinates",2);
+	m_CanvasPipeline.map_vbo();
 	m_CanvasPipeline.upload("tex",0);
 
 	COMM_LOG("mesh pipeline");
-	m_MeshPipeline.assemble(__MeshVertexShader,__MeshFragmentShader,RENDERER_VERTEX_SIZE,0,"mesh");
+	m_MeshPipeline.assemble(__MeshVertexShader,__MeshFragmentShader);
 
 	// ----------------------------------------------------------------------------------------------------
 	// GPU Memory
@@ -514,14 +499,10 @@ void Renderer::load(lptr<MeshBatch> batch)
 	m_MeshPipeline.enable();
 	batch->vao.bind();
 	batch->vbo.bind();
-	m_MeshPipeline.define_attribute("position",3);
-	m_MeshPipeline.define_attribute("uv",2);
-	m_MeshPipeline.define_attribute("normal",3);
-	m_MeshPipeline.define_attribute("tangent",3);
-	m_MeshPipeline.reset_upload();
+	batch->vbo.upload_vertices(batch->meshes[0].vertices);
+	m_MeshPipeline.map_vbo();
 	m_MeshPipeline.upload("tex",0);
 	m_MeshPipeline.upload_camera();
-	batch->vbo.upload_vertices(batch->meshes[0].vertices);
 }
 
 /**

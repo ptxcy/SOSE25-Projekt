@@ -4,6 +4,7 @@
 in vec2 position;
 in vec2 edge_coordinates;
 
+// engine: ibo
 in vec2 offset;
 in vec2 scale;
 in float rotation;
