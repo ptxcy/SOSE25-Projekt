@@ -132,21 +132,21 @@ void ShaderPipeline::assemble(VertexShader vs,FragmentShader& fs)
 }
 
 /**
- *	automatically map vertex buffer object to vertex shader input
- *	NOTE shader pipeline needs to be active, as well as the vertex buffer object we want to map
+ *	automatically map vertex and index buffer object to vertex shader input
+ *	\param vbo: vertex buffer object
+ *	\param ibo: (default nullptr) index buffer object
+ *	NOTE vertex buffer needs to be active
  */
-void ShaderPipeline::map_vbo()
+void ShaderPipeline::map(VertexBuffer* vbo,VertexBuffer* ibo)
 {
+	// vertex buffer
+	enable();
 	for (ShaderAttribute& attrib : m_VertexShader.vbo_attribs) _define_attribute(attrib);
 	m_VertexCursor = 0;
-}
 
-/**
- *	automatically map index buffer object to vertex shader input
- *	NOTE shader pipeline needs to be active, as well as the index buffer object we want to map
- */
-void ShaderPipeline::map_ibo()
-{
+	// index buffer
+	if (ibo==nullptr||!m_VertexShader.ibo_attribs.size()) return;
+	ibo->bind();
 	for (ShaderAttribute& attrib : m_VertexShader.ibo_attribs) _define_index_attribute(attrib);
 	m_IndexCursor = 0;
 }

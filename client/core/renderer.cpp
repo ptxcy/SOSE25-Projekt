@@ -190,6 +190,18 @@ void MeshBatch::register_mesh(const char* path)
 }
 // TODO multithreaded geometry loading
 
+/**
+ *	upload load batch geometry to gpu
+ */
+void MeshBatch::load()
+{
+	COMM_LOG("uploading mesh geometry batch to gpu, %d faces found",mesh_vertex_size);
+	vao.bind();
+	vbo.bind();
+	vbo.upload_vertices(meshes[0].vertices);
+	shader->map(&vbo,&ibo);
+}
+
 
 // ----------------------------------------------------------------------------------------------------
 // Renderer Main Features
@@ -222,8 +234,6 @@ Renderer::Renderer()
 	FragmentShader __TextFragmentShader = FragmentShader("core/shader/text.frag");
 	VertexShader __CanvasVertexShader = VertexShader("core/shader/canvas.vert");
 	FragmentShader __CanvasFragmentShader = FragmentShader("core/shader/canvas.frag");
-	VertexShader __MeshVertexShader = VertexShader("core/shader/mesh.vert");
-	FragmentShader __MeshFragmentShader = FragmentShader("core/shader/mesh.frag");
 
 	// ----------------------------------------------------------------------------------------------------
 	// Sprite Pipeline
@@ -234,11 +244,7 @@ Renderer::Renderer()
 	m_SpriteVertexArray.bind();
 	m_SpriteVertexBuffer.bind();
 	m_SpriteVertexBuffer.upload_vertices(__QuadVertices,24);
-
-	m_SpritePipeline.enable();
-	m_SpritePipeline.map_vbo();
-	m_SpriteInstanceBuffer.bind();
-	m_SpritePipeline.map_ibo();
+	m_SpritePipeline.map(&m_SpriteVertexBuffer,&m_SpriteInstanceBuffer);
 
 	m_SpritePipeline.upload("tex",0);
 	m_SpritePipeline.upload_coordinate_system();
@@ -247,11 +253,7 @@ Renderer::Renderer()
 	m_TextPipeline.assemble(__TextVertexShader,__TextFragmentShader);
 	m_TextVertexArray.bind();
 	m_SpriteVertexBuffer.bind();
-
-	m_TextPipeline.enable();
-	m_TextPipeline.map_vbo();
-	m_TextInstanceBuffer.bind();
-	m_TextPipeline.map_ibo();
+	m_TextPipeline.map(&m_SpriteVertexBuffer,&m_TextInstanceBuffer);
 
 	m_TextPipeline.upload("tex",0);
 	m_TextPipeline.upload_coordinate_system();
@@ -261,13 +263,9 @@ Renderer::Renderer()
 	m_CanvasVertexArray.bind();
 	m_CanvasVertexBuffer.bind();
 	m_CanvasVertexBuffer.upload_vertices(__CanvasVertices,24);
+	m_CanvasPipeline.map(&m_CanvasVertexBuffer);
 
-	m_CanvasPipeline.enable();
-	m_CanvasPipeline.map_vbo();
 	m_CanvasPipeline.upload("tex",0);
-
-	COMM_LOG("mesh pipeline");
-	m_MeshPipeline.assemble(__MeshVertexShader,__MeshFragmentShader);
 
 	// ----------------------------------------------------------------------------------------------------
 	// GPU Memory
@@ -480,29 +478,28 @@ lptr<Text> Renderer::write_text(Font* font,string data,vec2 position,f32 scale,v
 }
 
 /**
- *	register triangle mesh batch
- *	\returns pointer to created triangle mesh batch
+ *	register mesh pipeline
+ *	\param vs: vertex shader
+ *	\param fs: fragment shader
+ *	returns pointer to registered mesh pipeline
  */
-lptr<MeshBatch> Renderer::register_mesh_batch()
+lptr<ShaderPipeline> Renderer::register_mesh_pipeline(VertexShader& vs,FragmentShader& fs)
 {
-	m_MeshBatches.push_back({  });
-	return std::prev(m_MeshBatches.end());
+	m_MeshPipelines.push_back(ShaderPipeline());
+	lptr<ShaderPipeline> p_Pipeline = std::prev(m_MeshPipelines.end());
+	p_Pipeline->assemble(vs,fs);
+	return p_Pipeline;
 }
 
 /**
- *	upload loaded mesh data into vram
- *	\param batch: triangle mesh batch, to be loaded
+ *	register triangle mesh batch
+ *	\param pipeline: shader pipeline, handling pixel output for newly created batch
+ *	\returns pointer to created triangle mesh batch
  */
-void Renderer::load(lptr<MeshBatch> batch)
+lptr<MeshBatch> Renderer::register_mesh_batch(lptr<ShaderPipeline> pipeline)
 {
-	COMM_LOG("uploading mesh geometry batch to gpu, %d faces found",batch->mesh_vertex_size);
-	m_MeshPipeline.enable();
-	batch->vao.bind();
-	batch->vbo.bind();
-	batch->vbo.upload_vertices(batch->meshes[0].vertices);
-	m_MeshPipeline.map_vbo();
-	m_MeshPipeline.upload("tex",0);
-	m_MeshPipeline.upload_camera();
+	m_MeshBatches.push_back({ .shader = pipeline });
+	return std::prev(m_MeshBatches.end());
 }
 
 /**
@@ -585,9 +582,9 @@ void Renderer::_update_canvas()
  */
 void Renderer::_update_mesh()
 {
-	m_MeshPipeline.enable();
 	for (MeshBatch& p_Batch : m_MeshBatches)
 	{
+		p_Batch.shader->enable();
 		p_Batch.vao.bind();
 		glDrawArrays(GL_TRIANGLES,0,p_Batch.mesh_vertex_size);
 	}

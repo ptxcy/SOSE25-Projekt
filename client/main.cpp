@@ -11,9 +11,20 @@ s32 main(s32 argc,char** argv)
 {
 	Font* __Ubuntu = g_Renderer.register_font("./res/font/ubuntu.ttf",50);
 	Menu __Menu = Menu(__Ubuntu);
-	lptr<MeshBatch> __Batch = g_Renderer.register_mesh_batch();
+
+	// shader compile
+	VertexShader __MeshVertexShader = VertexShader("core/shader/mesh.vert");
+	FragmentShader __MeshFragmentShader = FragmentShader("core/shader/mesh.frag");
+	lptr<ShaderPipeline> __Pipeline = g_Renderer.register_mesh_pipeline(__MeshVertexShader,__MeshFragmentShader);
+
+	// batch setup
+	lptr<MeshBatch> __Batch = g_Renderer.register_mesh_batch(__Pipeline);
 	__Batch->register_mesh("./res/sphere.obj");
-	g_Renderer.load(__Batch);
+	__Batch->load();
+
+	// shader config
+	__Pipeline->upload("tex",0);
+	__Pipeline->upload_camera();
 
 	/*
 	std::map<string,Sprite*> entities;

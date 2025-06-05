@@ -3,6 +3,7 @@
 
 
 #include "base.h"
+#include "buffer.h"
 
 
 constexpr u32 SHADER_ERROR_LOGGING_LENGTH = 512;
@@ -54,8 +55,7 @@ class ShaderPipeline
 public:
 	ShaderPipeline() {  }
 	void assemble(VertexShader vs,FragmentShader& fs);
-	void map_vbo();
-	void map_ibo();
+	void map(VertexBuffer* vbo,VertexBuffer* ibo=nullptr);
 
 	// usage
 	void enable();

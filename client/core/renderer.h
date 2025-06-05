@@ -96,11 +96,13 @@ struct MeshBatch
 {
 	// utility
 	void register_mesh(const char* path);
-	void load(ShaderPipeline& shader);
+	void load();
 
 	// data
 	VertexArray vao;
 	VertexBuffer vbo;
+	VertexBuffer ibo;
+	lptr<ShaderPipeline> shader;
 	vector<Mesh> meshes;
 	u32 mesh_vertex_size = 0;
 };
@@ -131,8 +133,8 @@ public:
 	inline void delete_text(lptr<Text> text) { m_Texts.erase(text); }
 
 	// scene
-	lptr<MeshBatch> register_mesh_batch();
-	void load(lptr<MeshBatch> batch);
+	lptr<ShaderPipeline> register_mesh_pipeline(VertexShader& vs,FragmentShader& fs);
+	lptr<MeshBatch> register_mesh_batch(lptr<ShaderPipeline> pipeline);
 
 	// utility
 	static vec2 align(Rect geom,Alignment alignment);
@@ -178,7 +180,6 @@ private:
 	ShaderPipeline m_SpritePipeline;
 	ShaderPipeline m_TextPipeline;
 	ShaderPipeline m_CanvasPipeline;
-	ShaderPipeline m_MeshPipeline;
 
 	Framebuffer m_SceneFrameBuffer = Framebuffer(1);
 
@@ -198,6 +199,7 @@ private:
 	// FIXME font memory is too strict and i don't think this is a nice approach in this case
 
 	// mesh
+	list<ShaderPipeline> m_MeshPipelines;
 	list<MeshBatch> m_MeshBatches;
 };
 
