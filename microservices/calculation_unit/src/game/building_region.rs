@@ -1,5 +1,3 @@
-use std::ptr::null;
-
 use serde::{Deserialize, Serialize};
 
 use super::{

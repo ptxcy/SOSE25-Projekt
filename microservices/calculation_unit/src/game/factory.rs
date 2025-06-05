@@ -44,7 +44,7 @@ impl Craftable for Factory {
 
 impl Spawner for Factory {
 	fn spawn_at(&self) -> Coordinate {
-		let region = unsafe { &mut *self.region };
+		let region = unsafe { &*self.region };
 		region.relative_position.c()
 	}
 }

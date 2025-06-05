@@ -8,6 +8,7 @@ use crate::{
 		dummy::DummyObject,
 		game_objects::GameObjects,
 		gametraits::{Buyer, Craftable},
+		id_counter::IdCounter,
 		player::Player,
 	},
 	logger::log_with_time,
@@ -36,7 +37,7 @@ pub fn spawn_dummy(
 	username: &String,
 	game_objects: &mut GameObjects,
 	name: &String,
-	id_counter: &mut usize,
+	id_counter: &mut IdCounter,
 ) -> std::result::Result<(), String> {
 	// spawn dummy
 	log_with_time("spawn dummy");
@@ -115,7 +116,7 @@ impl ClientRequest {
 			String,
 			ServerMessageSenderChannel,
 		>,
-		id_counter: &mut usize,
+		id_counter: &mut IdCounter,
 	) -> std::result::Result<(), String> {
 		if let Some(value) = &self.dummy_set_velocity {
 			dummy_set_velocity(username, game_objects, value)?;

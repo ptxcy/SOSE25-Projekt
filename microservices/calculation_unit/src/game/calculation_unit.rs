@@ -12,6 +12,7 @@ use tokio::sync::mpsc::*;
 
 use super::{
 	game_objects::GameObjects,
+	id_counter::IdCounter,
 	orbit::initialize_orbit_info_map,
 	planet_util::{get_timefactor, julian_day},
 	player::Player,
@@ -87,7 +88,10 @@ pub async fn start(
 	let mut last_time = Instant::now();
 	let mut julian_day = julian_day(2025, 5, 30);
 	let time_scale = 100.;
-	let mut dummy_id_counter: usize = 0;
+
+	// id counter for object creation
+	let mut dummy_id_counter = IdCounter::new();
+	let mut spaceship_id_counter = IdCounter::new();
 
 	// game loop
 	loop {

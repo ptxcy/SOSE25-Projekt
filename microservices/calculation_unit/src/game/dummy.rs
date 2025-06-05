@@ -7,6 +7,7 @@ use super::{
 	crafting_material::CraftingMaterial,
 	game_objects::DummyMap,
 	gametraits::{Craftable, Crafter, IsOwned, Spawnable},
+	id_counter::IdCounter,
 };
 
 /// dummy object for square rendering
@@ -23,17 +24,16 @@ impl DummyObject {
 	pub fn new(
 		owner: &String,
 		name: &String,
-		id_counter: &mut usize,
+		id_counter: &mut IdCounter,
 		position: Coordinate,
 	) -> Self {
 		let dummy = Self {
 			owner: owner.clone(),
 			name: name.clone(),
-			id: *id_counter,
+			id: id_counter.assign(),
 			position,
 			..Default::default()
 		};
-		*id_counter += 1;
 		dummy
 	}
 
@@ -41,7 +41,7 @@ impl DummyObject {
 		crafter: &mut T,
 		name: &'a String,
 		dummies: &'a mut DummyMap,
-		id_counter: &'a mut usize,
+		id_counter: &'a mut IdCounter,
 	) -> &'a mut Self {
 		log_with_time("crafting a dummy with 49 copper");
 		// use materials

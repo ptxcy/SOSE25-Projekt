@@ -10,9 +10,14 @@ use super::{
 	dummy::DummyObject,
 	orbit::OrbitInfo,
 	planet::{Planet, PlanetReceive},
-	player::Player, spaceship::Spaceship,
+	player::Player,
+	spaceship::Spaceship,
 };
 
+pub type PlayerMap = HashMap<String, Player>;
+pub type SendPlayerMap<'a> = HashMap<&'a String, &'a Player>;
+pub type SpaceshipMap = HashMap<usize, Spaceship>;
+pub type SendSpaceshipMap<'a> = HashMap<&'a usize, &'a Spaceship>;
 pub type DummyMap = HashMap<usize, DummyObject>;
 pub type SendDummyMap<'a> = HashMap<&'a usize, &'a DummyObject>;
 
@@ -22,7 +27,7 @@ pub struct GameObjects {
 	pub dummies: DummyMap,
 	pub planets: Vec<Planet>,
 	pub players: HashMap<String, Player>,
-	pub spaceships: Vec<Spaceship>,
+	pub spaceships: SpaceshipMap,
 }
 
 #[derive(Deserialize, Debug, Clone, Default)]
@@ -30,7 +35,7 @@ pub struct GameObjectsReceive {
 	pub dummies: DummyMap,
 	pub planets: Vec<PlanetReceive>,
 	pub players: HashMap<String, Player>,
-	pub spaceships: Vec<Spaceship>,
+	pub spaceships: SpaceshipMap,
 }
 
 // leight weight creating and no cloning needed
@@ -38,7 +43,8 @@ pub struct GameObjectsReceive {
 pub struct SendGameObjects<'a> {
 	pub dummies: SendDummyMap<'a>,
 	pub planets: Vec<&'a Planet>,
-	pub players: HashMap<&'a String, &'a Player>,
+	pub players: SendPlayerMap<'a>,
+	pub spaceships: SendSpaceshipMap<'a>,
 }
 
 impl GameObjects {
@@ -64,6 +70,14 @@ impl GameObjects {
 			planets: self.planets.iter().collect(),
 			players: self
 				.players
+				.iter()
+				.filter(|(id, dummy)| {
+					/* TODO filter for each user */
+					true
+				})
+				.collect(),
+			spaceships: self
+				.spaceships
 				.iter()
 				.filter(|(id, dummy)| {
 					/* TODO filter for each user */
