@@ -17,7 +17,7 @@ fn trace_planet(
 	let y: Vec<f64> = coords.iter().map(|c| c.y).collect();
 	let z: Vec<f64> = coords.iter().map(|c| c.z).collect();
 
-	let mut trace = Scatter3D::new(x, y, z);
+	let trace = Scatter3D::new(x, y, z);
 	trace
 		.name(name)
 		.mode(Mode::Lines)

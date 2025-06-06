@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::logger::log_with_time;
 
 use super::{
+	action::SafeAction,
 	coordinate::Coordinate,
 	crafting_material::CraftingMaterial,
 	game_objects::DummyMap,
@@ -77,10 +78,7 @@ impl IsOwned for DummyObject {
 }
 
 impl Spawnable for DummyObject {
-	fn into_game_objects(
-		self,
-		game_objects: &mut super::game_objects::GameObjects,
-	) {
-		game_objects.dummies.insert(self.id, self);
+	fn into_game_objects(self) -> SafeAction {
+		SafeAction::SpawnDummy(self)
 	}
 }

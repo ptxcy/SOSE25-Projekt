@@ -1,6 +1,6 @@
 use super::{
-	coordinate::Coordinate, crafting_material::CraftingMaterial,
-	game_objects::GameObjects,
+	action::SafeAction, coordinate::Coordinate,
+	crafting_material::CraftingMaterial,
 };
 
 /// has a position or coordinate to spawn something
@@ -43,5 +43,5 @@ pub trait Craftable: IsOwned + Spawnable {
 }
 
 pub trait Spawnable {
-	fn into_game_objects(self, game_objects: &mut GameObjects);
+	fn into_game_objects(self) -> SafeAction;
 }

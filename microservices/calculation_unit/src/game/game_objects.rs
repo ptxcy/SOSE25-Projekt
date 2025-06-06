@@ -1,7 +1,4 @@
-use std::{
-	collections::HashMap,
-	sync::{Arc, Mutex},
-};
+use std::{collections::HashMap, sync::mpsc::*, sync::*};
 
 use serde::{Deserialize, Serialize};
 
@@ -95,16 +92,18 @@ impl GameObjects {
 		timefactor: f64,
 		orbit_info_map: &HashMap<String, fn(f64) -> OrbitInfo>,
 	) -> std::result::Result<(), String> {
-		let actions = Arc::new(Mutex::new(Vec::<SafeAction>::new()));
+		// let actions = Arc::new(Mutex::new(Vec::<SafeAction>::new()));
+		let (action_sender, action_receiver) =
+			std::sync::mpsc::channel::<SafeAction>();
 
 		// get actions multithreaded
 		let dummies_handle = GameObjects::update_dummies(
-			Arc::clone(&actions),
+			action_sender.clone(),
 			Arc::clone(&dummies),
 			delta_ingame_days,
 		);
 		let planets_handle = GameObjects::update_planets(
-			Arc::clone(&actions),
+			action_sender.clone(),
 			Arc::clone(&planets),
 			timefactor,
 			orbit_info_map,
@@ -113,10 +112,8 @@ impl GameObjects {
 		dummies_handle.join().unwrap();
 		planets_handle.join().unwrap();
 
-		let actions = actions.lock().unwrap();
-
 		// execute operations on data via raw pointers
-		for action in actions.iter() {
+		while let Ok(action) = action_receiver.try_recv() {
 			action.execute();
 		}
 		Ok(())
@@ -124,21 +121,19 @@ impl GameObjects {
 
 	/// store the actions that are going to be executed on dummies
 	pub fn update_dummies(
-		actions: Arc<Mutex<Vec<SafeAction>>>,
+		action_sender: Sender<SafeAction>,
 		dummies: Arc<DummyMap>,
 		delta_ingame_days: f64,
 	) -> std::thread::JoinHandle<()> {
 		let dummies_handle = std::thread::spawn({
-			let actions_clone = actions.clone();
 			let dummies = Arc::clone(&dummies);
 			move || {
 				for (id, dummy) in dummies.iter() {
-					let mut actions = actions_clone.lock().unwrap();
-					actions.push(SafeAction::AddCoordinate {
+					action_sender.send(SafeAction::AddCoordinate {
 						coordinate: dummy.position.raw_mut(),
 						other: dummy.velocity.clone(),
 						multiplier: delta_ingame_days,
-					});
+					}).unwrap();
 				}
 			}
 		});
@@ -147,20 +142,18 @@ impl GameObjects {
 
 	/// updating the planet position in their orbits
 	pub fn update_planets(
-		actions: Arc<Mutex<Vec<SafeAction>>>,
+		action_sender: Sender<SafeAction>,
 		planets: Arc<Vec<Planet>>,
 		timefactor: f64,
 		orbit_info_map: &HashMap<String, fn(f64) -> OrbitInfo>,
 	) -> std::thread::JoinHandle<()> {
 		let planets_handle = std::thread::spawn({
-			let actions_clone = actions.clone();
 			let planets = Arc::clone(&planets);
 			let orbit_info_map = orbit_info_map.clone();
 			let ingame_time = timefactor;
 			move || {
 				for planet in planets.iter() {
-					let mut actions = actions_clone.lock().unwrap();
-					actions.push(planet.update(ingame_time, &orbit_info_map));
+					action_sender.send(planet.update(ingame_time, &orbit_info_map)).unwrap();
 				}
 			}
 		});

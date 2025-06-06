@@ -48,7 +48,7 @@ impl Planet {
 	pub fn add_building_region(mut self, mut direction: Coordinate) -> Self {
 		direction.normalize(self.size);
 		self.building_regions
-			.push(BuildingRegion::new(direction, &self as *const Planet));
+			.push(BuildingRegion::new(direction, /* &self as *const Planet */));
 		self
 	}
 

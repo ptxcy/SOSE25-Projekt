@@ -16,8 +16,8 @@ pub struct BuildingRegion {
 	pub mines: Vec<Mine>,
 	pub profit: CraftingMaterial,
 
-	#[serde(skip)]
-	planet: *const Planet,
+	// #[serde(skip)]
+	// planet: *const Planet,
 }
 
 #[derive(Deserialize, Debug, Clone, Default)]
@@ -29,10 +29,10 @@ pub struct BuildingRegionReceive {
 }
 
 impl BuildingRegion {
-	pub fn new(relative_position: Coordinate, planet: *const Planet) -> Self {
+	pub fn new(relative_position: Coordinate, /* planet: *const Planet */) -> Self {
 		Self {
 			relative_position,
-			planet,
+			// planet,
 			factories: Default::default(),
 			mines: Default::default(),
 			profit: Default::default(),
@@ -40,5 +40,6 @@ impl BuildingRegion {
 	}
 }
 
+// only under condition that the raw pointers it contains are valid at all times during and after multi threading
 unsafe impl Sync for BuildingRegion {}
 unsafe impl Send for BuildingRegion {}

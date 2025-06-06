@@ -1,18 +1,15 @@
 use std::sync::Arc;
 use std::time::Duration;
-use std::{env, thread};
+use std::env;
 
 use bytes::Bytes;
 use calculation_unit::messages::server_message::ServerMessageReceive;
 use calculation_unit::{
 	game::coordinate::Coordinate,
 	logger::log_with_time,
-	messages::{
-		client_message::{
+	messages::client_message::{
 			ClientMessage, ClientRequest, DummySetVelocity, SetClientFPS,
 		},
-		server_message::ServerMessage,
-	},
 };
 use futures_util::{SinkExt, stream::StreamExt};
 use tokio::sync::Mutex;

@@ -3,11 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::logger::log_with_time;
 
 use super::{
-	coordinate::Coordinate,
-	crafting_material::CraftingMaterial,
-	game_objects::SpaceshipMap,
-	gametraits::{Craftable, IsOwned, Spawnable},
-	id_counter::IdCounter,
+	action::SafeAction, coordinate::Coordinate, crafting_material::CraftingMaterial, game_objects::SpaceshipMap, gametraits::{Craftable, IsOwned, Spawnable}, id_counter::IdCounter
 };
 
 #[derive(Serialize, Debug, Clone, Default)]
@@ -61,10 +57,9 @@ impl IsOwned for Spaceship {
 
 impl Spawnable for Spaceship {
 	fn into_game_objects(
-		self,
-		game_objects: &mut super::game_objects::GameObjects,
-	) {
-		game_objects.spaceships.insert(self.id, self);
+		self
+	) -> SafeAction {
+		SafeAction::SpawnSpaceship(self)
 	}
 }
 

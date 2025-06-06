@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::logger::log_with_time;
 
 use super::{
+	action::SafeAction,
 	building_region::BuildingRegion,
 	coordinate::Coordinate,
 	crafting_material::CraftingMaterial,
@@ -84,11 +85,10 @@ impl Factory {
 }
 
 impl Spawnable for Factory {
-	fn into_game_objects(
-		self,
-		game_objects: &mut super::game_objects::GameObjects,
-	) {
-		let region = unsafe { &mut *self.region };
-		region.factories.push(self);
+	fn into_game_objects(self) -> SafeAction {
+		SafeAction::SpawnFactory {
+			region: self.region,
+			factory: self,
+		}
 	}
 }
