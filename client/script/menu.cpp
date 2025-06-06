@@ -5,7 +5,8 @@
  *	menu loader routine
  *	\param main menu font for lobby login
  */
-Menu::Menu(Font* font)
+Menu::Menu(Font* font,CommandCenter* cc)
+	: m_CC(cc)
 {
 	// load textures
 	button_idle = g_Renderer.register_sprite_texture("./res/ui/button_idle.png");
@@ -31,7 +32,7 @@ Menu::Menu(Font* font)
 									  vec2(125,-145),vec2(175,40),{ .align=SCREEN_ALIGN_CENTER });
 
 	// register routine
-	ref = g_Wheel.call(UpdateRoutine{ &Menu::update,(u8*)this });
+	ref = g_Wheel.call(UpdateRoutine{ &Menu::update,(void*)this });
 }
 
 /**
@@ -47,6 +48,7 @@ void Menu::_update()
 							tfname->get_content(),tfpass->get_content(),tflobby->get_content(),
 							tflpass->get_content(),btcreate->confirm);
 #endif
+		m_CC->run();
 		close();
 	}
 }

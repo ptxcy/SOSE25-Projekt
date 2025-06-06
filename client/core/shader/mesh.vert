@@ -16,6 +16,7 @@ uniform mat4 proj;
 
 void main()
 {
+	// TODO
 	gl_Position = proj*view*vec4(position,1.);
 
 	// pass

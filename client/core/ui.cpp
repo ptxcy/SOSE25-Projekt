@@ -177,6 +177,7 @@ void UI::remove_batch(lptr<UIBatch> batch)
 		g_Renderer.delete_text(p_TextField.content);
 	}
 
-	// finish by removing batch from memory
+	// finish by removing batch from memory & unsetting input mode
+	Input::unset_input_mode();
 	m_Batches.erase(batch);
 }

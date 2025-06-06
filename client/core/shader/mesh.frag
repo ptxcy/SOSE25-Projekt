@@ -12,6 +12,5 @@ uniform sampler2D tex;
 
 void main()
 {
-	float its = dot(Normal,vec3(0,1,.2));
-	pixelColour = clamp(its,.0,1.)*vec4(.85,0,0,1.);
+	// TODO
 }

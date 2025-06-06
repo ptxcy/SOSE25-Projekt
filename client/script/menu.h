@@ -6,19 +6,22 @@
 #include "../core/websocket.h"
 #include "../core/ui.h"
 
+#include "command_center.h"
+
 
 class Menu
 {
 public:
-	Menu(Font* font);
-	static inline void update(u8* menu) { Menu* p = (Menu*)menu; p->_update(); }
+	Menu(Font* font,CommandCenter* cc);
+	static inline void update(void* menu) { Menu* p = (Menu*)menu; p->_update(); }
 	void _update();
 	void close();
 
 private:
+
 	// correlation
 	lptr<UpdateRoutine> ref;
-	bool run = true;
+	CommandCenter* m_CC;
 
 	// textures
 	PixelBufferComponent* button_idle;

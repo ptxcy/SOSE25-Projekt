@@ -322,14 +322,21 @@ inline CoordinateSystem2D g_CoordinateSystem = CoordinateSystem2D(MATH_CARTESIAN
 class Camera3D
 {
 public:
-	Camera3D(vec3 position,vec3 tgt,f32 width,f32 height,f32 fov);
+	Camera3D(vec3 pos,vec3 tgt,f32 width,f32 height,f32 fov);
+	void update();
 
 public:
+
+	// camera matrices
 	mat4 view;
 	mat4 proj;
+
+	// attributes
+	vec3 position;
+	vec3 target;
 };
 
-inline Camera3D g_Camera = Camera3D(vec3(.85f),vec3(0,.001,0),FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y,90);
+inline Camera3D g_Camera = Camera3D(vec3(0,1,-1),vec3(0,.001,0),FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y,90);
 
 
 // ----------------------------------------------------------------------------------------------------
