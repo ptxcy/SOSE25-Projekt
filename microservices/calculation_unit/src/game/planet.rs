@@ -1,9 +1,5 @@
 use super::{
-	action::{AsRaw, SafeAction},
-	building_region::{BuildingRegion, BuildingRegionReceive},
-	coordinate::Coordinate,
-	orbit::OrbitInfo,
-	planet_util::calculate_planet,
+	action::{AsRaw, SafeAction}, building_region::{BuildingRegion, BuildingRegionReceive}, coordinate::Coordinate, gametraits::HasPosition, orbit::OrbitInfo, planet_util::calculate_planet
 };
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -47,8 +43,9 @@ impl Planet {
 	}
 	pub fn add_building_region(mut self, mut direction: Coordinate) -> Self {
 		direction.normalize(self.size);
-		self.building_regions
-			.push(BuildingRegion::new(direction, /* &self as *const Planet */));
+		self.building_regions.push(BuildingRegion::new(
+			direction, &self as *const Planet
+		));
 		self
 	}
 
@@ -73,4 +70,10 @@ impl Planet {
 		];
 		planets
 	}
+}
+
+impl HasPosition for Planet {
+    fn get_position(&self) -> Coordinate {
+    	self.position.clone()
+    }
 }

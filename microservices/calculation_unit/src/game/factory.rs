@@ -7,7 +7,7 @@ use super::{
 	building_region::BuildingRegion,
 	coordinate::Coordinate,
 	crafting_material::CraftingMaterial,
-	gametraits::{Craftable, Crafter, IsOwned, Spawnable, Spawner},
+	gametraits::{Craftable, Crafter, HasPosition, HasRelativePosition, IsOwned, Spawnable, Spawner},
 };
 
 /// placed somewhere to mine resources / crafting materials
@@ -91,4 +91,14 @@ impl Spawnable for Factory {
 			factory: self,
 		}
 	}
+}
+
+impl HasRelativePosition for Factory {
+    type Parent = BuildingRegion;
+    fn get_parent(&self) -> &Self::Parent {
+    	unsafe {&(*self.region)}
+    }
+    fn get_relative_position(&self) -> Coordinate {
+    	Coordinate::new(0., 0., 0.)
+    }
 }

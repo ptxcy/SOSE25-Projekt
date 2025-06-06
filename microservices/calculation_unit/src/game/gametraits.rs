@@ -45,3 +45,19 @@ pub trait Craftable: IsOwned + Spawnable {
 pub trait Spawnable {
 	fn into_game_objects(self) -> SafeAction;
 }
+
+pub trait HasPosition {
+	fn get_position(&self) -> Coordinate;
+}
+
+pub trait HasRelativePosition {
+    type Parent: HasPosition;
+    fn get_parent(&self) -> &Self::Parent;
+    fn get_relative_position(&self) -> Coordinate;
+}
+
+impl<C: HasRelativePosition> HasPosition for C {
+    fn get_position(&self) -> Coordinate {
+        self.get_parent().get_position()
+    }
+}

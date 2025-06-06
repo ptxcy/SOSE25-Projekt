@@ -7,7 +7,7 @@ use crate::{
 		websocket_format::RequestInfo,
 	},
 };
-use std::{collections::HashMap, sync::Arc, time::Instant};
+use std::{collections::HashMap, time::Instant};
 use tokio::sync::mpsc::*;
 
 use super::{
@@ -126,12 +126,11 @@ pub async fn start(
 
 		// game logic calculation
 		// wrap the inner values thread safely
-		let dummies = Arc::new(game_objects.dummies);
-		let planets = Arc::new(game_objects.planets);
+		let atomic_game_objects = game_objects.as_atomic();
+
 		// update multithreadd
 		GameObjects::update(
-			Arc::clone(&dummies),
-			Arc::clone(&planets),
+			atomic_game_objects.clone(),
 			delta_ingame_days,
 			get_timefactor(julian_day),
 			&orbit_map,
@@ -140,8 +139,7 @@ pub async fn start(
 		.unwrap();
 
 		// extract the inner values back
-		game_objects.dummies = Arc::into_inner(dummies).unwrap();
-		game_objects.planets = Arc::into_inner(planets).unwrap();
+		game_objects = atomic_game_objects.into_inner();
 
 		julian_day += delta_ingame_days;
 

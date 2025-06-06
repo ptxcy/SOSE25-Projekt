@@ -3,10 +3,8 @@ use std::collections::HashMap;
 use super::client_message::{ClientRequest, DummySetVelocity, SetClientFPS};
 use crate::{
 	game::{
-		calculation_unit::ServerMessageSenderChannel,
-		dummy::DummyObject,
-		game_objects::GameObjects,
-		id_counter::IdCounter,
+		calculation_unit::ServerMessageSenderChannel, dummy::DummyObject,
+		game_objects::GameObjects, id_counter::IdCounter,
 	},
 	logger::log_with_time,
 };

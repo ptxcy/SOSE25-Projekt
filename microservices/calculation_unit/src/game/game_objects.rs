@@ -27,6 +27,25 @@ pub struct GameObjects {
 	pub spaceships: SpaceshipMap,
 }
 
+#[derive(Debug, Clone)]
+pub struct AtomicGameObjects {
+	pub dummies: Arc<DummyMap>,
+	pub planets: Arc<Vec<Planet>>,
+	pub players: Arc<HashMap<String, Player>>,
+	pub spaceships: Arc<SpaceshipMap>,
+}
+
+impl AtomicGameObjects {
+	pub fn into_inner(self) -> GameObjects {
+		GameObjects {
+			dummies: Arc::into_inner(self.dummies).unwrap(),
+			planets: Arc::into_inner(self.planets).unwrap(),
+			players: Arc::into_inner(self.players).unwrap(),
+			spaceships: Arc::into_inner(self.spaceships).unwrap(),
+		}
+	}
+}
+
 #[derive(Deserialize, Debug, Clone, Default)]
 pub struct GameObjectsReceive {
 	pub dummies: DummyMap,
@@ -50,6 +69,15 @@ impl GameObjects {
 		Self {
 			planets,
 			..Default::default()
+		}
+	}
+
+	pub fn as_atomic(self) -> AtomicGameObjects {
+		AtomicGameObjects {
+			dummies: Arc::new(self.dummies),
+			planets: Arc::new(self.planets),
+			players: Arc::new(self.players),
+			spaceships: Arc::new(self.spaceships),
 		}
 	}
 
@@ -86,8 +114,7 @@ impl GameObjects {
 
 	/// updates the game objects
 	pub fn update(
-		dummies: Arc<DummyMap>,
-		planets: Arc<Vec<Planet>>,
+		atomic_game_objects: AtomicGameObjects,
 		delta_ingame_days: f64,
 		timefactor: f64,
 		orbit_info_map: &HashMap<String, fn(f64) -> OrbitInfo>,
@@ -99,12 +126,12 @@ impl GameObjects {
 		// get actions multithreaded
 		let dummies_handle = GameObjects::update_dummies(
 			action_sender.clone(),
-			Arc::clone(&dummies),
+			Arc::clone(&atomic_game_objects.dummies),
 			delta_ingame_days,
 		);
 		let planets_handle = GameObjects::update_planets(
 			action_sender.clone(),
-			Arc::clone(&planets),
+			Arc::clone(&atomic_game_objects.planets),
 			timefactor,
 			orbit_info_map,
 		);
@@ -129,11 +156,13 @@ impl GameObjects {
 			let dummies = Arc::clone(&dummies);
 			move || {
 				for (id, dummy) in dummies.iter() {
-					action_sender.send(SafeAction::AddCoordinate {
-						coordinate: dummy.position.raw_mut(),
-						other: dummy.velocity.clone(),
-						multiplier: delta_ingame_days,
-					}).unwrap();
+					action_sender
+						.send(SafeAction::AddCoordinate {
+							coordinate: dummy.position.raw_mut(),
+							other: dummy.velocity.clone(),
+							multiplier: delta_ingame_days,
+						})
+						.unwrap();
 				}
 			}
 		});
@@ -153,7 +182,9 @@ impl GameObjects {
 			let ingame_time = timefactor;
 			move || {
 				for planet in planets.iter() {
-					action_sender.send(planet.update(ingame_time, &orbit_info_map)).unwrap();
+					action_sender
+						.send(planet.update(ingame_time, &orbit_info_map))
+						.unwrap();
 				}
 			}
 		});
