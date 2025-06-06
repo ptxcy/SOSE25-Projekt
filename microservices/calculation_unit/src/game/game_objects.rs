@@ -6,7 +6,7 @@ use super::{
 	action::{AsRaw, SafeAction},
 	dummy::DummyObject,
 	orbit::OrbitInfo,
-	planet::{Planet, PlanetReceive},
+	planet::{OrbitInfoMap, Planet, PlanetReceive},
 	player::Player,
 	spaceship::Spaceship,
 };
@@ -117,7 +117,7 @@ impl GameObjects {
 		atomic_game_objects: AtomicGameObjects,
 		delta_ingame_days: f64,
 		timefactor: f64,
-		orbit_info_map: &HashMap<String, fn(f64) -> OrbitInfo>,
+		orbit_info_map: &OrbitInfoMap,
 	) -> std::result::Result<(), String> {
 		// let actions = Arc::new(Mutex::new(Vec::<SafeAction>::new()));
 		let (action_sender, action_receiver) =
@@ -174,16 +174,15 @@ impl GameObjects {
 		action_sender: Sender<SafeAction>,
 		planets: Arc<Vec<Planet>>,
 		timefactor: f64,
-		orbit_info_map: &HashMap<String, fn(f64) -> OrbitInfo>,
+		orbit_info_map: &OrbitInfoMap,
 	) -> std::thread::JoinHandle<()> {
 		let planets_handle = std::thread::spawn({
 			let planets = Arc::clone(&planets);
 			let orbit_info_map = orbit_info_map.clone();
-			let ingame_time = timefactor;
 			move || {
 				for planet in planets.iter() {
 					action_sender
-						.send(planet.update(ingame_time, &orbit_info_map))
+						.send(planet.update(timefactor, &orbit_info_map))
 						.unwrap();
 				}
 			}
