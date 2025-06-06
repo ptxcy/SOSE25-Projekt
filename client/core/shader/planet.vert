@@ -6,6 +6,10 @@ in vec2 uv;
 in vec3 normal;
 in vec3 tangent;
 
+// engine: ibo
+in vec3 offset;
+in float scale;
+
 out vec2 UV;
 out vec3 Normal;
 out mat3 TBN;
@@ -16,7 +20,7 @@ uniform mat4 proj;
 
 void main()
 {
-	gl_Position = proj*view*vec4(position,1.);
+	gl_Position = proj*view*vec4(position*scale+offset,1.);
 
 	// pass
 	Normal = normal;

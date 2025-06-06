@@ -6,6 +6,13 @@
 #include "../core/wheel.h"
 
 
+struct PlanetaryAttribute
+{
+	vec3 offset = vec3(0);
+	f32 scale = 1.f;
+};
+
+
 class StarSystem
 {
 public:
@@ -18,6 +25,10 @@ private:
 
 	// graphics
 	lptr<ShaderPipeline> m_Shader;
+	lptr<ParticleBatch> m_Batch;
+
+	// planetary data
+	vector<PlanetaryAttribute> m_Planets;
 };
 
 

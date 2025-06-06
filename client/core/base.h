@@ -336,7 +336,7 @@ public:
 	vec3 target;
 };
 
-inline Camera3D g_Camera = Camera3D(vec3(0,1,-1),vec3(0,.001,0),FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y,90);
+inline Camera3D g_Camera = Camera3D(vec3(10,1,1),vec3(10,.001,0),FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y,90);
 
 
 // ----------------------------------------------------------------------------------------------------

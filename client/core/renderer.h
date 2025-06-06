@@ -101,10 +101,23 @@ struct MeshBatch
 	// data
 	VertexArray vao;
 	VertexBuffer vbo;
-	VertexBuffer ibo;
 	lptr<ShaderPipeline> shader;
 	vector<Mesh> meshes;
 	u32 mesh_vertex_size = 0;
+};
+
+struct ParticleBatch
+{
+	// utility
+	void load(const char* path);
+
+	// data
+	VertexArray vao;
+	VertexBuffer vbo;
+	VertexBuffer ibo;
+	lptr<ShaderPipeline> shader;
+	Mesh geometry;
+	u32 active_particles = 0;
 };
 
 
@@ -135,6 +148,7 @@ public:
 	// scene
 	lptr<ShaderPipeline> register_mesh_pipeline(VertexShader& vs,FragmentShader& fs);
 	lptr<MeshBatch> register_mesh_batch(lptr<ShaderPipeline> pipeline);
+	lptr<ParticleBatch> register_particle_batch(lptr<ShaderPipeline> pipeline);
 
 	// utility
 	static vec2 align(Rect geom,Alignment alignment);
@@ -201,6 +215,7 @@ private:
 	// mesh
 	list<ShaderPipeline> m_MeshPipelines;
 	list<MeshBatch> m_MeshBatches;
+	list<ParticleBatch> m_ParticleBatches;
 };
 
 inline Renderer g_Renderer = Renderer();
