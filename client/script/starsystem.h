@@ -24,8 +24,10 @@ public:
 private:
 
 	// graphics
-	lptr<ShaderPipeline> m_Shader;
-	lptr<ParticleBatch> m_Batch;
+	lptr<ShaderPipeline> m_PlanetShader;
+	lptr<ShaderPipeline> m_SunShader;
+
+	lptr<ParticleBatch> m_PlanetBatch;
 
 	// planetary data
 	vector<PlanetaryAttribute> m_Planets;

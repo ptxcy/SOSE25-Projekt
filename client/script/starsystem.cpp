@@ -7,18 +7,27 @@
 StarSystem::StarSystem()
 {
 	// shader compile
-	VertexShader __MeshVertexShader = VertexShader("core/shader/planet.vert");
-	FragmentShader __MeshFragmentShader = FragmentShader("core/shader/planet.frag");
-	m_Shader = g_Renderer.register_mesh_pipeline(__MeshVertexShader,__MeshFragmentShader);
+	VertexShader __PlanetVertexShader = VertexShader("core/shader/planet.vert");
+	VertexShader __SunVertexShader = VertexShader("core/shader/sun.vert");
+	FragmentShader __PlanetFragmentShader = FragmentShader("core/shader/planet.frag");
+	FragmentShader __SunFragmentShader = FragmentShader("core/shader/sun.frag");
+	m_PlanetShader = g_Renderer.register_mesh_pipeline(__PlanetVertexShader,__PlanetFragmentShader);
+	m_SunShader = g_Renderer.register_mesh_pipeline(__SunVertexShader,__SunFragmentShader);
 
 	// setup planetary geometry
-	m_Batch = g_Renderer.register_particle_batch(m_Shader);
-	m_Batch->load("./res/sphere.obj");
-	m_Batch->active_particles = 8;
+	m_PlanetBatch = g_Renderer.register_particle_batch(m_PlanetShader);
+	m_PlanetBatch->load("./res/sphere.obj");
+	m_PlanetBatch->active_particles = 8;
+
+	lptr<MeshBatch> __SunBatch = g_Renderer.register_mesh_batch(m_SunShader);
+	__SunBatch->register_mesh("./res/sphere.obj");
+	__SunBatch->load();
+	// FIXME loading this twice is dumb, lets not!
+	// TODO also combine load if possible
 
 	// shader config
-	m_Shader->upload("tex",0);
-	m_Shader->upload_camera();
+	m_PlanetShader->upload("tex",0);
+	m_PlanetShader->upload_camera();
 
 	// setup planets
 	m_Planets.resize(8);
@@ -41,10 +50,10 @@ StarSystem::StarSystem()
 void StarSystem::update()
 {
 	// planetary position update
-	m_Batch->ibo.bind();
-	m_Batch->ibo.upload_vertices(m_Planets,GL_DYNAMIC_DRAW);
+	m_PlanetBatch->ibo.bind();
+	m_PlanetBatch->ibo.upload_vertices(m_Planets,GL_DYNAMIC_DRAW);
 
 	// update camera matrices
-	m_Shader->enable();
-	m_Shader->upload_camera();
+	m_PlanetShader->enable();
+	m_PlanetShader->upload_camera();
 }
