@@ -18,11 +18,14 @@ pub mod game {
 	pub mod factory;
 	pub mod game_objects;
 	pub mod gametraits;
+	pub mod id_counter;
+	pub mod mine;
 	pub mod network;
 	pub mod orbit;
 	pub mod planet;
 	pub mod planet_util;
 	pub mod player;
+	pub mod spaceship;
 }
 
 pub fn get_time() -> u128 {

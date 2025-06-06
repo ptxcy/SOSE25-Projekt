@@ -3,12 +3,10 @@ use std::collections::HashMap;
 use super::client_message::{ClientRequest, DummySetVelocity, SetClientFPS};
 use crate::{
 	game::{
-		action::AsRaw,
 		calculation_unit::ServerMessageSenderChannel,
 		dummy::DummyObject,
 		game_objects::GameObjects,
-		gametraits::{Buyer, Craftable},
-		player::Player,
+		id_counter::IdCounter,
 	},
 	logger::log_with_time,
 };
@@ -36,7 +34,7 @@ pub fn spawn_dummy(
 	username: &String,
 	game_objects: &mut GameObjects,
 	name: &String,
-	id_counter: &mut usize,
+	id_counter: &mut IdCounter,
 ) -> std::result::Result<(), String> {
 	// spawn dummy
 	log_with_time("spawn dummy");
@@ -115,8 +113,7 @@ impl ClientRequest {
 			String,
 			ServerMessageSenderChannel,
 		>,
-		delta_seconds: f64,
-		id_counter: &mut usize,
+		id_counter: &mut IdCounter,
 	) -> std::result::Result<(), String> {
 		if let Some(value) = &self.dummy_set_velocity {
 			dummy_set_velocity(username, game_objects, value)?;

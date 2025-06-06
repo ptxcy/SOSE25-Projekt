@@ -1,14 +1,14 @@
-use std::collections::HashMap;
-
 use serde::{Deserialize, Serialize};
 
 use crate::logger::log_with_time;
 
 use super::{
+	action::SafeAction,
 	coordinate::Coordinate,
 	crafting_material::CraftingMaterial,
-	game_objects::{DummyMap, GameObjects},
-	gametraits::{Craftable, Crafter, IsOwned},
+	game_objects::DummyMap,
+	gametraits::{Craftable, Crafter, IsOwned, Spawnable},
+	id_counter::IdCounter,
 };
 
 /// dummy object for square rendering
@@ -25,17 +25,16 @@ impl DummyObject {
 	pub fn new(
 		owner: &String,
 		name: &String,
-		id_counter: &mut usize,
+		id_counter: &mut IdCounter,
 		position: Coordinate,
 	) -> Self {
 		let dummy = Self {
 			owner: owner.clone(),
 			name: name.clone(),
-			id: *id_counter,
+			id: id_counter.assign(),
 			position,
 			..Default::default()
 		};
-		*id_counter += 1;
 		dummy
 	}
 
@@ -43,7 +42,7 @@ impl DummyObject {
 		crafter: &mut T,
 		name: &'a String,
 		dummies: &'a mut DummyMap,
-		id_counter: &'a mut usize,
+		id_counter: &'a mut IdCounter,
 	) -> &'a mut Self {
 		log_with_time("crafting a dummy with 49 copper");
 		// use materials
@@ -75,5 +74,11 @@ impl IsOwned for DummyObject {
 
 	fn get_owner<'a>(&'a self) -> &'a String {
 		&self.owner
+	}
+}
+
+impl Spawnable for DummyObject {
+	fn into_game_objects(self) -> SafeAction {
+		SafeAction::SpawnDummy(self)
 	}
 }

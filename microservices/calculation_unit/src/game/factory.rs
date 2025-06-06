@@ -1,16 +1,30 @@
 use serde::{Deserialize, Serialize};
 
+use crate::logger::log_with_time;
+
 use super::{
+	action::SafeAction,
+	building_region::BuildingRegion,
+	coordinate::Coordinate,
 	crafting_material::CraftingMaterial,
-	gametraits::{Craftable, IsOwned},
+	gametraits::{Craftable, Crafter, IsOwned, Spawnable, Spawner},
 };
 
 /// placed somewhere to mine resources / crafting materials
-#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[derive(Serialize, Debug, Clone)]
 pub struct Factory {
-	owner: String,
-	/// resources the factory mines per second
-	pub resources: CraftingMaterial,
+	pub owner: String,
+	pub storage: CraftingMaterial,
+
+	#[serde(skip)]
+	region: *mut BuildingRegion,
+}
+
+// Helper struct for deserialization
+#[derive(Deserialize, Debug, Clone)]
+pub struct FactoryReceive {
+	pub owner: String,
+	pub storage: CraftingMaterial,
 }
 
 impl IsOwned for Factory {
@@ -26,5 +40,55 @@ impl IsOwned for Factory {
 impl Craftable for Factory {
 	fn get_cost() -> CraftingMaterial {
 		CraftingMaterial { copper: 400. }
+	}
+}
+
+impl Spawner for Factory {
+	fn spawn_at(&self) -> Coordinate {
+		let region = unsafe { &*self.region };
+		region.relative_position.c()
+	}
+}
+
+impl Crafter for Factory {
+	fn get_crafting_material_mut(&mut self) -> &mut CraftingMaterial {
+		&mut self.storage
+	}
+}
+
+impl Factory {
+	pub fn new(owner: &String, region: *mut BuildingRegion) -> Self {
+		Self {
+			owner: owner.to_string(),
+			region,
+			storage: Default::default(),
+		}
+	}
+	pub fn craft<'a, T: Crafter>(
+		crafter: &mut T,
+		building_region: &'a mut BuildingRegion,
+	) -> &'a mut Self {
+		log_with_time("crafting a dummy with 49 copper");
+		// use materials
+		crafter.get_crafting_material_mut().sub(&Self::get_cost());
+
+		// create object
+		let factory = Factory::new(
+			crafter.get_owner(),
+			building_region as *mut BuildingRegion,
+		);
+
+		building_region.factories.push(factory);
+		let index = building_region.factories.len() - 1;
+		&mut building_region.factories[index]
+	}
+}
+
+impl Spawnable for Factory {
+	fn into_game_objects(self) -> SafeAction {
+		SafeAction::SpawnFactory {
+			region: self.region,
+			factory: self,
+		}
 	}
 }

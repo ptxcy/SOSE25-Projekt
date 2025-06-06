@@ -1,7 +1,4 @@
-use std::{
-	collections::HashMap,
-	sync::{Arc, Mutex},
-};
+use std::{collections::HashMap, sync::mpsc::*, sync::*};
 
 use serde::{Deserialize, Serialize};
 
@@ -9,19 +6,33 @@ use super::{
 	action::{AsRaw, SafeAction},
 	dummy::DummyObject,
 	orbit::OrbitInfo,
-	planet::Planet,
+	planet::{Planet, PlanetReceive},
 	player::Player,
+	spaceship::Spaceship,
 };
 
+pub type PlayerMap = HashMap<String, Player>;
+pub type SendPlayerMap<'a> = HashMap<&'a String, &'a Player>;
+pub type SpaceshipMap = HashMap<usize, Spaceship>;
+pub type SendSpaceshipMap<'a> = HashMap<&'a usize, &'a Spaceship>;
 pub type DummyMap = HashMap<usize, DummyObject>;
 pub type SendDummyMap<'a> = HashMap<&'a usize, &'a DummyObject>;
 
 /// objects that are going to be rendered by client
-#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[derive(Serialize, Debug, Clone, Default)]
 pub struct GameObjects {
 	pub dummies: DummyMap,
 	pub planets: Vec<Planet>,
 	pub players: HashMap<String, Player>,
+	pub spaceships: SpaceshipMap,
+}
+
+#[derive(Deserialize, Debug, Clone, Default)]
+pub struct GameObjectsReceive {
+	pub dummies: DummyMap,
+	pub planets: Vec<PlanetReceive>,
+	pub players: HashMap<String, Player>,
+	pub spaceships: SpaceshipMap,
 }
 
 // leight weight creating and no cloning needed
@@ -29,7 +40,8 @@ pub struct GameObjects {
 pub struct SendGameObjects<'a> {
 	pub dummies: SendDummyMap<'a>,
 	pub planets: Vec<&'a Planet>,
-	pub players: HashMap<&'a String, &'a Player>,
+	pub players: SendPlayerMap<'a>,
+	pub spaceships: SendSpaceshipMap<'a>,
 }
 
 impl GameObjects {
@@ -61,6 +73,14 @@ impl GameObjects {
 					true
 				})
 				.collect(),
+			spaceships: self
+				.spaceships
+				.iter()
+				.filter(|(id, dummy)| {
+					/* TODO filter for each user */
+					true
+				})
+				.collect(),
 		}
 	}
 
@@ -68,37 +88,32 @@ impl GameObjects {
 	pub fn update(
 		dummies: Arc<DummyMap>,
 		planets: Arc<Vec<Planet>>,
-		delta_seconds: f64,
-		ingame_time: f64,
+		delta_ingame_days: f64,
+		timefactor: f64,
 		orbit_info_map: &HashMap<String, fn(f64) -> OrbitInfo>,
 	) -> std::result::Result<(), String> {
-		let actions = Arc::new(Mutex::new(Vec::<SafeAction>::new()));
+		// let actions = Arc::new(Mutex::new(Vec::<SafeAction>::new()));
+		let (action_sender, action_receiver) =
+			std::sync::mpsc::channel::<SafeAction>();
 
 		// get actions multithreaded
 		let dummies_handle = GameObjects::update_dummies(
-			Arc::clone(&actions),
+			action_sender.clone(),
 			Arc::clone(&dummies),
-			Arc::clone(&planets),
-			delta_seconds,
-			ingame_time,
-			orbit_info_map,
+			delta_ingame_days,
 		);
 		let planets_handle = GameObjects::update_planets(
-			Arc::clone(&actions),
-			Arc::clone(&dummies),
+			action_sender.clone(),
 			Arc::clone(&planets),
-			delta_seconds,
-			ingame_time,
+			timefactor,
 			orbit_info_map,
 		);
 
 		dummies_handle.join().unwrap();
 		planets_handle.join().unwrap();
 
-		let actions = actions.lock().unwrap();
-
 		// execute operations on data via raw pointers
-		for action in actions.iter() {
+		while let Ok(action) = action_receiver.try_recv() {
 			action.execute();
 		}
 		Ok(())
@@ -106,25 +121,19 @@ impl GameObjects {
 
 	/// store the actions that are going to be executed on dummies
 	pub fn update_dummies(
-		actions: Arc<Mutex<Vec<SafeAction>>>,
+		action_sender: Sender<SafeAction>,
 		dummies: Arc<DummyMap>,
-		planets: Arc<Vec<Planet>>,
-		delta_seconds: f64,
-		ingame_time: f64,
-		orbit_info_map: &HashMap<String, fn(f64) -> OrbitInfo>,
+		delta_ingame_days: f64,
 	) -> std::thread::JoinHandle<()> {
 		let dummies_handle = std::thread::spawn({
-			let actions_clone = actions.clone();
-			let delta_seconds = delta_seconds;
 			let dummies = Arc::clone(&dummies);
 			move || {
 				for (id, dummy) in dummies.iter() {
-					let mut actions = actions_clone.lock().unwrap();
-					actions.push(SafeAction::AddCoordinate {
+					action_sender.send(SafeAction::AddCoordinate {
 						coordinate: dummy.position.raw_mut(),
 						other: dummy.velocity.clone(),
-						multiplier: delta_seconds,
-					});
+						multiplier: delta_ingame_days,
+					}).unwrap();
 				}
 			}
 		});
@@ -133,22 +142,18 @@ impl GameObjects {
 
 	/// updating the planet position in their orbits
 	pub fn update_planets(
-		actions: Arc<Mutex<Vec<SafeAction>>>,
-		dummies: Arc<DummyMap>,
+		action_sender: Sender<SafeAction>,
 		planets: Arc<Vec<Planet>>,
-		delta_seconds: f64,
-		ingame_time: f64,
+		timefactor: f64,
 		orbit_info_map: &HashMap<String, fn(f64) -> OrbitInfo>,
 	) -> std::thread::JoinHandle<()> {
 		let planets_handle = std::thread::spawn({
-			let actions_clone = actions.clone();
 			let planets = Arc::clone(&planets);
 			let orbit_info_map = orbit_info_map.clone();
-			let ingame_time = ingame_time;
+			let ingame_time = timefactor;
 			move || {
 				for planet in planets.iter() {
-					let mut actions = actions_clone.lock().unwrap();
-					actions.push(planet.update(ingame_time, &orbit_info_map));
+					action_sender.send(planet.update(ingame_time, &orbit_info_map)).unwrap();
 				}
 			}
 		});
