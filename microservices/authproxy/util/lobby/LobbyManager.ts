@@ -3,9 +3,10 @@ import {WebSocket, RawData} from "ws";
 import {ILobby} from "./LobbyModel";
 import {searchLobbyOfMember} from "./LobbyService";
 import {
-    ClientMessage,
     decodeToClientMessage,
-    encodeClientMessage, encodeServerMessage, printServerMessage, ServerMessage
+    decodeToServerMessage,
+    encodeServerMessage,
+    ServerMessage
 } from "../datatypes/MessagePackDataTypes";
 import {decode, ExtensionCodec} from "@msgpack/msgpack";
 
@@ -81,21 +82,19 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
         addToRegister(registerLobby);
     }
 
-
     const uint8Array = data instanceof Buffer
         ? new Uint8Array(data)
         : new Uint8Array(data as ArrayBuffer);
 
-    console.log("Received ClientMessage: ", decode(uint8Array));
-    const clientRequest: ClientMessage | null = await decodeToClientMessage(uint8Array);
+    console.log("Received ClientMessage: ", uint8Array);
+    const clientRequest: null = null;
     if (!clientRequest) {
         console.error("Could not decode message");
         ws.close();
         return;
     }
 
-
-    const encoded = await encodeClientMessage(clientRequest);
+    const encoded = "";
     if (encoded === null) {
         console.error("Could not encode message");
         ws.close();
@@ -133,61 +132,15 @@ async function connectToCalcluationServer(lcomp: LobbyRegistryEntry): Promise<We
             ? new Uint8Array(msg)
             : new Uint8Array(msg as ArrayBuffer);
 
-        const rawMessage: any = decode(uint8Array);
-        console.log("Received message From Calculation Unit", decode(uint8Array));
-        const serverMessage: ServerMessage = {
-            request_info: {
-                client: {sent_time: 0},
-                authproxy: {sent_time: Date.now()},
-                request_sync: {sent_time: 0},
-                calculation_unit: {sent_time: rawMessage[0][3][0]}
-            },
-            request_data: {
-                target_user_id: rawMessage[1][0],
-                game_objects: {
-                    dummies: {},
-                    planets: []
-                }
-            }
-        };
-
-        const users = rawMessage[1][1][0];
-        if (users && typeof users === 'object') {
-            for (const userKey in users) {
-                if (users.hasOwnProperty(userKey)) {
-                    serverMessage.request_data.game_objects.dummies[userKey] = {
-                        id: users[userKey][0],
-                        position: {x: users[userKey][1][0], y: users[userKey][1][1], z: users[userKey][1][2]},
-                        velocity: {x: users[userKey][2][0], y: users[userKey][2][1], z: users[userKey][2][2]}
-                    };
-                }
-            }
-        }
-
-        const planetData = rawMessage[1][2];
-        if (Array.isArray(planetData)) {
-            for (const planet of planetData) {
-                if (planet && Array.isArray(planet) && planet.length >= 2) {
-                    serverMessage.request_data.game_objects.planets.push({
-                        name: planet[0],
-                        position: {x: planet[1][0], y: planet[1][1], z: planet[1][2]}
-                    });
-                }
-            }
-        }
-
-        console.log(serverMessage);
-        if (!serverMessage) {
-            console.error("Could not decode server message");
-            return;
-        }
-
-        const targetUsername: string | undefined = serverMessage?.request_data?.target_user_id;
+        const serverMessage: ServerMessage = await decodeToServerMessage(uint8Array);
+        const targetUsername: string | undefined = serverMessage[1][0];
         if (!targetUsername) {
             console.error("No target username found!");
             return;
         }
 
+        //Update Time Stamp
+        serverMessage[0][1][0] = Date.now();
         if (targetUsername === "all") {
             const sendMessage = await encodeServerMessage(serverMessage);
             if (!sendMessage) {

@@ -1,111 +1,194 @@
 import {decode, encode} from "@msgpack/msgpack";
+import {RawData} from "ws";
 
-export interface Coordinate {
-    x: number;
-    y: number;
-    z: number;
+export type ServerMessage = [
+    RequestInfo,
+    ServerMessageObjects
+];
+
+type RequestInfo = [
+    number[],
+    number[],
+    number[],
+    number[]
+];
+
+type ServerMessageObjects = [
+    string,
+    ObjectContent
+];
+
+type ObjectContent = [
+    Record<string, DummyObject>,
+    Planet[],
+    Record<string, Player>
+];
+
+type Player = [
+    string,
+    number,
+    CraftingMaterial
+];
+
+type CraftingMaterial = [
+    number
+];
+
+type DummyObject = [
+    string,
+    number,
+    string,
+    Coordinate,
+    Coordinate
+];
+
+type Planet = [
+    string,
+    Coordinate,
+    BuildingRegionReceive[],
+    number
+];
+
+type BuildingRegionReceive = [
+    Coordinate,
+    [],
+    [],
+    CraftingMaterial
+]
+
+type Coordinate = [
+    number,
+    number,
+    number
+];
+
+export async function printServerMessageStructure() {
+    const serverMessage: ServerMessage = [
+        [
+            [0.0],
+            [0.0],
+            [0.0],
+            [1749129250857.0]
+        ],
+        [
+            "Server Response",
+            [
+                {
+                    "0": ["jonas", 0, "name", [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
+                },
+                [
+                    [
+                        "mercury",
+                        [-0.3289997977941043, -0.2996735458190398, 0.006088886030626311],
+                        [[
+                            [0.7071067811865475, -0.7071067811865475, 0.0],
+                            [],
+                            [],
+                            [0.0]
+                        ]],
+                        1.0
+                    ],
+                    [
+                        "venus",
+                        [0.6120664364827312, 0.38578690936213006, -0.030218669377590865],
+                        [[
+                            [0.7071067811865475, -0.7071067811865475, 0.0],
+                            [],
+                            [],
+                            [0.0]
+                        ]],
+                        1.0
+                    ],
+                    [
+                        "mars",
+                        [-1.6504366590367459, -0.024743910270102896, 0.04019865757308089],
+                        [[
+                            [0.7071067811865475, -0.7071067811865475, 0.0],
+                            [],
+                            [],
+                            [0.0]
+                        ]],
+                        1.0
+                    ],
+                    [
+                        "jupiter",
+                        [3.2897999666382356, -3.875956701997485, -0.0569138932088357],
+                        [[
+                            [0.7071067811865475, -0.7071067811865475, 0.0],
+                            [],
+                            [],
+                            [0.0]
+                        ]],
+                        1.0
+                    ],
+                    [
+                        "saturn",
+                        [-0.5340364430614233, 9.008385517833242, -0.1376979188524779],
+                        [[
+                            [0.7071067811865475, -0.7071067811865475, 0.0],
+                            [],
+                            [],
+                            [0.0]
+                        ]],
+                        1.0
+                    ],
+                    [
+                        "uranus",
+                        [-0.16944115528544174, 19.068229221579564, 0.07238799679238803],
+                        [[
+                            [0.7071067811865475, -0.7071067811865475, 0.0],
+                            [],
+                            [],
+                            [0.0]
+                        ]],
+                        1.0
+                    ],
+                    [
+                        "neptune",
+                        [28.665175492504805, 8.353348299399046, -0.8285199849027337],
+                        [[
+                            [0.7071067811865475, -0.7071067811865475, 0.0],
+                            [],
+                            [],
+                            [0.0]
+                        ]],
+                        1.0
+                    ],
+                    [
+                        "earth",
+                        [0.040093286792015924, 0.9831025043703968, 0.0],
+                        [[
+                            [0.7071067811865475, -0.7071067811865475, 0.0],
+                            [],
+                            [],
+                            [0.0]
+                        ]],
+                        1.0
+                    ]
+                ],
+                {
+                    "jonas": ["jonas", 0.0, [451.0]]
+                }
+            ]
+        ]
+    ];
+    console.log(String(encode(serverMessage)));
 }
 
-export interface DummySetVelocity {
-    id: string;
-    position: Coordinate;
+export async function decodeToServerMessage(msg: RawData) {
+    const uint8Array = msg instanceof Buffer
+        ? new Uint8Array(msg)
+        : new Uint8Array(msg as ArrayBuffer);
+
+    const serverMessage: ServerMessage = decode(uint8Array) as ServerMessage;
+    return serverMessage;
 }
 
-export interface SetClientFPS {
-    id: string;
-    fps: number;
+export async function encodeServerMessage(msg: ServerMessage){
+    return encode(msg);
 }
 
-export interface ClientRequest {
-    set_client_fps?: SetClientFPS;
-    spawn_dummy?: string;
-    dummy_set_velocity?: DummySetVelocity;
-    connect?: string;
-}
+export async function decodeToClientMessage(msg: RawData) {
 
-export interface RequestInfo {
-    client: { sent_time: number };
-    authproxy: { sent_time: number };
-    request_sync: { sent_time: number };
-    calculation_unit: { sent_time: number };
-}
-
-export interface ClientMessage {
-    request_info: RequestInfo;
-    request_data: ClientRequest;
-}
-
-export interface ObjectData {
-    target_user_id: string;
-    game_objects: GameObjects;
-}
-
-export interface GameObjects {
-    dummies: Record<string, DummyObject>;
-    planets: Planet[]
-}
-
-export interface Planet {
-    name: string;
-    position: Coordinate;
-}
-
-export interface ServerMessage {
-    request_info: RequestInfo;
-    request_data: ObjectData;
-}
-
-export interface DummyObject {
-    id: string;
-    position: Coordinate;
-    velocity: Coordinate;
-}
-
-export function printClientMessage(message: ClientMessage): void {
-    console.log("ClientMessage:");
-    console.log("Request Info:", message.request_info);
-    console.log("Request Data:", JSON.stringify(message.request_data, null, 2));
-}
-
-export function printServerMessage(message: ServerMessage): void {
-    console.log("ServerMessage:");
-    console.log("Request Info:", message.request_info);
-    console.log("Request Data:", JSON.stringify(message.request_data, null, 2));
-}
-
-export async function encodeClientMessage(object: ClientMessage): Promise<Uint8Array | null> {
-    try {
-        return encode(object);
-    } catch (error) {
-        console.error("Failed To Encode Message:", error);
-        return null;
-    }
-}
-
-export async function encodeServerMessage(object: ServerMessage): Promise<Uint8Array | null> {
-    try {
-        return encode(object);
-    } catch (error) {
-        console.error("Failed To Encode Message:", error);
-        return null;
-    }
-}
-
-export async function decodeToServerMessage(data: Uint8Array): Promise<ServerMessage | null> {
-    try {
-        return decode(data) as ServerMessage;
-    } catch (error) {
-        console.error("Failed To Decode Object because:", error);
-        return null;
-    }
-}
-
-export async function decodeToClientMessage(data: Uint8Array): Promise<ClientMessage | null> {
-    try {
-        return decode(data) as ClientMessage;
-    } catch (error) {
-        console.error("Failed To Decode Object because:", error);
-        return null;
-    }
 }
 
