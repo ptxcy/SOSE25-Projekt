@@ -34,8 +34,8 @@ impl Spacestation {
 
 #[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct Spaceship {
-	id: usize,
-	owner: String,
+	pub id: usize,
+	pub owner: String,
 	pub speed: f64,
 	pub velocity: Coordinate,
 	pub position: Coordinate,

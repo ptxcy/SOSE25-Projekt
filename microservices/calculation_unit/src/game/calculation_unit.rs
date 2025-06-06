@@ -11,11 +11,7 @@ use std::{collections::HashMap, time::Instant};
 use tokio::sync::mpsc::*;
 
 use super::{
-	game_objects::GameObjects,
-	id_counter::IdCounter,
-	orbit::initialize_orbit_info_map,
-	planet_util::{get_timefactor, julian_day},
-	player::Player,
+	action::AsRaw, game_objects::GameObjects, id_counter::IdCounter, orbit::initialize_orbit_info_map, planet_util::{get_timefactor, julian_day}, player::Player
 };
 
 /// container of the sender where the calculation unit game thread can send servermessages to the calculation units websocket handling thread
@@ -126,10 +122,12 @@ pub async fn start(
 
 		// game logic calculation
 		// wrap the inner values thread safely
+		let go = game_objects.raw_mut();
 		let atomic_game_objects = game_objects.as_atomic();
 
 		// update multithreadd
 		GameObjects::update(
+			go,
 			atomic_game_objects.clone(),
 			delta_ingame_days,
 			get_timefactor(julian_day),

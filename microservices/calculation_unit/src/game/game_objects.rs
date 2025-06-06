@@ -114,6 +114,7 @@ impl GameObjects {
 
 	/// updates the game objects
 	pub fn update(
+		go: *mut GameObjects,
 		atomic_game_objects: AtomicGameObjects,
 		delta_ingame_days: f64,
 		timefactor: f64,
@@ -141,7 +142,8 @@ impl GameObjects {
 
 		// execute operations on data via raw pointers
 		while let Ok(action) = action_receiver.try_recv() {
-			action.execute();
+			// WARNING super unsafe so far not well tested
+			action.execute(go);
 		}
 		Ok(())
 	}
