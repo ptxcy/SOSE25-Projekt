@@ -3,8 +3,7 @@ use std::collections::HashMap;
 use super::client_message::{ClientRequest, DummySetVelocity, SetClientFPS};
 use crate::{
 	game::{
-		calculation_unit::ServerMessageSenderChannel, dummy::DummyObject,
-		game_objects::GameObjects, id_counter::IdCounter,
+		action::SafeAction, calculation_unit::ServerMessageSenderChannel, dummy::DummyObject, game_objects::GameObjects, id_counter::IdCounter
 	},
 	logger::log_with_time,
 };
@@ -33,17 +32,16 @@ pub fn spawn_dummy(
 	game_objects: &mut GameObjects,
 	name: &String,
 	id_counter: &mut IdCounter,
-) -> std::result::Result<(), String> {
+) -> std::result::Result<SafeAction, String> {
 	// spawn dummy
 	log_with_time("spawn dummy");
 	let player = game_objects.players.get_mut(username).unwrap();
-	DummyObject::craft(
+	let action = DummyObject::craft(
 		player,
 		&"name".to_string(),
-		&mut game_objects.dummies,
 		id_counter,
 	);
-	Ok(())
+	Ok(action)
 }
 
 pub fn dummy_set_velocity(
@@ -113,10 +111,11 @@ impl ClientRequest {
 		>,
 		id_counter: &mut IdCounter,
 	) -> std::result::Result<(), String> {
+		// TODO rework to actions
 		if let Some(value) = &self.dummy_set_velocity {
 			dummy_set_velocity(username, game_objects, value)?;
 		} else if let Some(value) = &self.spawn_dummy {
-			spawn_dummy(username, game_objects, value, id_counter)?;
+			spawn_dummy(username, game_objects, value, id_counter)?.execute(game_objects as *mut GameObjects);
 		} else if let Some(value) = &self.set_client_fps {
 			set_client_fps(username, server_message_senders, value)?;
 		} else if let Some(value) = &self.connect {

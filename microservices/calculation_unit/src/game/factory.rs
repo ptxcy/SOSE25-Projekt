@@ -45,8 +45,7 @@ impl Craftable for Factory {
 
 impl Spawner for Factory {
 	fn spawn_at(&self) -> Coordinate {
-		let region = unsafe { &*self.region };
-		region.relative_position.c()
+		self.get_position()
 	}
 }
 
@@ -66,8 +65,8 @@ impl Factory {
 	}
 	pub fn craft<'a, T: Crafter>(
 		crafter: &mut T,
-		building_region: &'a mut BuildingRegion,
-	) -> &'a mut Self {
+		building_region: *mut BuildingRegion,
+	) -> SafeAction {
 		log_with_time("crafting a dummy with 49 copper");
 		// use materials
 		crafter.get_crafting_material_mut().sub(&Self::get_cost());
@@ -75,12 +74,9 @@ impl Factory {
 		// create object
 		let factory = Factory::new(
 			crafter.get_owner(),
-			building_region as *mut BuildingRegion,
+			building_region,
 		);
-
-		building_region.factories.push(factory);
-		let index = building_region.factories.len() - 1;
-		&mut building_region.factories[index]
+		factory.into_game_objects()
 	}
 }
 
