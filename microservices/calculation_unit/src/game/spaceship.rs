@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::logger::log_with_time;
 
 use super::{
-	action::SafeAction,
+	action::{AsRaw, SafeAction},
 	coordinate::Coordinate,
 	crafting_material::CraftingMaterial,
 	game_objects::SpaceshipMap,
@@ -99,5 +99,8 @@ impl Spaceship {
 		let distance_vec = my_position.to(target);
 		let distance = distance_vec.norm();
 		distance / self.speed
+	}
+	pub fn update(&self, delta_days: f64) -> SafeAction {
+		SafeAction::AddCoordinate { coordinate: self.position.raw_mut(), other: self.velocity.c(), multiplier: delta_days }
 	}
 }
