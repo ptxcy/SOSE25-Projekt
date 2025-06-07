@@ -26,6 +26,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <cmath>
 
 // ogl
 #include <GL/glew.h>
@@ -42,7 +43,7 @@
 #ifndef STBI_INCLUDE_STB_IMAGE_H
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_STATIC
-#include "include/stb_image.h"
+#include "../include/stb_image.h"
 #endif
 
 // font
@@ -102,17 +103,15 @@ constexpr f64 MATH_E = 2.7182818284;
 constexpr f64 MATH_CONVERSION_MS = .000001;
 
 // memory layout based on build target
-typedef
 #ifdef __SYSTEM_64BIT
-	u64
+typedef u64 __system_word;
+constexpr u8 MEM_SHIFT = 6;
 #else
-	u32
+typedef u32 __system_word;
+constexpr u8 MEM_SHIFT = 5;
 #endif
-	__system_word;
-constexpr u8 MEM_WIDTH = sizeof(__system_word)*8;
-constexpr u8 MEM_SHIFT = log2(MEM_WIDTH);
-constexpr __system_word MEM_MASK = MEM_WIDTH-1;
-
+constexpr u8 MEM_WIDTH = sizeof(__system_word) * 8;
+constexpr __system_word MEM_MASK = MEM_WIDTH - 1;
 
 // ----------------------------------------------------------------------------------------------------
 // logger
