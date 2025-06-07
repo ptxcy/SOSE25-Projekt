@@ -45,14 +45,24 @@ type DummyObject = [
 type Planet = [
     string,
     Coordinate,
-    BuildingRegionReceive[],
+    BuildingRegion[],
     number
 ];
 
-type BuildingRegionReceive = [
+type Mine = [
+    string,
+    CraftingMaterial,
+]
+
+type Factory = [
+    string,
+    CraftingMaterial,
+]
+
+type BuildingRegion= [
     Coordinate,
-    [],
-    [],
+    Factory[],
+    Mine[],
     CraftingMaterial
 ]
 
