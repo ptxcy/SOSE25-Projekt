@@ -83,7 +83,7 @@ endif()
 
 # Debug und Release Flags
 set(CMAKE_CXX_FLAGS_DEBUG "-pg -g -O0 -DDEBUG")
-# set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fno-gcse")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fno-gcse")
 
 # Quell- und Header-Dateien finden
 file(GLOB_RECURSE SRCS_CORE "core/*.cpp")
