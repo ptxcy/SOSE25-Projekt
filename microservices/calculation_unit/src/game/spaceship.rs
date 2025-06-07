@@ -8,7 +8,9 @@ use super::{
 	crafting_material::CraftingMaterial,
 	game_objects::SpaceshipMap,
 	gametraits::{Craftable, IsOwned, Spawnable},
-	id_counter::IdCounter, planet::{OrbitInfoMap, Planet}, planet_util::get_timefactor,
+	id_counter::IdCounter,
+	planet::{OrbitInfoMap, Planet},
+	planet_util::get_timefactor,
 };
 
 #[derive(Serialize, Debug, Clone, Default)]
@@ -79,12 +81,18 @@ impl Spaceship {
 		};
 		ship
 	}
-	pub fn fly_to(&self, planet: &Planet, julian_day: f64, orbit_info_map: &OrbitInfoMap) -> Coordinate {
+	pub fn fly_to_get_target(
+		&self,
+		planet: &Planet,
+		julian_day: f64,
+		orbit_info_map: &OrbitInfoMap,
+	) -> Coordinate {
 		let mut d = julian_day;
 		let mut duration_to = 0.;
 		let mut planet_positon = Coordinate::default();
 		loop {
-			planet_positon = planet.get_position_at(get_timefactor(d), orbit_info_map);
+			planet_positon =
+				planet.get_position_at(get_timefactor(d), orbit_info_map);
 			let new_duration_to = self.duration_to(&planet_positon);
 			if (duration_to - new_duration_to).abs() <= std::f64::EPSILON * 2. {
 				break;
@@ -101,6 +109,10 @@ impl Spaceship {
 		distance / self.speed
 	}
 	pub fn update(&self, delta_days: f64) -> SafeAction {
-		SafeAction::AddCoordinate { coordinate: self.position.raw_mut(), other: self.velocity.c(), multiplier: delta_days }
+		SafeAction::AddCoordinate {
+			coordinate: self.position.raw_mut(),
+			other: self.velocity.c(),
+			multiplier: delta_days,
+		}
 	}
 }

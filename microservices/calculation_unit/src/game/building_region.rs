@@ -1,7 +1,12 @@
 use serde::{Deserialize, Serialize};
 
 use super::{
-	coordinate::Coordinate, crafting_material::CraftingMaterial, factory::{Factory, FactoryReceive}, gametraits::{HasPosition, HasRelativePosition}, mine::{Mine, MineReceive}, planet::Planet
+	coordinate::Coordinate,
+	crafting_material::CraftingMaterial,
+	factory::{Factory, FactoryReceive},
+	gametraits::{HasPosition, HasRelativePosition},
+	mine::{Mine, MineReceive},
+	planet::Planet,
 };
 
 /// region to craft / placing buildings such as factories on
@@ -15,7 +20,6 @@ pub struct BuildingRegion {
 	planet: *const Planet,
 }
 
-
 #[derive(Deserialize, Debug, Clone, Default)]
 pub struct BuildingRegionReceive {
 	pub relative_position: Coordinate,
@@ -25,9 +29,7 @@ pub struct BuildingRegionReceive {
 }
 
 impl BuildingRegion {
-	pub fn new(
-		relative_position: Coordinate, planet: *const Planet
-	) -> Self {
+	pub fn new(relative_position: Coordinate, planet: *const Planet) -> Self {
 		Self {
 			relative_position,
 			planet,
@@ -43,13 +45,13 @@ unsafe impl Sync for BuildingRegion {}
 unsafe impl Send for BuildingRegion {}
 
 impl HasRelativePosition for BuildingRegion {
-    type Parent = Planet;
+	type Parent = Planet;
 
-    fn get_parent(&self) -> &Self::Parent {
-    	unsafe {&(*self.planet)}
-    }
+	fn get_parent(&self) -> &Self::Parent {
+		unsafe { &(*self.planet) }
+	}
 
-    fn get_relative_position(&self) -> Coordinate {
-    	self.relative_position.clone()
-    }
+	fn get_relative_position(&self) -> Coordinate {
+		self.relative_position.clone()
+	}
 }
