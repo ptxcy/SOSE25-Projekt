@@ -10,7 +10,7 @@ mongodb_data
 # Allgemeine Editor-/IDE-Dateien
 *.swp
 *.swo
-*target/
+# *target/
 
 # emacs
 gmon.out
