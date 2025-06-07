@@ -39,13 +39,17 @@ impl DummyObject {
 	}
 
 	pub fn craft<'a, T: Crafter>(
-		crafter: &mut T,
+		crafter: &T,
 		name: &'a String,
 		id_counter: &'a mut IdCounter,
-	) -> SafeAction {
+	) -> Vec<SafeAction> {
 		log_with_time("crafting a dummy with 49 copper");
 		// use materials
-		crafter.get_crafting_material_mut().sub(&Self::get_cost());
+		let mut actions = Vec::<SafeAction>::new();
+		actions.push(SafeAction::ReduceCraftingMaterial {
+			crafter: crafter as *const dyn Crafter as *mut dyn Crafter,
+			cost: Self::get_cost(),
+		});
 
 		// create object
 		let dummy = DummyObject::new(
@@ -55,7 +59,8 @@ impl DummyObject {
 			crafter.spawn_at(),
 		);
 		let id = dummy.id;
-		dummy.into_game_objects()
+		actions.push(dummy.into_game_objects());
+		actions
 	}
 }
 

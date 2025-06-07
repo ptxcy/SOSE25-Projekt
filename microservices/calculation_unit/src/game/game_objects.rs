@@ -1,4 +1,8 @@
-use std::{collections::HashMap, sync::mpsc::*, sync::*};
+use std::{
+	collections::HashMap,
+	sync::{mpsc::*, *},
+	thread::JoinHandle,
+};
 
 use serde::{Deserialize, Serialize};
 
@@ -94,20 +98,28 @@ impl GameObjects {
 			std::sync::mpsc::channel::<SafeAction>();
 
 		// get actions multithreaded
-		let dummies_handle = GameObjects::update_dummies(
+		let mut threads = Vec::<JoinHandle<()>>::new();
+		threads.push(GameObjects::update_dummies(
 			action_sender.clone(),
 			game_objects as *const GameObjects,
 			delta_ingame_days,
-		);
-		let planets_handle = GameObjects::update_planets(
+		));
+		threads.push(GameObjects::update_planets(
 			action_sender.clone(),
 			game_objects as *const GameObjects,
 			timefactor,
 			orbit_info_map,
-		);
+		));
+		threads.push(GameObjects::update_spaceships(
+			action_sender.clone(),
+			game_objects as *const GameObjects,
+			delta_ingame_days,
+		));
 
-		dummies_handle.join().unwrap();
-		planets_handle.join().unwrap();
+		// wait for all threads to finish collecting their actions
+		for thread in threads {
+			thread.join().unwrap();
+		}
 
 		// execute operations on data via raw pointers
 		while let Ok(action) = action_receiver.try_recv() {
@@ -124,7 +136,7 @@ impl GameObjects {
 		delta_ingame_days: f64,
 	) -> std::thread::JoinHandle<()> {
 		let dummies_handle = std::thread::spawn({
-			let dummies = unsafe {&(*game_objects).dummies};
+			let dummies = unsafe { &(*game_objects).dummies };
 			move || {
 				for (id, dummy) in dummies.iter() {
 					action_sender
@@ -148,13 +160,29 @@ impl GameObjects {
 		orbit_info_map: &OrbitInfoMap,
 	) -> std::thread::JoinHandle<()> {
 		let planets_handle = std::thread::spawn({
-			let planets = unsafe {&(*game_objects).planets};
+			let planets = unsafe { &(*game_objects).planets };
 			let orbit_info_map = orbit_info_map.clone();
 			move || {
 				for planet in planets.iter() {
 					action_sender
 						.send(planet.update(timefactor, &orbit_info_map))
 						.unwrap();
+				}
+			}
+		});
+		planets_handle
+	}
+
+	pub fn update_spaceships(
+		action_sender: Sender<SafeAction>,
+		game_objects: *const GameObjects,
+		delta_days: f64,
+	) -> std::thread::JoinHandle<()> {
+		let planets_handle = std::thread::spawn({
+			let spaceships = unsafe { &(*game_objects).spaceships };
+			move || {
+				for (id, spaceship) in spaceships.iter() {
+					action_sender.send(spaceship.update(delta_days)).unwrap();
 				}
 			}
 		});
