@@ -95,6 +95,7 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
         return;
     }
 
+    clientRequest[0][1][0] = Date.now();
     const encoded = await encodeClientMessage(clientRequest);
     if (encoded === null) {
         console.error("Could not encode message");
