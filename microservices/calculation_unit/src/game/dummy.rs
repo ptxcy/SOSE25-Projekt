@@ -41,9 +41,8 @@ impl DummyObject {
 	pub fn craft<'a, T: Crafter>(
 		crafter: &mut T,
 		name: &'a String,
-		dummies: &'a mut DummyMap,
 		id_counter: &'a mut IdCounter,
-	) -> &'a mut Self {
+	) -> SafeAction {
 		log_with_time("crafting a dummy with 49 copper");
 		// use materials
 		crafter.get_crafting_material_mut().sub(&Self::get_cost());
@@ -56,8 +55,7 @@ impl DummyObject {
 			crafter.spawn_at(),
 		);
 		let id = dummy.id;
-		dummies.insert(id, dummy);
-		dummies.get_mut(&id).unwrap()
+		dummy.into_game_objects()
 	}
 }
 

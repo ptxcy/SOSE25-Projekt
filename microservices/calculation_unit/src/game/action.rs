@@ -1,6 +1,5 @@
 use super::{
-	building_region::BuildingRegion, coordinate::Coordinate,
-	dummy::DummyObject, factory::Factory, mine::Mine, spaceship::Spaceship,
+	building_region::BuildingRegion, coordinate::Coordinate, dummy::DummyObject, factory::Factory, game_objects::GameObjects, mine::Mine, spaceship::Spaceship
 };
 
 pub trait AsRaw {
@@ -43,7 +42,8 @@ pub enum SafeAction {
 unsafe impl Send for SafeAction {}
 
 impl SafeAction {
-	pub fn execute(self) {
+	pub fn execute(self, game_objects: *mut GameObjects) {
+		let go = unsafe{&mut *game_objects};
 		match self {
 			SafeAction::AddCoordinate {
 				coordinate,
@@ -63,8 +63,12 @@ impl SafeAction {
 				let region = unsafe { &mut *region };
 				region.mines.push(mine);
 			}
-			SafeAction::SpawnDummy(dummy_object) => todo!(),
-			SafeAction::SpawnSpaceship(spaceship) => todo!(),
+			SafeAction::SpawnDummy(dummy_object) => {
+				go.dummies.insert(dummy_object.id, dummy_object);
+			},
+			SafeAction::SpawnSpaceship(spaceship) => {
+				go.spaceships.insert(spaceship.id, spaceship);
+			},
 		}
 	}
 }

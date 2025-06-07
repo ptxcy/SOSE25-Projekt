@@ -50,6 +50,14 @@ impl Coordinate {
 		self
 	}
 
+	/// distance from self to other
+	pub fn to(&mut self, other: &Self) -> &mut Self {
+		self.x = other.x - self.x;
+		self.y = other.y - self.y;
+		self.z = other.z - self.z;
+		self
+	}
+
 	/// mutates itself by adding another with delta time scaled
 	pub fn addd(&mut self, other: &Self, delta_seconds: f64) -> &mut Self {
 		self.x += other.x * delta_seconds;
