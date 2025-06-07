@@ -1,3 +1,0 @@
-/Users/pni/Uni/SOSE25-Projekt/client/build/_deps/stb-subbuild/CMakeFiles/stb-populate.dir
-/Users/pni/Uni/SOSE25-Projekt/client/build/_deps/stb-subbuild/CMakeFiles/edit_cache.dir
-/Users/pni/Uni/SOSE25-Projekt/client/build/_deps/stb-subbuild/CMakeFiles/rebuild_cache.dir

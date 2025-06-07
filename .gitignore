@@ -25,3 +25,5 @@ client/core/include/*
 *.o
 
 copilot-instructions.md
+
+./client/build
