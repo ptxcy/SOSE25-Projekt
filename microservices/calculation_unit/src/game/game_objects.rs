@@ -5,7 +5,6 @@ use serde::{Deserialize, Serialize};
 use super::{
 	action::{AsRaw, SafeAction},
 	dummy::DummyObject,
-	orbit::OrbitInfo,
 	planet::{OrbitInfoMap, Planet, PlanetReceive},
 	player::Player,
 	spaceship::Spaceship,
@@ -25,25 +24,6 @@ pub struct GameObjects {
 	pub planets: Vec<Planet>,
 	pub players: HashMap<String, Player>,
 	pub spaceships: SpaceshipMap,
-}
-
-#[derive(Debug, Clone)]
-pub struct AtomicGameObjects {
-	pub dummies: Arc<DummyMap>,
-	pub planets: Arc<Vec<Planet>>,
-	pub players: Arc<HashMap<String, Player>>,
-	pub spaceships: Arc<SpaceshipMap>,
-}
-
-impl AtomicGameObjects {
-	pub fn into_inner(self) -> GameObjects {
-		GameObjects {
-			dummies: Arc::into_inner(self.dummies).unwrap(),
-			planets: Arc::into_inner(self.planets).unwrap(),
-			players: Arc::into_inner(self.players).unwrap(),
-			spaceships: Arc::into_inner(self.spaceships).unwrap(),
-		}
-	}
 }
 
 #[derive(Deserialize, Debug, Clone, Default)]
@@ -69,15 +49,6 @@ impl GameObjects {
 		Self {
 			planets,
 			..Default::default()
-		}
-	}
-
-	pub fn as_atomic(self) -> AtomicGameObjects {
-		AtomicGameObjects {
-			dummies: Arc::new(self.dummies),
-			planets: Arc::new(self.planets),
-			players: Arc::new(self.players),
-			spaceships: Arc::new(self.spaceships),
 		}
 	}
 
@@ -114,25 +85,23 @@ impl GameObjects {
 
 	/// updates the game objects
 	pub fn update(
-		go: *mut GameObjects,
-		atomic_game_objects: AtomicGameObjects,
+		game_objects: &mut GameObjects,
 		delta_ingame_days: f64,
 		timefactor: f64,
 		orbit_info_map: &OrbitInfoMap,
 	) -> std::result::Result<(), String> {
-		// let actions = Arc::new(Mutex::new(Vec::<SafeAction>::new()));
 		let (action_sender, action_receiver) =
 			std::sync::mpsc::channel::<SafeAction>();
 
 		// get actions multithreaded
 		let dummies_handle = GameObjects::update_dummies(
 			action_sender.clone(),
-			Arc::clone(&atomic_game_objects.dummies),
+			game_objects as *const GameObjects,
 			delta_ingame_days,
 		);
 		let planets_handle = GameObjects::update_planets(
 			action_sender.clone(),
-			Arc::clone(&atomic_game_objects.planets),
+			game_objects as *const GameObjects,
 			timefactor,
 			orbit_info_map,
 		);
@@ -143,7 +112,7 @@ impl GameObjects {
 		// execute operations on data via raw pointers
 		while let Ok(action) = action_receiver.try_recv() {
 			// WARNING super unsafe so far not well tested
-			action.execute(go);
+			action.execute(game_objects as *mut GameObjects);
 		}
 		Ok(())
 	}
@@ -151,11 +120,11 @@ impl GameObjects {
 	/// store the actions that are going to be executed on dummies
 	pub fn update_dummies(
 		action_sender: Sender<SafeAction>,
-		dummies: Arc<DummyMap>,
+		game_objects: *const GameObjects,
 		delta_ingame_days: f64,
 	) -> std::thread::JoinHandle<()> {
 		let dummies_handle = std::thread::spawn({
-			let dummies = Arc::clone(&dummies);
+			let dummies = unsafe {&(*game_objects).dummies};
 			move || {
 				for (id, dummy) in dummies.iter() {
 					action_sender
@@ -174,12 +143,12 @@ impl GameObjects {
 	/// updating the planet position in their orbits
 	pub fn update_planets(
 		action_sender: Sender<SafeAction>,
-		planets: Arc<Vec<Planet>>,
+		game_objects: *const GameObjects,
 		timefactor: f64,
 		orbit_info_map: &OrbitInfoMap,
 	) -> std::thread::JoinHandle<()> {
 		let planets_handle = std::thread::spawn({
-			let planets = Arc::clone(&planets);
+			let planets = unsafe {&(*game_objects).planets};
 			let orbit_info_map = orbit_info_map.clone();
 			move || {
 				for planet in planets.iter() {

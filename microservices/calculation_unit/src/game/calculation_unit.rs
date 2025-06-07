@@ -121,23 +121,15 @@ pub async fn start(
 		}
 
 		// game logic calculation
-		// wrap the inner values thread safely
-		let go = game_objects.raw_mut();
-		let atomic_game_objects = game_objects.as_atomic();
-
 		// update multithreadd
 		GameObjects::update(
-			go,
-			atomic_game_objects.clone(),
+			&mut game_objects,
 			delta_ingame_days,
 			get_timefactor(julian_day),
 			&orbit_map,
 		)
 		.log()
 		.unwrap();
-
-		// extract the inner values back
-		game_objects = atomic_game_objects.into_inner();
 
 		julian_day += delta_ingame_days;
 
