@@ -13,8 +13,8 @@ class Menu
 {
 public:
 	Menu(Font* font,CommandCenter* cc);
-	static inline void update(void* menu) { Menu* p = (Menu*)menu; p->_update(); }
-	void _update();
+	static inline void _update(void* menu) { Menu* p = (Menu*)menu; p->update(); }
+	void update();
 	void close();
 
 private:
@@ -30,6 +30,12 @@ private:
 	PixelBufferComponent* textbox_idle;
 	PixelBufferComponent* textbox_hover;
 	PixelBufferComponent* textbox_active;
+
+	// names
+	lptr<Text> __TUsr;
+	lptr<Text> __TPsw;
+	lptr<Text> __TLby;
+	lptr<Text> __TLpw;
 
 	// ui components
 	lptr<UIBatch> conn_batch;

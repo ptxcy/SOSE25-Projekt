@@ -170,7 +170,7 @@ private:
 #ifdef DEBUG
 	RuntimeProfilerData m_ProfilerFullFrame = PROF_CRT("full frametime");
 #endif
-	time m_FrameStart;
+	std::chrono::steady_clock::time_point m_FrameStart;
 
 	// ----------------------------------------------------------------------------------------------------
 	// Threading

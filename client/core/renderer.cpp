@@ -327,7 +327,7 @@ Renderer::Renderer()
  */
 void Renderer::update()
 {
-	m_FrameStart = clock::now();
+	m_FrameStart = std::chrono::steady_clock::now();
 
 	// 3D segment
 	glEnable(GL_DEPTH_TEST);

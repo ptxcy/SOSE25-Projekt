@@ -11,7 +11,7 @@
 
 s32 main(s32 argc,char** argv)
 {
-	Font* __Ubuntu = g_Renderer.register_font("./res/font/ubuntu.ttf",50);
+	Font* __Ubuntu = g_Renderer.register_font("./res/font/ubuntu.ttf",30);
 	CommandCenter __CCenter = CommandCenter();
 	Menu __Menu = Menu(__Ubuntu,&__CCenter);
 	StarSystem __StarSystem = StarSystem();
@@ -21,12 +21,6 @@ s32 main(s32 argc,char** argv)
 	{
 		g_Frame.clear();
 		g_Input.update(running);
-		/*
-		COMM_LOG("%d %d %d %d",g_Input.keyboard.keys[SDL_SCANCODE_W],
-				 g_Input.keyboard.keys[SDL_SCANCODE_A],
-				 g_Input.keyboard.keys[SDL_SCANCODE_S],
-				 g_Input.keyboard.keys[SDL_SCANCODE_D]);
-		*/
 		g_Wheel.update();
 		g_UI.update();
 		g_Renderer.update();

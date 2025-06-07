@@ -422,7 +422,7 @@ void GPUPixelBuffer::_load(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,Texture
  *	\param fstart: time the current frame started
  *	NOTE this has to be run in main thread due to the gpu upload being context sensitive
  */
-void GPUPixelBuffer::gpu_upload(time& fstart)
+void GPUPixelBuffer::gpu_upload(std::chrono::steady_clock::time_point& fstart)
 {
 	atlas.bind();
 	mutex_texture_requests.lock();

@@ -16,29 +16,44 @@ Menu::Menu(Font* font,CommandCenter* cc)
 	textbox_hover = g_Renderer.register_sprite_texture("./res/ui/textbox_hover.png");
 	textbox_active = g_Renderer.register_sprite_texture("./res/ui/textbox_on.png");
 
+	// constants
+	vec2 tfsize = vec2(300,35);
+	vec2 btsize = vec2(125,30);
+	f32 tftitle = tfsize.y*.75f;
+	f32 ttsize = btsize.y*.5f;
+	f32 tfdist = 70.f;
+	f32 tfstart = tfdist*.5f;
+	f32 bteyez = tfsize.x*.475f-btsize.x*.5f;
+
 	// setup lobby login ui
 	conn_batch = g_UI.add_batch(font);
-	tfname = conn_batch->add_text_field(textbox_idle,textbox_hover,textbox_active,vec2(0,90),vec2(500,50),
-										   { .align=SCREEN_ALIGN_CENTER });
-	tfpass = conn_batch->add_text_field(textbox_idle,textbox_hover,textbox_active,vec2(0,30),vec2(500,50),
-										   { .align=SCREEN_ALIGN_CENTER });
-	tflobby = conn_batch->add_text_field(textbox_idle,textbox_hover,textbox_active,vec2(0,-30),vec2(500,50),
-											{ .align=SCREEN_ALIGN_CENTER });
-	tflpass = conn_batch->add_text_field(textbox_idle,textbox_hover,textbox_active,vec2(0,-90),vec2(500,50),
-											{ .align=SCREEN_ALIGN_CENTER });
+	tfname = conn_batch->add_text_field(textbox_idle,textbox_hover,textbox_active,vec2(0,tfstart+tfdist),
+										tfsize,{ .align=SCREEN_ALIGN_CENTER });
+	tfpass = conn_batch->add_text_field(textbox_idle,textbox_hover,textbox_active,vec2(0,tfstart),
+										tfsize,{ .align=SCREEN_ALIGN_CENTER });
+	tflobby = conn_batch->add_text_field(textbox_idle,textbox_hover,textbox_active,vec2(0,-tfstart),
+										 tfsize,{ .align=SCREEN_ALIGN_CENTER });
+	tflpass = conn_batch->add_text_field(textbox_idle,textbox_hover,textbox_active,vec2(0,-tfstart-tfdist),
+										 tfsize,{ .align=SCREEN_ALIGN_CENTER });
 	btjoin = conn_batch->add_button("Join Lobby",button_idle,button_select,button_hover,
-									vec2(-125,-145),vec2(175,40),{ .align=SCREEN_ALIGN_CENTER });
+									vec2(-bteyez,-tfstart-tfdist*2.f),btsize,{ .align=SCREEN_ALIGN_CENTER });
 	btcreate = conn_batch->add_button("Create Lobby",button_idle,button_select,button_hover,
-									  vec2(125,-145),vec2(175,40),{ .align=SCREEN_ALIGN_CENTER });
+									  vec2(bteyez,-tfstart-tfdist*2.f),btsize,{ .align=SCREEN_ALIGN_CENTER });
+
+	// setup player communication
+	__TUsr = g_Renderer.write_text(font,"username",tfname->canvas->offset+vec2(0,tftitle),ttsize);
+	__TPsw = g_Renderer.write_text(font,"password",tfpass->canvas->offset+vec2(0,tftitle),ttsize);
+	__TLby = g_Renderer.write_text(font,"lobby",tflobby->canvas->offset+vec2(0,tftitle),ttsize);
+	__TLpw = g_Renderer.write_text(font,"lobby password",tflpass->canvas->offset+vec2(0,tftitle),ttsize);
 
 	// register routine
-	ref = g_Wheel.call(UpdateRoutine{ &Menu::update,(void*)this });
+	ref = g_Wheel.call(UpdateRoutine{ &Menu::_update,(void*)this });
 }
 
 /**
  *	menu update routine
  */
-void Menu::_update()
+void Menu::update()
 {
 	// react to confirmation
 	if (btjoin->confirm||btcreate->confirm)
@@ -47,6 +62,7 @@ void Menu::_update()
 		g_Websocket.connect(NETWORK_HOST,NETWORK_PORT_ADAPTER,NETWORK_PORT_WEBSOCKET,
 							tfname->get_content(),tfpass->get_content(),tflobby->get_content(),
 							tflpass->get_content(),btcreate->confirm);
+		if (g_Websocket.lobby_status!=LOBBY_CONNECTED) return;
 #endif
 		m_CC->run();
 		close();
@@ -65,5 +81,9 @@ void Menu::close()
 	g_Renderer.delete_sprite_texture(textbox_idle);
 	g_Renderer.delete_sprite_texture(textbox_hover);
 	g_Renderer.delete_sprite_texture(textbox_active);
+	g_Renderer.delete_text(__TUsr);
+	g_Renderer.delete_text(__TPsw);
+	g_Renderer.delete_text(__TLby);
+	g_Renderer.delete_text(__TLpw);
 	g_Wheel.routines.erase(ref);
 }
