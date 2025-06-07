@@ -16,7 +16,7 @@ app.use(cors({
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
-app.listen(8080, () => {
+app.listen(8080, "0.0.0.0",() => {
     console.log(`Server läuft auf http://localhost:8080`);
 });
 
