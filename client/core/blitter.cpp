@@ -58,12 +58,12 @@ Frame::Frame(const char* title,u16 width,u16 height,bool vsync)
 	glViewport(0,0,width,height);
 
 	// gpu error log
-	#ifdef DEBUG
-	// SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS,SDL_GL_CONTEXT_DEBUG_FLAG);
-	// glEnable(GL_DEBUG_OUTPUT);
-	// glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-	// glDebugMessageCallback(_gpu_error_callback,0);
-	#endif
+#if defined(DEBUG) && !defined(__APPLE__)
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS,SDL_GL_CONTEXT_DEBUG_FLAG);
+	glEnable(GL_DEBUG_OUTPUT);
+	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+	glDebugMessageCallback(_gpu_error_callback,nullptr);
+#endif
 
 	// vsync
 	if (vsync) gpu_vsync_on();
