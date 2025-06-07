@@ -2,6 +2,14 @@
 
 
 /**
+ *	setup input handler
+ */
+Input::Input()
+{
+	unset_input_mode();
+}
+
+/**
  *	update peripheral state must be called in the main loop, to be able to read user input correctly
  *	\param running: reference to program running state, closing requests will force this to false
  */

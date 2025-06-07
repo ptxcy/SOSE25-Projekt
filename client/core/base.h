@@ -103,15 +103,14 @@ constexpr f64 MATH_E = 2.7182818284;
 constexpr f64 MATH_CONVERSION_MS = .000001;
 
 // memory layout based on build target
-typedef
 #ifdef __SYSTEM_64BIT
-	u64
+typedef u64 __system_word;
+constexpr u8 MEM_SHIFT = 6;
 #else
-	u32
+typedef u32 __system_word;
+constexpr u8 MEM_SHIFT = 5;
 #endif
-	__system_word;
 constexpr u8 MEM_WIDTH = sizeof(__system_word)*8;
-constexpr u8 MEM_SHIFT = log2(MEM_WIDTH);
 constexpr __system_word MEM_MASK = MEM_WIDTH-1;
 
 
@@ -227,9 +226,9 @@ public:
 	BitwiseWords(size_t size);
 	~BitwiseWords();
 
-	inline bool operator[](size_t i) { return (*(m_Data+(i>>MEM_SHIFT))>>(i&MEM_MASK))&1u; }
-	inline void set(size_t i) { *(m_Data+(i>>MEM_SHIFT))|=1u<<(i&MEM_MASK); }
-	inline void unset(size_t i) { *(m_Data+(i>>MEM_SHIFT))&=~1u<<(i&MEM_MASK); }
+	inline bool operator[](size_t i) { return (*(m_Data+(i>>MEM_SHIFT))>>(i&MEM_MASK))&(__system_word)1; }
+	inline void set(size_t i) { *(m_Data+(i>>MEM_SHIFT))|=(__system_word)1<<(i&MEM_MASK); }
+	inline void unset(size_t i) { *(m_Data+(i>>MEM_SHIFT))&=~((__system_word)1<<(i&MEM_MASK)); }
 	inline void reset() { memset(m_Data,0,m_Size*sizeof(__system_word)); }
 
 private:

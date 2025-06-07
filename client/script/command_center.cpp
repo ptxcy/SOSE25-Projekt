@@ -30,8 +30,7 @@ void CommandCenter::update()
 							  -1.f,1.f);
 	__Bounds = glm::pow(__Bounds,5.f);
 	m_ZoomMomentum *= 1.f-abs(__Bounds)*((__Bounds<0&&m_ZoomMomentum<0)||(__Bounds>0&&m_ZoomMomentum>0));
-	//g_Camera.pitch = CMDSYS_ZOOM_MINPITCH+(__Bounds+1.f)*CMDSYS_ZOOM_HALFPITCH;
-	// TODO fix autopitch
+	g_Camera.pitch = glm::radians(CMDSYS_ZOOM_MINPITCH+(__Bounds+1.f)*CMDSYS_ZOOM_HALFPITCH);
 
 	// update camera position
 	g_Camera.target += m_CameraMomentum;

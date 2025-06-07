@@ -5,7 +5,7 @@
 #include "base.h"
 
 
-constexpr u16 KEYBOARD_INPUT_RANGE = 285;
+constexpr u16 KEYBOARD_INPUT_RANGE = 512;
 constexpr u8 MOUSE_INPUT_RANGE = 5;
 
 
@@ -28,6 +28,7 @@ struct Mouse
 class Input
 {
 public:
+	Input();
 	void update(bool& running);
 
 	// text input

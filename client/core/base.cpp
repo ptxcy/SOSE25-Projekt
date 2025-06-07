@@ -25,8 +25,8 @@ bool check_file_exists(const char* path)
  *	\param size: size of bit sequence. this is the exact amount of needed bits, not in fact a bytelength
  */
 BitwiseWords::BitwiseWords(size_t size)
-	: m_Size(size/MEM_WIDTH+1)
 {
+	m_Size = (size+MEM_WIDTH-1)>>MEM_SHIFT;
 	m_Data = (__system_word*)malloc(m_Size*sizeof(__system_word));
 	reset();
 }
