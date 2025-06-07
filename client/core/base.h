@@ -322,8 +322,9 @@ inline CoordinateSystem2D g_CoordinateSystem = CoordinateSystem2D(MATH_CARTESIAN
 class Camera3D
 {
 public:
-	Camera3D(vec3 pos,vec3 tgt,f32 width,f32 height,f32 fov);
+	Camera3D(vec3 tgt,f32 dist,f32 p,f32 y,f32 width,f32 height,f32 ifov);
 	void update();
+	void project();
 
 public:
 
@@ -334,9 +335,19 @@ public:
 	// attributes
 	vec3 position;
 	vec3 target;
+	f32 distance;
+	f32 pitch;
+	f32 yaw;
+	f32 fov;
+	f32 near = .1f;
+	f32 far = 1000.f;
+
+private:
+
+	f32 m_Ratio;
 };
 
-inline Camera3D g_Camera = Camera3D(vec3(10,1,1),vec3(10,.001,0),FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y,90);
+inline Camera3D g_Camera = Camera3D(vec3(10,.001,0),2.1f,-45.f,0,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y,60);
 
 
 // ----------------------------------------------------------------------------------------------------

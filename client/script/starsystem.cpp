@@ -18,16 +18,13 @@ StarSystem::StarSystem()
 	m_PlanetBatch = g_Renderer.register_particle_batch(m_PlanetShader);
 	m_PlanetBatch->load("./res/sphere.obj");
 	m_PlanetBatch->active_particles = 8;
+	m_PlanetShader->upload("tex",0);
 
 	lptr<MeshBatch> __SunBatch = g_Renderer.register_mesh_batch(m_SunShader);
 	__SunBatch->register_mesh("./res/sphere.obj");
 	__SunBatch->load();
 	// FIXME loading this twice is dumb, lets not!
 	// TODO also combine load if possible
-
-	// shader config
-	m_PlanetShader->upload("tex",0);
-	m_PlanetShader->upload_camera();
 
 	// setup planets
 	m_Planets.resize(8);
@@ -56,4 +53,6 @@ void StarSystem::update()
 	// update camera matrices
 	m_PlanetShader->enable();
 	m_PlanetShader->upload_camera();
+	m_SunShader->enable();
+	m_SunShader->upload_camera();
 }

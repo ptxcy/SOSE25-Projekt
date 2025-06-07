@@ -110,17 +110,17 @@ CoordinateSystem2D::CoordinateSystem2D(f32 xaxis,f32 yaxis)
 
 /**
  *	create 3D camera
- *	\param pos: starting camera position
  *	\param tgt: starting camera view focus target
  *	\param width: screen resolution width, can also be downscaled to ratio
  *	\param height: screen resolution height, can also be downscaled to ratio
- *	\param fov: field of view in degrees
+ *	\param ifov: field of view in degrees
+ *	TODO
  */
-Camera3D::Camera3D(vec3 pos,vec3 tgt,f32 width,f32 height,f32 fov)
-	: position(pos),target(tgt)
+Camera3D::Camera3D(vec3 tgt,f32 dist,f32 p,f32 y,f32 width,f32 height,f32 ifov)
+	: target(tgt),distance(dist),pitch(p),yaw(y),fov(ifov),m_Ratio(width/height)
 {
 	update();
-	proj = glm::perspective(glm::radians(fov),width/height,.1f,1000.f);
+	project();
 }
 
 /**
@@ -128,5 +128,14 @@ Camera3D::Camera3D(vec3 pos,vec3 tgt,f32 width,f32 height,f32 fov)
  */
 void Camera3D::update()
 {
+	position = vec3(cos(pitch)*sin(yaw),sin(pitch),cos(pitch)*cos(yaw))*distance+target;
 	view = glm::lookAt(position,target,vec3(0,0,1));
+}
+
+/**
+ *	update camera projection
+ */
+void Camera3D::project()
+{
+	proj = glm::perspective(glm::radians(fov),m_Ratio,near,far);
 }

@@ -20,20 +20,25 @@ void CommandCenter::run()
 void CommandCenter::update()
 {
 	// camera movement
-	m_CameraMomentum.x += (g_Input.keyboard.keys[SDL_SCANCODE_A]-g_Input.keyboard.keys[SDL_SCANCODE_D])
-			* CMDSYS_MVMT_ACCELLERATION;
-	m_CameraMomentum.z += (g_Input.keyboard.keys[SDL_SCANCODE_W]-g_Input.keyboard.keys[SDL_SCANCODE_S])
-			* CMDSYS_MVMT_ACCELLERATION;
+	m_CameraMomentum += vec3((g_Input.keyboard.keys[SDL_SCANCODE_D]-g_Input.keyboard.keys[SDL_SCANCODE_A]),
+							 (g_Input.keyboard.keys[SDL_SCANCODE_W]-g_Input.keyboard.keys[SDL_SCANCODE_S]),
+							 0)*CMDSYS_MVMT_ACCELLERATION;
 
-	// zoom input & boundaries
-	m_CameraMomentum.y += g_Input.mouse.wheel*CMDSYS_ZOOM_ACCELLERATION;
-	// TODO boundaries (that's what she said)
+	// zoom input, tilt & boundaries
+	m_ZoomMomentum += g_Input.mouse.wheel*CMDSYS_ZOOM_ACCELLERATION;
+	f32 __Bounds = glm::clamp(((g_Camera.distance+m_ZoomMomentum)-CMDSYS_ZOOM_MIDDIST)*CMDSYS_ZOOM_HALFDIST_INV,
+							  -1.f,1.f);
+	__Bounds = glm::pow(__Bounds,5.f);
+	m_ZoomMomentum *= 1.f-abs(__Bounds)*((__Bounds<0&&m_ZoomMomentum<0)||(__Bounds>0&&m_ZoomMomentum>0));
+	//g_Camera.pitch = CMDSYS_ZOOM_MINPITCH+(__Bounds+1.f)*CMDSYS_ZOOM_HALFPITCH;
+	// TODO fix autopitch
 
-	// interpolate camera towards target position
-	g_Camera.position += m_CameraMomentum;
-	g_Camera.target += vec3(m_CameraMomentum.x,0,m_CameraMomentum.z);
+	// update camera position
+	g_Camera.target += m_CameraMomentum;
+	g_Camera.distance += m_ZoomMomentum;
 	g_Camera.update();
 
 	// haptic attenuation
-	m_CameraMomentum *= CMDSYS_MOMENTUM_FLOATFACTOR;
+	m_CameraMomentum *= CMDSYS_MVMT_FLOATFACTOR;
+	m_ZoomMomentum *= CMDSYS_ZOOM_FLOATFACTOR;
 }

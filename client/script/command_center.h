@@ -6,9 +6,20 @@
 #include "../core/wheel.h"
 
 
-constexpr f32 CMDSYS_ZOOM_ACCELLERATION = -.02f;
-constexpr f32 CMDSYS_MVMT_ACCELLERATION = .01f;
-constexpr f32 CMDSYS_MOMENTUM_FLOATFACTOR = .95f;
+// zoom
+constexpr f32 CMDSYS_ZOOM_ACCELLERATION = -.15f;
+constexpr f32 CMDSYS_ZOOM_FLOATFACTOR = .95f;
+constexpr f32 CMDSYS_ZOOM_MINDIST = 1.f;
+constexpr f32 CMDSYS_ZOOM_MAXDIST = 150.f;
+constexpr f32 CMDSYS_ZOOM_MIDDIST = (CMDSYS_ZOOM_MAXDIST+CMDSYS_ZOOM_MINDIST)*.5f;
+constexpr f32 CMDSYS_ZOOM_HALFDIST_INV = 1/((CMDSYS_ZOOM_MAXDIST-CMDSYS_ZOOM_MINDIST)*.5f);
+constexpr f32 CMDSYS_ZOOM_MINPITCH = -20.f;
+constexpr f32 CMDSYS_ZOOM_MAXPITCH = -80.f;
+constexpr f32 CMDSYS_ZOOM_HALFPITCH = (CMDSYS_ZOOM_MAXPITCH-CMDSYS_ZOOM_MINPITCH)*.5f;
+
+// movement
+constexpr f32 CMDSYS_MVMT_ACCELLERATION = .15f;
+constexpr f32 CMDSYS_MVMT_FLOATFACTOR = .8f;
 
 
 class CommandCenter
@@ -23,7 +34,8 @@ public:
 private:
 
 	// camera movement
-	vec3 m_CameraMomentum = vec3(0,.15f,0);
+	vec3 m_CameraMomentum = vec3(0);
+	f32 m_ZoomMomentum = .15f;
 };
 
 
