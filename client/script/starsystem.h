@@ -6,10 +6,14 @@
 #include "../core/wheel.h"
 
 
+constexpr u8 STARSYS_PLANET_COUNT = 8;
+
+
 struct PlanetaryAttribute
 {
 	vec3 offset = vec3(0);
 	f32 scale = 1.f;
+	PixelBufferComponent texture;
 };
 
 
@@ -26,11 +30,11 @@ private:
 	// graphics
 	lptr<ShaderPipeline> m_PlanetShader;
 	lptr<ShaderPipeline> m_SunShader;
-
 	lptr<ParticleBatch> m_PlanetBatch;
 
 	// planetary data
-	vector<PlanetaryAttribute> m_Planets;
+	PlanetaryAttribute m_Planets[STARSYS_PLANET_COUNT];
+	PixelBufferComponent* m_PlanetTextures[STARSYS_PLANET_COUNT];
 };
 
 

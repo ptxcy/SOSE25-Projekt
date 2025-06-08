@@ -21,7 +21,7 @@ void CommandCenter::update()
 {
 	// camera movement
 	m_CameraMomentum += vec3((g_Input.keyboard.keys[SDL_SCANCODE_D]-g_Input.keyboard.keys[SDL_SCANCODE_A]),
-							 (g_Input.keyboard.keys[SDL_SCANCODE_W]-g_Input.keyboard.keys[SDL_SCANCODE_S]),
+							 (g_Input.keyboard.keys[SDL_SCANCODE_S]-g_Input.keyboard.keys[SDL_SCANCODE_W]),
 							 0)*CMDSYS_MVMT_ACCELLERATION;
 
 	// zoom input, tilt & boundaries

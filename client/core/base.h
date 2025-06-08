@@ -351,7 +351,7 @@ private:
 	f32 m_Ratio;
 };
 
-inline Camera3D g_Camera = Camera3D(vec3(10,.001,0),2.1f,-45.f,0,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y,60);
+inline Camera3D g_Camera = Camera3D(vec3(10,-.001,0),2.1f,0,0,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y,60);
 
 
 // ----------------------------------------------------------------------------------------------------

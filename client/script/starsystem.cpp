@@ -20,14 +20,24 @@ StarSystem::StarSystem()
 	m_PlanetBatch->active_particles = 8;
 	m_PlanetShader->upload("tex",0);
 
+	// setup sun
 	lptr<MeshBatch> __SunBatch = g_Renderer.register_mesh_batch(m_SunShader);
 	__SunBatch->register_mesh("./res/sphere.obj");
 	__SunBatch->load();
 	// FIXME loading this twice is dumb, lets not!
 	// TODO also combine load if possible
 
+	// load planet textures
+	m_PlanetTextures[0] = g_Renderer.register_sprite_texture("./res/planets/mercury.jpg");
+	m_PlanetTextures[1] = g_Renderer.register_sprite_texture("./res/planets/venus.jpg");
+	m_PlanetTextures[2] = g_Renderer.register_sprite_texture("./res/planets/earth.jpg");
+	m_PlanetTextures[3] = g_Renderer.register_sprite_texture("./res/planets/mars.jpg");
+	m_PlanetTextures[4] = g_Renderer.register_sprite_texture("./res/planets/jupiter.jpg");
+	m_PlanetTextures[5] = g_Renderer.register_sprite_texture("./res/planets/saturn.jpg");
+	m_PlanetTextures[6] = g_Renderer.register_sprite_texture("./res/planets/uranus.jpg");
+	m_PlanetTextures[7] = g_Renderer.register_sprite_texture("./res/planets/neptune.jpg");
+
 	// setup planets
-	m_Planets.resize(8);
 	m_Planets[0] = { vec3(3.9f,0,0),.7f };
 	m_Planets[1] = { vec3(7.2f,0,0),.7f };
 	m_Planets[2] = { vec3(10.f,0,0),1.f };
@@ -46,9 +56,12 @@ StarSystem::StarSystem()
  */
 void StarSystem::update()
 {
+	// upload planetary texture location
+	for (u8 i=0;i<STARSYS_PLANET_COUNT;i++) m_Planets[i].texture = *m_PlanetTextures[i];
+
 	// planetary position update
 	m_PlanetBatch->ibo.bind();
-	m_PlanetBatch->ibo.upload_vertices(m_Planets,GL_DYNAMIC_DRAW);
+	m_PlanetBatch->ibo.upload_vertices(m_Planets,8,GL_DYNAMIC_DRAW);
 
 	// update camera matrices
 	m_PlanetShader->enable();

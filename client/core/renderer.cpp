@@ -318,6 +318,8 @@ Renderer::Renderer()
 	m_SpriteTextureCollector = thread(Renderer::_collector<PixelBufferComponent>,
 									  &m_GPUSpriteTextures.textures,&_sprite_texture_signal);
 	m_SpriteTextureCollector.detach();
+
+	m_GPUSpriteTextures.atlas.bind();
 	COMM_SCC("render system ready.");
 }
 // TODO join collector processes when exiting renderer, or maybe just let the os handle that and not care?
@@ -339,6 +341,7 @@ void Renderer::update()
 	glDisable(GL_DEPTH_TEST);
 	_update_canvas();
 	_update_sprites();
+	m_GPUFontTextures.atlas.bind();
 	_update_text();
 
 	// end-frame gpu management
@@ -556,8 +559,8 @@ vec2 Renderer::align(Rect geom,Alignment alignment)
  */
 void Renderer::_gpu_upload()
 {
-	m_GPUSpriteTextures.gpu_upload(m_FrameStart);
 	m_GPUFontTextures.gpu_upload(m_FrameStart);
+	m_GPUSpriteTextures.gpu_upload(m_FrameStart);
 }
 
 /**

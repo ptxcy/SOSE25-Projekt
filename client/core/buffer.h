@@ -103,8 +103,8 @@ private:
 
 struct PixelBufferComponent
 {
-	vec2 offset;
-	vec2 dimensions;
+	vec2 offset = vec2(0,0);
+	vec2 dimensions = vec2(0,0);
 };
 
 struct Glyph

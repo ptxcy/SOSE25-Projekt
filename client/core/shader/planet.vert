@@ -9,6 +9,8 @@ in vec3 tangent;
 // engine: ibo
 in vec3 offset;
 in float scale;
+in vec2 tex_offset;
+in vec2 tex_dimension;
 
 out vec2 UV;
 out vec3 Normal;
@@ -24,7 +26,7 @@ void main()
 
 	// pass
 	Normal = normal;
-	UV = uv;
+	UV = tex_offset+tex_dimension*uv;
 
 	// gram-schmidt reothogonalization
 	vec3 Tangent = normalize(tangent-dot(tangent,normal)*normal);

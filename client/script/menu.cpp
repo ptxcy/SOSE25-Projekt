@@ -74,16 +74,23 @@ void Menu::update()
  */
 void Menu::close()
 {
+	// deregister menu
 	g_UI.remove_batch(conn_batch);
+
+	// cleanup menu textures
 	g_Renderer.delete_sprite_texture(button_idle);
 	g_Renderer.delete_sprite_texture(button_hover);
 	g_Renderer.delete_sprite_texture(button_select);
 	g_Renderer.delete_sprite_texture(textbox_idle);
 	g_Renderer.delete_sprite_texture(textbox_hover);
 	g_Renderer.delete_sprite_texture(textbox_active);
+
+	// remove title text
 	g_Renderer.delete_text(__TUsr);
 	g_Renderer.delete_text(__TPsw);
 	g_Renderer.delete_text(__TLby);
 	g_Renderer.delete_text(__TLpw);
+
+	// kill menu update routine
 	g_Wheel.routines.erase(ref);
 }
