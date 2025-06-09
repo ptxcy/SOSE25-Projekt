@@ -111,31 +111,42 @@ impl Spaceship {
 	pub fn update(&self, delta_days: f64) -> Vec<SafeAction> {
 		let mut actions = Vec::<SafeAction>::new();
 
-		let mut newv = self.target.clone();
-		newv.normalize(self.speed);
+		// no need to execute if arrived
+		if self.position == self.target {
+			return actions;
+		}
+
+		// update velocity and position
+		let mut newv = self.position.clone();
+		newv.to(&self.target).normalize(self.speed);
+
 		actions.push(SafeAction::SetCoordinate {
 			coordinate: self.velocity.raw_mut(),
 			other: newv
 		});
-
-		let mut distance_to_target = self.position.c();
-		distance_to_target.to(&self.target);
-		let norm = distance_to_target.norm();
-
-		// println!("distance to target: {}", norm);
-		if norm < 0.001 {
-			log_with_time("spaceship arrived at destination");
-			actions.push(SafeAction::SetCoordinate {
-				coordinate: self.velocity.raw_mut(),
-				other: Coordinate::default()
-			});
-		}
-
 		actions.push(SafeAction::AddCoordinate {
 			coordinate: self.position.raw_mut(),
 			other: self.velocity.c(),
 			multiplier: delta_days,
 		});
+
+		// check if could arrive in this frame
+		let mut distance_to_target = self.position.c();
+		distance_to_target.to(&self.target);
+		let norm = distance_to_target.norm();
+
+		let frame_flight_distance = self.velocity.norm() * delta_days;
+		if norm < frame_flight_distance {
+			log_with_time("spaceship arrived at destination");
+			actions.push(SafeAction::SetCoordinate {
+				coordinate: self.position.raw_mut(),
+				other: self.target.clone()
+			});
+			actions.push(SafeAction::SetCoordinate {
+				coordinate: self.velocity.raw_mut(),
+				other: Coordinate::default()
+			});
+		}
 
 		actions
 	}

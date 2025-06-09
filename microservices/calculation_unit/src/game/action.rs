@@ -112,7 +112,7 @@ impl SafeAction {
 					julian_day,
 					orbit_info_map,
 				);
-				// TODO
+
 				log_with_time(format!(
 					"Moving Spaceship {} to planet {}, destination is {:?}",
 					spaceship.id, planet.name, target
