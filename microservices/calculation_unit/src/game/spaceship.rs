@@ -3,7 +3,14 @@ use serde::{Deserialize, Serialize};
 use crate::logger::log_with_time;
 
 use super::{
-	action::SafeAction, coordinate::Coordinate, crafting_material::CraftingMaterial, game_objects::SpaceshipMap, gametraits::{Craftable, IsOwned, Spawnable}, id_counter::IdCounter
+	action::{AsRaw, SafeAction},
+	coordinate::Coordinate,
+	crafting_material::CraftingMaterial,
+	game_objects::SpaceshipMap,
+	gametraits::{Craftable, IsOwned, Spawnable},
+	id_counter::IdCounter,
+	planet::{OrbitInfoMap, Planet},
+	planet_util::get_timefactor,
 };
 
 #[derive(Serialize, Debug, Clone, Default)]
@@ -29,8 +36,8 @@ impl Spacestation {
 
 #[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct Spaceship {
-	id: usize,
-	owner: String,
+	pub id: usize,
+	pub owner: String,
 	pub speed: f64,
 	pub velocity: Coordinate,
 	pub position: Coordinate,
@@ -56,9 +63,7 @@ impl IsOwned for Spaceship {
 }
 
 impl Spawnable for Spaceship {
-	fn into_game_objects(
-		self
-	) -> SafeAction {
+	fn into_game_objects(self) -> SafeAction {
 		SafeAction::SpawnSpaceship(self)
 	}
 }
@@ -75,5 +80,39 @@ impl Spaceship {
 			..Default::default()
 		};
 		ship
+	}
+	pub fn fly_to_get_target(
+		&self,
+		planet: &Planet,
+		julian_day: f64,
+		orbit_info_map: &OrbitInfoMap,
+	) -> Coordinate {
+		let mut d = julian_day;
+		let mut duration_to = 0.;
+		let mut planet_positon = Coordinate::default();
+		loop {
+			planet_positon =
+				planet.get_position_at(get_timefactor(d), orbit_info_map);
+			let new_duration_to = self.duration_to(&planet_positon);
+			if (duration_to - new_duration_to).abs() <= std::f64::EPSILON * 2. {
+				break;
+			}
+			duration_to = new_duration_to;
+			d += duration_to;
+		}
+		planet_positon
+	}
+	pub fn duration_to(&self, target: &Coordinate) -> f64 {
+		let mut my_position = self.position.c();
+		let distance_vec = my_position.to(target);
+		let distance = distance_vec.norm();
+		distance / self.speed
+	}
+	pub fn update(&self, delta_days: f64) -> SafeAction {
+		SafeAction::AddCoordinate {
+			coordinate: self.position.raw_mut(),
+			other: self.velocity.c(),
+			multiplier: delta_days,
+		}
 	}
 }

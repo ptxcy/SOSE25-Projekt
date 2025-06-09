@@ -1,14 +1,10 @@
 import {WebSocketServer, WebSocket, RawData} from "ws";
-import {createServer} from "http";
-import {app} from "../../server";
 import {
     AuthenticationResult,
     validateAuthentication
 } from "../../util/AuthenticationService";
 import {handleWebsocketMessage} from "../../util/lobby/LobbyManager";
-
-const server = createServer(app);
-const wss = new WebSocketServer({server});
+const wss = new WebSocketServer({ port: 8083 });
 
 wss.on("connection", async (ws: WebSocket, req) => {
     console.log("Somebody is trying to connect to the websocket");
@@ -46,9 +42,5 @@ wss.on("connection", async (ws: WebSocket, req) => {
     ws.on("close", () => {
         console.log("WebSocket disconnected.");
     });
-});
-
-server.listen(8083, () => {
-    console.log("Websocket server Listening on port 8083");
 });
 

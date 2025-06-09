@@ -1,6 +1,8 @@
 use super::{
 	building_region::BuildingRegion, coordinate::Coordinate,
-	dummy::DummyObject, factory::Factory, mine::Mine, spaceship::Spaceship,
+	crafting_material::CraftingMaterial, dummy::DummyObject, factory::Factory,
+	game_objects::GameObjects, gametraits::Crafter, mine::Mine,
+	spaceship::Spaceship,
 };
 
 pub trait AsRaw {
@@ -19,6 +21,7 @@ impl<T> AsRaw for T {
 }
 
 pub enum SafeAction {
+	SetF64(*mut f64, f64),
 	AddCoordinate {
 		coordinate: *mut Coordinate,
 		other: Coordinate,
@@ -38,12 +41,17 @@ pub enum SafeAction {
 	},
 	SpawnDummy(DummyObject),
 	SpawnSpaceship(Spaceship),
+	ReduceCraftingMaterial {
+		crafter: *mut dyn Crafter,
+		cost: CraftingMaterial,
+	},
 }
 
 unsafe impl Send for SafeAction {}
 
 impl SafeAction {
-	pub fn execute(self) {
+	pub fn execute(self, game_objects: *mut GameObjects) {
+		let go = unsafe { &mut *game_objects };
 		match self {
 			SafeAction::AddCoordinate {
 				coordinate,
@@ -63,8 +71,19 @@ impl SafeAction {
 				let region = unsafe { &mut *region };
 				region.mines.push(mine);
 			}
-			SafeAction::SpawnDummy(dummy_object) => todo!(),
-			SafeAction::SpawnSpaceship(spaceship) => todo!(),
+			SafeAction::SpawnDummy(dummy_object) => {
+				go.dummies.insert(dummy_object.id, dummy_object);
+			}
+			SafeAction::SpawnSpaceship(spaceship) => {
+				go.spaceships.insert(spaceship.id, spaceship);
+			}
+			SafeAction::SetF64(target, value) => {
+				unsafe { *target = value };
+			}
+			SafeAction::ReduceCraftingMaterial { crafter, cost } => {
+				let crafter = unsafe { &mut (*crafter) };
+				crafter.get_crafting_material_mut().sub(&cost);
+			}
 		}
 	}
 }

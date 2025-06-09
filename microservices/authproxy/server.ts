@@ -5,7 +5,6 @@ import {connectToMongoDatabase} from "./util/Database";
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import {specs} from "./util/swagger";
-import {printServerMessageStructure} from "./util/datatypes/MessagePackDataTypes";
 
 const routesPath = path.join(__dirname, "routes");
 export const app = express();
@@ -17,7 +16,7 @@ app.use(cors({
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
-app.listen(8080, () => {
+app.listen(8080, "0.0.0.0",() => {
     console.log(`Server läuft auf http://localhost:8080`);
 });
 
@@ -55,7 +54,6 @@ async function initServerRoutes() {
 }
 
 async function startServer() {
-    await printServerMessageStructure();
     await establishDataBaseConnection();
     //Start Ws Server After Database is connected
     await import("./routes/ws_calculate/ws_server");

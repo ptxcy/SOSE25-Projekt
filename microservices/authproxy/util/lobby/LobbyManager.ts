@@ -3,8 +3,9 @@ import {WebSocket, RawData} from "ws";
 import {ILobby} from "./LobbyModel";
 import {searchLobbyOfMember} from "./LobbyService";
 import {
+    ClientMessage,
     decodeToClientMessage,
-    decodeToServerMessage,
+    decodeToServerMessage, encodeClientMessage,
     encodeServerMessage,
     ServerMessage
 } from "../datatypes/MessagePackDataTypes";
@@ -87,14 +88,15 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
         : new Uint8Array(data as ArrayBuffer);
 
     console.log("Received ClientMessage: ", uint8Array);
-    const clientRequest: null = null;
+    const clientRequest: ClientMessage = await decodeToClientMessage(uint8Array);
     if (!clientRequest) {
         console.error("Could not decode message");
         ws.close();
         return;
     }
 
-    const encoded = "";
+    clientRequest[0][1][0] = Date.now();
+    const encoded = await encodeClientMessage(clientRequest);
     if (encoded === null) {
         console.error("Could not encode message");
         ws.close();

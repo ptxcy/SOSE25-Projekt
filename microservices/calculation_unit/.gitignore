@@ -1,0 +1,6 @@
+# Ignore everything in target/
+target/*
+
+# Allow the release folder and the binary
+# !target/release/
+# !target/release/calculation_unit

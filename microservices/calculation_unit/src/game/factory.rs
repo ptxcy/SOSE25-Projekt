@@ -7,7 +7,10 @@ use super::{
 	building_region::BuildingRegion,
 	coordinate::Coordinate,
 	crafting_material::CraftingMaterial,
-	gametraits::{Craftable, Crafter, IsOwned, Spawnable, Spawner},
+	gametraits::{
+		Craftable, Crafter, HasPosition, HasRelativePosition, IsOwned,
+		Spawnable, Spawner,
+	},
 };
 
 /// placed somewhere to mine resources / crafting materials
@@ -45,8 +48,7 @@ impl Craftable for Factory {
 
 impl Spawner for Factory {
 	fn spawn_at(&self) -> Coordinate {
-		let region = unsafe { &*self.region };
-		region.relative_position.c()
+		self.get_position()
 	}
 }
 
@@ -66,21 +68,15 @@ impl Factory {
 	}
 	pub fn craft<'a, T: Crafter>(
 		crafter: &mut T,
-		building_region: &'a mut BuildingRegion,
-	) -> &'a mut Self {
+		building_region: *mut BuildingRegion,
+	) -> SafeAction {
 		log_with_time("crafting a dummy with 49 copper");
 		// use materials
 		crafter.get_crafting_material_mut().sub(&Self::get_cost());
 
 		// create object
-		let factory = Factory::new(
-			crafter.get_owner(),
-			building_region as *mut BuildingRegion,
-		);
-
-		building_region.factories.push(factory);
-		let index = building_region.factories.len() - 1;
-		&mut building_region.factories[index]
+		let factory = Factory::new(crafter.get_owner(), building_region);
+		factory.into_game_objects()
 	}
 }
 
@@ -90,5 +86,15 @@ impl Spawnable for Factory {
 			region: self.region,
 			factory: self,
 		}
+	}
+}
+
+impl HasRelativePosition for Factory {
+	type Parent = BuildingRegion;
+	fn get_parent(&self) -> &Self::Parent {
+		unsafe { &(*self.region) }
+	}
+	fn get_relative_position(&self) -> Coordinate {
+		Coordinate::new(0., 0., 0.)
 	}
 }

@@ -2,7 +2,10 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use super::planet_util::{get_curve, trim_down};
+use super::{
+	planet::OrbitInfoMap,
+	planet_util::{get_curve, trim_down},
+};
 
 /// N = Länge des aufsteigenden Knotens (oft auch als großes Omega geschrieben)
 /// Diese definiert die Drehung der Schnittgraden von der Ebene der Erdbahnellipse mit der Ebene der jeweiligen Planetenbahnellipse um die z-Achse.
@@ -34,7 +37,7 @@ impl OrbitInfo {
 	}
 }
 
-pub fn initialize_orbit_info_map() -> HashMap<String, fn(f64) -> OrbitInfo> {
+pub fn initialize_orbit_info_map() -> OrbitInfoMap {
 	let mut map = HashMap::new();
 	map.insert("mercury".to_string(), get_mercury as fn(f64) -> OrbitInfo);
 	map.insert("venus".to_string(), get_venus as fn(f64) -> OrbitInfo);

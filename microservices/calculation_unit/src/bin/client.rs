@@ -1,6 +1,6 @@
+use std::env;
 use std::sync::Arc;
 use std::time::Duration;
-use std::env;
 
 use bytes::Bytes;
 use calculation_unit::messages::server_message::ServerMessageReceive;
@@ -8,8 +8,8 @@ use calculation_unit::{
 	game::coordinate::Coordinate,
 	logger::log_with_time,
 	messages::client_message::{
-			ClientMessage, ClientRequest, DummySetVelocity, SetClientFPS,
-		},
+		ClientMessage, ClientRequest, DummySetVelocity, SetClientFPS,
+	},
 };
 use futures_util::{SinkExt, stream::StreamExt};
 use tokio::sync::Mutex;
@@ -115,7 +115,7 @@ async fn main() {
 
 pub fn request_connect(username: &String) -> Vec<u8> {
 	let client_message = ClientMessage {
-		request_data: ClientRequest::new_connect(username),
+		request_data: new_connect(username),
 		username: username.clone(),
 		..Default::default()
 	};
@@ -127,7 +127,7 @@ pub fn request_connect(username: &String) -> Vec<u8> {
 
 pub fn request_spawn(id: &String, username: &String) -> Vec<u8> {
 	let client_message = ClientMessage {
-		request_data: ClientRequest::new_spawn_dummy(id),
+		request_data: new_spawn_dummy(id),
 		username: username.clone(),
 		..Default::default()
 	};
@@ -139,7 +139,7 @@ pub fn request_spawn(id: &String, username: &String) -> Vec<u8> {
 
 pub fn request_set_fps(id: &String, fps: f64, username: &String) -> Vec<u8> {
 	let client_message = ClientMessage {
-		request_data: ClientRequest::new_set_client_fps(SetClientFPS { fps }),
+		request_data: new_set_client_fps(SetClientFPS { fps }),
 		username: username.clone(),
 		..Default::default()
 	};
@@ -151,7 +151,7 @@ pub fn request_set_fps(id: &String, fps: f64, username: &String) -> Vec<u8> {
 
 pub fn request_move(id: usize, username: &String) -> Vec<u8> {
 	let client_message = ClientMessage {
-		request_data: ClientRequest::new_dummy_set_velocity(DummySetVelocity {
+		request_data: new_dummy_set_velocity(DummySetVelocity {
 			id,
 			position: Coordinate {
 				x: 2.,
@@ -166,4 +166,33 @@ pub fn request_move(id: usize, username: &String) -> Vec<u8> {
 	let serialized_message = rmp_serde::to_vec(&client_message)
 		.expect("Failed to serialize message");
 	serialized_message
+}
+
+/// create a new client requests to connect
+pub fn new_connect(username: &str) -> ClientRequest {
+	ClientRequest {
+		connect: Some(username.to_string()),
+		..Default::default()
+	}
+}
+/// create a new client requests to set the wanted fps of a client
+pub fn new_set_client_fps(value: SetClientFPS) -> ClientRequest {
+	ClientRequest {
+		set_client_fps: Some(value),
+		..Default::default()
+	}
+}
+/// create a new client requests to spawn a dummy
+pub fn new_spawn_dummy(name: &str) -> ClientRequest {
+	ClientRequest {
+		spawn_dummy: Some(name.to_owned()),
+		..Default::default()
+	}
+}
+/// create a new client requests to set the velocity of a dummy
+pub fn new_dummy_set_velocity(value: DummySetVelocity) -> ClientRequest {
+	ClientRequest {
+		dummy_set_velocity: Some(value),
+		..Default::default()
+	}
 }

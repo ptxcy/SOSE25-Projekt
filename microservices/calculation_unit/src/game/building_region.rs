@@ -4,6 +4,7 @@ use super::{
 	coordinate::Coordinate,
 	crafting_material::CraftingMaterial,
 	factory::{Factory, FactoryReceive},
+	gametraits::{HasPosition, HasRelativePosition},
 	mine::{Mine, MineReceive},
 	planet::Planet,
 };
@@ -15,9 +16,8 @@ pub struct BuildingRegion {
 	pub factories: Vec<Factory>,
 	pub mines: Vec<Mine>,
 	pub profit: CraftingMaterial,
-
-	// #[serde(skip)]
-	// planet: *const Planet,
+	#[serde(skip)]
+	planet: *const Planet,
 }
 
 #[derive(Deserialize, Debug, Clone, Default)]
@@ -29,10 +29,10 @@ pub struct BuildingRegionReceive {
 }
 
 impl BuildingRegion {
-	pub fn new(relative_position: Coordinate, /* planet: *const Planet */) -> Self {
+	pub fn new(relative_position: Coordinate, planet: *const Planet) -> Self {
 		Self {
 			relative_position,
-			// planet,
+			planet,
 			factories: Default::default(),
 			mines: Default::default(),
 			profit: Default::default(),
@@ -43,3 +43,15 @@ impl BuildingRegion {
 // only under condition that the raw pointers it contains are valid at all times during and after multi threading
 unsafe impl Sync for BuildingRegion {}
 unsafe impl Send for BuildingRegion {}
+
+impl HasRelativePosition for BuildingRegion {
+	type Parent = Planet;
+
+	fn get_parent(&self) -> &Self::Parent {
+		unsafe { &(*self.planet) }
+	}
+
+	fn get_relative_position(&self) -> Coordinate {
+		self.relative_position.clone()
+	}
+}

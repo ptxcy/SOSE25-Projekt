@@ -12,9 +12,6 @@ pub trait Spawner {
 pub trait IsOwned {
 	fn get_owner<'a>(&'a self) -> &'a String;
 	fn get_owner_mut<'a>(&'a mut self) -> &'a mut String;
-	fn transfer_ownership<T: IsOwned>(&self, object: &mut T) {
-		*object.get_owner_mut() = self.get_owner().clone();
-	}
 }
 
 /// anything that can buy something
@@ -28,7 +25,7 @@ pub trait Buyer: IsOwned {
 	) {
 		*self.get_money_mut() -= price;
 		*seller.get_money_mut() += price;
-		self.transfer_ownership(object);
+		*object.get_owner_mut() = self.get_owner().clone();
 	}
 }
 
@@ -44,4 +41,20 @@ pub trait Craftable: IsOwned + Spawnable {
 
 pub trait Spawnable {
 	fn into_game_objects(self) -> SafeAction;
+}
+
+pub trait HasPosition {
+	fn get_position(&self) -> Coordinate;
+}
+
+pub trait HasRelativePosition {
+	type Parent: HasPosition;
+	fn get_parent(&self) -> &Self::Parent;
+	fn get_relative_position(&self) -> Coordinate;
+}
+
+impl<C: HasRelativePosition> HasPosition for C {
+	fn get_position(&self) -> Coordinate {
+		self.get_parent().get_position()
+	}
 }

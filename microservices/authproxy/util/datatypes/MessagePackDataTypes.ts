@@ -45,14 +45,24 @@ type DummyObject = [
 type Planet = [
     string,
     Coordinate,
-    BuildingRegionReceive[],
+    BuildingRegion[],
     number
 ];
 
-type BuildingRegionReceive = [
+type Mine = [
+    string,
+    CraftingMaterial,
+]
+
+type Factory = [
+    string,
+    CraftingMaterial,
+]
+
+type BuildingRegion= [
     Coordinate,
-    [],
-    [],
+    Factory[],
+    Mine[],
     CraftingMaterial
 ]
 
@@ -61,6 +71,28 @@ type Coordinate = [
     number,
     number
 ];
+
+type ClientData = [
+    setClientFPS | null,
+    string | null,
+    dummySetVelocity | null,
+    string | null
+]
+
+type dummySetVelocity = [
+    number,
+    Coordinate
+]
+
+type setClientFPS = [
+    number,
+]
+
+export type ClientMessage = [
+    RequestInfo,
+    ClientData,
+    string,
+]
 
 export async function printServerMessageStructure() {
     const serverMessage: ServerMessage = [
@@ -175,20 +207,61 @@ export async function printServerMessageStructure() {
     console.log(String(encode(serverMessage)));
 }
 
+export async function printClientMessageStructure(){
+    const clientMessage: ClientMessage = [
+        [
+            [
+                0
+            ],
+            [
+                0
+            ],
+            [
+                0
+            ],
+            [
+                0
+            ]
+        ],
+        [
+            null,
+            null,
+            [
+                0,
+                [
+                    2,
+                    0,
+                    0
+                ]
+            ],
+            null
+        ],
+        "jonas"
+    ];
+    console.log(String(encode(clientMessage)));
+}
+
 export async function decodeToServerMessage(msg: RawData) {
     const uint8Array = msg instanceof Buffer
         ? new Uint8Array(msg)
         : new Uint8Array(msg as ArrayBuffer);
 
-    const serverMessage: ServerMessage = decode(uint8Array) as ServerMessage;
-    return serverMessage;
+    return decode(uint8Array) as ServerMessage;
 }
 
-export async function encodeServerMessage(msg: ServerMessage){
+export async function encodeServerMessage(msg: ServerMessage) {
+    return encode(msg);
+}
+
+export async function encodeClientMessage(msg: ClientMessage){
     return encode(msg);
 }
 
 export async function decodeToClientMessage(msg: RawData) {
+    const uint8Array = msg instanceof Buffer
+        ? new Uint8Array(msg)
+        : new Uint8Array(msg as ArrayBuffer);
 
+    return decode(uint8Array) as ClientMessage;
 }
 
