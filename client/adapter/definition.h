@@ -105,7 +105,8 @@ struct ClientRequest
 	std::optional<SetClientFPS> set_client_fps;
 	std::optional<string> spawn_dummy;
 	std::optional<DummySetVelocity> dummy_set_velocity;
-	MSGPACK_DEFINE(set_client_fps,spawn_dummy,dummy_set_velocity);
+	std::optional<string> connect;
+	MSGPACK_DEFINE(set_client_fps,spawn_dummy,dummy_set_velocity,connect);
 };
 // FIXME heavy contender for worst datastructure in the entire universe
 
@@ -113,7 +114,8 @@ struct ClientMessage
 {
 	RequestInfo request_info;
 	ClientRequest request_data;
-	MSGPACK_DEFINE(request_info,request_data);
+	string username;
+	MSGPACK_DEFINE(request_info,request_data,username);
 };
 
 

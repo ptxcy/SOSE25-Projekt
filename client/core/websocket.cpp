@@ -158,7 +158,7 @@ void _handle_websocket_download(Websocket* c)
 			c->mutex_server_messages.unlock();
 		}
 		catch (const std::exception& e) { COMM_ERR("parsing server response -> %s",e.what()); }
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 }
 
@@ -222,6 +222,8 @@ std::string _url_encode(string& value) {
 void Websocket::connect(string host,string port_ad,string port_ws,string name,string pass,string lnom,
 						string lpass,bool create)
 {
+	username = name;
+
 	// adapter connection
 	HTTPAdapter __Adapter = HTTPAdapter(host,port_ad);
 	COMM_ERR_COND(!__Adapter.create_user(name,pass),"user creation did not work");

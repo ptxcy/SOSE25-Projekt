@@ -53,6 +53,7 @@ public:
 	bool running = true;
 
 	// status
+	string username;
 	LobbyStatus lobby_status = LOBBY_UNCONNECTED;
 
 	// messages

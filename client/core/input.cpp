@@ -65,6 +65,10 @@ void Input::update(bool& running)
 			break;
 		};
 	}
+
+	// calculate mouse delta velocity
+	mouse.velocity = mouse.position-mouse.last_position;
+	mouse.last_position = mouse.position;
 }
 
 /**

@@ -25,8 +25,8 @@ void main()
 	gl_Position = proj*view*vec4(position*scale+offset,1.);
 
 	// pass
-	Normal = normal;
 	UV = tex_offset+tex_dimension*uv;
+	Normal = normal;
 
 	// gram-schmidt reothogonalization
 	vec3 Tangent = normalize(tangent-dot(tangent,normal)*normal);

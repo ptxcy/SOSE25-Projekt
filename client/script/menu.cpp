@@ -63,6 +63,7 @@ void Menu::update()
 							tfname->get_content(),tfpass->get_content(),tflobby->get_content(),
 							tflpass->get_content(),btcreate->confirm);
 		if (g_Websocket.lobby_status!=LOBBY_CONNECTED) return;
+		Request::connect();
 #endif
 		m_CC->run();
 		close();
