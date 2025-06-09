@@ -12,6 +12,7 @@ in float scale;
 in vec2 tex_offset;
 in vec2 tex_dimension;
 
+out vec3 Position;
 out vec2 UV;
 out vec3 Normal;
 out mat3 TBN;
@@ -25,6 +26,7 @@ void main()
 	gl_Position = proj*view*vec4(position*scale+offset,1.);
 
 	// pass
+	Position = normalize(position);
 	Normal = normal;
 
 	// calculate precision texture uv

@@ -7,14 +7,16 @@
 
 #include "script/menu.h"
 #include "script/starsystem.h"
+#include "script/server_update.h"
 
 
 s32 main(s32 argc,char** argv)
 {
 	Font* __Ubuntu = g_Renderer.register_font("./res/font/ubuntu.ttf",30);
 	CommandCenter __CCenter = CommandCenter();
-	Menu __Menu = Menu(__Ubuntu,&__CCenter);
 	StarSystem __StarSystem = StarSystem();
+	ServerUpdate __ServerUpdate = ServerUpdate(&__StarSystem);
+	Menu __Menu = Menu(__Ubuntu,&__CCenter);
 
 	bool running = true;
 	while (running)

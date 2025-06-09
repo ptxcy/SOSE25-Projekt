@@ -1,6 +1,7 @@
 #version 330 core
 
 
+in vec3 Position;
 in vec2 UV;
 in vec3 Normal;
 in mat3 TBN;
@@ -17,6 +18,6 @@ void main()
 	pixelColour += textureLod(tex,UV,0)*(1.-pixelColour.a);
 
 	// calculate lighting
-	float its = dot(Normal,vec3(-1,0,0));
-	pixelColour = clamp(its,.0,1.)*pixelColour;
+	float its = dot(Normal,-vec3(1,0,0));
+	pixelColour = vec4(clamp(its,.0,1.)*pixelColour.rgb,pixelColour.a);
 }

@@ -116,7 +116,7 @@ LobbyStatus HTTPAdapter::open_lobby(string& lobby_name,string& lobby_password,st
 		COMM_LOG("lobby join response -> %s (Status: %ld)",response.text.c_str(),response.status_code);
 	}
 
-	return (LobbyStatus)((u32)LOBBY_CONNECTED-2*(response.status_code!=200)+(response.status_code>200));
+	return (LobbyStatus)((u32)LOBBY_USER_REFUSED+(response.status_code==200||response.status_code==409));
 }
 
 
@@ -142,8 +142,10 @@ void _handle_websocket_download(Websocket* c)
 			size_t data_size = data.size();
 
 			// create a msgpack zone for allocation
+			msgpack::object_handle oh;
 			msgpack::zone zone;
-			msgpack::object obj = msgpack::unpack(raw_data,data_size,nullptr,&zone).get();
+			msgpack::unpack(oh,raw_data,data_size,nullptr,&zone);
+			msgpack::object obj = oh.get();
 			//COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<obj).str().c_str());
 
 			// try to convert to our ServerMessage structure
@@ -157,8 +159,9 @@ void _handle_websocket_download(Websocket* c)
 			*/
 			c->mutex_server_messages.unlock();
 		}
+		catch (const msgpack::insufficient_bytes& e) { COMM_ERR("incomplete data -> %s",e.what()); }
 		catch (const std::exception& e) { COMM_ERR("parsing server response -> %s",e.what()); }
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		//std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }
 
@@ -259,8 +262,9 @@ void Websocket::connect(string host,string port_ad,string port_ws,string name,st
 ServerMessage Websocket::receive_message()
 {
 	mutex_server_messages.lock();
-	ServerMessage msg = std::move(server_messages.front());
-	server_messages.pop();
+	ServerMessage msg = std::move(server_messages.back());
+	//server_messages.pop();
+	server_messages = queue<ServerMessage>();
 	mutex_server_messages.unlock();
 	return std::move(msg);
 }

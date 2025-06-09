@@ -23,7 +23,9 @@ public:
 	StarSystem();
 	static inline void _update(void* starsystem) { StarSystem* p = (StarSystem*)starsystem; p->update(); }
 	void update();
-	void close();
+
+public:
+	PlanetaryAttribute planets[STARSYS_PLANET_COUNT];
 
 private:
 
@@ -33,7 +35,6 @@ private:
 	lptr<ParticleBatch> m_PlanetBatch;
 
 	// planetary data
-	PlanetaryAttribute m_Planets[STARSYS_PLANET_COUNT];
 	PixelBufferComponent* m_PlanetTextures[STARSYS_PLANET_COUNT];
 };
 
