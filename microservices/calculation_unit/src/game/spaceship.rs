@@ -87,15 +87,17 @@ impl Spaceship {
 		let mut d = julian_day;
 		let mut duration_to = 0.;
 		let mut planet_positon = Coordinate::default();
-		loop {
+		for _ in 0..100 {
 			planet_positon =
 				planet.get_position_at(get_timefactor(d), orbit_info_map);
 			let new_duration_to = self.duration_to(&planet_positon);
-			if (duration_to - new_duration_to).abs() <= std::f64::EPSILON * 2. {
+			let diff = (duration_to - new_duration_to).abs();
+			println!("diff: {}", diff);
+			if diff <= std::f64::EPSILON * 2. {
 				break;
 			}
 			duration_to = new_duration_to;
-			d += duration_to;
+			d = julian_day + duration_to;
 		}
 		planet_positon
 	}
