@@ -120,7 +120,8 @@ struct Spaceship
 	f64 speed;
 	Coordinate velocity;
 	Coordinate position;
-	MSGPACK_DEFINE(id,owner,speed,velocity,position);
+	Coordinate target;
+	MSGPACK_DEFINE(id,owner,speed,velocity,position,target);
 };
 
 struct GameObjects
@@ -157,14 +158,21 @@ struct DummySetVelocity
 	MSGPACK_DEFINE(id, position);
 };
 
+struct SetSpaceshipTarget
+{
+	u64 spaceship_id;
+	u64 planet;
+	MSGPACK_DEFINE(spaceship_id,planet);
+};
+
 struct ClientRequest
 {
 	std::optional<f64> set_client_fps;
 	std::optional<string> spawn_dummy;
 	std::optional<DummySetVelocity> dummy_set_velocity;
 	std::optional<string> connect;
-	//std::optional<SetSpaceshipTarget> set_spaceship_target;
-	MSGPACK_DEFINE(set_client_fps,spawn_dummy,dummy_set_velocity,connect/*,set_spaceship_target*/);
+	std::optional<SetSpaceshipTarget> set_spaceship_target;
+	MSGPACK_DEFINE(set_client_fps,spawn_dummy,dummy_set_velocity,connect,set_spaceship_target);
 };
 // FIXME heavy contender for worst datastructure in the entire universe
 

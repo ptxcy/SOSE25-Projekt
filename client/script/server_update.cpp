@@ -4,7 +4,8 @@
 
 
 /**
- *	TODO
+ *	register server update procedure
+ *	\param ssys: data for starsystem representation, this routine will manipulate planetary positions
  */
 ServerUpdate::ServerUpdate(StarSystem* ssys)
 	: m_SSys(ssys)
@@ -13,7 +14,7 @@ ServerUpdate::ServerUpdate(StarSystem* ssys)
 }
 
 /**
- *	TODO
+ *	interpret server messages as client data updates
  */
 void ServerUpdate::update()
 {

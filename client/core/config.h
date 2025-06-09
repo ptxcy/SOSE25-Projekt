@@ -19,7 +19,7 @@
 #define NETWORK_PORT_ADAPTER "8080"
 #define NETWORK_PORT_WEBSOCKET "8083"
 
-#define FEAT_MULTIPLAYER 1
+//#define FEAT_MULTIPLAYER 1
 
 // TODO define in extern config file and store constants at runtime
 

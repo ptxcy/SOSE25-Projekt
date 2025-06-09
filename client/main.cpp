@@ -15,7 +15,9 @@ s32 main(s32 argc,char** argv)
 	Font* __Ubuntu = g_Renderer.register_font("./res/font/ubuntu.ttf",30);
 	CommandCenter __CCenter = CommandCenter();
 	StarSystem __StarSystem = StarSystem();
+#ifdef FEAT_MULTIPLAYER
 	ServerUpdate __ServerUpdate = ServerUpdate(&__StarSystem);
+#endif
 	Menu __Menu = Menu(__Ubuntu,&__CCenter);
 
 	bool running = true;
