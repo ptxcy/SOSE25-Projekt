@@ -87,6 +87,9 @@ impl Coordinate {
 	}
 
 	pub fn normalize(&mut self, value: f64) -> &mut Self {
+		if self.norm() == 0. {
+			return self;
+		}
 		let div = 1. / self.norm() * value;
 		self.scale(div)
 	}

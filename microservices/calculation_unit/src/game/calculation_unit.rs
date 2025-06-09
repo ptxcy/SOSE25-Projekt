@@ -87,7 +87,7 @@ pub async fn start(
 	// delta time init
 	let mut last_time = Instant::now();
 	let mut julian_day = julian_day(2025, 5, 30);
-	let time_scale = 100.;
+	let time_scale = 1.;
 
 	// id counter for object creation
 	let mut dummy_id_counter = IdCounter::new();
