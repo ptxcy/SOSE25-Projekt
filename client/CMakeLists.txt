@@ -3,15 +3,8 @@ project(MeinProjekt)
 
 set(CMAKE_CXX_STANDARD 17)
 
-# Define platform-specific settings
-if(APPLE)
-    # macOS specific settings
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I/opt/homebrew/include -I/opt/homebrew/include/freetype2")
-    link_directories(/opt/homebrew/lib)
-elseif(UNIX AND NOT APPLE)
-    # Linux specific settings
-    # No special settings needed for default paths
-endif()
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I/opt/homebrew/include -I/opt/homebrew/include/freetype2")
+link_directories(/opt/homebrew/lib)
 
 # FetchContent-Modul einbinden
 include(FetchContent)
