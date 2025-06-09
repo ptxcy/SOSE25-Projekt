@@ -11,7 +11,6 @@ use std::{collections::HashMap, time::Instant};
 use tokio::sync::mpsc::*;
 
 use super::{
-	action::AsRaw,
 	game_objects::GameObjects,
 	id_counter::IdCounter,
 	orbit::initialize_orbit_info_map,
@@ -121,6 +120,9 @@ pub async fn start(
 					&mut game_objects,
 					&mut server_message_senders,
 					&mut dummy_id_counter,
+					&mut spaceship_id_counter,
+					delta_ingame_days,
+					&orbit_map,
 				)
 				.log();
 		}

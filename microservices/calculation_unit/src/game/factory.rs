@@ -42,7 +42,7 @@ impl IsOwned for Factory {
 
 impl Craftable for Factory {
 	fn get_cost() -> CraftingMaterial {
-		CraftingMaterial { copper: 400. }
+		CraftingMaterial::new_copper(400.)
 	}
 }
 

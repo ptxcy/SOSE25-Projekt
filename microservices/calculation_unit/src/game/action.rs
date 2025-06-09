@@ -1,8 +1,7 @@
+use crate::logger::log_with_time;
+
 use super::{
-	building_region::BuildingRegion, coordinate::Coordinate,
-	crafting_material::CraftingMaterial, dummy::DummyObject, factory::Factory,
-	game_objects::GameObjects, gametraits::Crafter, mine::Mine,
-	spaceship::Spaceship,
+	building_region::BuildingRegion, coordinate::Coordinate, crafting_material::CraftingMaterial, dummy::DummyObject, factory::Factory, game_objects::GameObjects, gametraits::Crafter, mine::Mine, planet::{OrbitInfoMap, Planet}, spaceship::Spaceship
 };
 
 pub trait AsRaw {
@@ -41,6 +40,12 @@ pub enum SafeAction {
 	},
 	SpawnDummy(DummyObject),
 	SpawnSpaceship(Spaceship),
+	SetSpaceshipTarget {
+		spaceship: *mut Spaceship,
+		planet: *const Planet,
+		julian_day: f64,
+		orbit_info_map: *const OrbitInfoMap,
+	},
 	ReduceCraftingMaterial {
 		crafter: *mut dyn Crafter,
 		cost: CraftingMaterial,
@@ -83,6 +88,19 @@ impl SafeAction {
 			SafeAction::ReduceCraftingMaterial { crafter, cost } => {
 				let crafter = unsafe { &mut (*crafter) };
 				crafter.get_crafting_material_mut().sub(&cost);
+			}
+			SafeAction::SetSpaceshipTarget {
+				spaceship,
+				planet,
+				julian_day,
+				orbit_info_map,
+			} => {
+				let spaceship = unsafe {&mut (*spaceship)};
+				let planet = unsafe {&(*planet)};
+				let orbit_info_map = unsafe {&(*orbit_info_map)};
+				let target = spaceship.fly_to_get_target(planet, julian_day, orbit_info_map);
+				// TODO
+				log_with_time(format!("Moving Spaceship {} to planet {}", spaceship.id, planet.name));
 			}
 		}
 	}

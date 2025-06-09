@@ -8,7 +8,7 @@ use calculation_unit::{
 	game::coordinate::Coordinate,
 	logger::log_with_time,
 	messages::client_message::{
-		ClientMessage, ClientRequest, DummySetVelocity, SetClientFPS,
+		ClientMessage, ClientRequest, DummySetVelocity,
 	},
 };
 use futures_util::{SinkExt, stream::StreamExt};
@@ -139,7 +139,7 @@ pub fn request_spawn(id: &String, username: &String) -> Vec<u8> {
 
 pub fn request_set_fps(id: &String, fps: f64, username: &String) -> Vec<u8> {
 	let client_message = ClientMessage {
-		request_data: new_set_client_fps(SetClientFPS { fps }),
+		request_data: new_set_client_fps(fps),
 		username: username.clone(),
 		..Default::default()
 	};
@@ -176,9 +176,9 @@ pub fn new_connect(username: &str) -> ClientRequest {
 	}
 }
 /// create a new client requests to set the wanted fps of a client
-pub fn new_set_client_fps(value: SetClientFPS) -> ClientRequest {
+pub fn new_set_client_fps(fps: f64) -> ClientRequest {
 	ClientRequest {
-		set_client_fps: Some(value),
+		set_client_fps: Some(fps),
 		..Default::default()
 	}
 }

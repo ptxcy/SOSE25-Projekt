@@ -66,7 +66,7 @@ impl DummyObject {
 
 impl Craftable for DummyObject {
 	fn get_cost() -> CraftingMaterial {
-		CraftingMaterial { copper: 49. }
+		CraftingMaterial::new_copper(49.)
 	}
 }
 

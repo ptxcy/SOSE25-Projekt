@@ -1,27 +1,22 @@
 use std::collections::HashMap;
 
-use super::client_message::{ClientRequest, DummySetVelocity, SetClientFPS};
+use super::client_message::{ClientRequest, DummySetVelocity, SetSpaceshipTarget};
 use crate::{
 	game::{
-		action::{AsRaw, SafeAction},
-		calculation_unit::ServerMessageSenderChannel,
-		dummy::DummyObject,
-		game_objects::GameObjects,
-		id_counter::IdCounter,
-		spaceship::Spaceship,
+		action::{AsRaw, SafeAction}, calculation_unit::ServerMessageSenderChannel, dummy::DummyObject, game_objects::GameObjects, id_counter::IdCounter, planet::OrbitInfoMap, player::Player, spaceship::Spaceship
 	},
 	logger::log_with_time,
 };
 
-pub fn set_client_fps(
+fn set_client_fps(
 	username: &String,
 	server_message_senders: &HashMap<String, ServerMessageSenderChannel>,
-	value: &SetClientFPS,
+	fps: f64,
 ) -> std::result::Result<SafeAction, String> {
 	match server_message_senders.get(username) {
 		Some(client) => Ok(SafeAction::SetF64(
 			client.update_threshold.raw_mut(),
-			1. / value.fps,
+			1. / fps,
 		)),
 		None => {
 			return Err(format!(
@@ -32,20 +27,19 @@ pub fn set_client_fps(
 	}
 }
 
-pub fn spawn_dummy(
-	username: &String,
+fn spawn_dummy(
+	player: &Player,
 	game_objects: &GameObjects,
 	name: &String,
 	id_counter: &mut IdCounter,
 ) -> std::result::Result<Vec<SafeAction>, String> {
 	// spawn dummy
 	log_with_time("spawn dummy");
-	let player = game_objects.players.get(username).unwrap();
 	let actions = DummyObject::craft(player, &"name".to_string(), id_counter);
 	Ok(actions)
 }
 
-pub fn dummy_set_velocity(
+fn dummy_set_velocity(
 	username: &String,
 	game_objects: &GameObjects,
 	value: &DummySetVelocity,
@@ -75,6 +69,28 @@ pub fn dummy_set_velocity(
 	}
 }
 
+fn set_spaceship_target(actions: &mut Vec<SafeAction>, game_objects: &GameObjects, value: &SetSpaceshipTarget, julian_day: f64, orbit_info_map: &OrbitInfoMap) -> std::result::Result<(), String> {
+	let spaceship = if let Some(s) = game_objects.spaceships.get(&value.spaceship_id) {
+		s
+	}
+	else {
+		return Err(format!("spaceship with id {} not found", value.spaceship_id));
+	};
+	let planet = if let Some(p) = game_objects.planets.get(value.planet) {
+		p
+	}
+	else {
+		return Err(format!("planet with index {} not found", value.planet));
+	};
+	actions.push(SafeAction::SetSpaceshipTarget {
+		spaceship: spaceship.raw_mut(),
+		planet: planet.raw(),
+		julian_day,
+		orbit_info_map: orbit_info_map.raw(),
+	});
+	Ok(())
+}
+
 impl ClientRequest {
 	/// executes a clients input data on the game
 	pub fn execute(
@@ -86,14 +102,22 @@ impl ClientRequest {
 			ServerMessageSenderChannel,
 		>,
 		dummy_id_counter: &mut IdCounter,
+		spaceship_id_counter: &mut IdCounter,
+		julian_day: f64,
+		orbit_info_map: &OrbitInfoMap,
 	) -> std::result::Result<(), String> {
 		let mut actions = Vec::<SafeAction>::new();
 
+		let player = if let Some(player) = game_objects.players.get(username) {
+			player
+		} else {return Err("player with that username not found".to_string())};
+
 		if let Some(value) = &self.dummy_set_velocity {
 			actions.push(dummy_set_velocity(username, game_objects, value)?);
-		} else if let Some(value) = &self.spawn_dummy {
+		}
+		if let Some(value) = &self.spawn_dummy {
 			actions.append(&mut spawn_dummy(
-				username,
+				player,
 				game_objects,
 				value,
 				dummy_id_counter,
@@ -101,15 +125,20 @@ impl ClientRequest {
 			actions.push(SafeAction::SpawnSpaceship(Spaceship::new(
 				username,
 				0.3,
-				dummy_id_counter,
+				spaceship_id_counter,
 			)));
-		} else if let Some(value) = &self.set_client_fps {
+		}
+		if let Some(value) = &self.set_client_fps {
 			actions.push(set_client_fps(
 				username,
 				server_message_senders,
-				value,
+				*value,
 			)?);
-		} else if let Some(value) = &self.connect {
+		}
+		if let Some(value) = &self.set_spaceship_target {
+			set_spaceship_target(&mut actions, game_objects, value, julian_day, orbit_info_map)?;
+		}
+		if let Some(value) = &self.connect {
 			log_with_time(format!("a new connection with id {}", value));
 		}
 

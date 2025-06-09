@@ -45,10 +45,7 @@ pub struct Spaceship {
 
 impl Craftable for Spaceship {
 	fn get_cost() -> super::crafting_material::CraftingMaterial {
-		CraftingMaterial {
-			// TODO actual values
-			copper: 2000.,
-		}
+		CraftingMaterial::new_copper(2000.)
 	}
 }
 

@@ -34,7 +34,7 @@ impl IsOwned for Mine {
 
 impl Craftable for Mine {
 	fn get_cost() -> CraftingMaterial {
-		CraftingMaterial { copper: 100. }
+		CraftingMaterial::new_copper(100.)
 	}
 }
 

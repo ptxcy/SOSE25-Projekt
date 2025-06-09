@@ -42,7 +42,7 @@ impl Player {
 	pub fn new(username: String) -> Self {
 		let player = Self {
 			username,
-			crafting_material: CraftingMaterial { copper: 500. },
+			crafting_material: CraftingMaterial::new_copper(500.),
 			..Default::default()
 		};
 		player

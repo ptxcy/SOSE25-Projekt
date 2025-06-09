@@ -69,6 +69,8 @@ impl Planet {
 				.add_building_region(Coordinate::new(1.0, -1.0, 0.0)),
 			Planet::new("venus", vec![])
 				.add_building_region(Coordinate::new(1.0, -1.0, 0.0)),
+			Planet::new("earth", vec![])
+				.add_building_region(Coordinate::new(1.0, -1.0, 0.0)),
 			Planet::new("mars", vec![])
 				.add_building_region(Coordinate::new(1.0, -1.0, 0.0)),
 			Planet::new("jupiter", vec![])
@@ -78,8 +80,6 @@ impl Planet {
 			Planet::new("uranus", vec![])
 				.add_building_region(Coordinate::new(1.0, -1.0, 0.0)),
 			Planet::new("neptune", vec![])
-				.add_building_region(Coordinate::new(1.0, -1.0, 0.0)),
-			Planet::new("earth", vec![])
 				.add_building_region(Coordinate::new(1.0, -1.0, 0.0)),
 		];
 		planets
