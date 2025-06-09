@@ -55,8 +55,6 @@ include_directories(
     /usr/include/libpng16
     /opt/homebrew/include/freetype2
     ${PROJECT_SOURCE_DIR}/include
-    ${glew_SOURCE_DIR}/include
-    ${PROJECT_SOURCE_DIR}/../external/websocketpp
     ${boost_SOURCE_DIR}
     ${stb_SOURCE_DIR}
 )
