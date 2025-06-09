@@ -19,7 +19,7 @@ ssh -o StrictHostKeyChecking=no -i ~/.ssh/temp_key.pem ec2-user@ec2-18-199-121-1
   docker system prune -a -f
   docker volume prune -f
   docker network prune -f
-  docker rm -f \$(docker ps -aq | grep -v \$(docker ps -q --filter name=mongodb-projekt)) || true
+  docker rm -f $(docker ps -aq)
 
   echo "Updating repository..."
   cd /home/ec2-user/SOSE25-Projekt
