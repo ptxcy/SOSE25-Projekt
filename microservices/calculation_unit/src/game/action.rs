@@ -1,7 +1,16 @@
 use crate::logger::log_with_time;
 
 use super::{
-	building_region::BuildingRegion, coordinate::Coordinate, crafting_material::CraftingMaterial, dummy::DummyObject, factory::Factory, game_objects::GameObjects, gametraits::Crafter, mine::Mine, planet::{OrbitInfoMap, Planet}, spaceship::Spaceship
+	building_region::BuildingRegion,
+	coordinate::Coordinate,
+	crafting_material::CraftingMaterial,
+	dummy::DummyObject,
+	factory::Factory,
+	game_objects::GameObjects,
+	gametraits::Crafter,
+	mine::Mine,
+	planet::{OrbitInfoMap, Planet},
+	spaceship::Spaceship,
 };
 
 pub trait AsRaw {
@@ -95,12 +104,19 @@ impl SafeAction {
 				julian_day,
 				orbit_info_map,
 			} => {
-				let spaceship = unsafe {&mut (*spaceship)};
-				let planet = unsafe {&(*planet)};
-				let orbit_info_map = unsafe {&(*orbit_info_map)};
-				let target = spaceship.fly_to_get_target(planet, julian_day, orbit_info_map);
+				let spaceship = unsafe { &mut (*spaceship) };
+				let planet = unsafe { &(*planet) };
+				let orbit_info_map = unsafe { &(*orbit_info_map) };
+				let target = spaceship.fly_to_get_target(
+					planet,
+					julian_day,
+					orbit_info_map,
+				);
 				// TODO
-				log_with_time(format!("Moving Spaceship {} to planet {}", spaceship.id, planet.name));
+				log_with_time(format!(
+					"Moving Spaceship {} to planet {}, destination is {:?}",
+					spaceship.id, planet.name, target
+				));
 			}
 		}
 	}

@@ -1,9 +1,18 @@
 use std::collections::HashMap;
 
-use super::client_message::{ClientRequest, DummySetVelocity, SetSpaceshipTarget};
+use super::client_message::{
+	ClientRequest, DummySetVelocity, SetSpaceshipTarget,
+};
 use crate::{
 	game::{
-		action::{AsRaw, SafeAction}, calculation_unit::ServerMessageSenderChannel, dummy::DummyObject, game_objects::GameObjects, id_counter::IdCounter, planet::OrbitInfoMap, player::Player, spaceship::Spaceship
+		action::{AsRaw, SafeAction},
+		calculation_unit::ServerMessageSenderChannel,
+		dummy::DummyObject,
+		game_objects::GameObjects,
+		id_counter::IdCounter,
+		planet::OrbitInfoMap,
+		player::Player,
+		spaceship::Spaceship,
 	},
 	logger::log_with_time,
 };
@@ -69,26 +78,32 @@ fn dummy_set_velocity(
 	}
 }
 
-fn set_spaceship_target(actions: &mut Vec<SafeAction>, game_objects: &GameObjects, value: &SetSpaceshipTarget, julian_day: f64, orbit_info_map: &OrbitInfoMap) -> std::result::Result<(), String> {
-	let spaceship = if let Some(s) = game_objects.spaceships.get(&value.spaceship_id) {
-		s
-	}
-	else {
-		return Err(format!("spaceship with id {} not found", value.spaceship_id));
-	};
+fn set_spaceship_target(
+	game_objects: &GameObjects,
+	value: &SetSpaceshipTarget,
+	julian_day: f64,
+	orbit_info_map: &OrbitInfoMap,
+) -> std::result::Result<SafeAction, String> {
+	let spaceship =
+		if let Some(s) = game_objects.spaceships.get(&value.spaceship_id) {
+			s
+		} else {
+			return Err(format!(
+				"spaceship with id {} not found",
+				value.spaceship_id
+			));
+		};
 	let planet = if let Some(p) = game_objects.planets.get(value.planet) {
 		p
-	}
-	else {
+	} else {
 		return Err(format!("planet with index {} not found", value.planet));
 	};
-	actions.push(SafeAction::SetSpaceshipTarget {
+	Ok(SafeAction::SetSpaceshipTarget {
 		spaceship: spaceship.raw_mut(),
 		planet: planet.raw(),
 		julian_day,
 		orbit_info_map: orbit_info_map.raw(),
-	});
-	Ok(())
+	})
 }
 
 impl ClientRequest {
@@ -110,7 +125,9 @@ impl ClientRequest {
 
 		let player = if let Some(player) = game_objects.players.get(username) {
 			player
-		} else {return Err("player with that username not found".to_string())};
+		} else {
+			return Err("player with that username not found".to_string());
+		};
 
 		if let Some(value) = &self.dummy_set_velocity {
 			actions.push(dummy_set_velocity(username, game_objects, value)?);
@@ -136,7 +153,12 @@ impl ClientRequest {
 			)?);
 		}
 		if let Some(value) = &self.set_spaceship_target {
-			set_spaceship_target(&mut actions, game_objects, value, julian_day, orbit_info_map)?;
+			actions.push(set_spaceship_target(
+				game_objects,
+				value,
+				julian_day,
+				orbit_info_map,
+			)?);
 		}
 		if let Some(value) = &self.connect {
 			log_with_time(format!("a new connection with id {}", value));

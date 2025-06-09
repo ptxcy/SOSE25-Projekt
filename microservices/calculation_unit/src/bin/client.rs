@@ -3,6 +3,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use bytes::Bytes;
+use calculation_unit::messages::client_message::SetSpaceshipTarget;
 use calculation_unit::messages::server_message::ServerMessageReceive;
 use calculation_unit::{
 	game::coordinate::Coordinate,
@@ -77,6 +78,12 @@ async fn main() {
 		// move dummy with id 0
 		tokio::time::sleep(Duration::from_millis(500)).await;
 		let serialized_message = request_move(0, &username);
+		write
+			.send(Message::Binary(Bytes::from(serialized_message)))
+			.await
+			.expect("Failed to send message");
+
+		let serialized_message = request_set_spaceship_target(0, &username, 2);
 		write
 			.send(Message::Binary(Bytes::from(serialized_message)))
 			.await
@@ -168,6 +175,18 @@ pub fn request_move(id: usize, username: &String) -> Vec<u8> {
 	serialized_message
 }
 
+pub fn request_set_spaceship_target(spaceship: usize, username: &String, planet: usize) -> Vec<u8> {
+	let client_message = ClientMessage {
+		request_data: new_set_spaceship_target(SetSpaceshipTarget { spaceship_id: spaceship, planet }),
+		username: username.clone(),
+		..Default::default()
+	};
+
+	let serialized_message = rmp_serde::to_vec(&client_message)
+		.expect("Failed to serialize message");
+	serialized_message
+}
+
 /// create a new client requests to connect
 pub fn new_connect(username: &str) -> ClientRequest {
 	ClientRequest {
@@ -193,6 +212,13 @@ pub fn new_spawn_dummy(name: &str) -> ClientRequest {
 pub fn new_dummy_set_velocity(value: DummySetVelocity) -> ClientRequest {
 	ClientRequest {
 		dummy_set_velocity: Some(value),
+		..Default::default()
+	}
+}
+
+pub fn new_set_spaceship_target(value: SetSpaceshipTarget) -> ClientRequest {
+	ClientRequest {
+		set_spaceship_target: Some(value),
 		..Default::default()
 	}
 }

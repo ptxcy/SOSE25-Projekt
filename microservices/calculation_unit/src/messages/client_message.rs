@@ -14,7 +14,6 @@ pub struct SetSpaceshipTarget {
 	pub planet: usize,
 }
 
-
 /// request of the client to change something or execute something
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct ClientRequest {
