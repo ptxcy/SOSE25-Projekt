@@ -1,0 +1,14 @@
+# Target labels
+ glew-populate
+# Source files and their labels
+/Users/pni/Uni/SOSE25-Projekt/client/lib/build_mac/_deps/glew-subbuild/CMakeFiles/glew-populate
+/Users/pni/Uni/SOSE25-Projekt/client/lib/build_mac/_deps/glew-subbuild/CMakeFiles/glew-populate.rule
+/Users/pni/Uni/SOSE25-Projekt/client/lib/build_mac/_deps/glew-subbuild/CMakeFiles/glew-populate-complete.rule
+/Users/pni/Uni/SOSE25-Projekt/client/lib/build_mac/_deps/glew-subbuild/glew-populate-prefix/src/glew-populate-stamp/glew-populate-build.rule
+/Users/pni/Uni/SOSE25-Projekt/client/lib/build_mac/_deps/glew-subbuild/glew-populate-prefix/src/glew-populate-stamp/glew-populate-configure.rule
+/Users/pni/Uni/SOSE25-Projekt/client/lib/build_mac/_deps/glew-subbuild/glew-populate-prefix/src/glew-populate-stamp/glew-populate-download.rule
+/Users/pni/Uni/SOSE25-Projekt/client/lib/build_mac/_deps/glew-subbuild/glew-populate-prefix/src/glew-populate-stamp/glew-populate-install.rule
+/Users/pni/Uni/SOSE25-Projekt/client/lib/build_mac/_deps/glew-subbuild/glew-populate-prefix/src/glew-populate-stamp/glew-populate-mkdir.rule
+/Users/pni/Uni/SOSE25-Projekt/client/lib/build_mac/_deps/glew-subbuild/glew-populate-prefix/src/glew-populate-stamp/glew-populate-patch.rule
+/Users/pni/Uni/SOSE25-Projekt/client/lib/build_mac/_deps/glew-subbuild/glew-populate-prefix/src/glew-populate-stamp/glew-populate-test.rule
+/Users/pni/Uni/SOSE25-Projekt/client/lib/build_mac/_deps/glew-subbuild/glew-populate-prefix/src/glew-populate-stamp/glew-populate-update.rule

@@ -43,7 +43,7 @@
 #ifndef STBI_INCLUDE_STB_IMAGE_H
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_STATIC
-#include "../include/stb_image.h"
+#include "include/stb_image.h"
 #endif
 
 // font

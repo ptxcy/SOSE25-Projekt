@@ -91,13 +91,13 @@ file(GLOB_RECURSE SRCS_SCRIPT "script/*.cpp")
 set(SRCS ${SRCS_CORE} ${SRCS_SCRIPT} main.cpp)
 
 # Erstelle die ausführbare Datei
-add_executable(Client ${SRCS})
+add_executable(build_mac ${SRCS})
 
 # Verknüpfe die Bibliotheken
-target_link_libraries(Client ${LIBS})
+target_link_libraries(build_mac ${LIBS})
 
-# Set output directory to the client folder instead of build
-set_target_properties(Client
+# Set output directory to the Client folder instead of build
+set_target_properties(build_mac
     PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
