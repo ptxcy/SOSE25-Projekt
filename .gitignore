@@ -22,6 +22,7 @@ Thumbs.db
 
 # core
 client/core/include/*
+client/lib/*
 *.o
 
 copilot-instructions.md
