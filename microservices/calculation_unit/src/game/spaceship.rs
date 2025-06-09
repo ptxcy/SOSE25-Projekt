@@ -41,6 +41,7 @@ pub struct Spaceship {
 	pub speed: f64,
 	pub velocity: Coordinate,
 	pub position: Coordinate,
+	pub target: Coordinate,
 }
 
 impl Craftable for Spaceship {
@@ -92,7 +93,7 @@ impl Spaceship {
 				planet.get_position_at(get_timefactor(d), orbit_info_map);
 			let new_duration_to = self.duration_to(&planet_positon);
 			let diff = (duration_to - new_duration_to).abs();
-			println!("diff: {}", diff);
+			// println!("diff: {}", diff);
 			if diff <= std::f64::EPSILON * 2. {
 				break;
 			}
@@ -107,11 +108,19 @@ impl Spaceship {
 		let distance = distance_vec.norm();
 		distance / self.speed
 	}
-	pub fn update(&self, delta_days: f64) -> SafeAction {
-		SafeAction::AddCoordinate {
+	pub fn update(&self, delta_days: f64) -> Vec<SafeAction> {
+		let mut actions = Vec::<SafeAction>::new();
+		let mut newv = self.target.clone();
+		newv.normalize(self.speed);
+		actions.push(SafeAction::SetCoordinate {
+			coordinate: self.velocity.raw_mut(),
+			other: newv
+		});
+		actions.push(SafeAction::AddCoordinate {
 			coordinate: self.position.raw_mut(),
 			other: self.velocity.c(),
 			multiplier: delta_days,
-		}
+		});
+		actions
 	}
 }

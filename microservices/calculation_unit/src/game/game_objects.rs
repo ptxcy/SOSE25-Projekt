@@ -182,7 +182,9 @@ impl GameObjects {
 			let spaceships = unsafe { &(*game_objects).spaceships };
 			move || {
 				for (id, spaceship) in spaceships.iter() {
-					action_sender.send(spaceship.update(delta_days)).unwrap();
+					for action in spaceship.update(delta_days) {
+						action_sender.send(action).unwrap();
+					}
 				}
 			}
 		});

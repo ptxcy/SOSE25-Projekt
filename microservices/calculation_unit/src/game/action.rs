@@ -117,6 +117,8 @@ impl SafeAction {
 					"Moving Spaceship {} to planet {}, destination is {:?}",
 					spaceship.id, planet.name, target
 				));
+
+				spaceship.target = target;
 			}
 		}
 	}
