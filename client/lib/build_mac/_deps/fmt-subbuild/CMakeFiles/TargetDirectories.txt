@@ -1,3 +1,0 @@
-/Users/pni/Uni/SOSE25-Projekt/client/lib/build_mac/_deps/fmt-subbuild/CMakeFiles/fmt-populate.dir
-/Users/pni/Uni/SOSE25-Projekt/client/lib/build_mac/_deps/fmt-subbuild/CMakeFiles/edit_cache.dir
-/Users/pni/Uni/SOSE25-Projekt/client/lib/build_mac/_deps/fmt-subbuild/CMakeFiles/rebuild_cache.dir
