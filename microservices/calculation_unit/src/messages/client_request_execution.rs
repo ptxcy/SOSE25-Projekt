@@ -83,6 +83,7 @@ fn set_spaceship_target(
 	value: &SetSpaceshipTarget,
 	julian_day: f64,
 	orbit_info_map: &OrbitInfoMap,
+	username: &String,
 ) -> std::result::Result<SafeAction, String> {
 	let spaceship =
 		if let Some(s) = game_objects.spaceships.get(&value.spaceship_id) {
@@ -93,6 +94,9 @@ fn set_spaceship_target(
 				value.spaceship_id
 			));
 		};
+	if &spaceship.owner != username {
+		return Err(format!("user {} tried to control spaceship with owner {}", username, spaceship.owner));
+	}
 	let planet = if let Some(p) = game_objects.planets.get(value.planet) {
 		p
 	} else {
@@ -158,6 +162,7 @@ impl ClientRequest {
 				value,
 				julian_day,
 				orbit_info_map,
+				username,
 			)?);
 		}
 		if let Some(value) = &self.connect {
