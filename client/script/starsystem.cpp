@@ -13,8 +13,8 @@ StarSystem::StarSystem()
 	FragmentShader __PlanetFragmentShader = FragmentShader("core/shader/planet.frag");
 	FragmentShader __SunFragmentShader = FragmentShader("core/shader/sun.frag");
 	//FragmentShader __HaloFragmentShader = FragmentShader("core/shader/halo.frag");
-	m_PlanetShader = g_Renderer.register_mesh_pipeline(__PlanetVertexShader,__PlanetFragmentShader);
-	m_SunShader = g_Renderer.register_mesh_pipeline(__SunVertexShader,__SunFragmentShader);
+	m_PlanetShader = g_Renderer.register_pipeline(__PlanetVertexShader,__PlanetFragmentShader);
+	m_SunShader = g_Renderer.register_pipeline(__SunVertexShader,__SunFragmentShader);
 	//m_HaloShader = g_Renderer.register_mesh_pipeline(__HaloVertexShader,__HaloFragmentShader);
 
 	// load geometry

@@ -26,6 +26,17 @@ void Request::connect()
 }
 
 /**
+ *	set updates per second for calculation unit update
+ *	\param fps: updates per second
+ */
+void Request::set_fps(f64 fps)
+{
+	ClientMessage __Msg = _create_message();
+	__Msg.request_data.set_client_fps = fps;
+	g_Websocket.send_message(__Msg);
+}
+
+/**
  *	request dummy spawn
  *	\param dummy: dummy string
  */

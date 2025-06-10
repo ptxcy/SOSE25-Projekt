@@ -482,15 +482,15 @@ lptr<Text> Renderer::write_text(Font* font,string data,vec2 position,f32 scale,v
 }
 
 /**
- *	register mesh pipeline
+ *	register shader pipeline
  *	\param vs: vertex shader
  *	\param fs: fragment shader
- *	returns pointer to registered mesh pipeline
+ *	returns pointer to registered shader pipeline
  */
-lptr<ShaderPipeline> Renderer::register_mesh_pipeline(VertexShader& vs,FragmentShader& fs)
+lptr<ShaderPipeline> Renderer::register_pipeline(VertexShader& vs,FragmentShader& fs)
 {
-	m_MeshPipelines.push_back(ShaderPipeline());
-	lptr<ShaderPipeline> p_Pipeline = std::prev(m_MeshPipelines.end());
+	m_ShaderPipelines.push_back(ShaderPipeline());
+	lptr<ShaderPipeline> p_Pipeline = std::prev(m_ShaderPipelines.end());
 	p_Pipeline->assemble(vs,fs);
 	return p_Pipeline;
 }
@@ -500,13 +500,11 @@ lptr<ShaderPipeline> Renderer::register_mesh_pipeline(VertexShader& vs,FragmentS
  *	\param pipeline: shader pipeline, handling pixel output for newly created batch
  *	\returns pointer to created triangle mesh batch
  */
-/*
-lptr<MeshBatch> Renderer::register_mesh_batch(lptr<ShaderPipeline> pipeline)
+lptr<GeometryBatch> Renderer::register_geometry_batch(lptr<ShaderPipeline> pipeline)
 {
-	m_MeshBatches.push_back({ .shader = pipeline });
-	return std::prev(m_MeshBatches.end());
+	m_GeometryBatches.push_back({ .shader = pipeline });
+	return std::prev(m_GeometryBatches.end());
 }
-*/
 
 /**
  *	register particle batch

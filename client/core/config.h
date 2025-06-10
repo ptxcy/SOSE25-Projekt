@@ -15,11 +15,13 @@
 #define RENDERER_MAXIMUM_FONT_COUNT 2
 
 // network
-#define NETWORK_HOST "ec2-18-199-121-195.eu-central-1.compute.amazonaws.com"
+#define NETWORK_HOST "ec2-3-124-115-76.eu-central-1.compute.amazonaws.com"
 #define NETWORK_PORT_ADAPTER "8080"
 #define NETWORK_PORT_WEBSOCKET "8083"
+#define NETWORK_CONNECTION_STALL 500
+#define NETWORK_CALCULATION_FRAMES 60
 
-//#define FEAT_MULTIPLAYER 1
+#define FEAT_MULTIPLAYER 1
 
 // TODO define in extern config file and store constants at runtime
 

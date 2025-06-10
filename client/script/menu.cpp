@@ -64,6 +64,8 @@ void Menu::update()
 							tflpass->get_content(),btcreate->confirm);
 		if (g_Websocket.lobby_status!=LOBBY_CONNECTED) return;
 		Request::connect();
+		std::this_thread::sleep_for(std::chrono::milliseconds(NETWORK_CONNECTION_STALL));
+		Request::set_fps(NETWORK_CALCULATION_FRAMES);
 #endif
 		m_CC->run();
 		close();

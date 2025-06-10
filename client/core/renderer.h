@@ -102,7 +102,7 @@ public:
 struct GeometryBatch
 {
 	// utility
-	//void load();
+	void load();
 
 	// data
 	VertexArray vao;
@@ -123,7 +123,7 @@ struct ParticleBatch
 	VertexBuffer ibo;
 	lptr<ShaderPipeline> shader;
 	//GPUPixelBuffer texture;
-	vector<float> geometry;  // TODO kick this out, bind freeform
+	vector<float> geometry;
 	u32 vertex_count;
 	u32 active_particles = 0;
 };
@@ -154,8 +154,8 @@ public:
 	inline void delete_text(lptr<Text> text) { m_Texts.erase(text); }
 
 	// scene
-	lptr<ShaderPipeline> register_mesh_pipeline(VertexShader& vs,FragmentShader& fs);
-	//lptr<MeshBatch> register_mesh_batch(lptr<ShaderPipeline> pipeline);
+	lptr<ShaderPipeline> register_pipeline(VertexShader& vs,FragmentShader& fs);
+	lptr<GeometryBatch> register_geometry_batch(lptr<ShaderPipeline> pipeline);
 	lptr<ParticleBatch> register_particle_batch(lptr<ShaderPipeline> pipeline);
 
 	// utility
@@ -221,8 +221,8 @@ private:
 	// FIXME font memory is too strict and i don't think this is a nice approach in this case
 
 	// mesh
-	list<ShaderPipeline> m_MeshPipelines;
-	//list<MeshBatch> m_MeshBatches;
+	list<ShaderPipeline> m_ShaderPipelines;
+	list<GeometryBatch> m_GeometryBatches;
 	list<ParticleBatch> m_ParticleBatches;
 };
 

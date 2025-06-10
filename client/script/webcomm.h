@@ -12,6 +12,7 @@ class Request
 {
 public:
 	static void connect();
+	static void set_fps(f64 fps);
 	static void spawn_dummy(string dummy);
 };
 
