@@ -1,6 +1,8 @@
 # cd core
 # mkdir -p include
 # cd ..
+brew install glew
+brew install glm
 mkdir -p lib
 cd lib
 mkdir -p build_mac
