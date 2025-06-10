@@ -178,34 +178,18 @@ Mesh::Mesh(const char* path)
 }
 
 /**
- *	load triangle mesh into batch memory
- *	\param path: path to obj file explicitly defining mesh geometry
- */
-/*
-void GeometryBatch::register_mesh(const char* path)
-{
-	COMM_LOG("loading mesh geometry information");
-	meshes.push_back({  });
-	meshes.back().load(path);
-	mesh_vertex_size += meshes.back().vertices.size();
-}
-*/
-// TODO multithreaded geometry loading
-
-/**
  *	upload load batch geometry to gpu
  */
 /*
 void MeshBatch::load()
 {
-	COMM_LOG("uploading mesh geometry batch to gpu, %d faces found",mesh_vertex_size);
+	COMM_LOG("uploading geometry batch to gpu, %d faces found",mesh_vertex_size);
 	vao.bind();
 	vbo.bind();
-	vbo.upload_vertices(meshes[0].vertices);
+	vbo.upload_vertices(meshes);
 	shader->map(&vbo);
 }
 */
-// TODO !!!!warning this only handles the first added element!!!!
 
 /**
  *	load particle mesh into batch memory

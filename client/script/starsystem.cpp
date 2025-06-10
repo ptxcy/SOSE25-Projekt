@@ -18,7 +18,7 @@ StarSystem::StarSystem()
 	//m_HaloShader = g_Renderer.register_mesh_pipeline(__HaloVertexShader,__HaloFragmentShader);
 
 	// load geometry
-	Mesh __SphereMesh = Mesh("./res/sphere.obj");
+	Mesh __SphereMesh = Mesh("./res/planets/halfres/sphere.obj");
 
 	// setup planetary geometry
 	m_PlanetBatch = g_Renderer.register_particle_batch(m_PlanetShader);
@@ -30,14 +30,14 @@ StarSystem::StarSystem()
 	m_PlanetShader->upload("tex",0);
 
 	// load planet textures
-	m_PlanetTextures[0] = g_Renderer.register_sprite_texture("./res/planets/mercury.jpg");
-	m_PlanetTextures[1] = g_Renderer.register_sprite_texture("./res/planets/venus.jpg");
-	m_PlanetTextures[2] = g_Renderer.register_sprite_texture("./res/planets/earth.jpg");
-	m_PlanetTextures[3] = g_Renderer.register_sprite_texture("./res/planets/mars.jpg");
-	m_PlanetTextures[4] = g_Renderer.register_sprite_texture("./res/planets/jupiter.jpg");
-	m_PlanetTextures[5] = g_Renderer.register_sprite_texture("./res/planets/saturn.jpg");
-	m_PlanetTextures[6] = g_Renderer.register_sprite_texture("./res/planets/uranus.jpg");
-	m_PlanetTextures[7] = g_Renderer.register_sprite_texture("./res/planets/neptune.jpg");
+	m_PlanetTextures[0] = g_Renderer.register_sprite_texture("./res/planets/halfres/mercury.jpg");
+	m_PlanetTextures[1] = g_Renderer.register_sprite_texture("./res/planets/halfres/venus.jpg");
+	m_PlanetTextures[2] = g_Renderer.register_sprite_texture("./res/planets/halfres/earth.jpg");
+	m_PlanetTextures[3] = g_Renderer.register_sprite_texture("./res/planets/halfres/mars.jpg");
+	m_PlanetTextures[4] = g_Renderer.register_sprite_texture("./res/planets/halfres/jupiter.jpg");
+	m_PlanetTextures[5] = g_Renderer.register_sprite_texture("./res/planets/halfres/saturn.jpg");
+	m_PlanetTextures[6] = g_Renderer.register_sprite_texture("./res/planets/halfres/uranus.jpg");
+	m_PlanetTextures[7] = g_Renderer.register_sprite_texture("./res/planets/halfres/neptune.jpg");
 
 	// setup planets
 	planets[0] = { vec3(3.9f,0,0),.7f };

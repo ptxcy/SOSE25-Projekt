@@ -122,9 +122,9 @@ struct Font
 };
 
 /*
-struct GPUPixelLayer
+struct GPUPixelLayers
 {
-	static void load_texture(GPUPixelLayer* gpl,const char* path);
+	static void load_texture(GPUPixelLayers* gpl,const char* path);
 };
 */
 
@@ -134,6 +134,10 @@ struct GPUPixelBuffer
 {
 	// utilty
 	void allocate(u32 width,u32 height,u32 format);
+	/*
+	void register_linear();
+	void register_detached();
+	*/
 	static void load_texture(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,const char* path);
 	static void load_font(GPUPixelBuffer* gpb,Font* font,const char* path,u16 size);
 	static void _load(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,TextureData* data);

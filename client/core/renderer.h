@@ -102,11 +102,7 @@ public:
 struct GeometryBatch
 {
 	// utility
-	/*
-	void register_mesh(const char* path);
-	void register_mesh(Mesh& mesh);
-	void load();
-	*/
+	//void load();
 
 	// data
 	VertexArray vao;
@@ -119,10 +115,6 @@ struct GeometryBatch
 struct ParticleBatch
 {
 	// utility
-	/*
-	void register_mesh(const char* path)
-	void register_mesh(Mesh& mesh);
-	*/
 	void load();
 
 	// data
