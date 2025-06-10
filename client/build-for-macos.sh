@@ -1,3 +1,4 @@
+mkdir -p lib
 cd lib
 mkdir -p build_mac
 cd build_mac

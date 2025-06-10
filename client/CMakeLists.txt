@@ -1,10 +1,10 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 project(MeinProjekt)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I/opt/homebrew/include -I/opt/homebrew/include/freetype2")
-link_directories(/opt/homebrew/lib)
+# Einfache statische Linking-Konfiguration
+set(BUILD_SHARED_LIBS OFF)
 
 # FetchContent-Modul einbinden
 include(FetchContent)
@@ -30,8 +30,8 @@ FetchContent_Declare(
 
 FetchContent_Declare(
     glew
-    GIT_REPOSITORY https://github.com/Perlmint/glew-cmake.git
-    GIT_TAG origin/master
+    GIT_REPOSITORY https://github.com/nigels-com/glew.git
+    GIT_TAG glew-2.2.0
 )
 
 FetchContent_Declare(
@@ -46,14 +46,23 @@ FetchContent_Declare(
     GIT_TAG master
 )
 
-# Bibliotheken verfügbar machen
-FetchContent_MakeAvailable(cpr fmt spdlog glew stb)
+FetchContent_Declare(
+    SDL2
+    GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+    GIT_TAG release-2.28.5
+)
+
+FetchContent_Declare(
+    freetype
+    GIT_REPOSITORY https://github.com/freetype/freetype.git
+    GIT_TAG VER-2-10-4
+)
+
+# Make all libraries available
+FetchContent_MakeAvailable(cpr fmt spdlog glew stb SDL2 freetype)
 
 # Verzeichnisse für Quellcode und Header-Dateien
 include_directories(
-    /usr/include/freetype2
-    /usr/include/libpng16
-    /opt/homebrew/include/freetype2
     ${PROJECT_SOURCE_DIR}/include
     ${boost_SOURCE_DIR}
     ${stb_SOURCE_DIR}
@@ -65,12 +74,8 @@ add_definitions(
     -DGLM_ENABLE_EXPERIMENTAL
 )
 
-# Bibliotheken zum Linken
-if(APPLE)
-    set(LIBS "-framework OpenGL" GLEW SDL2 pthread freetype cpr curl ssl crypto z fmt spdlog)
-else()
-    set(LIBS GL GLEW SDL2 pthread freetype cpr curl ssl crypto z fmt spdlog)
-endif()
+# Bibliotheken zum Linken - verwende CMake-Targets wo möglich
+set(LIBS "-framework OpenGL" GLEW::glew_s SDL2::SDL2-static pthread freetype cpr::cpr fmt::fmt spdlog::spdlog)
 
 # Debug und Release Flags
 set(CMAKE_CXX_FLAGS_DEBUG "-pg -g -O0 -DDEBUG")
@@ -84,7 +89,7 @@ set(SRCS ${SRCS_CORE} ${SRCS_SCRIPT} main.cpp)
 # Erstelle die ausführbare Datei
 add_executable(build_mac ${SRCS})
 
-# Verknüpfe die Bibliotheken
+# Verknüpfe die Bibliotheken ohne -static Flag auf macOS
 target_link_libraries(build_mac ${LIBS})
 
 # Set output directory to the Client folder instead of build
