@@ -86,37 +86,53 @@ struct Text
 	vector<TextCharacter> buffer;
 };
 
-struct Mesh
+class Mesh
 {
-	void load(const char* path);
+public:
+	Mesh(const char* path);
+
+public:
 	vector<Vertex> vertices;
 };
 
-struct MeshBatch
+
+// ----------------------------------------------------------------------------------------------------
+// Batches
+
+struct GeometryBatch
 {
 	// utility
+	/*
 	void register_mesh(const char* path);
+	void register_mesh(Mesh& mesh);
 	void load();
+	*/
 
 	// data
 	VertexArray vao;
 	VertexBuffer vbo;
 	lptr<ShaderPipeline> shader;
-	vector<Mesh> meshes;
-	u32 mesh_vertex_size = 0;
+	// TODO texture buffer
+	vector<float> geometry;
 };
 
 struct ParticleBatch
 {
 	// utility
-	void load(const char* path);
+	/*
+	void register_mesh(const char* path)
+	void register_mesh(Mesh& mesh);
+	*/
+	void load();
 
 	// data
 	VertexArray vao;
 	VertexBuffer vbo;
 	VertexBuffer ibo;
 	lptr<ShaderPipeline> shader;
-	Mesh geometry;
+	//GPUPixelBuffer texture;
+	vector<float> geometry;  // TODO kick this out, bind freeform
+	u32 vertex_count;
 	u32 active_particles = 0;
 };
 
@@ -147,7 +163,7 @@ public:
 
 	// scene
 	lptr<ShaderPipeline> register_mesh_pipeline(VertexShader& vs,FragmentShader& fs);
-	lptr<MeshBatch> register_mesh_batch(lptr<ShaderPipeline> pipeline);
+	//lptr<MeshBatch> register_mesh_batch(lptr<ShaderPipeline> pipeline);
 	lptr<ParticleBatch> register_particle_batch(lptr<ShaderPipeline> pipeline);
 
 	// utility
@@ -214,7 +230,7 @@ private:
 
 	// mesh
 	list<ShaderPipeline> m_MeshPipelines;
-	list<MeshBatch> m_MeshBatches;
+	//list<MeshBatch> m_MeshBatches;
 	list<ParticleBatch> m_ParticleBatches;
 };
 

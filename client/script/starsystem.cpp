@@ -9,14 +9,23 @@ StarSystem::StarSystem()
 	// shader compile
 	VertexShader __PlanetVertexShader = VertexShader("core/shader/planet.vert");
 	VertexShader __SunVertexShader = VertexShader("core/shader/sun.vert");
+	//VertexShader __HaloVertexShader = VertexShader("core/shader/halo.vert");
 	FragmentShader __PlanetFragmentShader = FragmentShader("core/shader/planet.frag");
 	FragmentShader __SunFragmentShader = FragmentShader("core/shader/sun.frag");
+	//FragmentShader __HaloFragmentShader = FragmentShader("core/shader/halo.frag");
 	m_PlanetShader = g_Renderer.register_mesh_pipeline(__PlanetVertexShader,__PlanetFragmentShader);
 	m_SunShader = g_Renderer.register_mesh_pipeline(__SunVertexShader,__SunFragmentShader);
+	//m_HaloShader = g_Renderer.register_mesh_pipeline(__HaloVertexShader,__HaloFragmentShader);
+
+	// load geometry
+	Mesh __SphereMesh = Mesh("./res/sphere.obj");
 
 	// setup planetary geometry
 	m_PlanetBatch = g_Renderer.register_particle_batch(m_PlanetShader);
-	m_PlanetBatch->load("./res/sphere.obj");
+	m_PlanetBatch->geometry.resize(__SphereMesh.vertices.size()*RENDERER_VERTEX_SIZE);
+	memcpy(&m_PlanetBatch->geometry[0],&__SphereMesh.vertices[0],__SphereMesh.vertices.size()*sizeof(Vertex));
+	m_PlanetBatch->load();
+	m_PlanetBatch->vertex_count = __SphereMesh.vertices.size();
 	m_PlanetBatch->active_particles = 8;
 	m_PlanetShader->upload("tex",0);
 
@@ -40,11 +49,18 @@ StarSystem::StarSystem()
 	planets[6] = { vec3(192.f,0,0),7.f };
 	planets[7] = { vec3(300.6f,0,0),4.f };
 
+	// setup planetary halo
+	/*
+	lptr<MeshBatch> __SaturnHalo = g_Renderer.register_mesh_batch(m_HaloShader);
+	__SaturnHalo->register_mesh("./res/planets/ring.obj");
+	*/
+
 	// setup sun
+	/*
 	lptr<MeshBatch> __SunBatch = g_Renderer.register_mesh_batch(m_SunShader);
-	__SunBatch->register_mesh("./res/sphere.obj");
+	__SunBatch->register_mesh(__SphereMesh);
 	__SunBatch->load();
-	// FIXME loading this twice is dumb, lets not!
+	*/
 	// TODO also combine load if possible
 
 	// register routine

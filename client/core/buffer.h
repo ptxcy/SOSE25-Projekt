@@ -121,6 +121,13 @@ struct Font
 	u16 size;
 };
 
+/*
+struct GPUPixelLayer
+{
+	static void load_texture(GPUPixelLayer* gpl,const char* path);
+};
+*/
+
 constexpr u16 BUFFER_MAXIMUM_TEXTURE_COUNT = 1024;
 constexpr u8 BUFFER_ATLAS_BORDER_PADDING = 32;
 struct GPUPixelBuffer

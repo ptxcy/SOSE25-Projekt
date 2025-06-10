@@ -23,10 +23,11 @@ uniform mat4 proj;
 
 void main()
 {
-	gl_Position = proj*view*vec4(position*scale+offset,1.);
+	Position = position*scale+offset;
+	gl_Position = proj*view*vec4(Position,1.);
 
 	// pass
-	Position = normalize(position);
+	Position = normalize(Position);
 	Normal = normal;
 
 	// calculate precision texture uv

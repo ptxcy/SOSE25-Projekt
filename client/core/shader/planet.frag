@@ -18,6 +18,6 @@ void main()
 	pixelColour += textureLod(tex,UV,0)*(1.-pixelColour.a);
 
 	// calculate lighting
-	float its = clamp(dot(Normal,-vec3(1,0,0)),.0,1.);
+	float its = clamp(dot(Normal,-Position),.0,1.);
 	pixelColour = vec4(its*pixelColour.rgb,pixelColour.a);
 }

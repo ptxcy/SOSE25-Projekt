@@ -79,7 +79,7 @@ void Text::load_buffer()
  *	load mesh geometry from .obj file
  *	\param path: path to .obj file explicitly defining geometry
  */
-void Mesh::load(const char* path)
+Mesh::Mesh(const char* path)
 {
 	vector<vec3> __Positions;
 	vector<vec2> __UVCoordinates;
@@ -181,18 +181,21 @@ void Mesh::load(const char* path)
  *	load triangle mesh into batch memory
  *	\param path: path to obj file explicitly defining mesh geometry
  */
-void MeshBatch::register_mesh(const char* path)
+/*
+void GeometryBatch::register_mesh(const char* path)
 {
 	COMM_LOG("loading mesh geometry information");
 	meshes.push_back({  });
 	meshes.back().load(path);
 	mesh_vertex_size += meshes.back().vertices.size();
 }
+*/
 // TODO multithreaded geometry loading
 
 /**
  *	upload load batch geometry to gpu
  */
+/*
 void MeshBatch::load()
 {
 	COMM_LOG("uploading mesh geometry batch to gpu, %d faces found",mesh_vertex_size);
@@ -201,19 +204,18 @@ void MeshBatch::load()
 	vbo.upload_vertices(meshes[0].vertices);
 	shader->map(&vbo);
 }
+*/
 // TODO !!!!warning this only handles the first added element!!!!
 
 /**
  *	load particle mesh into batch memory
- *	\param path: path to obj file explicitly defining mesh geometry
  */
-void ParticleBatch::load(const char* path)
+void ParticleBatch::load()
 {
 	COMM_LOG("loading particle mesh geometry information");
-	geometry.load(path);
 	vao.bind();
 	vbo.bind();
-	vbo.upload_vertices(geometry.vertices);
+	vbo.upload_vertices(geometry);
 	shader->map(&vbo,&ibo);
 }
 
@@ -514,11 +516,13 @@ lptr<ShaderPipeline> Renderer::register_mesh_pipeline(VertexShader& vs,FragmentS
  *	\param pipeline: shader pipeline, handling pixel output for newly created batch
  *	\returns pointer to created triangle mesh batch
  */
+/*
 lptr<MeshBatch> Renderer::register_mesh_batch(lptr<ShaderPipeline> pipeline)
 {
 	m_MeshBatches.push_back({ .shader = pipeline });
 	return std::prev(m_MeshBatches.end());
 }
+*/
 
 /**
  *	register particle batch
@@ -612,20 +616,25 @@ void Renderer::_update_canvas()
 void Renderer::_update_mesh()
 {
 	// iterate static geometry
+	/*
 	for (MeshBatch& p_Batch : m_MeshBatches)
 	{
 		p_Batch.shader->enable();
 		p_Batch.vao.bind();
 		glDrawArrays(GL_TRIANGLES,0,p_Batch.mesh_vertex_size);
 	}
+	*/
 
 	// iterate particle geometry
 	for (ParticleBatch& p_Batch : m_ParticleBatches)
 	{
 		p_Batch.shader->enable();
 		p_Batch.vao.bind();
-		glDrawArraysInstanced(GL_TRIANGLES,0,p_Batch.geometry.vertices.size(),p_Batch.active_particles);
+		//p_Batch.texture.atlas.bind();
+		glDrawArraysInstanced(GL_TRIANGLES,0,p_Batch.vertex_count,p_Batch.active_particles);
 	}
+
+	//m_GPUSpriteTextures.atlas.bind();
 }
 
 
