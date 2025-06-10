@@ -92,7 +92,7 @@ type ClientData = [
 
 type SetSpaceshipTarget = [
     number,
-    Planet
+    number
 ]
 
 type dummySetVelocity = [
