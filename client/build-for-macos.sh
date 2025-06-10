@@ -1,3 +1,6 @@
+# cd core
+# mkdir -p include
+# cd ..
 mkdir -p lib
 cd lib
 mkdir -p build_mac

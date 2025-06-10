@@ -61,11 +61,21 @@ FetchContent_MakeAvailable(cpr fmt spdlog stb SDL2 freetype)
 find_package(GLEW REQUIRED)
 include_directories(${GLEW_INCLUDE_DIRS})
 
+# stb_image.h automatisch herunterladen
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/core/include")
+file(DOWNLOAD
+    "https://raw.githubusercontent.com/nothings/stb/master/stb_image.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/core/include/stb_image.h"
+)
+
+include_directories(${CMAKE_BINARY_DIR})
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/core/include")
+
 # Verzeichnisse für Quellcode und Header-Dateien
 include_directories(
     ${PROJECT_SOURCE_DIR}/include
     ${boost_SOURCE_DIR}
-    ${stb_SOURCE_DIR}/include
+    ${stb_SOURCE_DIR}
 )
 
 # Define necessary preprocessor directives for WebSocket++
