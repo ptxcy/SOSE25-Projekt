@@ -129,6 +129,7 @@ pub fn request_connect(username: &String) -> Vec<u8> {
 
 	let serialized_message = rmp_serde::to_vec(&client_message)
 		.expect("Failed to serialize message");
+	println!("bytes : {:?}", serialized_message);
 	serialized_message
 }
 
