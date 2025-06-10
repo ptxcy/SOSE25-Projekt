@@ -9,7 +9,6 @@ import {
     encodeServerMessage,
     ServerMessage
 } from "../datatypes/MessagePackDataTypes";
-import {decode, ExtensionCodec} from "@msgpack/msgpack";
 
 export interface LobbyRegistryEntry {
     lobbyName: string;
@@ -79,7 +78,7 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
             memberSockets: [ws],
             calculationSocket: null
         };
-        registerLobby.calculationSocket = await connectToCalcluationServer(registerLobby);
+        registerLobby.calculationSocket = await connectToCalculationServer(registerLobby);
         addToRegister(registerLobby);
     }
 
@@ -120,7 +119,7 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
     calc_unit_socket.send(encoded);
 }
 
-async function connectToCalcluationServer(lcomp: LobbyRegistryEntry): Promise<WebSocket> {
+async function connectToCalculationServer(lcomp: LobbyRegistryEntry): Promise<WebSocket> {
     //TODO Close Socket If all user connections are closed
     console.log("Connecting to calculation server...");
     const socket = new WebSocket(`ws://calculation_unit:8082/msgpack`);
