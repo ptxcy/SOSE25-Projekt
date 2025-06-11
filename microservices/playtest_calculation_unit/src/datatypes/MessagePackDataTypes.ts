@@ -31,7 +31,9 @@ export type SpaceShip = [
     number, // speed
     Coordinate, // velocity
     Coordinate, // position
-    Coordinate  // target
+    Coordinate,  // target
+    boolean,
+    number | null,
 ]
 
 export type Player = [
@@ -52,12 +54,18 @@ export type CraftingMaterial = [
     number
 ];
 
-export type Planet = [
-    string, // Name
-    Coordinate, // Position
+type Planet = [
+    string,
+    Coordinate,
     BuildingRegion[],
-    number // size
+    number,
+    Spacestation
 ];
+
+type Spacestation = [
+    number,
+    number,
+]
 
 export type Mine = [
     string,
@@ -69,7 +77,7 @@ export type Factory = [
     CraftingMaterial,
 ]
 
-export type BuildingRegion= [
+export type BuildingRegion = [
     Coordinate,
     Factory[],
     Mine[],
@@ -94,11 +102,11 @@ export type ClientMessage = [
 ]
 
 export type ClientData = [
-    setClientFPS | null,
-    string | null, // spawn dummy
-    dummySetVelocity | null,
-    string | null, // connect
-    SetSpaceshipTarget | null
+        setClientFPS | null,
+        string | null, // spawn dummy
+        dummySetVelocity | null,
+        string | null, // connect
+        SetSpaceshipTarget | null
 ]
 
 export type SetSpaceshipTarget = [
@@ -127,7 +135,7 @@ export async function encodeServerMessage(msg: ServerMessage) {
     return encode(msg);
 }
 
-export async function encodeClientMessage(msg: ClientMessage){
+export async function encodeClientMessage(msg: ClientMessage) {
     return encode(msg);
 }
 

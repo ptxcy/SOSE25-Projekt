@@ -31,7 +31,9 @@ type SpaceShip = [
     number,
     Coordinate,
     Coordinate,
-    Coordinate
+    Coordinate,
+    boolean,
+    number | null,
 ]
 
 type Player = [
@@ -56,8 +58,14 @@ type Planet = [
     string,
     Coordinate,
     BuildingRegion[],
-    number
+    number,
+    Spacestation
 ];
+
+type Spacestation = [
+    number,
+    number,
+]
 
 type Mine = [
     string,
