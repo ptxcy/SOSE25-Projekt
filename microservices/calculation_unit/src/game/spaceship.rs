@@ -12,6 +12,12 @@ use super::{
 	planet_util::get_timefactor,
 };
 
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+pub struct Spacestation {
+	parked: usize,
+	capacity: usize,
+}
+
 #[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct Spaceship {
 	pub id: usize,
@@ -21,6 +27,7 @@ pub struct Spaceship {
 	pub position: Coordinate,
 	pub target: Coordinate,
 	pub docking_mode: bool,
+	pub docking_at: Option<usize>,
 }
 
 impl Craftable for Spaceship {
@@ -46,6 +53,45 @@ impl Spawnable for Spaceship {
 }
 
 impl Spaceship {
+	pub fn arrive(
+		&self,
+		planet: &Planet,
+		planet_index: usize,
+	) -> Result<Vec<SafeAction>, String> {
+		log_with_time(format!(
+			"spaceship docking at space station on planet {}",
+			planet_index
+		));
+		let mut actions = Vec::<SafeAction>::new();
+		let spacestation = &planet.spacestation;
+		if spacestation.parked >= spacestation.capacity {
+			return Err(format!("space station is full, docking failed"));
+		}
+		// self.docking_at = Some(planet_index);
+		actions.push(SafeAction::SetDockingAt(
+			self.docking_at.raw_mut(),
+			Some(planet_index),
+		));
+		// spacestation.capacity += 1;
+		actions.push(SafeAction::AddUsize(spacestation.capacity.raw_mut(), 1));
+		Ok(actions)
+	}
+	pub fn depart(&self, planet: &Planet) -> Vec<SafeAction> {
+		let mut actions = Vec::<SafeAction>::new();
+		// self.docking_at = None;
+		actions.push(SafeAction::SetDockingAt(self.docking_at.raw_mut(), None));
+		// planet.spacestation.capacity -= 1;
+		actions.push(SafeAction::SubUsize(
+			planet.spacestation.capacity.raw_mut(),
+			1,
+		));
+		// self.position.set(&planet.position);
+		actions.push(SafeAction::SetCoordinate {
+			coordinate: self.position.raw_mut(),
+			other: planet.position.c(),
+		});
+		actions
+	}
 	pub fn new(owner: &String, speed: f64, id_counter: &mut IdCounter) -> Self {
 		let ship = Self {
 			id: id_counter.assign(),
@@ -62,6 +108,7 @@ impl Spaceship {
 		julian_day: f64,
 		orbit_info_map: &OrbitInfoMap,
 	) -> Coordinate {
+		// TODO FIXME something wrong?
 		let mut d = julian_day;
 		let mut duration_to = 0.;
 		let mut planet_positon = Coordinate::default();

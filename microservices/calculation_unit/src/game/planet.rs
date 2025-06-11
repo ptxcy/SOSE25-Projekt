@@ -5,6 +5,7 @@ use super::{
 	gametraits::HasPosition,
 	orbit::OrbitInfo,
 	planet_util::calculate_planet,
+	spaceship::Spacestation,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -17,7 +18,7 @@ pub struct Planet {
 	pub position: Coordinate,
 	pub building_regions: Vec<BuildingRegion>,
 	pub size: f64,
-	pub has_spacestation: bool,
+	pub spacestation: Spacestation,
 }
 
 #[derive(Deserialize, Debug, Clone, Default)]
@@ -26,6 +27,7 @@ pub struct PlanetReceive {
 	pub position: Coordinate,
 	pub building_regions: Vec<BuildingRegionReceive>,
 	pub size: f64,
+	pub spacestation: Spacestation,
 }
 
 impl Planet {

@@ -1,3 +1,5 @@
+use std::env;
+
 use calculation_unit::{
 	game::calculation_unit::ServerMessageSenderChannel,
 	logger::{Loggable, log_with_time},
@@ -11,6 +13,17 @@ use warp::ws::{Message, WebSocket};
 // async main gets started on program start
 #[tokio::main]
 async fn main() {
+	let args = env::args().collect::<Vec<String>>();
+	let port = if args.len() == 2 {
+		args[1].parse::<u16>().unwrap_or_else(|_| {
+			log_with_time("Invalid port number. Using default port 8082.");
+			8082
+		})
+	} else {
+		log_with_time("No port argument. Using default port 8082.");
+		8082
+	};
+
 	log_with_time("calculation unit started");
 
 	let (server_message_sender_sender, server_message_sender_receiver) =
@@ -48,7 +61,8 @@ async fn main() {
 		// .or(static_files)
 		.with(warp::cors().allow_any_origin());
 
-	warp::serve(routes).run(([0, 0, 0, 0], 8082)).await;
+	log_with_time(format!("starting server under 0.0.0.0:{}", port));
+	warp::serve(routes).run(([0, 0, 0, 0], port)).await;
 }
 
 pub fn send_client_message(

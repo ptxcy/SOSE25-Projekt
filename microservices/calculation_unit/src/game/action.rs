@@ -22,16 +22,24 @@ impl<T> AsRaw for T {
 
 /// dont move memory so safe to use when known that memory exists
 pub enum SafeAction {
-	SetF64(*mut f64, f64),
 	AddCoordinate {
 		coordinate: *mut Coordinate,
 		other: Coordinate,
 		multiplier: f64,
 	},
+	AddUsize(*mut usize, usize),
+	SubUsize(*mut usize, usize),
+	ReduceCraftingMaterial {
+		crafter: *mut dyn Crafter,
+		cost: CraftingMaterial,
+	},
 	SetCoordinate {
 		coordinate: *mut Coordinate,
 		other: Coordinate,
 	},
+	SetDockingAt(*mut Option<usize>, Option<usize>),
+	SetF64(*mut f64, f64),
+	SpawnDummy(DummyObject),
 	SpawnFactory {
 		region: *mut BuildingRegion,
 		factory: Factory,
@@ -40,12 +48,7 @@ pub enum SafeAction {
 		region: *mut BuildingRegion,
 		mine: Mine,
 	},
-	SpawnDummy(DummyObject),
 	SpawnSpaceship(Spaceship),
-	ReduceCraftingMaterial {
-		crafter: *mut dyn Crafter,
-		cost: CraftingMaterial,
-	},
 }
 
 unsafe impl Send for SafeAction {}
@@ -85,6 +88,15 @@ impl SafeAction {
 				let crafter = unsafe { &mut (*crafter) };
 				crafter.get_crafting_material_mut().sub(&cost);
 			}
+			SafeAction::AddUsize(target, value) => unsafe {
+				*target += value;
+			},
+			SafeAction::SubUsize(target, value) => unsafe {
+				*target -= value;
+			},
+			SafeAction::SetDockingAt(target, value) => unsafe {
+				*target = value;
+			},
 		}
 	}
 }
