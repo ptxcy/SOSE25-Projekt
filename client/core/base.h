@@ -18,6 +18,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <sstream>
 #include <vector>
 #include <list>
 #include <queue>
@@ -78,8 +79,10 @@ typedef glm::mat4 mat4;
 // basic magic
 typedef std::string string;
 typedef std::thread thread;
+/*
 #define clock std::chrono::steady_clock
 #define time std::chrono::steady_clock::time_point
+*/
 template<typename T> using vector = std::vector<T>;
 template<typename T> using list = std::list<T>;
 template<typename T> using queue = std::queue<T>;
@@ -109,8 +112,8 @@ constexpr u8 MEM_SHIFT = 6;
 typedef u32 __system_word;
 constexpr u8 MEM_SHIFT = 5;
 #endif
-constexpr u8 MEM_WIDTH = sizeof(__system_word) * 8;
-constexpr __system_word MEM_MASK = MEM_WIDTH - 1;
+constexpr u8 MEM_WIDTH = sizeof(__system_word)*8;
+constexpr __system_word MEM_MASK = MEM_WIDTH-1;
 
 // ----------------------------------------------------------------------------------------------------
 // logger
@@ -130,11 +133,11 @@ constexpr const char* LOG_CLEAR = "\e[0;39m";
 // time records
 constexpr f64 LOG_FPS_ALERT = 16.6;
 constexpr const char* LOG_TIMING[] = { LOG_GREY,LOG_YELLOW,LOG_RED };
-inline time log_delta = clock::now();
-static inline void reset_timestamp() { log_delta = clock::now(); }
+inline std::chrono::steady_clock::time_point log_delta = std::chrono::steady_clock::now();
+static inline void reset_timestamp() { log_delta = std::chrono::steady_clock::now(); }
 static inline void produce_timestamp(bool padding=true)
 {
-	f64 delta = (clock::now()-log_delta).count()*MATH_CONVERSION_MS;
+	f64 delta = (std::chrono::steady_clock::now()-log_delta).count()*MATH_CONVERSION_MS;
 	printf("%s",LOG_TIMING[(u8)std::min(delta/LOG_FPS_ALERT,2.)]);
 	printf((padding) ? "%12fms%s" : "%fms%s\n",delta,LOG_CLEAR);
 	reset_timestamp();
@@ -165,15 +168,15 @@ constexpr u16 PROFILER_FRAMES_RELEVANT_AVERAGE = 300;
 struct RuntimeProfilerData
 {
 	const char* name;
-	time last;
+	std::chrono::steady_clock::time_point last;
 	f64 measurements[PROFILER_FRAMES_RELEVANT_AVERAGE] = { 0 };
 	u16 head = 0;
 };
 static inline void profiler_tick(RuntimeProfilerData* data)
 {
-	data->measurements[data->head] = (clock::now()-data->last).count()*MATH_CONVERSION_MS;
+	data->measurements[data->head] = (std::chrono::steady_clock::now()-data->last).count()*MATH_CONVERSION_MS;
 	data->head = (data->head+1)%PROFILER_FRAMES_RELEVANT_AVERAGE;
-	data->last = clock::now();
+	data->last = std::chrono::steady_clock::now();
 }
 static inline f64 profiler_average(RuntimeProfilerData* data)
 {
@@ -185,7 +188,7 @@ static inline f64 profiler_average(RuntimeProfilerData* data)
 
 // runtime profiler features
 #define PROF_CRT(nom) { .name = nom };
-#define PROF_STA(d) d.last = clock::now();
+#define PROF_STA(d) d.last = std::chrono::steady_clock::now();
 #define PROF_STP(d) profiler_tick(&d);
 #define PROF_SHW(d) printf("%sprofiler: %12fms | %s%s\n",LOG_BLUE,profiler_average(&d),d.name,LOG_CLEAR);
 
@@ -215,7 +218,10 @@ static inline f64 profiler_average(RuntimeProfilerData* data)
 
 
 bool check_file_exists(const char* path);
-inline f64 calculate_delta_time(time& t) { return (clock::now()-t).count()*MATH_CONVERSION_MS; }
+inline f64 calculate_delta_time(std::chrono::steady_clock::time_point& t)
+{
+	return (std::chrono::steady_clock::now()-t).count()*MATH_CONVERSION_MS;
+}
 
 
 class BitwiseWords
@@ -224,9 +230,9 @@ public:
 	BitwiseWords(size_t size);
 	~BitwiseWords();
 
-	inline bool operator[](size_t i) { return (*(m_Data+(i>>MEM_SHIFT))>>(i&MEM_MASK))&1u; }
-	inline void set(size_t i) { *(m_Data+(i>>MEM_SHIFT))|=1u<<(i&MEM_MASK); }
-	inline void unset(size_t i) { *(m_Data+(i>>MEM_SHIFT))&=~1u<<(i&MEM_MASK); }
+	inline bool operator[](size_t i) { return (*(m_Data+(i>>MEM_SHIFT))>>(i&MEM_MASK))&(__system_word)1; }
+	inline void set(size_t i) { *(m_Data+(i>>MEM_SHIFT))|=(__system_word)1<<(i&MEM_MASK); }
+	inline void unset(size_t i) { *(m_Data+(i>>MEM_SHIFT))&=~((__system_word)1<<(i&MEM_MASK)); }
 	inline void reset() { memset(m_Data,0,m_Size*sizeof(__system_word)); }
 
 private:
@@ -314,6 +320,37 @@ public:
 };
 
 inline CoordinateSystem2D g_CoordinateSystem = CoordinateSystem2D(MATH_CARTESIAN_XRANGE,MATH_CARTESIAN_YRANGE);
+
+
+class Camera3D
+{
+public:
+	Camera3D(vec3 tgt,f32 dist,f32 p,f32 y,f32 width,f32 height,f32 ifov);
+	void update();
+	void project();
+
+public:
+
+	// camera matrices
+	mat4 view;
+	mat4 proj;
+
+	// attributes
+	vec3 position;
+	vec3 target;
+	f32 distance;
+	f32 pitch;
+	f32 yaw;
+	f32 fov;
+	f32 near = .1f;
+	f32 far = 1000.f;
+
+private:
+
+	f32 m_Ratio;
+};
+
+inline Camera3D g_Camera = Camera3D(vec3(10,-.001,0),2.1f,0,0,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y,60);
 
 
 // ----------------------------------------------------------------------------------------------------

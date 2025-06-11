@@ -25,7 +25,7 @@ lptr<Button> UIBatch::add_button(const char* label,PixelBufferComponent* tidle,P
 			.action = taction
 		});
 	lptr<Button> p_Button = std::prev(buttons.end());
-	p_Button->canvas = g_Renderer.register_sprite(p_Button->idle,position,scale,.0f,1.f,alignment);
+	p_Button->canvas = g_Renderer.register_sprite(p_Button->idle,position,scale,.0f,alpha,alignment);
 
 	// label text
 	p_Button->label = g_Renderer.write_text(font,label,p_Button->canvas->offset,scale.y*.6f,vec4(1));
@@ -60,7 +60,7 @@ lptr<TextField> UIBatch::add_text_field(PixelBufferComponent* tidle,PixelBufferC
 			.select = tselect
 		});
 	lptr<TextField> p_TextField = std::prev(tfields.end());
-	p_TextField->canvas = g_Renderer.register_sprite(p_TextField->idle,position,scale,.0f,1.f,alignment);
+	p_TextField->canvas = g_Renderer.register_sprite(p_TextField->idle,position,scale,.0f,alpha,alignment);
 
 	// setup content draw
 	vec2 __HScale = scale*vec2(.5f);
@@ -146,10 +146,14 @@ void UI::update()
 /**
  *	create an ui batch
  *	\param font: button label and text box font for created batch
+ *	\param alpha: (default 1.f) batch transparency
  */
-lptr<UIBatch> UI::add_batch(Font* font)
+lptr<UIBatch> UI::add_batch(Font* font,f32 alpha)
 {
-	m_Batches.push_back({ .font = font });
+	m_Batches.push_back({
+			.font = font,
+			.alpha = alpha
+		});
 	return std::prev(m_Batches.end());
 }
 
@@ -173,6 +177,7 @@ void UI::remove_batch(lptr<UIBatch> batch)
 		g_Renderer.delete_text(p_TextField.content);
 	}
 
-	// finish by removing batch from memory
+	// finish by removing batch from memory & unsetting input mode
+	Input::unset_input_mode();
 	m_Batches.erase(batch);
 }

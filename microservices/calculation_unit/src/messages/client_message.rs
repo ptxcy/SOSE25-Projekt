@@ -22,6 +22,8 @@ pub struct ClientRequest {
 	pub dummy_set_velocity: Option<DummySetVelocity>,
 	pub connect: Option<String>,
 	pub set_spaceship_target: Option<SetSpaceshipTarget>,
+	// TEMP later not possible to spawn like this
+	pub spawn_spaceship: Option<Coordinate>,
 }
 
 /// message that the client sends to the calculation unit containing a request to do something

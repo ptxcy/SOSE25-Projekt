@@ -73,6 +73,137 @@ void Text::load_buffer()
 
 
 // ----------------------------------------------------------------------------------------------------
+// Mesh Component
+
+/**
+ *	load mesh geometry from .obj file
+ *	\param path: path to .obj file explicitly defining geometry
+ */
+Mesh::Mesh(const char* path)
+{
+	vector<vec3> __Positions;
+	vector<vec2> __UVCoordinates;
+	vector<vec3> __Normals;
+	vector<u32> __PositionIndices;
+	vector<u32> __UVIndices;
+	vector<u32> __NormalIndices;
+
+	// open source file
+	FILE* __OBJFile = fopen(path,"r");
+	if (__OBJFile==NULL)
+	{
+		COMM_ERR("geometry definition file %s could not be found",path);
+		return;
+	}
+
+	// iterate and sort geometry information
+	char __Command[128];
+	while (fscanf(__OBJFile,"%s",__Command)!=EOF)
+	{
+		// process position prefix
+		if (!strcmp(__Command,"v"))
+		{
+			vec3 __Position;
+			fscanf(__OBJFile,"%f %f %f\n",&__Position.x,&__Position.y,&__Position.z);
+			__Positions.push_back(__Position);
+		}
+
+		// process uv coordinate prefix
+		else if (!strcmp(__Command,"vt"))
+		{
+			vec2 __UVCoordinate;
+			fscanf(__OBJFile,"%f %f\n",&__UVCoordinate.x,&__UVCoordinate.y);
+			__UVCoordinates.push_back(__UVCoordinate);
+		}
+
+		// process normal prefix
+		else if (!strcmp(__Command,"vn"))
+		{
+			vec3 __Normal;
+			fscanf(__OBJFile,"%f %f %f\n",&__Normal.x,&__Normal.y,&__Normal.z);
+			__Normals.push_back(__Normal);
+		}
+
+		// process face prefix
+		else if (!strcmp(__Command,"f"))
+		{
+			u32 __PositionIndex[3];
+			u32 __UVIndex[3];
+			u32 __NormalIndex[3];
+			fscanf(
+					__OBJFile,"%u/%u/%u %u/%u/%u %u/%u/%u\n",
+					&__PositionIndex[0],&__UVIndex[0],&__NormalIndex[0],
+					&__PositionIndex[1],&__UVIndex[1],&__NormalIndex[1],
+					&__PositionIndex[2],&__UVIndex[2],&__NormalIndex[2]
+				);
+			for (u8 i=0;i<3;i++)
+			{
+				__PositionIndices.push_back(__PositionIndex[i]);
+				__UVIndices.push_back(__UVIndex[i]);
+				__NormalIndices.push_back(__NormalIndex[i]);
+			}
+		}
+	}
+
+	// close file & allocate memory
+	fclose(__OBJFile);
+	vertices.reserve(__PositionIndices.size());
+
+	// iterate faces & write vertices
+	for (u32 i=0;i<__PositionIndices.size();i+=3)
+	{
+		for (u8 j=0;j<3;j++)
+		{
+			u32 n = i+j;
+			Vertex __Vertex = {
+				.position = __Positions[__PositionIndices[n]-1],
+				.uv = __UVCoordinates[__UVIndices[n]-1],
+				.normal = __Normals[__NormalIndices[n]-1]
+			};
+			vertices.push_back(__Vertex);
+		}
+
+		// precalculate tangent for gram-schmidt reorthogonalization & normal mapping
+		vec3 __EdgeDelta0 = vertices[i+1].position-vertices[i].position;
+		vec3 __EdgeDelta1 = vertices[i+2].position-vertices[i].position;
+		vec2 __UVDelta0 = vertices[i+1].uv-vertices[i].uv;
+		vec2 __UVDelta1 = vertices[i+2].uv-vertices[i].uv;
+		f32 __Factor = 1.f/(__UVDelta0.x*__UVDelta1.y-__UVDelta0.y*__UVDelta1.x);
+		glm::mat2x3 __CombinedEdges = glm::mat2x3(__EdgeDelta0,__EdgeDelta1);
+		vec2 __CombinedUVs = vec2(__UVDelta1.y,-__UVDelta0.y);
+		vec3 __Tangent = __Factor*(__CombinedEdges*__CombinedUVs);
+		__Tangent = glm::normalize(__Tangent);
+		for (u8 j=0;j<3;j++) vertices[i+j].tangent = __Tangent;
+	}
+}
+
+/**
+ *	upload load batch geometry to gpu
+ */
+void GeometryBatch::load()
+{
+	COMM_LOG("uploading geometry batch to gpu");
+	vao.bind();
+	vbo.bind();
+	vbo.upload_vertices(geometry);
+	shader->map(&vbo);
+}
+
+/**
+ *	load particle mesh into batch memory
+ */
+void ParticleBatch::load()
+{
+	COMM_LOG("loading particle mesh geometry information");
+	vao.bind();
+	vbo.bind();
+	vbo.upload_vertices(geometry);
+	shader->map(&vbo,&ibo);
+}
+// FIXME absolutely twinning :3
+
+
+// ----------------------------------------------------------------------------------------------------
 // Renderer Main Features
 
 /**
@@ -97,80 +228,56 @@ Renderer::Renderer()
 	};
 
 	COMM_LOG("compiling shaders");
-	Shader __SpriteVertexShader = Shader("core/shader/sprite.vert",GL_VERTEX_SHADER);
-	Shader __DirectFragmentShader = Shader("core/shader/sprite.frag",GL_FRAGMENT_SHADER);
-	Shader __TextVertexShader = Shader("core/shader/text.vert",GL_VERTEX_SHADER);
-	Shader __TextFragmentShader = Shader("core/shader/text.frag",GL_FRAGMENT_SHADER);
-	Shader __CanvasVertexShader = Shader("core/shader/canvas.vert",GL_VERTEX_SHADER);
-	Shader __CanvasFragmentShader = Shader("core/shader/canvas.frag",GL_FRAGMENT_SHADER);
+	VertexShader __SpriteVertexShader = VertexShader("core/shader/sprite.vert");
+	FragmentShader __DirectFragmentShader = FragmentShader("core/shader/sprite.frag");
+	VertexShader __TextVertexShader = VertexShader("core/shader/text.vert");
+	FragmentShader __TextFragmentShader = FragmentShader("core/shader/text.frag");
+	VertexShader __CanvasVertexShader = VertexShader("core/shader/canvas.vert");
+	FragmentShader __CanvasFragmentShader = FragmentShader("core/shader/canvas.frag");
 
 	// ----------------------------------------------------------------------------------------------------
 	// Sprite Pipeline
 
 	COMM_LOG("assembling pipelines:");
 	COMM_LOG("sprite pipeline");
-	m_SpritePipeline.assemble(__SpriteVertexShader,__DirectFragmentShader,4,10,"sprite");
+	m_SpritePipeline.assemble(__SpriteVertexShader,__DirectFragmentShader);
 	m_SpriteVertexArray.bind();
 	m_SpriteVertexBuffer.bind();
 	m_SpriteVertexBuffer.upload_vertices(__QuadVertices,24);
+	m_SpritePipeline.map(&m_SpriteVertexBuffer,&m_SpriteInstanceBuffer);
 
-	m_SpritePipeline.enable();
-	m_SpritePipeline.define_attribute("position",2);
-	m_SpritePipeline.define_attribute("edge_coordinates",2);
-
-	m_SpriteInstanceBuffer.bind();
-	m_SpritePipeline.define_index_attribute("offset",2);
-	m_SpritePipeline.define_index_attribute("scale",2);
-	m_SpritePipeline.define_index_attribute("rotation",1);
-	m_SpritePipeline.define_index_attribute("alpha",1);
-	m_SpritePipeline.define_index_attribute("tex_position",2);
-	m_SpritePipeline.define_index_attribute("tex_dimension",2);
-
-	m_SpritePipeline.upload("tex",0);
+	m_SpritePipeline.upload("tex",RENDERER_TEXTURE_SPRITES);
 	m_SpritePipeline.upload_coordinate_system();
 
 	COMM_LOG("text pipeline");
-	m_TextPipeline.assemble(__TextVertexShader,__TextFragmentShader,4,14,"text");
+	m_TextPipeline.assemble(__TextVertexShader,__TextFragmentShader);
 	m_TextVertexArray.bind();
 	m_SpriteVertexBuffer.bind();
+	m_TextPipeline.map(&m_SpriteVertexBuffer,&m_TextInstanceBuffer);
 
-	m_TextPipeline.enable();
-	m_TextPipeline.define_attribute("position",2);
-	m_TextPipeline.define_attribute("edge_coordinates",2);
-
-	m_TextInstanceBuffer.bind();
-	m_TextPipeline.define_index_attribute("offset",2);
-	m_TextPipeline.define_index_attribute("scale",2);
-	m_TextPipeline.define_index_attribute("bearing",2);
-	m_TextPipeline.define_index_attribute("colour",4);
-	m_TextPipeline.define_index_attribute("atlas_position",2);
-	m_TextPipeline.define_index_attribute("atlas_dimension",2);
-
-	m_TextPipeline.upload("tex",0);
+	m_TextPipeline.upload("tex",RENDERER_TEXTURE_FONTS);
 	m_TextPipeline.upload_coordinate_system();
 
 	COMM_LOG("canvas pipeline");
-	m_CanvasPipeline.assemble(__CanvasVertexShader,__CanvasFragmentShader,4,0,"canvas");
+	m_CanvasPipeline.assemble(__CanvasVertexShader,__CanvasFragmentShader);
 	m_CanvasVertexArray.bind();
 	m_CanvasVertexBuffer.bind();
 	m_CanvasVertexBuffer.upload_vertices(__CanvasVertices,24);
+	m_CanvasPipeline.map(&m_CanvasVertexBuffer);
 
-	m_CanvasPipeline.enable();
-	m_CanvasPipeline.define_attribute("position",2);
-	m_CanvasPipeline.define_attribute("edge_coordinates",2);
-	m_CanvasPipeline.upload("tex",0);
+	m_CanvasPipeline.upload("tex",RENDERER_TEXTURE_FORWARD);
 
 	// ----------------------------------------------------------------------------------------------------
 	// GPU Memory
 
 	COMM_LOG("allocating sprite memory");
-	m_GPUSpriteTextures.atlas.bind();
+	m_GPUSpriteTextures.atlas.bind(RENDERER_TEXTURE_SPRITES);
 	m_GPUSpriteTextures.allocate(RENDERER_SPRITE_MEMORY_WIDTH,RENDERER_SPRITE_MEMORY_HEIGHT,GL_RGBA);
 	Texture::set_texture_parameter_linear_mipmap();
 	Texture::set_texture_parameter_clamp_to_edge();
 
 	COMM_LOG("allocating font memory");
-	m_GPUFontTextures.atlas.bind();
+	m_GPUFontTextures.atlas.bind(RENDERER_TEXTURE_FONTS);
 	m_GPUFontTextures.allocate(RENDERER_FONT_MEMORY_WIDTH,RENDERER_FONT_MEMORY_HEIGHT,GL_RED);
 	Texture::set_texture_parameter_linear_mipmap();
 	Texture::set_texture_parameter_clamp_to_edge();
@@ -179,10 +286,10 @@ Renderer::Renderer()
 	// Render Targets
 
 	COMM_LOG("creating scene render target");
-	m_SceneFrameBuffer.start();
-	m_SceneFrameBuffer.define_colour_component(0,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y);
-	m_SceneFrameBuffer.define_depth_component(FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y);
-	m_SceneFrameBuffer.finalize();
+	m_ForwardFrameBuffer.start();
+	m_ForwardFrameBuffer.define_colour_component(0,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y);
+	m_ForwardFrameBuffer.define_depth_component(FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y);
+	m_ForwardFrameBuffer.finalize();
 	Framebuffer::stop();
 
 	// ----------------------------------------------------------------------------------------------------
@@ -205,12 +312,12 @@ Renderer::Renderer()
  */
 void Renderer::update()
 {
-	m_FrameStart = clock::now();
+	m_FrameStart = std::chrono::steady_clock::now();
 
 	// 3D segment
 	glEnable(GL_DEPTH_TEST);
-	m_SceneFrameBuffer.start();
-	// TODO
+	m_ForwardFrameBuffer.start();
+	_update_mesh();
 	Framebuffer::stop();
 
 	// 2D segment
@@ -371,6 +478,42 @@ lptr<Text> Renderer::write_text(Font* font,string data,vec2 position,f32 scale,v
 }
 
 /**
+ *	register shader pipeline
+ *	\param vs: vertex shader
+ *	\param fs: fragment shader
+ *	returns pointer to registered shader pipeline
+ */
+lptr<ShaderPipeline> Renderer::register_pipeline(VertexShader& vs,FragmentShader& fs)
+{
+	m_ShaderPipelines.push_back(ShaderPipeline());
+	lptr<ShaderPipeline> p_Pipeline = std::prev(m_ShaderPipelines.end());
+	p_Pipeline->assemble(vs,fs);
+	return p_Pipeline;
+}
+
+/**
+ *	register triangle mesh batch
+ *	\param pipeline: shader pipeline, handling pixel output for newly created batch
+ *	\returns pointer to created triangle mesh batch
+ */
+lptr<GeometryBatch> Renderer::register_geometry_batch(lptr<ShaderPipeline> pipeline)
+{
+	m_GeometryBatches.push_back({ .shader = pipeline });
+	return std::prev(m_GeometryBatches.end());
+}
+
+/**
+ *	register particle batch
+ *	\param pipeline: shader pipeline, handling pixel output for newly created batch
+ *	\returns pointer to created particle batch
+ */
+lptr<ParticleBatch> Renderer::register_particle_batch(lptr<ShaderPipeline> pipeline)
+{
+	m_ParticleBatches.push_back({ .shader = pipeline });
+	return std::prev(m_ParticleBatches.end());
+}
+
+/**
  *	geometry realignment based on position
  *	\param geom: intersection rectangle over aligning geometry
  *	\param alignment: (default fullscreen neutral) target alignment within specified border
@@ -398,8 +541,8 @@ vec2 Renderer::align(Rect geom,Alignment alignment)
  */
 void Renderer::_gpu_upload()
 {
-	m_GPUSpriteTextures.gpu_upload(m_FrameStart);
-	m_GPUFontTextures.gpu_upload(m_FrameStart);
+	m_GPUSpriteTextures.gpu_upload(RENDERER_TEXTURE_SPRITES,m_FrameStart);
+	m_GPUFontTextures.gpu_upload(RENDERER_TEXTURE_FONTS,m_FrameStart);
 }
 
 /**
@@ -411,7 +554,6 @@ void Renderer::_update_sprites()
 	m_SpriteInstanceBuffer.bind();
 	m_SpriteInstanceBuffer.upload_vertices(m_Sprites.mem,BUFFER_MAXIMUM_TEXTURE_COUNT,GL_DYNAMIC_DRAW);
 	m_SpritePipeline.enable();
-	m_GPUSpriteTextures.atlas.bind();
 	glDrawArraysInstanced(GL_TRIANGLES,0,6,m_Sprites.active_range);
 }
 
@@ -424,7 +566,6 @@ void Renderer::_update_text()
 	m_TextVertexArray.bind();
 	m_TextInstanceBuffer.bind();
 	m_TextPipeline.enable();
-	m_GPUFontTextures.atlas.bind();
 
 	// iterate text entities
 	for (Text& p_Text : m_Texts)
@@ -441,8 +582,31 @@ void Renderer::_update_canvas()
 {
 	m_CanvasVertexArray.bind();
 	m_CanvasPipeline.enable();
-	m_SceneFrameBuffer.bind_colour_component(0);
+	m_ForwardFrameBuffer.bind_colour_component(RENDERER_TEXTURE_FORWARD,0);
 	glDrawArrays(GL_TRIANGLES,0,6);
+}
+
+/**
+ *	update triangle meshes
+ */
+void Renderer::_update_mesh()
+{
+	// iterate static geometry
+	for (GeometryBatch& p_Batch : m_GeometryBatches)
+	{
+		p_Batch.shader->enable();
+		p_Batch.vao.bind();
+		for (u8 i=0;i<p_Batch.textures.size();i++) p_Batch.textures[i].bind(RENDERER_TEXTURE_UNMAPPED+i);
+		glDrawArrays(GL_TRIANGLES,0,p_Batch.vertex_count);
+	}
+
+	// iterate particle geometry
+	for (ParticleBatch& p_Batch : m_ParticleBatches)
+	{
+		p_Batch.shader->enable();
+		p_Batch.vao.bind();
+		glDrawArraysInstanced(GL_TRIANGLES,0,p_Batch.vertex_count,p_Batch.active_particles);
+	}
 }
 
 

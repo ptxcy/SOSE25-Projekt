@@ -7,8 +7,8 @@
 
 struct UpdateRoutine
 {
-	void (*update)(u8*);
-	u8* memory;
+	void (*update)(void*);
+	void* memory;
 };
 
 struct Wheel

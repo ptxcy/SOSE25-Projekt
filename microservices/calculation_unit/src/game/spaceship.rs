@@ -6,34 +6,20 @@ use super::{
 	action::{AsRaw, SafeAction},
 	coordinate::Coordinate,
 	crafting_material::CraftingMaterial,
-	game_objects::SpaceshipMap,
 	gametraits::{Craftable, IsOwned, Spawnable},
 	id_counter::IdCounter,
 	planet::{OrbitInfoMap, Planet},
 	planet_util::get_timefactor,
 };
 
-#[derive(Serialize, Debug, Clone, Default)]
+/// spacestation flying around each planet
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct Spacestation {
-	spaceships: SpaceshipMap,
+	parked: usize,
+	capacity: usize,
 }
 
-impl Spacestation {
-	pub fn depart(&mut self, id: usize, spaceships: *mut SpaceshipMap) {
-		match self.spaceships.remove(&id) {
-			Some(ship) => unsafe {
-				(*spaceships).insert(id, ship);
-			},
-			None => {
-				log_with_time(format!(
-					"no spaceship that can depart with that id: {}",
-					id
-				));
-			}
-		};
-	}
-}
-
+/// flying around the spaceship transporting troops and resources (incoming)
 #[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct Spaceship {
 	pub id: usize,
@@ -42,6 +28,8 @@ pub struct Spaceship {
 	pub velocity: Coordinate,
 	pub position: Coordinate,
 	pub target: Coordinate,
+	pub docking_mode: bool,
+	pub docking_at: Option<usize>,
 }
 
 impl Craftable for Spaceship {
@@ -67,24 +55,67 @@ impl Spawnable for Spaceship {
 }
 
 impl Spaceship {
-	pub fn arrive(self, spacestation: &mut Spacestation) {
-		spacestation.spaceships.insert(self.id, self);
+	/// arriving at a spacestation which is on a planet
+	pub fn arrive(
+		&self,
+		planet: &Planet,
+		planet_index: usize,
+	) -> Result<Vec<SafeAction>, String> {
+		log_with_time(format!(
+			"spaceship docking at space station on planet {}",
+			planet_index
+		));
+		let mut actions = Vec::<SafeAction>::new();
+		let spacestation = &planet.spacestation;
+		if spacestation.parked >= spacestation.capacity {
+			return Err(format!("space station is full, docking failed"));
+		}
+		// self.docking_at = Some(planet_index);
+		actions.push(SafeAction::SetDockingAt(
+			self.docking_at.raw_mut(),
+			Some(planet_index),
+		));
+		// spacestation.capacity += 1;
+		actions.push(SafeAction::AddUsize(spacestation.capacity.raw_mut(), 1));
+		Ok(actions)
 	}
-	pub fn new(owner: &String, speed: f64, id_counter: &mut IdCounter) -> Self {
+	/// departing from a spacestation which is on a planet
+	pub fn depart(&self, planet: &Planet) -> Vec<SafeAction> {
+		let mut actions = Vec::<SafeAction>::new();
+		// self.docking_at = None;
+		actions.push(SafeAction::SetDockingAt(self.docking_at.raw_mut(), None));
+		// planet.spacestation.capacity -= 1;
+		actions.push(SafeAction::SubUsize(
+			planet.spacestation.capacity.raw_mut(),
+			1,
+		));
+		// self.position.set(&planet.position);
+		actions.push(SafeAction::SetCoordinate {
+			coordinate: self.position.raw_mut(),
+			other: planet.position.c(),
+		});
+		actions
+	}
+	/// default constructor
+	pub fn new(owner: &String, speed: f64, id_counter: &mut IdCounter, position: Coordinate) -> Self {
 		let ship = Self {
 			id: id_counter.assign(),
 			owner: owner.clone(),
 			speed,
+			docking_mode: true,
+			position,
 			..Default::default()
 		};
 		ship
 	}
+	/// calculaton of the destination point depending on a planets orbit
 	pub fn fly_to_get_target(
 		&self,
 		planet: &Planet,
 		julian_day: f64,
 		orbit_info_map: &OrbitInfoMap,
 	) -> Coordinate {
+		// TODO FIXME something wrong?
 		let mut d = julian_day;
 		let mut duration_to = 0.;
 		let mut planet_positon = Coordinate::default();
@@ -93,7 +124,6 @@ impl Spaceship {
 				planet.get_position_at(get_timefactor(d), orbit_info_map);
 			let new_duration_to = self.duration_to(&planet_positon);
 			let diff = (duration_to - new_duration_to).abs();
-			// println!("diff: {}", diff);
 			if diff <= std::f64::EPSILON * 2. {
 				break;
 			}
@@ -102,12 +132,14 @@ impl Spaceship {
 		}
 		planet_positon
 	}
+	/// duration for a spaceship to arrive at a coordinate
 	pub fn duration_to(&self, target: &Coordinate) -> f64 {
 		let mut my_position = self.position.c();
 		let distance_vec = my_position.to(target);
 		let distance = distance_vec.norm();
 		distance / self.speed
 	}
+	/// update one spaceship (flying to target mostly)
 	pub fn update(&self, delta_days: f64) -> Vec<SafeAction> {
 		let mut actions = Vec::<SafeAction>::new();
 
@@ -122,7 +154,7 @@ impl Spaceship {
 
 		actions.push(SafeAction::SetCoordinate {
 			coordinate: self.velocity.raw_mut(),
-			other: newv
+			other: newv,
 		});
 		actions.push(SafeAction::AddCoordinate {
 			coordinate: self.position.raw_mut(),
@@ -140,11 +172,11 @@ impl Spaceship {
 			log_with_time("spaceship arrived at destination");
 			actions.push(SafeAction::SetCoordinate {
 				coordinate: self.position.raw_mut(),
-				other: self.target.clone()
+				other: self.target.clone(),
 			});
 			actions.push(SafeAction::SetCoordinate {
 				coordinate: self.velocity.raw_mut(),
-				other: Coordinate::default()
+				other: Coordinate::default(),
 			});
 		}
 

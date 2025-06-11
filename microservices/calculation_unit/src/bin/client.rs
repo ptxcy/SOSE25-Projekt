@@ -129,6 +129,7 @@ pub fn request_connect(username: &String) -> Vec<u8> {
 
 	let serialized_message = rmp_serde::to_vec(&client_message)
 		.expect("Failed to serialize message");
+	println!("bytes : {:?}", serialized_message);
 	serialized_message
 }
 
@@ -175,9 +176,16 @@ pub fn request_move(id: usize, username: &String) -> Vec<u8> {
 	serialized_message
 }
 
-pub fn request_set_spaceship_target(spaceship: usize, username: &String, planet: usize) -> Vec<u8> {
+pub fn request_set_spaceship_target(
+	spaceship: usize,
+	username: &String,
+	planet: usize,
+) -> Vec<u8> {
 	let client_message = ClientMessage {
-		request_data: new_set_spaceship_target(SetSpaceshipTarget { spaceship_id: spaceship, planet }),
+		request_data: new_set_spaceship_target(SetSpaceshipTarget {
+			spaceship_id: spaceship,
+			planet,
+		}),
 		username: username.clone(),
 		..Default::default()
 	};

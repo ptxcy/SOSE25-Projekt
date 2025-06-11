@@ -30,6 +30,7 @@ pub struct GameObjects {
 	pub spaceships: SpaceshipMap,
 }
 
+/// for dummy client in rust
 #[derive(Deserialize, Debug, Clone, Default)]
 pub struct GameObjectsReceive {
 	pub dummies: DummyMap,
@@ -38,7 +39,7 @@ pub struct GameObjectsReceive {
 	pub spaceships: SpaceshipMap,
 }
 
-// leight weight creating and no cloning needed
+/// leight weight creating and no cloning needed
 #[derive(Serialize, Debug, Clone, Default)]
 pub struct SendGameObjects<'a> {
 	pub dummies: SendDummyMap<'a>,
@@ -115,6 +116,10 @@ impl GameObjects {
 			game_objects as *const GameObjects,
 			delta_ingame_days,
 		));
+		threads.push(GameObjects::update_spaceship_planet_relations(
+			action_sender.clone(),
+			game_objects as *const GameObjects,
+		));
 
 		// wait for all threads to finish collecting their actions
 		for thread in threads {
@@ -184,6 +189,38 @@ impl GameObjects {
 				for (id, spaceship) in spaceships.iter() {
 					for action in spaceship.update(delta_days) {
 						action_sender.send(action).unwrap();
+					}
+				}
+			}
+		});
+		planets_handle
+	}
+
+	pub fn update_spaceship_planet_relations(
+		action_sender: Sender<SafeAction>,
+		game_objects: *const GameObjects,
+	) -> std::thread::JoinHandle<()> {
+		let planets_handle = std::thread::spawn({
+			let spaceships = unsafe { &(*game_objects).spaceships };
+			let planets = unsafe { &(*game_objects).planets };
+			move || {
+				for (id, spaceship) in spaceships.iter() {
+					for (i, planet) in planets.iter().enumerate() {
+						// spaceship docking checks
+						let mut distance = planet.position.c();
+						distance.sub(&spaceship.position);
+						let norm = distance.norm();
+						// TEMP checking for spaceship distance to planet actually after fly to
+						if i == 2 {
+							// println!("norm {}", norm);
+						}
+						if norm < f64::EPSILON * 2. && spaceship.docking_mode {
+							// spaceship can and wants to dock
+							let actions = spaceship.arrive(planet, i).unwrap();
+							for action in actions {
+								action_sender.send(action).unwrap();
+							}
+						}
 					}
 				}
 			}

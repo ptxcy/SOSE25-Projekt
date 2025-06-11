@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.16..3.30)
 project(MeinProjekt)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -29,15 +29,10 @@ FetchContent_Declare(
 )
 
 FetchContent_Declare(
-    glew
-    GIT_REPOSITORY https://github.com/nigels-com/glew.git
-    GIT_TAG glew-2.2.0
-)
-
-FetchContent_Declare(
     boost
     GIT_REPOSITORY https://github.com/boostorg/boost.git
-    GIT_TAG boost-1.82.0
+    GIT_TAG boost-1.88.0
+
 )
 
 FetchContent_Declare(
@@ -55,11 +50,27 @@ FetchContent_Declare(
 FetchContent_Declare(
     freetype
     GIT_REPOSITORY https://github.com/freetype/freetype.git
-    GIT_TAG VER-2-10-4
+    GIT_TAG VER-2-13-3
 )
 
+set(CMAKE_POLICY_DEFAULT_CMP0000 NEW)
+
 # Make all libraries available
-FetchContent_MakeAvailable(cpr fmt spdlog glew stb SDL2 freetype)
+FetchContent_MakeAvailable(cpr fmt spdlog stb SDL2 freetype)
+
+# GLEW über find_package einbinden
+find_package(GLEW REQUIRED)
+include_directories(${GLEW_INCLUDE_DIRS})
+
+# stb_image.h automatisch herunterladen
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/core/include")
+file(DOWNLOAD
+    "https://raw.githubusercontent.com/nothings/stb/master/stb_image.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/core/include/stb_image.h"
+)
+
+include_directories(${CMAKE_BINARY_DIR})
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/core/include")
 
 # Verzeichnisse für Quellcode und Header-Dateien
 include_directories(
@@ -75,7 +86,7 @@ add_definitions(
 )
 
 # Bibliotheken zum Linken - verwende CMake-Targets wo möglich
-set(LIBS "-framework OpenGL" GLEW::glew_s SDL2::SDL2-static pthread freetype cpr::cpr fmt::fmt spdlog::spdlog)
+set(LIBS "-framework OpenGL" GLEW::GLEW SDL2::SDL2-static pthread freetype cpr::cpr fmt::fmt spdlog::spdlog)
 
 # Debug und Release Flags
 set(CMAKE_CXX_FLAGS_DEBUG "-pg -g -O0 -DDEBUG")

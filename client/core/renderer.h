@@ -8,6 +8,14 @@
 
 constexpr f32 RENDERER_POSITIONAL_DELETION_CODE = -1247.f;
 
+enum TextureChannelMap : u8
+{
+	RENDERER_TEXTURE_SPRITES,
+	RENDERER_TEXTURE_FONTS,
+	RENDERER_TEXTURE_FORWARD,
+	RENDERER_TEXTURE_UNMAPPED
+};
+
 
 // ----------------------------------------------------------------------------------------------------
 // States
@@ -55,6 +63,15 @@ struct TextCharacter
 	PixelBufferComponent comp;
 };
 
+struct Vertex
+{
+	vec3 position;
+	vec2 uv;
+	vec3 normal;
+	vec3 tangent;
+};
+constexpr u8 RENDERER_VERTEX_SIZE = sizeof(Vertex)/sizeof(f32);
+
 
 // ----------------------------------------------------------------------------------------------------
 // Entity Data
@@ -75,6 +92,50 @@ struct Text
 	Alignment alignment;
 	string data;
 	vector<TextCharacter> buffer;
+};
+
+class Mesh
+{
+public:
+	Mesh(const char* path);
+
+public:
+	vector<Vertex> vertices;
+};
+
+
+// ----------------------------------------------------------------------------------------------------
+// Batches
+
+struct GeometryBatch
+{
+	// utility
+	void load();
+
+	// data
+	VertexArray vao;
+	VertexBuffer vbo;
+	lptr<ShaderPipeline> shader;
+	vector<Texture> textures;
+	vector<float> geometry;
+	u32 vertex_count;  // TODO kick this out somehow
+};
+// TODO detached texture load after definition
+// TODO also link to registered textures and iterate to reduce memory consumption
+
+struct ParticleBatch
+{
+	// utility
+	void load();
+
+	// data
+	VertexArray vao;
+	VertexBuffer vbo;
+	VertexBuffer ibo;
+	lptr<ShaderPipeline> shader;
+	vector<float> geometry;
+	u32 vertex_count;  // TODO kick this out somehow
+	u32 active_particles = 0;
 };
 
 
@@ -102,6 +163,11 @@ public:
 	lptr<Text> write_text(Font* font,string data,vec2 position,f32 scale,vec4 colour=vec4(1),Alignment align={});
 	inline void delete_text(lptr<Text> text) { m_Texts.erase(text); }
 
+	// scene
+	lptr<ShaderPipeline> register_pipeline(VertexShader& vs,FragmentShader& fs);
+	lptr<GeometryBatch> register_geometry_batch(lptr<ShaderPipeline> pipeline);
+	lptr<ParticleBatch> register_particle_batch(lptr<ShaderPipeline> pipeline);
+
 	// utility
 	static vec2 align(Rect geom,Alignment alignment);
 
@@ -110,6 +176,7 @@ private:
 	void _update_sprites();
 	void _update_text();
 	void _update_canvas();
+	void _update_mesh();
 
 	// background procedures
 	template<typename T> static void _collector(InPlaceArray<T>* xs,ThreadSignal* signal);
@@ -121,7 +188,7 @@ private:
 #ifdef DEBUG
 	RuntimeProfilerData m_ProfilerFullFrame = PROF_CRT("full frametime");
 #endif
-	time m_FrameStart;
+	std::chrono::steady_clock::time_point m_FrameStart;
 
 	// ----------------------------------------------------------------------------------------------------
 	// Threading
@@ -146,7 +213,7 @@ private:
 	ShaderPipeline m_TextPipeline;
 	ShaderPipeline m_CanvasPipeline;
 
-	Framebuffer m_SceneFrameBuffer = Framebuffer(1);
+	Framebuffer m_ForwardFrameBuffer = Framebuffer(1);
 
 	// ----------------------------------------------------------------------------------------------------
 	// Render Object Information
@@ -162,6 +229,11 @@ private:
 	InPlaceArray<Font> m_Fonts = InPlaceArray<Font>(RENDERER_MAXIMUM_FONT_COUNT);
 	list<Text> m_Texts;
 	// FIXME font memory is too strict and i don't think this is a nice approach in this case
+
+	// mesh
+	list<ShaderPipeline> m_ShaderPipelines;
+	list<GeometryBatch> m_GeometryBatches;
+	list<ParticleBatch> m_ParticleBatches;
 };
 
 inline Renderer g_Renderer = Renderer();

@@ -1,7 +1,6 @@
 #include "websocket.h"
 #ifdef FEAT_MULTIPLAYER
 
-
 // ----------------------------------------------------------------------------------------------------
 // HTTP Adapter
 
@@ -10,8 +9,8 @@
  *	\param input: string to encode into base64
  *	\returns input encoded into base64
  */
-static const char* chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-string _encode(const std::string& input)
+static const char *chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+string _encode(const std::string &input)
 {
 	string result;
 	int val = 0;
@@ -26,10 +25,12 @@ string _encode(const std::string& input)
 			valb -= 6;
 		}
 	}
-	if (valb > -6) result.push_back(chars[((val << 8) >> (valb + 8)) & 0x3F]);
+	if (valb > -6)
+		result.push_back(chars[((val << 8) >> (valb + 8)) & 0x3F]);
 
 	// Add padding
-	while (result.size() % 4) result.push_back('=');
+	while (result.size() % 4)
+		result.push_back('=');
 	return result;
 }
 
@@ -38,9 +39,10 @@ string _encode(const std::string& input)
  *	\param host: adapter host
  *	\param port: adapter port
  */
-HTTPAdapter::HTTPAdapter(string& host,string& port)
-	: m_Addr("http://"+host+':'+port)
-{  }
+HTTPAdapter::HTTPAdapter(string &host, string &port)
+	: m_Addr("http://" + host + ':' + port)
+{
+}
 
 /**
  *	create a user for login
@@ -48,15 +50,15 @@ HTTPAdapter::HTTPAdapter(string& host,string& port)
  *	\param password: password for login
  *	\returns true if user has been created successfully
  */
-bool HTTPAdapter::create_user(string& username,string& password)
+bool HTTPAdapter::create_user(string &username, string &password)
 {
 	string body = R"({"username":")" + username + R"(","password":")" + password + R"("})";
-	COMM_LOG("%s,%s",m_Addr.c_str(),body.c_str());
+	COMM_LOG("%s,%s", m_Addr.c_str(), body.c_str());
 	cpr::Response response = cpr::Post(
-		cpr::Url{m_Addr+"/user"},
+		cpr::Url{m_Addr + "/user"},
 		cpr::Header{{"Content-Type", "application/json"}},
 		cpr::Body{body});
-	COMM_LOG("[ADAPTER] user creation response -> %s (Status: %ld)",response.text.c_str(),response.status_code);
+	COMM_LOG("[ADAPTER] user creation response -> %s (Status: %ld)", response.text.c_str(), response.status_code);
 	return response.status_code == 200;
 }
 
@@ -66,16 +68,17 @@ bool HTTPAdapter::create_user(string& username,string& password)
  *	\param password: password for authentication
  *	\returns authentication token
  */
-string HTTPAdapter::authenticate_on_server(string& username,string& password)
+string HTTPAdapter::authenticate_on_server(string &username, string &password)
 {
 	string basicAuth = "Basic " + _encode(username + ":" + password);
 	cpr::Response response = cpr::Get(
-		cpr::Url{m_Addr+"/authenticate"},
+		cpr::Url{m_Addr + "/authenticate"},
 		cpr::Header{{"Authorization", basicAuth}});
-	COMM_LOG("[ADAPTER] server auth response -> %s (Status: %ld)",response.text.c_str(),response.status_code);
+	COMM_LOG("[ADAPTER] server auth response -> %s (Status: %ld)", response.text.c_str(), response.status_code);
 
 	string authHeader = response.header["Authorization"];
-	if (response.status_code==200&&authHeader.find("Bearer ")==0) return authHeader;
+	if (response.status_code == 200 && authHeader.find("Bearer ") == 0)
+		return authHeader;
 	return "";
 }
 
@@ -85,36 +88,37 @@ string HTTPAdapter::authenticate_on_server(string& username,string& password)
  *	\param lobby_password: password of the lobby
  *	\param jwt_token: authentication token for lobby interaction
  *	\param create: true if new lobby should be created, false if existing lobby should be joined
+ *	\returns lobby connection status
  */
-void HTTPAdapter::open_lobby(string& lobby_name,string& lobby_password,string& jwt_token,bool create)
+LobbyStatus HTTPAdapter::open_lobby(string &lobby_name, string &lobby_password, string &jwt_token, bool create)
 {
 	string body = R"({"lobbyName":")" + lobby_name + R"(")";
 	body += R"(,"lobbyPassword":")" + lobby_password + R"(")";
 	body += "}";
 
 	// create lobby
+	cpr::Response response;
 	if (create)
 	{
-		cpr::Response response = cpr::Post(
-				cpr::Url{m_Addr+"/lobbys"},
-				cpr::Header{{"Authorization",jwt_token}, {"Content-Type", "application/json"}},
-				cpr::Body{body}
-			);
-		COMM_LOG("lobby creation response -> %s (Status: %ld)",response.text.c_str(),response.status_code);
+		response = cpr::Post(
+			cpr::Url{m_Addr + "/lobbys"},
+			cpr::Header{{"Authorization", jwt_token}, {"Content-Type", "application/json"}},
+			cpr::Body{body});
+		COMM_LOG("lobby creation response -> %s (Status: %ld)", response.text.c_str(), response.status_code);
 	}
 
 	// join lobby
 	else
 	{
-		cpr::Response response = cpr::Put(
-			cpr::Url{m_Addr+"/lobbys"},
-			cpr::Header{{"Authorization",jwt_token}, {"Content-Type", "application/json"}},
-			cpr::Body{body}
-			);
-		COMM_LOG("lobby join response -> %s (Status: %ld)",response.text.c_str(),response.status_code);
+		response = cpr::Put(
+			cpr::Url{m_Addr + "/lobbys"},
+			cpr::Header{{"Authorization", jwt_token}, {"Content-Type", "application/json"}},
+			cpr::Body{body});
+		COMM_LOG("lobby join response -> %s (Status: %ld)", response.text.c_str(), response.status_code);
 	}
-}
 
+	return (LobbyStatus)((u32)LOBBY_USER_REFUSED + (response.status_code == 200 || response.status_code == 409));
+}
 
 // ----------------------------------------------------------------------------------------------------
 // Websocket Connection
@@ -124,37 +128,42 @@ void HTTPAdapter::open_lobby(string& lobby_name,string& lobby_password,string& j
  *	\param c: websocket data
  *	NOTE this is meant to be executed in a subthread, so the queues are filled asynchronously
  */
-void _handle_websocket_download(Websocket* c)
+void _handle_websocket_download(Websocket *c)
 {
 	while (c->running)
 	{
 		try
-		{
-			// read buffer
+		{ // read buffer
 			boost::beast::flat_buffer response_buffer;
 			c->ws.read(response_buffer);
 			auto data = response_buffer.data();
-			const char* raw_data = boost::asio::buffer_cast<const char*>(data);
+			const char *raw_data = static_cast<const char *>(data.data());
 			size_t data_size = data.size();
 
 			// create a msgpack zone for allocation
+			msgpack::object_handle oh;
 			msgpack::zone zone;
-			msgpack::object obj = msgpack::unpack(raw_data,data_size,nullptr,&zone).get();
-			//COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<obj).str().c_str());
+			msgpack::unpack(oh, raw_data, data_size, nullptr, &zone);
+			msgpack::object obj = oh.get();
+			// COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<obj).str().c_str());
 
 			// try to convert to our ServerMessage structure
 			ServerMessage message;
 			obj.convert(message);
-			c->mutex_server_messages.lock();
-			c->server_messages.push(message);
-			/*
-			COMM_LOG("Parsed Response -> ID: %s, QSize: %li",
-					 message.request_data.target_user_id.c_str(),c->server_messages.size());
-			*/
-			c->mutex_server_messages.unlock();
+			c->mutex_server_state.lock();
+			c->server_state = message;
+			c->state_update = true;
+			c->mutex_server_state.unlock();
 		}
-		catch (const std::exception& e) { COMM_ERR("parsing server response -> %s",e.what()); }
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		catch (const msgpack::insufficient_bytes &e)
+		{
+			COMM_ERR("incomplete data -> %s", e.what());
+		}
+		catch (const std::exception &e)
+		{
+			COMM_ERR("parsing server response -> %s", e.what());
+		}
+		// std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }
 
@@ -163,11 +172,12 @@ void _handle_websocket_download(Websocket* c)
  *	\param c: websocket data
  *	NOTE this is meant to be executed in a subthread, so the queues are filled asynchronously
  */
-void _handle_websocket_upload(Websocket* c)
+void _handle_websocket_upload(Websocket *c)
 {
 	while (c->running)
 	{
-		if (!c->client_messages.size()) continue;
+		if (!c->client_messages.size())
+			continue;
 		try
 		{
 			c->mutex_client_messages.lock();
@@ -175,11 +185,14 @@ void _handle_websocket_upload(Websocket* c)
 			c->client_messages.pop();
 			c->mutex_client_messages.unlock();
 			msgpack::sbuffer msg_buffer;
-			msgpack::pack(msg_buffer,outMsg);
-			c->ws.write(boost::asio::buffer(msg_buffer.data(),msg_buffer.size()));
+			msgpack::pack(msg_buffer, outMsg);
+			c->ws.write(boost::asio::buffer(msg_buffer.data(), msg_buffer.size()));
 			c->mutex_client_messages.unlock();
 		}
-		catch (const std::exception& e) { COMM_ERR("sending upload -> %s",e.what()); }
+		catch (const std::exception &e)
+		{
+			COMM_ERR("sending upload -> %s", e.what());
+		}
 	}
 }
 
@@ -188,20 +201,25 @@ void _handle_websocket_upload(Websocket* c)
  *	\param value: parameter value to encode
  *	\returns encoded parameter
  */
-std::string _url_encode(string& value) {
-    std::ostringstream escaped;
-    escaped.fill('0');
-    escaped << std::hex;
+std::string _url_encode(string &value)
+{
+	std::ostringstream escaped;
+	escaped.fill('0');
+	escaped << std::hex;
 
-    for (char c : value) {
-        if (isalnum(static_cast<unsigned char>(c)) || c == '-' || c == '_' || c == '.' || c == '~') {
-            escaped << c;
-        } else {
-            escaped << '%' << std::setw(2) << std::uppercase << int((unsigned char)c);
-        }
-    }
+	for (char c : value)
+	{
+		if (isalnum(static_cast<unsigned char>(c)) || c == '-' || c == '_' || c == '.' || c == '~')
+		{
+			escaped << c;
+		}
+		else
+		{
+			escaped << '%' << std::setw(2) << std::uppercase << int((unsigned char)c);
+		}
+	}
 
-    return escaped.str();
+	return escaped.str();
 }
 
 /**
@@ -215,34 +233,39 @@ std::string _url_encode(string& value) {
  *	\param lpass: lobby password
  *	\param creator: true if connection attempt creates a new lobby, false if user joins a created lobby
  */
-void Websocket::connect(string host,string port_ad,string port_ws,string name,string pass,string lnom,
-						string lpass,bool create)
+void Websocket::connect(string host, string port_ad, string port_ws, string name, string pass, string lnom,
+						string lpass, bool create)
 {
+	username = name;
+
 	// adapter connection
-	HTTPAdapter __Adapter = HTTPAdapter(host,port_ad);
-	COMM_ERR_COND(!__Adapter.create_user(name,pass),"user creation did not work");
-	string token = __Adapter.authenticate_on_server(name,pass);
-	__Adapter.open_lobby(lnom,lpass,token,create);
+	HTTPAdapter __Adapter = HTTPAdapter(host, port_ad);
+	COMM_ERR_COND(!__Adapter.create_user(name, pass), "user creation did not work");
+	string token = __Adapter.authenticate_on_server(name, pass);
+	lobby_status = __Adapter.open_lobby(lnom, lpass, token, create);
 
 	// websocket connection
 	try
 	{
-		COMM_LOG("Connecting to WebSocket server at %s:%s...",host.c_str(),port_ws.c_str());
-		auto results = boost::asio::ip::tcp::resolver{ioc}.resolve(host,port_ws);
-		auto ep = boost::asio::connect(ws.next_layer(),results);
-		ws.handshake(host+':'+std::to_string(ep.port()),"/calculate?authToken="+_url_encode(token));
+		COMM_LOG("Connecting to WebSocket server at %s:%s...", host.c_str(), port_ws.c_str());
+		auto results = boost::asio::ip::tcp::resolver{ioc}.resolve(host, port_ws);
+		auto ep = boost::asio::connect(ws.next_layer(), results);
+		ws.handshake(host + ':' + std::to_string(ep.port()), "/calculate?authToken=" + _url_encode(token));
 		ws.binary(true);
 		COMM_SCC("Connected to server successfully!");
 		// FIXME find out if the ep.port call has merit and if not replace it by predefined parameter
 
 		// start traffic handler
-		m_HandleWebsocketDownload = std::thread(_handle_websocket_download,this);
+		m_HandleWebsocketDownload = std::thread(_handle_websocket_download, this);
 		m_HandleWebsocketDownload.detach();
-		m_HandleWebsocketUpload = std::thread(_handle_websocket_upload,this);
+		m_HandleWebsocketUpload = std::thread(_handle_websocket_upload, this);
 		m_HandleWebsocketUpload.detach();
 		connected = true;
 	}
-	catch (std::exception const &e) { COMM_ERR("Connection Error: %s",e.what()); }
+	catch (std::exception const &e)
+	{
+		COMM_ERR("Connection Error: %s", e.what());
+	}
 }
 // FIXME extensive usage of try-catch statements is very slow
 
@@ -252,10 +275,10 @@ void Websocket::connect(string host,string port_ad,string port_ws,string name,st
  */
 ServerMessage Websocket::receive_message()
 {
-	mutex_server_messages.lock();
-	ServerMessage msg = std::move(server_messages.front());
-	server_messages.pop();
-	mutex_server_messages.unlock();
+	mutex_server_state.lock();
+	ServerMessage msg = std::move(server_state);
+	state_update = false;
+	mutex_server_state.unlock();
 	return std::move(msg);
 }
 // FIXME in sending and receiving like this there is a lot of copying going on. not ideal cpu usage
@@ -277,10 +300,11 @@ void Websocket::send_message(ClientMessage msg)
  */
 void Websocket::exit()
 {
-	if (!connected) return;
+	if (!connected)
+		return;
 	running = false;
-	//m_HandleWebsocketDownload.join();
-	//m_HandleWebsocketUpload.join();
+	// m_HandleWebsocketDownload.join();
+	// m_HandleWebsocketUpload.join();
 }
 
 #endif

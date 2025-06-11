@@ -25,8 +25,8 @@ bool check_file_exists(const char* path)
  *	\param size: size of bit sequence. this is the exact amount of needed bits, not in fact a bytelength
  */
 BitwiseWords::BitwiseWords(size_t size)
-	: m_Size(size/MEM_WIDTH+1)
 {
+	m_Size = (size+MEM_WIDTH-1)>>MEM_SHIFT;
 	m_Data = (__system_word*)malloc(m_Size*sizeof(__system_word));
 	reset();
 }
@@ -102,4 +102,40 @@ CoordinateSystem2D::CoordinateSystem2D(f32 xaxis,f32 yaxis)
 {
 	view = glm::lookAt(vec3(0,-.0001f,1),vec3(.0f),vec3(0,0,1));
 	proj = glm::ortho(.0f,xaxis,.0f,yaxis,.1f,10.f);
+}
+
+
+// ----------------------------------------------------------------------------------------------------
+// Camera
+
+/**
+ *	create 3D camera
+ *	\param tgt: starting camera view focus target
+ *	\param width: screen resolution width, can also be downscaled to ratio
+ *	\param height: screen resolution height, can also be downscaled to ratio
+ *	\param ifov: field of view in degrees
+ *	TODO
+ */
+Camera3D::Camera3D(vec3 tgt,f32 dist,f32 p,f32 y,f32 width,f32 height,f32 ifov)
+	: target(tgt),distance(dist),pitch(p),yaw(y),fov(ifov),m_Ratio(width/height)
+{
+	update();
+	project();
+}
+
+/**
+ *	update camera view matrix based on position and target parameters
+ */
+void Camera3D::update()
+{
+	position = vec3(cos(pitch)*sin(yaw),cos(pitch)*cos(yaw),-sin(pitch))*distance+target;
+	view = glm::lookAt(position,target,vec3(0,0,-1));
+}
+
+/**
+ *	update camera projection
+ */
+void Camera3D::project()
+{
+	proj = glm::perspective(glm::radians(fov),m_Ratio,near,far);
 }

@@ -5,26 +5,31 @@ use super::{
 	gametraits::HasPosition,
 	orbit::OrbitInfo,
 	planet_util::calculate_planet,
+	spaceship::Spacestation,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 pub type OrbitInfoMap = HashMap<String, fn(f64) -> OrbitInfo>;
 
+/// planet in solar system containing more information
 #[derive(Serialize, Debug, Clone, Default)]
 pub struct Planet {
 	pub name: String,
 	pub position: Coordinate,
 	pub building_regions: Vec<BuildingRegion>,
 	pub size: f64,
+	pub spacestation: Spacestation,
 }
 
+/// planet in solar system containing more information for receing
 #[derive(Deserialize, Debug, Clone, Default)]
 pub struct PlanetReceive {
 	pub name: String,
 	pub position: Coordinate,
 	pub building_regions: Vec<BuildingRegionReceive>,
 	pub size: f64,
+	pub spacestation: Spacestation,
 }
 
 impl Planet {
