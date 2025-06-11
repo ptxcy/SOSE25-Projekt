@@ -210,7 +210,7 @@ impl GameObjects {
 						let mut distance = planet.position.c();
 						distance.sub(&spaceship.position);
 						let norm = distance.norm();
-						// TEMP checking for spaceship distance to planet actually after fly to
+						// TEMP FIXME checking for spaceship distance to planet actually after fly to earth
 						if i == 2 {
 							// println!("norm {}", norm);
 						}

@@ -117,18 +117,19 @@ impl Spaceship {
 	) -> Coordinate {
 		// TODO FIXME something wrong?
 		let mut d = julian_day;
-		let mut duration_to = 0.;
+		let mut planet_duration = 0.;
 		let mut planet_positon = Coordinate::default();
 		for _ in 0..100 {
 			planet_positon =
 				planet.get_position_at(get_timefactor(d), orbit_info_map);
 			let new_duration_to = self.duration_to(&planet_positon);
-			let diff = (duration_to - new_duration_to).abs();
+			let diff = (planet_duration - new_duration_to).abs();
+			// println!("planet ({},{}), d: {}", planet_positon.x, planet_positon.y, d);
 			if diff <= std::f64::EPSILON * 2. {
 				break;
 			}
-			duration_to = new_duration_to;
-			d = julian_day + duration_to;
+			planet_duration = new_duration_to;
+			d = julian_day + planet_duration;
 		}
 		planet_positon
 	}
@@ -136,8 +137,8 @@ impl Spaceship {
 	pub fn duration_to(&self, target: &Coordinate) -> f64 {
 		let mut my_position = self.position.c();
 		let distance_vec = my_position.to(target);
-		let distance = distance_vec.norm();
-		distance / self.speed
+		let length = distance_vec.norm();
+		length / self.speed
 	}
 	/// update one spaceship (flying to target mostly)
 	pub fn update(&self, delta_days: f64) -> Vec<SafeAction> {
@@ -170,6 +171,7 @@ impl Spaceship {
 		let frame_flight_distance = self.velocity.norm() * delta_days;
 		if norm < frame_flight_distance {
 			log_with_time("spaceship arrived at destination");
+			// panic!();
 			actions.push(SafeAction::SetCoordinate {
 				coordinate: self.position.raw_mut(),
 				other: self.target.clone(),
