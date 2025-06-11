@@ -54,7 +54,7 @@ export type CraftingMaterial = [
     number
 ];
 
-type Planet = [
+export type Planet = [
     string,
     Coordinate,
     BuildingRegion[],
@@ -62,7 +62,7 @@ type Planet = [
     Spacestation
 ];
 
-type Spacestation = [
+export type Spacestation = [
     number,
     number,
 ]
