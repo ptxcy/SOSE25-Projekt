@@ -57,9 +57,9 @@ public:
 	LobbyStatus lobby_status = LOBBY_UNCONNECTED;
 
 	// messages
-	std::queue<ServerMessage> server_messages;
+	ServerMessage server_state;
 	std::queue<ClientMessage> client_messages;
-	std::mutex mutex_server_messages;
+	std::mutex mutex_server_state;
 	std::mutex mutex_client_messages;
 
 private:

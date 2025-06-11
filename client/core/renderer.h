@@ -133,7 +133,6 @@ struct ParticleBatch
 	VertexBuffer vbo;
 	VertexBuffer ibo;
 	lptr<ShaderPipeline> shader;
-	//GPUPixelBuffer texture;
 	vector<float> geometry;
 	u32 vertex_count;  // TODO kick this out somehow
 	u32 active_particles = 0;

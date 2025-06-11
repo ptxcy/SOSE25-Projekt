@@ -607,8 +607,6 @@ void Renderer::_update_mesh()
 		p_Batch.vao.bind();
 		glDrawArraysInstanced(GL_TRIANGLES,0,p_Batch.vertex_count,p_Batch.active_particles);
 	}
-
-	//m_GPUSpriteTextures.atlas.bind();
 }
 
 

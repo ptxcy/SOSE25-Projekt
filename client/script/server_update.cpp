@@ -18,7 +18,7 @@ ServerUpdate::ServerUpdate(StarSystem* ssys)
  */
 void ServerUpdate::update()
 {
-	if (!g_Websocket.server_messages.size()) return;
+	if (!g_Websocket.state_update) return;
 	ServerMessage msg = g_Websocket.receive_message();
 	for (u8 i=0;i<msg.request_data.game_objects.planets.size();i++)
 	{

@@ -122,8 +122,6 @@ struct Font
 	u16 size;
 };
 
-constexpr u16 BUFFER_MAXIMUM_TEXTURE_COUNT = 1024;
-constexpr u8 BUFFER_ATLAS_BORDER_PADDING = 32;
 struct GPUPixelBuffer
 {
 	// utilty

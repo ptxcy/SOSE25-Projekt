@@ -151,13 +151,10 @@ void _handle_websocket_download(Websocket* c)
 			// try to convert to our ServerMessage structure
 			ServerMessage message;
 			obj.convert(message);
-			c->mutex_server_messages.lock();
-			c->server_messages.push(message);
-			/*
-			COMM_LOG("Parsed Response -> ID: %s, QSize: %li",
-					 message.request_data.target_user_id.c_str(),c->server_messages.size());
-			*/
-			c->mutex_server_messages.unlock();
+			c->mutex_server_state.lock();
+			c->server_state = message;
+			c->state_update = true;
+			c->mutex_server_state.unlock();
 		}
 		catch (const msgpack::insufficient_bytes& e) { COMM_ERR("incomplete data -> %s",e.what()); }
 		catch (const std::exception& e) { COMM_ERR("parsing server response -> %s",e.what()); }
@@ -261,11 +258,10 @@ void Websocket::connect(string host,string port_ad,string port_ws,string name,st
  */
 ServerMessage Websocket::receive_message()
 {
-	mutex_server_messages.lock();
-	ServerMessage msg = std::move(server_messages.back());
-	//server_messages.pop();
-	server_messages = queue<ServerMessage>();
-	mutex_server_messages.unlock();
+	mutex_server_state.lock();
+	ServerMessage msg = std::move(server_state);
+	state_update = false;
+	mutex_server_state.unlock();
 	return std::move(msg);
 }
 // FIXME in sending and receiving like this there is a lot of copying going on. not ideal cpu usage
