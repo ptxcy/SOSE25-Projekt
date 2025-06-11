@@ -2,7 +2,7 @@ FROM --platform=linux/amd64 ubuntu:24.04
 
 WORKDIR /app
 
-# Installiere fehlende Abhängigkeiten und stelle sicher, dass die Bibliotheken unter /usr/lib landen
+# Installiere fehlende Abhängigkeiten
 RUN apt update && apt install -y \
     gcc \
     libc6 \
@@ -14,5 +14,8 @@ RUN apt update && apt install -y \
 
 COPY . .
 
-#CMD ["sh", "-c", "ls -l /usr/lib && ./target/release/calculation_unit"]
-CMD ["./target/release/calculation_unit"]
+# Erhalte SERVICE_PORT aus build-arg und setze ihn als Umgebungsvariable
+ARG SERVICE_PORT
+ENV SERVICE_PORT=${SERVICE_PORT}
+CMD ["sh", "-c", "./target/release/calculation_unit $SERVICE_PORT"]
+
