@@ -180,16 +180,14 @@ Mesh::Mesh(const char* path)
 /**
  *	upload load batch geometry to gpu
  */
-/*
-void MeshBatch::load()
+void GeometryBatch::load()
 {
-	COMM_LOG("uploading geometry batch to gpu, %d faces found",mesh_vertex_size);
+	COMM_LOG("uploading geometry batch to gpu");
 	vao.bind();
 	vbo.bind();
-	vbo.upload_vertices(meshes);
+	vbo.upload_vertices(geometry);
 	shader->map(&vbo);
 }
-*/
 
 /**
  *	load particle mesh into batch memory
@@ -202,6 +200,7 @@ void ParticleBatch::load()
 	vbo.upload_vertices(geometry);
 	shader->map(&vbo,&ibo);
 }
+// FIXME absolutely twinning :3
 
 
 // ----------------------------------------------------------------------------------------------------
@@ -247,7 +246,7 @@ Renderer::Renderer()
 	m_SpriteVertexBuffer.upload_vertices(__QuadVertices,24);
 	m_SpritePipeline.map(&m_SpriteVertexBuffer,&m_SpriteInstanceBuffer);
 
-	m_SpritePipeline.upload("tex",0);
+	m_SpritePipeline.upload("tex",RENDERER_TEXTURE_SPRITES);
 	m_SpritePipeline.upload_coordinate_system();
 
 	COMM_LOG("text pipeline");
@@ -256,7 +255,7 @@ Renderer::Renderer()
 	m_SpriteVertexBuffer.bind();
 	m_TextPipeline.map(&m_SpriteVertexBuffer,&m_TextInstanceBuffer);
 
-	m_TextPipeline.upload("tex",0);
+	m_TextPipeline.upload("tex",RENDERER_TEXTURE_FONTS);
 	m_TextPipeline.upload_coordinate_system();
 
 	COMM_LOG("canvas pipeline");
@@ -266,19 +265,19 @@ Renderer::Renderer()
 	m_CanvasVertexBuffer.upload_vertices(__CanvasVertices,24);
 	m_CanvasPipeline.map(&m_CanvasVertexBuffer);
 
-	m_CanvasPipeline.upload("tex",0);
+	m_CanvasPipeline.upload("tex",RENDERER_TEXTURE_FORWARD);
 
 	// ----------------------------------------------------------------------------------------------------
 	// GPU Memory
 
 	COMM_LOG("allocating sprite memory");
-	m_GPUSpriteTextures.atlas.bind();
+	m_GPUSpriteTextures.atlas.bind(RENDERER_TEXTURE_SPRITES);
 	m_GPUSpriteTextures.allocate(RENDERER_SPRITE_MEMORY_WIDTH,RENDERER_SPRITE_MEMORY_HEIGHT,GL_RGBA);
 	Texture::set_texture_parameter_linear_mipmap();
 	Texture::set_texture_parameter_clamp_to_edge();
 
 	COMM_LOG("allocating font memory");
-	m_GPUFontTextures.atlas.bind();
+	m_GPUFontTextures.atlas.bind(RENDERER_TEXTURE_FONTS);
 	m_GPUFontTextures.allocate(RENDERER_FONT_MEMORY_WIDTH,RENDERER_FONT_MEMORY_HEIGHT,GL_RED);
 	Texture::set_texture_parameter_linear_mipmap();
 	Texture::set_texture_parameter_clamp_to_edge();
@@ -287,10 +286,10 @@ Renderer::Renderer()
 	// Render Targets
 
 	COMM_LOG("creating scene render target");
-	m_SceneFrameBuffer.start();
-	m_SceneFrameBuffer.define_colour_component(0,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y);
-	m_SceneFrameBuffer.define_depth_component(FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y);
-	m_SceneFrameBuffer.finalize();
+	m_ForwardFrameBuffer.start();
+	m_ForwardFrameBuffer.define_colour_component(0,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y);
+	m_ForwardFrameBuffer.define_depth_component(FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y);
+	m_ForwardFrameBuffer.finalize();
 	Framebuffer::stop();
 
 	// ----------------------------------------------------------------------------------------------------
@@ -304,8 +303,6 @@ Renderer::Renderer()
 	m_SpriteTextureCollector = thread(Renderer::_collector<PixelBufferComponent>,
 									  &m_GPUSpriteTextures.textures,&_sprite_texture_signal);
 	m_SpriteTextureCollector.detach();
-
-	m_GPUSpriteTextures.atlas.bind();
 	COMM_SCC("render system ready.");
 }
 // TODO join collector processes when exiting renderer, or maybe just let the os handle that and not care?
@@ -319,7 +316,7 @@ void Renderer::update()
 
 	// 3D segment
 	glEnable(GL_DEPTH_TEST);
-	m_SceneFrameBuffer.start();
+	m_ForwardFrameBuffer.start();
 	_update_mesh();
 	Framebuffer::stop();
 
@@ -327,7 +324,6 @@ void Renderer::update()
 	glDisable(GL_DEPTH_TEST);
 	_update_canvas();
 	_update_sprites();
-	m_GPUFontTextures.atlas.bind();
 	_update_text();
 
 	// end-frame gpu management
@@ -545,8 +541,8 @@ vec2 Renderer::align(Rect geom,Alignment alignment)
  */
 void Renderer::_gpu_upload()
 {
-	m_GPUFontTextures.gpu_upload(m_FrameStart);
-	m_GPUSpriteTextures.gpu_upload(m_FrameStart);
+	m_GPUSpriteTextures.gpu_upload(RENDERER_TEXTURE_SPRITES,m_FrameStart);
+	m_GPUFontTextures.gpu_upload(RENDERER_TEXTURE_FONTS,m_FrameStart);
 }
 
 /**
@@ -558,7 +554,6 @@ void Renderer::_update_sprites()
 	m_SpriteInstanceBuffer.bind();
 	m_SpriteInstanceBuffer.upload_vertices(m_Sprites.mem,BUFFER_MAXIMUM_TEXTURE_COUNT,GL_DYNAMIC_DRAW);
 	m_SpritePipeline.enable();
-	m_GPUSpriteTextures.atlas.bind();
 	glDrawArraysInstanced(GL_TRIANGLES,0,6,m_Sprites.active_range);
 }
 
@@ -571,7 +566,6 @@ void Renderer::_update_text()
 	m_TextVertexArray.bind();
 	m_TextInstanceBuffer.bind();
 	m_TextPipeline.enable();
-	m_GPUFontTextures.atlas.bind();
 
 	// iterate text entities
 	for (Text& p_Text : m_Texts)
@@ -588,7 +582,7 @@ void Renderer::_update_canvas()
 {
 	m_CanvasVertexArray.bind();
 	m_CanvasPipeline.enable();
-	m_SceneFrameBuffer.bind_colour_component(0);
+	m_ForwardFrameBuffer.bind_colour_component(RENDERER_TEXTURE_FORWARD,0);
 	glDrawArrays(GL_TRIANGLES,0,6);
 }
 
@@ -598,21 +592,19 @@ void Renderer::_update_canvas()
 void Renderer::_update_mesh()
 {
 	// iterate static geometry
-	/*
-	for (MeshBatch& p_Batch : m_MeshBatches)
+	for (GeometryBatch& p_Batch : m_GeometryBatches)
 	{
 		p_Batch.shader->enable();
 		p_Batch.vao.bind();
-		glDrawArrays(GL_TRIANGLES,0,p_Batch.mesh_vertex_size);
+		for (u8 i=0;i<p_Batch.textures.size();i++) p_Batch.textures[i].bind(RENDERER_TEXTURE_UNMAPPED+i);
+		glDrawArrays(GL_TRIANGLES,0,p_Batch.vertex_count);
 	}
-	*/
 
 	// iterate particle geometry
 	for (ParticleBatch& p_Batch : m_ParticleBatches)
 	{
 		p_Batch.shader->enable();
 		p_Batch.vao.bind();
-		//p_Batch.texture.atlas.bind();
 		glDrawArraysInstanced(GL_TRIANGLES,0,p_Batch.vertex_count,p_Batch.active_particles);
 	}
 

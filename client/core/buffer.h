@@ -82,7 +82,8 @@ class Texture
 public:
 	Texture();
 
-	void bind();
+	static void set_channel(u8 i);
+	void bind(u8 i);
 	static void unbind();
 
 	static void set_texture_parameter_linear_mipmap();
@@ -121,27 +122,16 @@ struct Font
 	u16 size;
 };
 
-/*
-struct GPUPixelLayers
-{
-	static void load_texture(GPUPixelLayers* gpl,const char* path);
-};
-*/
-
 constexpr u16 BUFFER_MAXIMUM_TEXTURE_COUNT = 1024;
 constexpr u8 BUFFER_ATLAS_BORDER_PADDING = 32;
 struct GPUPixelBuffer
 {
 	// utilty
 	void allocate(u32 width,u32 height,u32 format);
-	/*
-	void register_linear();
-	void register_detached();
-	*/
 	static void load_texture(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,const char* path);
 	static void load_font(GPUPixelBuffer* gpb,Font* font,const char* path,u16 size);
 	static void _load(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,TextureData* data);
-	void gpu_upload(std::chrono::steady_clock::time_point& fstart);
+	void gpu_upload(u8 channel,std::chrono::steady_clock::time_point& fstart);
 	// TODO allocate & write for statically written texture atlas
 	// TODO when allocating, rotation boolean can be stored in alpha by signing the float
 	// TODO allow to merge deleted rects when using a dynamic texture atlas
@@ -173,9 +163,9 @@ public:
 
 	// usage
 	void start();
-	static inline void stop() { glBindFramebuffer(GL_FRAMEBUFFER,0); }
-	inline void bind_colour_component(u8 i) { glBindTexture(GL_TEXTURE_2D,m_ColourComponents[i]); }
-	inline void bind_depth_component() { glBindTexture(GL_TEXTURE_2D,m_DepthComponent); }
+	static void stop();
+	void bind_colour_component(u8 channel,u8 i);
+	void bind_depth_component(u8 channel);
 
 private:
 	u32 m_Buffer;

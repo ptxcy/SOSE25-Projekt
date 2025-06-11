@@ -7,6 +7,7 @@
 
 
 constexpr u8 STARSYS_PLANET_COUNT = 8;
+constexpr f32 STARSYS_SATURN_RING_DISTFACTOR = 1.25f;
 
 
 struct PlanetaryAttribute
@@ -26,16 +27,24 @@ public:
 
 public:
 	PlanetaryAttribute planets[STARSYS_PLANET_COUNT];
+	// FIXME why not private again??
 
 private:
 
 	// graphics
 	lptr<ShaderPipeline> m_PlanetShader;
 	lptr<ShaderPipeline> m_SunShader;
+	lptr<ShaderPipeline> m_HaloShader;
+
 	lptr<ParticleBatch> m_PlanetBatch;
+	lptr<ParticleBatch> m_HaloBatch;
 
 	// planetary data
 	PixelBufferComponent* m_PlanetTextures[STARSYS_PLANET_COUNT];
+	PixelBufferComponent* m_HaloTexture;
+
+	// batch data
+	PlanetaryAttribute m_Halos[1];
 };
 
 

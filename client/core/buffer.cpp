@@ -140,10 +140,21 @@ Texture::Texture()
 }
 
 /**
- *	bind texture buffer for read and write procedures
+ *	set texture channel
+ *	\param i: channel index, correlating to sampler2D integer upload
  */
-void Texture::bind()
+void Texture::set_channel(u8 i)
 {
+	glActiveTexture(GL_TEXTURE0+i);
+}
+
+/**
+ *	bind texture buffer for read and write procedures
+ *	\param i: channel index, correlating to sampler2D integer upload
+ */
+void Texture::bind(u8 i)
+{
+	set_channel(i);
 	glBindTexture(GL_TEXTURE_2D,m_Memory);
 }
 
@@ -419,12 +430,13 @@ void GPUPixelBuffer::_load(GPUPixelBuffer* gpb,PixelBufferComponent* pbc,Texture
 
 /**
  *	automatically uploads the loaded subtextures to the gpu
+ *	\param channel: texture channel
  *	\param fstart: time the current frame started
  *	NOTE this has to be run in main thread due to the gpu upload being context sensitive
  */
-void GPUPixelBuffer::gpu_upload(std::chrono::steady_clock::time_point& fstart)
+void GPUPixelBuffer::gpu_upload(u8 channel,std::chrono::steady_clock::time_point& fstart)
 {
-	atlas.bind();
+	atlas.bind(channel);
 	mutex_texture_requests.lock();
 
 	// iterate waiting requests
@@ -504,4 +516,33 @@ void Framebuffer::start()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER,m_Buffer);
 	Frame::clear();
+}
+
+/**
+ *	stop writing to the framebuffer
+ */
+void Framebuffer::stop()
+{
+	glBindFramebuffer(GL_FRAMEBUFFER,0);
+}
+
+/**
+ *	bind colour component to a texture channel
+ *	\param channel: texture channel
+ *	\param i: colour component index of rendertarget
+ */
+void Framebuffer::bind_colour_component(u8 channel,u8 i)
+{
+	Texture::set_channel(channel);
+	glBindTexture(GL_TEXTURE_2D,m_ColourComponents[i]);
+}
+
+/**
+ *	bind depth component to a texture channel
+ *	\param channel: texture channel
+ */
+void Framebuffer::bind_depth_component(u8 channel)
+{
+	Texture::set_channel(channel);
+	glBindTexture(GL_TEXTURE_2D,m_DepthComponent);
 }

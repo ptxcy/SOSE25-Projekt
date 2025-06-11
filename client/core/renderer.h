@@ -8,6 +8,14 @@
 
 constexpr f32 RENDERER_POSITIONAL_DELETION_CODE = -1247.f;
 
+enum TextureChannelMap : u8
+{
+	RENDERER_TEXTURE_SPRITES,
+	RENDERER_TEXTURE_FONTS,
+	RENDERER_TEXTURE_FORWARD,
+	RENDERER_TEXTURE_UNMAPPED
+};
+
 
 // ----------------------------------------------------------------------------------------------------
 // States
@@ -108,9 +116,12 @@ struct GeometryBatch
 	VertexArray vao;
 	VertexBuffer vbo;
 	lptr<ShaderPipeline> shader;
-	// TODO texture buffer
+	vector<Texture> textures;
 	vector<float> geometry;
+	u32 vertex_count;  // TODO kick this out somehow
 };
+// TODO detached texture load after definition
+// TODO also link to registered textures and iterate to reduce memory consumption
 
 struct ParticleBatch
 {
@@ -124,7 +135,7 @@ struct ParticleBatch
 	lptr<ShaderPipeline> shader;
 	//GPUPixelBuffer texture;
 	vector<float> geometry;
-	u32 vertex_count;
+	u32 vertex_count;  // TODO kick this out somehow
 	u32 active_particles = 0;
 };
 
@@ -203,7 +214,7 @@ private:
 	ShaderPipeline m_TextPipeline;
 	ShaderPipeline m_CanvasPipeline;
 
-	Framebuffer m_SceneFrameBuffer = Framebuffer(1);
+	Framebuffer m_ForwardFrameBuffer = Framebuffer(1);
 
 	// ----------------------------------------------------------------------------------------------------
 	// Render Object Information
