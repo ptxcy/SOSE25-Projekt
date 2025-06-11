@@ -1,12 +1,7 @@
 use super::{
-	building_region::BuildingRegion,
-	coordinate::Coordinate,
-	crafting_material::CraftingMaterial,
-	dummy::DummyObject,
-	factory::Factory,
-	game_objects::GameObjects,
-	gametraits::Crafter,
-	mine::Mine,
+	building_region::BuildingRegion, coordinate::Coordinate,
+	crafting_material::CraftingMaterial, dummy::DummyObject, factory::Factory,
+	game_objects::GameObjects, gametraits::Crafter, mine::Mine,
 	spaceship::Spaceship,
 };
 
@@ -25,6 +20,7 @@ impl<T> AsRaw for T {
 	}
 }
 
+/// dont move memory so safe to use when known that memory exists
 pub enum SafeAction {
 	SetF64(*mut f64, f64),
 	AddCoordinate {

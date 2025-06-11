@@ -206,9 +206,11 @@ impl GameObjects {
 						let mut distance = planet.position.c();
 						distance.sub(&spaceship.position);
 						let norm = distance.norm();
-						if norm < f64::EPSILON * 2. && spaceship.docking {
+						if planet.has_spacestation
+							&& norm < f64::EPSILON * 2.
+							&& spaceship.docking_mode
+						{
 							// spaceship can and wants to dock
-							
 						}
 					}
 				}

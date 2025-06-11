@@ -6,33 +6,11 @@ use super::{
 	action::{AsRaw, SafeAction},
 	coordinate::Coordinate,
 	crafting_material::CraftingMaterial,
-	game_objects::SpaceshipMap,
 	gametraits::{Craftable, IsOwned, Spawnable},
 	id_counter::IdCounter,
 	planet::{OrbitInfoMap, Planet},
 	planet_util::get_timefactor,
 };
-
-#[derive(Serialize, Debug, Clone, Default)]
-pub struct Spacestation {
-	spaceships: SpaceshipMap,
-}
-
-impl Spacestation {
-	pub fn depart(&mut self, id: usize, spaceships: *mut SpaceshipMap) {
-		match self.spaceships.remove(&id) {
-			Some(ship) => unsafe {
-				(*spaceships).insert(id, ship);
-			},
-			None => {
-				log_with_time(format!(
-					"no spaceship that can depart with that id: {}",
-					id
-				));
-			}
-		};
-	}
-}
 
 #[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct Spaceship {
@@ -42,7 +20,7 @@ pub struct Spaceship {
 	pub velocity: Coordinate,
 	pub position: Coordinate,
 	pub target: Coordinate,
-	pub docking: bool,
+	pub docking_mode: bool,
 }
 
 impl Craftable for Spaceship {
@@ -68,14 +46,12 @@ impl Spawnable for Spaceship {
 }
 
 impl Spaceship {
-	pub fn arrive(self, spacestation: &mut Spacestation) {
-		spacestation.spaceships.insert(self.id, self);
-	}
 	pub fn new(owner: &String, speed: f64, id_counter: &mut IdCounter) -> Self {
 		let ship = Self {
 			id: id_counter.assign(),
 			owner: owner.clone(),
 			speed,
+			docking_mode: true,
 			..Default::default()
 		};
 		ship
@@ -122,7 +98,7 @@ impl Spaceship {
 
 		actions.push(SafeAction::SetCoordinate {
 			coordinate: self.velocity.raw_mut(),
-			other: newv
+			other: newv,
 		});
 		actions.push(SafeAction::AddCoordinate {
 			coordinate: self.position.raw_mut(),
@@ -140,11 +116,11 @@ impl Spaceship {
 			log_with_time("spaceship arrived at destination");
 			actions.push(SafeAction::SetCoordinate {
 				coordinate: self.position.raw_mut(),
-				other: self.target.clone()
+				other: self.target.clone(),
 			});
 			actions.push(SafeAction::SetCoordinate {
 				coordinate: self.velocity.raw_mut(),
-				other: Coordinate::default()
+				other: Coordinate::default(),
 			});
 		}
 

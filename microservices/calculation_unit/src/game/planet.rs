@@ -17,6 +17,7 @@ pub struct Planet {
 	pub position: Coordinate,
 	pub building_regions: Vec<BuildingRegion>,
 	pub size: f64,
+	pub has_spacestation: bool,
 }
 
 #[derive(Deserialize, Debug, Clone, Default)]

@@ -78,7 +78,10 @@ pub fn parse_client_message(
 			log_with_time(format!("{:?}", m));
 		}
 		Err(_) => {
-			log_with_time(format!("received non message pack message or non clientmessage: {:?}", msgpack_bytes));
+			log_with_time(format!(
+				"received non message pack message or non clientmessage: {:?}",
+				msgpack_bytes
+			));
 		}
 	};
 	client_message

@@ -95,15 +95,22 @@ fn set_spaceship_target(
 			));
 		};
 	if &spaceship.owner != username {
-		return Err(format!("user {} tried to control spaceship with owner {}", username, spaceship.owner));
+		return Err(format!(
+			"user {} tried to control spaceship with owner {}",
+			username, spaceship.owner
+		));
 	}
 	let planet = if let Some(p) = game_objects.planets.get(value.planet) {
 		p
 	} else {
 		return Err(format!("planet with index {} not found", value.planet));
 	};
-	let target = spaceship.fly_to_get_target(planet, julian_day, orbit_info_map);
-	Ok(SafeAction::SetCoordinate { coordinate: spaceship.target.raw_mut(), other: target })
+	let target =
+		spaceship.fly_to_get_target(planet, julian_day, orbit_info_map);
+	Ok(SafeAction::SetCoordinate {
+		coordinate: spaceship.target.raw_mut(),
+		other: target,
+	})
 }
 
 impl ClientRequest {
