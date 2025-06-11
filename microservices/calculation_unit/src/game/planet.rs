@@ -12,6 +12,7 @@ use std::collections::HashMap;
 
 pub type OrbitInfoMap = HashMap<String, fn(f64) -> OrbitInfo>;
 
+/// planet in solar system containing more information
 #[derive(Serialize, Debug, Clone, Default)]
 pub struct Planet {
 	pub name: String,
@@ -21,6 +22,7 @@ pub struct Planet {
 	pub spacestation: Spacestation,
 }
 
+/// planet in solar system containing more information for receing
 #[derive(Deserialize, Debug, Clone, Default)]
 pub struct PlanetReceive {
 	pub name: String,

@@ -5,14 +5,7 @@ use super::client_message::{
 };
 use crate::{
 	game::{
-		action::{AsRaw, SafeAction},
-		calculation_unit::ServerMessageSenderChannel,
-		dummy::DummyObject,
-		game_objects::GameObjects,
-		id_counter::IdCounter,
-		planet::OrbitInfoMap,
-		player::Player,
-		spaceship::Spaceship,
+		action::{AsRaw, SafeAction}, calculation_unit::ServerMessageSenderChannel, coordinate::Coordinate, dummy::DummyObject, game_objects::GameObjects, id_counter::IdCounter, planet::OrbitInfoMap, player::Player, spaceship::Spaceship
 	},
 	logger::log_with_time,
 };
@@ -150,6 +143,7 @@ impl ClientRequest {
 				username,
 				0.3,
 				spaceship_id_counter,
+				Coordinate::default()
 			)));
 		}
 		if let Some(value) = &self.set_client_fps {
@@ -167,6 +161,11 @@ impl ClientRequest {
 				orbit_info_map,
 				username,
 			)?);
+		}
+		// TEMP later not possible to spawn like this
+		if let Some(value) = &self.spawn_spaceship {
+			let spaceship = Spaceship::new(username, 0.3, spaceship_id_counter, value.clone());
+			actions.push(SafeAction::SpawnSpaceship(spaceship));
 		}
 		if let Some(value) = &self.connect {
 			log_with_time(format!("a new connection with id {}", value));

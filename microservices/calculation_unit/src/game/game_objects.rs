@@ -30,6 +30,7 @@ pub struct GameObjects {
 	pub spaceships: SpaceshipMap,
 }
 
+/// for dummy client in rust
 #[derive(Deserialize, Debug, Clone, Default)]
 pub struct GameObjectsReceive {
 	pub dummies: DummyMap,
@@ -38,7 +39,7 @@ pub struct GameObjectsReceive {
 	pub spaceships: SpaceshipMap,
 }
 
-// leight weight creating and no cloning needed
+/// leight weight creating and no cloning needed
 #[derive(Serialize, Debug, Clone, Default)]
 pub struct SendGameObjects<'a> {
 	pub dummies: SendDummyMap<'a>,
