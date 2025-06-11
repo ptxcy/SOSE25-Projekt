@@ -58,6 +58,7 @@ public:
 
 	// messages
 	ServerMessage server_state;
+	bool state_update = false;
 	std::queue<ClientMessage> client_messages;
 	std::mutex mutex_server_state;
 	std::mutex mutex_client_messages;
