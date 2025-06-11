@@ -42,6 +42,7 @@ pub struct Spaceship {
 	pub velocity: Coordinate,
 	pub position: Coordinate,
 	pub target: Coordinate,
+	pub docking: bool,
 }
 
 impl Craftable for Spaceship {

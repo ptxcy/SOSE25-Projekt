@@ -190,4 +190,30 @@ impl GameObjects {
 		});
 		planets_handle
 	}
+
+	pub fn update_spaceship_planet_relations(
+		action_sender: Sender<SafeAction>,
+		game_objects: *const GameObjects,
+		delta_days: f64,
+	) -> std::thread::JoinHandle<()> {
+		let planets_handle = std::thread::spawn({
+			let spaceships = unsafe { &(*game_objects).spaceships };
+			let planets = unsafe { &(*game_objects).planets };
+			move || {
+				for (id, spaceship) in spaceships.iter() {
+					for planet in planets.iter() {
+						// spaceship docking checks
+						let mut distance = planet.position.c();
+						distance.sub(&spaceship.position);
+						let norm = distance.norm();
+						if norm < f64::EPSILON * 2. && spaceship.docking {
+							// spaceship can and wants to dock
+							
+						}
+					}
+				}
+			}
+		});
+		planets_handle
+	}
 }
