@@ -21,6 +21,7 @@ gmon.out
 Thumbs.db
 
 # core
+client/core/include
 client/core/include/*
 client/lib/*
 *.o
