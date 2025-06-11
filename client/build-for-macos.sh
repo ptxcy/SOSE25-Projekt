@@ -3,6 +3,7 @@
 # cd ..
 brew install glew
 brew install glm
+brew install msgpack-cxx
 mkdir -p lib
 cd lib
 mkdir -p build_mac
