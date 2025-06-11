@@ -102,12 +102,8 @@ fn set_spaceship_target(
 	} else {
 		return Err(format!("planet with index {} not found", value.planet));
 	};
-	Ok(SafeAction::SetSpaceshipTarget {
-		spaceship: spaceship.raw_mut(),
-		planet: planet.raw(),
-		julian_day,
-		orbit_info_map: orbit_info_map.raw(),
-	})
+	let target = spaceship.fly_to_get_target(planet, julian_day, orbit_info_map);
+	Ok(SafeAction::SetCoordinate { coordinate: spaceship.target.raw_mut(), other: target })
 }
 
 impl ClientRequest {

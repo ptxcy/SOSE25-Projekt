@@ -93,7 +93,6 @@ impl Spaceship {
 				planet.get_position_at(get_timefactor(d), orbit_info_map);
 			let new_duration_to = self.duration_to(&planet_positon);
 			let diff = (duration_to - new_duration_to).abs();
-			// println!("diff: {}", diff);
 			if diff <= std::f64::EPSILON * 2. {
 				break;
 			}
