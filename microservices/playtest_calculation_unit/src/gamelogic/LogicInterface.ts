@@ -136,13 +136,13 @@ function delayedAction(action: Function, delay: number) {
     setTimeout(action, delay);
 }
 
-function testGameContext() {
+export function testGameContext() {
     console.log("Initialer Kontext:");
     printGameContext();
 
     delayedAction(() => {
         console.log("\nFüge einen Planeten hinzu:");
-        addPlanet(["Mars", [0, 0, 0], [], 100]);
+        addPlanet(["Mars", [0, 0, 0], [], 100, [0, 0]]);
         printGameContext();
     }, 5000);
 
@@ -160,7 +160,7 @@ function testGameContext() {
 
     delayedAction(() => {
         console.log("\nFüge ein Raumschiff hinzu:");
-        addSpaceShip([1, "Explorer", 5, [0, 0, 0], [0, 0, 0], [10, 10, 10]]);
+        addSpaceShip([1, "Explorer", 5, [0, 0, 0], [0, 0, 0], [10, 10, 10], false, null]);
         printGameContext();
     }, 20000);
 
@@ -176,6 +176,4 @@ function testGameContext() {
         printGameContext();
     }, 30000);
 }
-
-testGameContext();
 
