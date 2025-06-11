@@ -40,16 +40,16 @@ export type Player = [
     CraftingMaterial
 ];
 
-export type CraftingMaterial = [
-    number
-];
-
 export type DummyObject = [
     string,
     number,
     string,
     Coordinate,
     Coordinate
+];
+
+export type CraftingMaterial = [
+    number
 ];
 
 export type Planet = [
@@ -82,17 +82,28 @@ export type Coordinate = [
     number
 ];
 
+//---------------------------------------------------------------------------------------------------
+/*
+ * Client Message
+ */
+
+export type ClientMessage = [
+    RequestInfo,
+    ClientData,
+    string,
+]
+
 export type ClientData = [
     setClientFPS | null,
-    string | null,
+    string | null, // spawn dummy
     dummySetVelocity | null,
-    string | null,
+    string | null, // connect
     SetSpaceshipTarget | null
 ]
 
 export type SetSpaceshipTarget = [
     number,
-    Planet
+    number
 ]
 
 export type dummySetVelocity = [
@@ -102,12 +113,6 @@ export type dummySetVelocity = [
 
 export type setClientFPS = [
     number,
-]
-
-export type ClientMessage = [
-    RequestInfo,
-    ClientData,
-    string,
 ]
 
 export async function decodeToServerMessage(msg: RawData) {
