@@ -1,6 +1,6 @@
 import {WebSocketServer, WebSocket, RawData} from "ws";
 import {decodeToClientMessage, ServerMessage} from "./src/datatypes/MessagePackDataTypes";
-import {encode} from "@msgpack/msgpack";
+import {decode, encode} from "@msgpack/msgpack";
 import "./src/gamelogic/LogicInterface";
 import {initEmptyGameContext} from "./src/gamelogic/LogicInterface";
 
@@ -16,7 +16,6 @@ const GAME_CONTEXT: CONTEXT = {
     context: initEmptyGameContext(),
 }
 
-const GAME_CONTEXT_MAP: Map<string, ServerMessage> = new Map();
 export const FPS: number = 60;
 const port: number = parseInt(process.env.PORT || "9000", 10);
 const wss = new WebSocketServer({port});
@@ -48,17 +47,17 @@ wss.on("connection", async (ws: WebSocket, req) => {
 
 async function sendPeriodicRenderMessages(webSocket: WebSocket) {
     setInterval(() => {
-        const keys = GAME_CONTEXT_MAP.keys();
-        for (const key of keys) {
-            webSocket.send(encode(GAME_CONTEXT_MAP.get(key)));
-        }
+        GAME_CONTEXT.players.forEach(player => {
+            GAME_CONTEXT.context[1][0] = player
+            webSocket.send(encode(GAME_CONTEXT.context));
+        })
     }, (1000 / FPS))
 }
 
-export function getGameContext(player: string): ServerMessage | null {
-    return GAME_CONTEXT_MESSAGE;
+export function getGameContext(): ServerMessage | null {
+    return GAME_CONTEXT.context;
 }
 
-export function setGameContext(player: string, msg: ServerMessage) {
-    GAME_CONTEXT_MESSAGE = msg;
+export function setGameContext(msg: ServerMessage) {
+    GAME_CONTEXT.context = msg;
 }
