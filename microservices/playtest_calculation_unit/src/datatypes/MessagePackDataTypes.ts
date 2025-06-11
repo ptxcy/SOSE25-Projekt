@@ -106,7 +106,8 @@ export type ClientData = [
         string | null, // spawn dummy
         dummySetVelocity | null,
         string | null, // connect
-        SetSpaceshipTarget | null
+        SetSpaceshipTarget | null,
+        Coordinate | null,
 ]
 
 export type SetSpaceshipTarget = [
