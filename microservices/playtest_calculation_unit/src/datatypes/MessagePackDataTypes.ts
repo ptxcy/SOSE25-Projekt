@@ -31,17 +31,15 @@ export type SpaceShip = [
     number, // speed
     Coordinate, // velocity
     Coordinate, // position
-    Coordinate  // target
+    Coordinate,  // target
+    boolean,
+    number | null,
 ]
 
 export type Player = [
     string,
     number,
     CraftingMaterial
-];
-
-export type CraftingMaterial = [
-    number
 ];
 
 export type DummyObject = [
@@ -52,12 +50,22 @@ export type DummyObject = [
     Coordinate
 ];
 
-export type Planet = [
-    string, // Name
-    Coordinate, // Position
-    BuildingRegion[],
-    number // size
+export type CraftingMaterial = [
+    number
 ];
+
+type Planet = [
+    string,
+    Coordinate,
+    BuildingRegion[],
+    number,
+    Spacestation
+];
+
+type Spacestation = [
+    number,
+    number,
+]
 
 export type Mine = [
     string,
@@ -69,7 +77,7 @@ export type Factory = [
     CraftingMaterial,
 ]
 
-export type BuildingRegion= [
+export type BuildingRegion = [
     Coordinate,
     Factory[],
     Mine[],
@@ -82,17 +90,28 @@ export type Coordinate = [
     number
 ];
 
+//---------------------------------------------------------------------------------------------------
+/*
+ * Client Message
+ */
+
+export type ClientMessage = [
+    RequestInfo,
+    ClientData,
+    string,
+]
+
 export type ClientData = [
-    setClientFPS | null,
-    string | null,
-    dummySetVelocity | null,
-    string | null,
-    SetSpaceshipTarget | null
+        setClientFPS | null,
+        string | null, // spawn dummy
+        dummySetVelocity | null,
+        string | null, // connect
+        SetSpaceshipTarget | null
 ]
 
 export type SetSpaceshipTarget = [
     number,
-    Planet
+    number
 ]
 
 export type dummySetVelocity = [
@@ -102,12 +121,6 @@ export type dummySetVelocity = [
 
 export type setClientFPS = [
     number,
-]
-
-export type ClientMessage = [
-    RequestInfo,
-    ClientData,
-    string,
 ]
 
 export async function decodeToServerMessage(msg: RawData) {
@@ -122,7 +135,7 @@ export async function encodeServerMessage(msg: ServerMessage) {
     return encode(msg);
 }
 
-export async function encodeClientMessage(msg: ClientMessage){
+export async function encodeClientMessage(msg: ClientMessage) {
     return encode(msg);
 }
 

@@ -122,7 +122,27 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
 async function connectToCalculationServer(lcomp: LobbyRegistryEntry): Promise<WebSocket> {
     //TODO Close Socket If all user connections are closed
     console.log("Connecting to calculation server...");
-    const socket = new WebSocket(`ws://calculation_unit:8082/msgpack`);
+
+    let socket;
+    if (lcomp.lobbyName.startsWith("playtest_")) {
+        let playTesterLobbyCount = 0
+        registeredLobbys.forEach((lobby) => {
+            if (lobby.lobbyName.startsWith("playtest_")) {
+                playTesterLobbyCount++;
+            }
+        });
+        const playtestLobbyPort = 9099 + playTesterLobbyCount;
+        socket = new WebSocket(`ws://calculation_unit_${playTesterLobbyCount}:${playtestLobbyPort}`);
+    } else {
+        let lobbyCount = 0
+        registeredLobbys.forEach((lobby) => {
+            if (!lobby.lobbyName.startsWith("playtest_")) {
+                lobbyCount++;
+            }
+        });
+        const lobbyPort = 9089 + lobbyCount;
+        socket = new WebSocket(`ws://calculation_unit_${lobbyCount}:${lobbyPort}/msgpack`);
+    }
 
     socket.onopen = () => {
         console.log("WebSocket Connected to CalcUnit");
