@@ -13,7 +13,7 @@ ssh -o StrictHostKeyChecking=no -i ~/.ssh/temp_key.pem ec2-user@ec2-3-124-115-76
 
   # Starte den Server mit Docker Compose
   echo "Starting Docker Compose with profile 'deploy'..."
-  docker-compose up -d --build authproxy request-sync calculation_unit mongodb
+  docker-compose up -d --build
 
   echo "Server successfully started!"
 EOF
