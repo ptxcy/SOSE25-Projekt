@@ -78,8 +78,8 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
             memberSockets: [ws],
             calculationSocket: null
         };
-        registerLobby.calculationSocket = await connectToCalculationServer(registerLobby);
         addToRegister(registerLobby);
+        registerLobby.calculationSocket = await connectToCalculationServer(registerLobby);
     }
 
     const uint8Array = data instanceof Buffer
