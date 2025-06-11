@@ -44,6 +44,7 @@ struct UIBatch
 
 	// data
 	Font* font;
+	f32 alpha;
 	list<Button> buttons;
 	list<TextField> tfields;
 };
@@ -55,7 +56,7 @@ public:
 	void update();
 
 	// registration/deregistration
-	lptr<UIBatch> add_batch(Font* font);
+	lptr<UIBatch> add_batch(Font* font,f32 alpha=1.f);
 	void remove_batch(lptr<UIBatch> batch);
 
 private:

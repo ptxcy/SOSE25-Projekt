@@ -85,17 +85,19 @@ string HTTPAdapter::authenticate_on_server(string& username,string& password)
  *	\param lobby_password: password of the lobby
  *	\param jwt_token: authentication token for lobby interaction
  *	\param create: true if new lobby should be created, false if existing lobby should be joined
+ *	\returns lobby connection status
  */
-void HTTPAdapter::open_lobby(string& lobby_name,string& lobby_password,string& jwt_token,bool create)
+LobbyStatus HTTPAdapter::open_lobby(string& lobby_name,string& lobby_password,string& jwt_token,bool create)
 {
 	string body = R"({"lobbyName":")" + lobby_name + R"(")";
 	body += R"(,"lobbyPassword":")" + lobby_password + R"(")";
 	body += "}";
 
 	// create lobby
+	cpr::Response response;
 	if (create)
 	{
-		cpr::Response response = cpr::Post(
+		response = cpr::Post(
 				cpr::Url{m_Addr+"/lobbys"},
 				cpr::Header{{"Authorization",jwt_token}, {"Content-Type", "application/json"}},
 				cpr::Body{body}
@@ -106,13 +108,15 @@ void HTTPAdapter::open_lobby(string& lobby_name,string& lobby_password,string& j
 	// join lobby
 	else
 	{
-		cpr::Response response = cpr::Put(
+		response = cpr::Put(
 			cpr::Url{m_Addr+"/lobbys"},
 			cpr::Header{{"Authorization",jwt_token}, {"Content-Type", "application/json"}},
 			cpr::Body{body}
 			);
 		COMM_LOG("lobby join response -> %s (Status: %ld)",response.text.c_str(),response.status_code);
 	}
+
+	return (LobbyStatus)((u32)LOBBY_USER_REFUSED+(response.status_code==200||response.status_code==409));
 }
 
 
@@ -138,23 +142,23 @@ void _handle_websocket_download(Websocket* c)
 			size_t data_size = data.size();
 
 			// create a msgpack zone for allocation
+			msgpack::object_handle oh;
 			msgpack::zone zone;
-			msgpack::object obj = msgpack::unpack(raw_data,data_size,nullptr,&zone).get();
+			msgpack::unpack(oh,raw_data,data_size,nullptr,&zone);
+			msgpack::object obj = oh.get();
 			//COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<obj).str().c_str());
 
 			// try to convert to our ServerMessage structure
 			ServerMessage message;
 			obj.convert(message);
-			c->mutex_server_messages.lock();
-			c->server_messages.push(message);
-			/*
-			COMM_LOG("Parsed Response -> ID: %s, QSize: %li",
-					 message.request_data.target_user_id.c_str(),c->server_messages.size());
-			*/
-			c->mutex_server_messages.unlock();
+			c->mutex_server_state.lock();
+			c->server_state = message;
+			c->state_update = true;
+			c->mutex_server_state.unlock();
 		}
+		catch (const msgpack::insufficient_bytes& e) { COMM_ERR("incomplete data -> %s",e.what()); }
 		catch (const std::exception& e) { COMM_ERR("parsing server response -> %s",e.what()); }
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		//std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }
 
@@ -218,11 +222,13 @@ std::string _url_encode(string& value) {
 void Websocket::connect(string host,string port_ad,string port_ws,string name,string pass,string lnom,
 						string lpass,bool create)
 {
+	username = name;
+
 	// adapter connection
 	HTTPAdapter __Adapter = HTTPAdapter(host,port_ad);
 	COMM_ERR_COND(!__Adapter.create_user(name,pass),"user creation did not work");
 	string token = __Adapter.authenticate_on_server(name,pass);
-	__Adapter.open_lobby(lnom,lpass,token,create);
+	lobby_status = __Adapter.open_lobby(lnom,lpass,token,create);
 
 	// websocket connection
 	try
@@ -252,10 +258,10 @@ void Websocket::connect(string host,string port_ad,string port_ws,string name,st
  */
 ServerMessage Websocket::receive_message()
 {
-	mutex_server_messages.lock();
-	ServerMessage msg = std::move(server_messages.front());
-	server_messages.pop();
-	mutex_server_messages.unlock();
+	mutex_server_state.lock();
+	ServerMessage msg = std::move(server_state);
+	state_update = false;
+	mutex_server_state.unlock();
 	return std::move(msg);
 }
 // FIXME in sending and receiving like this there is a lot of copying going on. not ideal cpu usage

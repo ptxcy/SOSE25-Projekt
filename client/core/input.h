@@ -5,7 +5,7 @@
 #include "base.h"
 
 
-constexpr u16 KEYBOARD_INPUT_RANGE = 285;
+constexpr u16 KEYBOARD_INPUT_RANGE = 512;
 constexpr u8 MOUSE_INPUT_RANGE = 5;
 
 
@@ -18,7 +18,9 @@ struct Keyboard
 struct Mouse
 {
 	s32 apos_x,apos_y;
+	vec2 last_position = vec2(0);
 	vec2 position;
+	vec2 velocity;
 	s32 wheel;
 	BitwiseWords buttons = BitwiseWords(MOUSE_INPUT_RANGE);
 	BitwiseWords triggered_buttons = BitwiseWords(MOUSE_INPUT_RANGE);
@@ -28,6 +30,7 @@ struct Mouse
 class Input
 {
 public:
+	Input();
 	void update(bool& running);
 
 	// text input

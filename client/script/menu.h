@@ -6,26 +6,36 @@
 #include "../core/websocket.h"
 #include "../core/ui.h"
 
+#include "command_center.h"
+
 
 class Menu
 {
 public:
-	Menu(Font* font);
-	static inline void update(u8* menu) { Menu* p = (Menu*)menu; p->_update(); }
-	void _update();
+	Menu(Font* font,CommandCenter* cc);
+	static inline void _update(void* menu) { Menu* p = (Menu*)menu; p->update(); }
+	void update();
 	void close();
 
 private:
+
 	// correlation
 	lptr<UpdateRoutine> ref;
-	bool run = true;
+	CommandCenter* m_CC;
 
 	// textures
+	PixelBufferComponent* button_idle;
 	PixelBufferComponent* button_hover;
 	PixelBufferComponent* button_select;
 	PixelBufferComponent* textbox_idle;
 	PixelBufferComponent* textbox_hover;
 	PixelBufferComponent* textbox_active;
+
+	// names
+	lptr<Text> __TUsr;
+	lptr<Text> __TPsw;
+	lptr<Text> __TLby;
+	lptr<Text> __TLpw;
 
 	// ui components
 	lptr<UIBatch> conn_batch;
