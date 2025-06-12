@@ -7,7 +7,7 @@
       - **Username:** Tester
       - **Passwort:** tsx!
     * Wähle nun den folgenden Lobby-Namen aus:
-      - **Lobbyname:** Lobbyist
+      - **Lobbyname:** lobbiest
     * Klicke auf "Join Lobby".
 
 2. **Spielstart & Orientierung:**
@@ -33,3 +33,7 @@
 * Wechsle zwischen verschiedenen Kamera-Distanzen (sehr nah an einem Objekt und weit entfernt).
 * Beobachte, wie sich die Bildqualität und Performance verändert, wenn mehrere Objekte gleichzeitig im Sichtfeld sind.
 * Achte besonders auf Licht- und Schatteneffekte sowie Reflexionen auf verschiedenen Oberflächen.
+
+6. **Limit Testing**
+
+* finde den Button um Raumschiffe zu generieren und tob dich aus um herauszufinden, ob es irgendwann anfängt zu löschen.
