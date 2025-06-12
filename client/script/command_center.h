@@ -69,6 +69,8 @@ private:
 	PixelBufferComponent* m_ButtonSelect;
 	lptr<Text> m_TxControlMode;
 	lptr<Button> m_BtnJumpers[8];
+	lptr<Button> m_BtnFleet[10];
+	lptr<Button> m_BtnBuild;
 
 	// data
 	string m_PlanetNames[8] = { "Mercury","Venus","Earth","Mars","Jupiter","Saturn","Uranus","Neptune" };

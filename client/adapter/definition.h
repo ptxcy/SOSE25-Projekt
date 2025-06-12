@@ -183,7 +183,9 @@ struct ClientRequest
 	std::optional<string> connect;
 	std::optional<SetSpaceshipTarget> set_spaceship_target;
 	std::optional<Coordinate> spawn_spaceship;
-	MSGPACK_DEFINE(set_client_fps,spawn_dummy,dummy_set_velocity,connect,set_spaceship_target,spawn_spaceship);
+	std::optional<u64> delete_spaceship;
+	MSGPACK_DEFINE(set_client_fps,spawn_dummy,dummy_set_velocity,connect,set_spaceship_target,
+				   spawn_spaceship,delete_spaceship);
 };
 // FIXME heavy contender for worst datastructure in the entire universe
 
