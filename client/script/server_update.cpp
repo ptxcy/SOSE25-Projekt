@@ -26,7 +26,8 @@ void ServerUpdate::update()
 	for (u8 i=0;i<msg.request_data.game_objects.planets.size();i++)
 	{
 		Planet& p_Planet = msg.request_data.game_objects.planets[i];
-		m_SSys->planets[i].offset = vec3(p_Planet.position.x,p_Planet.position.y,p_Planet.position.z)*10.f;
+		m_SSys->planets[i].offset = vec3(p_Planet.position.x,p_Planet.position.y,p_Planet.position.z)
+			*STARSYS_DISTANCE_SCALE;
 	}
 
 	// fleet update
@@ -36,7 +37,7 @@ void ServerUpdate::update()
 	{
 		Spaceship& p_Spaceship = it.second;
 		m_Flotilla->spaceships[i++].offset
-			= vec3(p_Spaceship.position.x,p_Spaceship.position.y,p_Spaceship.position.z);
+			= vec3(p_Spaceship.position.x,p_Spaceship.position.y,p_Spaceship.position.z)*STARSYS_DISTANCE_SCALE;
 	}
 }
 

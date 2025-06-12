@@ -39,14 +39,9 @@ void Flotilla::update()
 	m_SpaceshipBatch->active_particles = spaceships.size();
 	for (u32 i=0;i<spaceships.size();i++)
 	{
-		spaceships[i].scale = 1.f;
+		spaceships[i].scale = 0.001f;
 		spaceships[i].texture = *m_SpaceshipTexture;
 		// TODO this can be a uniform upload !!BLAZINGLY FAAST!!
-	}
-	if (spaceships.size())
-	{
-		vec3 p = spaceships[0].offset;
-		COMM_LOG("%f %f %f",p.x,p.y,p.z);
 	}
 
 	// update fleet positions
