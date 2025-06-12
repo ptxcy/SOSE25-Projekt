@@ -7,6 +7,7 @@
 CommandCenter::CommandCenter(Font* font,StarSystem* ssys,Flotilla* flt)
 	: m_Font(font),m_StarSystem(ssys),m_Flotilla(flt)
 {
+	g_Camera.distance = 2.f;
 	g_Camera.target = m_StarSystem->planets[m_PlanetLock].offset;
 	g_Camera.pitch = glm::radians(30.0f);
 }
@@ -30,6 +31,12 @@ void CommandCenter::run()
 																 m_ButtonIdle,m_ButtonHover,m_ButtonSelect,
 																 vec2(-15,(i-4)*40),vec2(200,25),
 																 Alignment{ .align=SCREEN_ALIGN_CENTERRIGHT });
+	for (u8 i=0;i<10;i++) m_BtnFleet[i] = __UIBatch->add_button("Free Ship Slot",
+																m_ButtonIdle,m_ButtonHover,m_ButtonSelect,
+																vec2(15,(i-5)*40),vec2(200,25),
+																Alignment{ .align=SCREEN_ALIGN_CENTERLEFT });
+	m_BtnBuild = __UIBatch->add_button("create spaceship",m_ButtonIdle,m_ButtonHover,m_ButtonSelect,
+									   vec2(15,15),vec2(200,40),Alignment{ .align=SCREEN_ALIGN_BOTTOMLEFT });
 	// FIXME multiple loads of the same button graphics
 
 	g_Wheel.call(UpdateRoutine{ &CommandCenter::_update,(void*)this });
@@ -48,7 +55,11 @@ void CommandCenter::update()
 		m_CState = CSTATE_LOCKED;
 		_set_text_locked();
 		g_Camera.distance = m_StarSystem->planets[i].scale*2.5f;
+		g_Camera.pitch = glm::radians(10.f);
 	}
+
+	// spawning spaceships
+	if (m_BtnBuild->confirm) Request::spawn_spaceship();
 
 	// control mode
 	vec3 __Attitude,__OrthoAttitude;
@@ -111,6 +122,17 @@ void CommandCenter::update()
 	m_CameraMomentum *= CMDSYS_MVMT_FLOATFACTOR;
 	m_ZoomMomentum *= CMDSYS_ZOOM_FLOATFACTOR;
 	m_RotMomentum *= CMDSYS_ROT_FLOATFACTOR;
+
+	// button label update
+	COMM_LOG("%lu",m_Flotilla->fleet.size());
+	for (u8 i=0;i<10;i++)
+	{
+		if (i<m_Flotilla->fleet.size())
+			m_BtnFleet[i]->label->data = "Ship "+std::to_string(m_Flotilla->fleet[i].id);
+		else m_BtnFleet[i]->label->data = "Free Ship Slot";
+		m_BtnFleet[i]->label->align();
+		m_BtnFleet[i]->label->load_buffer();
+	}
 }
 
 /**
