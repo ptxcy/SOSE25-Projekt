@@ -33,7 +33,7 @@ impl ServerMessageSenderChannel {
 			username,
 			sender,
 			// default 60 fps value till updated
-			update_threshold: 1. / 60.,
+			update_threshold: 1. / 144.,
 			tick_counter: 0.,
 		}
 	}
