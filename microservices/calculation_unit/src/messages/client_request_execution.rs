@@ -5,7 +5,7 @@ use super::client_message::{
 };
 use crate::{
 	game::{
-		action::{AsRaw, SafeAction}, calculation_unit::ServerMessageSenderChannel, coordinate::Coordinate, dummy::DummyObject, game_objects::GameObjects, id_counter::IdCounter, planet::OrbitInfoMap, player::Player, spaceship::Spaceship
+		action::{AsRaw, SafeAction, UnsafeAction}, calculation_unit::ServerMessageSenderChannel, coordinate::Coordinate, dummy::DummyObject, game_objects::GameObjects, id_counter::IdCounter, planet::OrbitInfoMap, player::Player, spaceship::Spaceship
 	},
 	logger::log_with_time,
 };
@@ -122,6 +122,7 @@ impl ClientRequest {
 		orbit_info_map: &OrbitInfoMap,
 	) -> std::result::Result<(), String> {
 		let mut actions = Vec::<SafeAction>::new();
+		let mut unsafe_actions = Vec::<UnsafeAction>::new();
 
 		let player = if let Some(player) = game_objects.players.get(username) {
 			player
@@ -167,6 +168,12 @@ impl ClientRequest {
 			let spaceship = Spaceship::new(username, 0.3, spaceship_id_counter, value.clone());
 			actions.push(SafeAction::SpawnSpaceship(spaceship));
 		}
+		// TEMP later not possible to delete like this
+		if let Some(value) = &self.delete_spaceship {
+			if let Some(a) = game_objects.spaceships.get(value) {
+				unsafe_actions.push(UnsafeAction::DeleteSpaceship(*value));
+			}
+		}
 		if let Some(value) = &self.connect {
 			log_with_time(format!("a new connection with id {}", value));
 		}
@@ -174,6 +181,9 @@ impl ClientRequest {
 		// execute actions
 		let go = game_objects.raw_mut();
 		for action in actions {
+			action.execute(go);
+		}
+		for action in unsafe_actions {
 			action.execute(go);
 		}
 		Ok(())

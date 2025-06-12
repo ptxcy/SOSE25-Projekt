@@ -100,3 +100,19 @@ impl SafeAction {
 		}
 	}
 }
+
+/// move memory not safe to use at same time as safeaction
+pub enum UnsafeAction {
+	DeleteSpaceship(usize),
+}
+
+impl UnsafeAction {
+	pub fn execute(self, game_objects: *mut GameObjects) {
+		let go = unsafe { &mut *game_objects };
+		match self {
+			UnsafeAction::DeleteSpaceship(index) => {
+				go.spaceships.remove(&index);
+			},
+		}
+	}
+}
