@@ -4,7 +4,9 @@
 /**
  *	command center setup
  */
-CommandCenter::CommandCenter() {  }
+CommandCenter::CommandCenter(Flotilla* flt)
+	: m_Flotilla(flt)
+{  }
 
 /**
  *	TODO placeholder until memory management fixed and this is finally on heap
@@ -20,6 +22,19 @@ void CommandCenter::run()
  */
 void CommandCenter::update()
 {
+	// §move bitch get out the wayy
+	if (!spawned&&g_Input.keyboard.keys[SDL_SCANCODE_Q])
+	{
+		ship = m_Flotilla->spaceships.size();
+		Request::spawn_spaceship();
+		spawned = true;
+	}
+	if (spawned&&!moving&&g_Input.keyboard.keys[SDL_SCANCODE_E])
+	{
+		Request::set_spaceship_target(ship,4);
+		moving = true;
+	}
+
 	// camera movement
 	vec3 __Attitude = glm::normalize(vec3(g_Camera.target.x-g_Camera.position.x,
 										  g_Camera.target.y-g_Camera.position.y,0));

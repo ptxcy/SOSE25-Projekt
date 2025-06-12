@@ -21,7 +21,8 @@ StarSystem::StarSystem()
 	Mesh __SphereMesh = Mesh("./res/sphere.obj");
 	Mesh __HaloMesh = Mesh("./res/planets/ring.obj");
 	Mesh __HaloMeshBS = Mesh("./res/planets/ring_bs.obj");
-	__HaloMesh.vertices.insert(__HaloMesh.vertices.end(),__HaloMeshBS.vertices.begin(),__HaloMeshBS.vertices.end());
+	__HaloMesh.vertices.insert(__HaloMesh.vertices.end(),
+							   __HaloMeshBS.vertices.begin(),__HaloMeshBS.vertices.end());
 
 	// setup planetary geometry
 	m_PlanetBatch = g_Renderer.register_particle_batch(m_PlanetShader);

@@ -7,17 +7,19 @@
 
 #include "../core/websocket.h"
 #include "starsystem.h"
+#include "flotilla.h"
 
 
 class ServerUpdate
 {
 public:
-	ServerUpdate(StarSystem* ssys);
+	ServerUpdate(StarSystem* ssys,Flotilla* flt);
 	static inline void _update(void* su) { ServerUpdate* p = (ServerUpdate*)su; p->update(); }
 	void update();
 
 private:
 	StarSystem* m_SSys;
+	Flotilla* m_Flotilla;
 };
 
 

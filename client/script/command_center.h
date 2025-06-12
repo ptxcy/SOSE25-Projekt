@@ -5,6 +5,7 @@
 #include "../core/input.h"
 #include "../core/wheel.h"
 #include "webcomm.h"
+#include "flotilla.h"
 
 
 // zoom
@@ -27,7 +28,7 @@ constexpr f32 CMDSYS_MVMT_FLOATFACTOR = .8f;
 class CommandCenter
 {
 public:
-	CommandCenter();
+	CommandCenter(Flotilla* flt);
 	void run();
 	static inline void _update(void* cc) { CommandCenter* p = (CommandCenter*)cc; p->update(); }
 	void update();
@@ -35,10 +36,18 @@ public:
 
 private:
 
+	// components
+	Flotilla* m_Flotilla;
+
 	// camera movement
 	vec3 m_CameraMomentum = vec3(0);
 	f32 m_ZoomMomentum = .3f;
 	vec2 m_RotMomentum = vec2(.0f);
+
+	// §test
+	bool spawned = false;
+	bool moving = false;
+	u32 ship = 0;
 };
 
 
