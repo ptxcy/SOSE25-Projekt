@@ -172,10 +172,15 @@ impl ClientRequest {
 		// TEMP later not possible to delete like this
 		if let Some(value) = &self.delete_spaceship {
 			if let Some(a) = game_objects.spaceships.get(value) {
-				unsafe_actions.push(UnsafeAction::DeleteSpaceship(*value));
+				if &a.owner == username {
+					unsafe_actions.push(UnsafeAction::DeleteSpaceship(*value));
+				}
+				else {
+					log_with_time("cant delete this spaceship, not the owner");
+				}
 			}
 			else {
-				log_with_time("cant delete this spaceship");
+				log_with_time("cant delete this spaceship, not existing");
 			}
 		}
 		if let Some(value) = &self.connect {
