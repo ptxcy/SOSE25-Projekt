@@ -5,7 +5,7 @@
     *  Du befindest dich im Login-Fenster im Spiel.
     * Gib die folgenden Zugangsdaten ein:
       - **Username:** Tester
-      - **Passwort:** tsx!
+      - **Passwort:** tsx
     * Wähle nun den folgenden Lobby-Namen aus:
       - **Lobbyname:** lobbiest
     * Klicke auf "Join Lobby".
