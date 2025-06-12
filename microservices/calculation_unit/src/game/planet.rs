@@ -58,7 +58,8 @@ impl Planet {
 			name: name.to_string(),
 			building_regions,
 			size: 1.,
-			..Default::default()
+		    position: Coordinate::default(),
+		    spacestation: Spacestation::new(),
 		}
 	}
 	pub fn add_building_region(mut self, mut direction: Coordinate) -> Self {

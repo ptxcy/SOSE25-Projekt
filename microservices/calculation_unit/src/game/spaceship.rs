@@ -19,6 +19,15 @@ pub struct Spacestation {
 	capacity: usize,
 }
 
+impl Spacestation {
+	pub fn new() -> Self {
+		Self {
+			parked: 0,
+			capacity: 100000,
+		}
+	}
+}
+
 /// flying around the spaceship transporting troops and resources (incoming)
 #[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct Spaceship {
@@ -104,7 +113,7 @@ impl Spaceship {
 			speed,
 			docking_mode: true,
 			position,
-			..Default::default()
+			..Self::default()
 		};
 		ship
 	}
@@ -115,7 +124,6 @@ impl Spaceship {
 		julian_day: f64,
 		orbit_info_map: &OrbitInfoMap,
 	) -> Coordinate {
-		// TODO FIXME something wrong?
 		let mut d = julian_day;
 		let mut planet_duration = 0.;
 		let mut planet_positon = Coordinate::default();
@@ -124,7 +132,7 @@ impl Spaceship {
 				planet.get_position_at(get_timefactor(d), orbit_info_map);
 			let new_duration_to = self.duration_to(&planet_positon);
 			let diff = (planet_duration - new_duration_to).abs();
-			// println!("planet ({},{}), d: {}", planet_positon.x, planet_positon.y, d);
+			println!("diff {}", diff);
 			if diff <= std::f64::EPSILON * 2. {
 				break;
 			}
@@ -171,7 +179,6 @@ impl Spaceship {
 		let frame_flight_distance = self.velocity.norm() * delta_days;
 		if norm < frame_flight_distance {
 			log_with_time("spaceship arrived at destination");
-			// panic!();
 			actions.push(SafeAction::SetCoordinate {
 				coordinate: self.position.raw_mut(),
 				other: self.target.clone(),

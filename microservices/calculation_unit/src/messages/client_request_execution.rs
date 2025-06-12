@@ -119,6 +119,7 @@ impl ClientRequest {
 		dummy_id_counter: &mut IdCounter,
 		spaceship_id_counter: &mut IdCounter,
 		julian_day: f64,
+		delta_days: f64,
 		orbit_info_map: &OrbitInfoMap,
 	) -> std::result::Result<(), String> {
 		let mut actions = Vec::<SafeAction>::new();

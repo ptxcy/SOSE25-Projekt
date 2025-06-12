@@ -121,6 +121,7 @@ pub async fn start(
 					&mut server_message_senders,
 					&mut dummy_id_counter,
 					&mut spaceship_id_counter,
+					julian_day,
 					delta_ingame_days,
 					&orbit_map,
 				)
