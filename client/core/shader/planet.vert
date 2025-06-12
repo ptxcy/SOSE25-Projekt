@@ -32,7 +32,7 @@ void main()
 
 	// calculate precision texture uv
 	float eps = .001;
-	UV = tex_offset+tex_dimension*clamp(uv,eps,1.-eps);
+	UV = tex_offset+tex_dimension*clamp(vec2(1.-uv.x,uv.y),eps,1.-eps);
 
 	// gram-schmidt reothogonalization
 	vec3 Tangent = normalize(tangent-dot(tangent,normal)*normal);

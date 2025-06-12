@@ -41,7 +41,8 @@ void ServerUpdate::update()
 	for (auto& it : msg.request_data.game_objects.spaceships)
 	{
 		Spaceship& p_Spaceship = it.second;
-		if (!p_Spaceship.owner.compare(g_Websocket.username)) m_Flotilla->fleet.push_back(p_Spaceship);
+		if (!p_Spaceship.owner.compare(g_Websocket.username))
+			m_Flotilla->fleet.insert({ p_Spaceship.id,p_Spaceship});
 		m_Flotilla->spaceships[i].offset
 			= vec3(p_Spaceship.position.x,p_Spaceship.position.y,p_Spaceship.position.z)*STARSYS_DISTANCE_SCALE;
 		i++;

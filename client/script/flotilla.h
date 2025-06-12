@@ -23,7 +23,7 @@ public:
 	void update();
 
 public:
-	vector<Spaceship> fleet;
+	std::map<u64,Spaceship> fleet;
 	vector<SpaceshipData> spaceships;
 
 private:
