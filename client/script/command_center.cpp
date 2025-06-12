@@ -29,11 +29,11 @@ void CommandCenter::run()
 	lptr<UIBatch> __UIBatch = g_UI.add_batch(m_Font,.75f);
 	for (u8 i=0;i<8;i++) m_BtnJumpers[i] = __UIBatch->add_button(("jump to "+m_PlanetNames[i]).c_str(),
 																 m_ButtonIdle,m_ButtonHover,m_ButtonSelect,
-																 vec2(-15,(i-4)*40),vec2(200,25),
+																 vec2(-15,(i-4)*-40),vec2(200,25),
 																 Alignment{ .align=SCREEN_ALIGN_CENTERRIGHT });
 	for (u8 i=0;i<10;i++) m_BtnFleet[i] = __UIBatch->add_button("Free Ship Slot",
 																m_ButtonIdle,m_ButtonHover,m_ButtonSelect,
-																vec2(15,(i-5)*40),vec2(200,25),
+																vec2(15,(i-5)*-40),vec2(200,25),
 																Alignment{ .align=SCREEN_ALIGN_CENTERLEFT });
 	m_BtnBuild = __UIBatch->add_button("create spaceship",m_ButtonIdle,m_ButtonHover,m_ButtonSelect,
 									   vec2(15,15),vec2(200,40),Alignment{ .align=SCREEN_ALIGN_BOTTOMLEFT });
@@ -51,17 +51,42 @@ void CommandCenter::update()
 	for (u8 i=0;i<8;i++)
 	{
 		if (!m_BtnJumpers[i]->confirm) continue;
-		m_PlanetLock = i;
-		m_CState = CSTATE_LOCKED;
-		_set_text_locked();
-		g_Camera.distance = m_StarSystem->planets[i].scale*2.5f;
-		g_Camera.pitch = glm::radians(10.f);
+
+		if (m_CState==CSTATE_FLIGHT) Request::set_spaceship_target(m_Flotilla->fleet[i].id,i);
+		else
+		{
+			m_PlanetLock = i;
+			m_CState = CSTATE_LOCKED;
+			_set_text_locked();
+			g_Camera.distance = m_StarSystem->planets[i].scale*2.5f;
+			g_Camera.pitch = glm::radians(10.f);
+		}
 	}
 
 	// spawning spaceships
-	if (m_BtnBuild->confirm) Request::spawn_spaceship();
+	if (m_BtnBuild->confirm) Request::spawn_spaceship(g_Camera.target+vec3(10,10,0));
+
+	// button label update
+	for (u8 i=0;i<10;i++)
+	{
+		if (i<m_Flotilla->fleet.size())
+		{
+			m_BtnFleet[i]->label->data = "Ship "+std::to_string(m_Flotilla->fleet[i].id);
+			if (m_BtnFleet[i]->confirm)
+			{
+				m_ShipLock = i;
+				m_CState = CSTATE_FLIGHT;
+				_set_planet_buttons("fly to ");
+				_set_text_flight();
+			}
+		}
+		else m_BtnFleet[i]->label->data = "Free Ship Slot";
+		m_BtnFleet[i]->label->align();
+		m_BtnFleet[i]->label->load_buffer();
+	}
 
 	// control mode
+	Spaceship __Spaceship;
 	vec3 __Attitude,__OrthoAttitude;
 	switch (m_CState)
 	{
@@ -76,6 +101,23 @@ void CommandCenter::update()
 
 		// locking camera target to orbiting planet
 		g_Camera.target = m_StarSystem->planets[m_PlanetLock].offset;
+
+		break;
+	case CSTATE_FLIGHT:
+
+		// spaceflight lock-on
+		__Spaceship = m_Flotilla->fleet[m_ShipLock];
+		g_Camera.target = vec3(m_Flotilla->fleet[m_ShipLock].position.x,
+							   m_Flotilla->fleet[m_ShipLock].position.y,
+							   m_Flotilla->fleet[m_ShipLock].position.z);
+
+		// switch to freeform movement mode
+		if (g_Input.keyboard.triggered_keys[SDL_SCANCODE_TAB])
+		{
+			m_CState = CSTATE_LOCKED;
+			_set_planet_buttons("jump to ");
+			_set_text_locked();
+		}
 
 		break;
 	case CSTATE_FREEFORM:
@@ -122,16 +164,18 @@ void CommandCenter::update()
 	m_CameraMomentum *= CMDSYS_MVMT_FLOATFACTOR;
 	m_ZoomMomentum *= CMDSYS_ZOOM_FLOATFACTOR;
 	m_RotMomentum *= CMDSYS_ROT_FLOATFACTOR;
+}
 
-	// button label update
-	COMM_LOG("%lu",m_Flotilla->fleet.size());
-	for (u8 i=0;i<10;i++)
+/**
+ *	TODO
+ */
+void CommandCenter::_set_planet_buttons(string instr)
+{
+	for (u8 i=0;i<8;i++)
 	{
-		if (i<m_Flotilla->fleet.size())
-			m_BtnFleet[i]->label->data = "Ship "+std::to_string(m_Flotilla->fleet[i].id);
-		else m_BtnFleet[i]->label->data = "Free Ship Slot";
-		m_BtnFleet[i]->label->align();
-		m_BtnFleet[i]->label->load_buffer();
+		m_BtnJumpers[i]->label->data = instr+m_PlanetNames[i];
+		m_BtnJumpers[i]->label->align();
+		m_BtnJumpers[i]->label->load_buffer();
 	}
 }
 
@@ -142,6 +186,20 @@ void CommandCenter::_set_text_locked()
 {
 	m_TxControlMode->data = "Orbiting "+m_PlanetNames[m_PlanetLock];
 	m_TxControlMode->colour = vec4(.5f,0,0,1);
+	m_TxControlMode->align();
+	m_TxControlMode->load_buffer();
+}
+
+/**
+ *	TODO
+ */
+void CommandCenter::_set_text_flight()
+{
+	m_TxControlMode->data = "Flying Spaceship "+std::to_string(m_Flotilla->fleet[m_ShipLock].id)
+															   +" -> [TAB] to go back to "
+															   +m_PlanetNames[m_PlanetLock];
+	m_TxControlMode->colour = vec4(0,.5f,0,1);
+	m_TxControlMode->align();
 	m_TxControlMode->load_buffer();
 }
 
@@ -152,5 +210,6 @@ void CommandCenter::_set_text_freeform()
 {
 	m_TxControlMode->data = "System Exploration Mode -> [TAB] to jump to "+m_PlanetNames[m_PlanetLock];
 	m_TxControlMode->colour = vec4(0,0,.5f,1);
+	m_TxControlMode->align();
 	m_TxControlMode->load_buffer();
 }

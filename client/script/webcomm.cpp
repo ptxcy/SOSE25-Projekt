@@ -50,7 +50,7 @@ void Request::spawn_dummy(string dummy)
 /**
  *	TODO
  */
-void Request::spawn_spaceship()
+void Request::spawn_spaceship(vec3 pos)
 {
 	ClientMessage __Msg = _create_message();
 	__Msg.request_data.spawn_spaceship = std::optional<Coordinate>(Coordinate{ 0,0,0 });
