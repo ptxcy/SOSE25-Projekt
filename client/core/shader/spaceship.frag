@@ -10,5 +10,5 @@ uniform sampler2D tex;
 
 void main()
 {
-	pixelColour = vec4(UV,0,1);
+	pixelColour = vec4(.4,.4,.4,1);
 }

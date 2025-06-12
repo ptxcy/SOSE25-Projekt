@@ -39,7 +39,7 @@ void Flotilla::update()
 	m_SpaceshipBatch->active_particles = spaceships.size();
 	for (u32 i=0;i<spaceships.size();i++)
 	{
-		spaceships[i].scale = 0.001f;
+		spaceships[i].scale = 1;
 		spaceships[i].texture = *m_SpaceshipTexture;
 		// TODO this can be a uniform upload !!BLAZINGLY FAAST!!
 	}

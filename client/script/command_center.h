@@ -30,6 +30,7 @@ constexpr f32 CMDSYS_MVMT_FLOATFACTOR = .8f;
 enum ControlState
 {
 	CSTATE_LOCKED,
+	CSTATE_FLIGHT,
 	CSTATE_FREEFORM
 };
 
@@ -46,7 +47,9 @@ public:
 private:
 
 	// text updates
+	void _set_planet_buttons(string instr);
 	void _set_text_locked();
+	void _set_text_flight();
 	void _set_text_freeform();
 
 private:
@@ -62,6 +65,8 @@ private:
 	vec2 m_RotMomentum = vec2(.0f);
 	ControlState m_CState = CSTATE_LOCKED;
 	u8 m_PlanetLock = 2;
+	u8 m_ShipLock = 0;
+	u64 m_ShipChosen = 0;
 
 	// ui
 	PixelBufferComponent* m_ButtonIdle;
