@@ -37,9 +37,9 @@ import {
  */
 
 /*
- * Hint Coordinate is an array with 3 values = [x,y,z]
- *
- *
+ * HINTS
+ * Coordinate is an array with 3 values = [x,y,z]
+ * The First 8 planets have a fixed texture because of the techDemo the other have random textures
  */
 
 //Create Your Logic
@@ -52,7 +52,7 @@ function exampleWorkFlow() {
 
     delayedAction(() => {
         console.log("\nFüge einen Planeten hinzu:");
-        addPlanet("Mars", [0, 0, 0], 100);
+        addPlanet("Mars", [1, 1, 0], 100);
         printGameContext();
     }, 5000);
 
