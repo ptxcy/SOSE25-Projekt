@@ -140,6 +140,9 @@ void ShaderPipeline::assemble(VertexShader vs,FragmentShader& fs)
 void ShaderPipeline::map(VertexBuffer* vbo,VertexBuffer* ibo)
 {
 	// vertex buffer
+	COMM_LOG("mapping shader (vbo = %lu:%lu,ibo = %lu:%lu)",
+			 m_VertexShader.vbo_attribs.size(),m_VertexShader.vbo_width,
+			 m_VertexShader.ibo_attribs.size(),m_VertexShader.ibo_width);
 	enable();
 	for (ShaderAttribute& attrib : m_VertexShader.vbo_attribs) _define_attribute(attrib);
 	m_VertexCursor = 0;

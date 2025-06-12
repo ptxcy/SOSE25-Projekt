@@ -21,7 +21,8 @@ StarSystem::StarSystem()
 	Mesh __SphereMesh = Mesh("./res/sphere.obj");
 	Mesh __HaloMesh = Mesh("./res/planets/ring.obj");
 	Mesh __HaloMeshBS = Mesh("./res/planets/ring_bs.obj");
-	__HaloMesh.vertices.insert(__HaloMesh.vertices.end(),__HaloMeshBS.vertices.begin(),__HaloMeshBS.vertices.end());
+	__HaloMesh.vertices.insert(__HaloMesh.vertices.end(),
+							   __HaloMeshBS.vertices.begin(),__HaloMeshBS.vertices.end());
 
 	// setup planetary geometry
 	m_PlanetBatch = g_Renderer.register_particle_batch(m_PlanetShader);
@@ -43,14 +44,16 @@ StarSystem::StarSystem()
 	m_PlanetTextures[7] = g_Renderer.register_sprite_texture("./res/planets/halfres/neptune.jpg");
 
 	// setup planets
-	planets[0] = { vec3(3.9f,0,0),.7f };
-	planets[1] = { vec3(7.2f,0,0),.7f };
-	planets[2] = { vec3(10.f,0,0),1.f };
-	planets[3] = { vec3(15.2f,0,0),.9f };
-	planets[4] = { vec3(50.2f,0,0),12.f };
-	planets[5] = { vec3(95.4f,0,0),10.f };
-	planets[6] = { vec3(192.f,0,0),7.f };
-	planets[7] = { vec3(300.6f,0,0),4.f };
+	/*
+	planets[0] = { vec3(3.9f*STARSYS_DISTANCE_SCALE,0,0),.38f*STARSYS_EARTH_REFERENCE_SCALE };
+	planets[1] = { vec3(7.2f*STARSYS_DISTANCE_SCALE,0,0),.95f*STARSYS_EARTH_REFERENCE_SCALE };
+	planets[2] = { vec3(10.f*STARSYS_DISTANCE_SCALE,0,0),1.f*STARSYS_EARTH_REFERENCE_SCALE };
+	planets[3] = { vec3(15.2f*STARSYS_DISTANCE_SCALE,0,0),.53f*STARSYS_EARTH_REFERENCE_SCALE };
+	planets[4] = { vec3(50.2f*STARSYS_DISTANCE_SCALE,0,0),11.21f*STARSYS_EARTH_REFERENCE_SCALE };
+	planets[5] = { vec3(95.4f*STARSYS_DISTANCE_SCALE,0,0),9.46f*STARSYS_EARTH_REFERENCE_SCALE };
+	planets[6] = { vec3(192.f*STARSYS_DISTANCE_SCALE,0,0),4.01f*STARSYS_EARTH_REFERENCE_SCALE };
+	planets[7] = { vec3(300.6f*STARSYS_DISTANCE_SCALE,0,0),3.89f*STARSYS_EARTH_REFERENCE_SCALE };
+	*/
 
 	// setup planetary halo
 	m_HaloBatch = g_Renderer.register_particle_batch(m_HaloShader);
@@ -61,6 +64,7 @@ StarSystem::StarSystem()
 	m_HaloBatch->active_particles = 1;
 	m_HaloShader->upload("tex",RENDERER_TEXTURE_SPRITES);
 	m_HaloTexture = g_Renderer.register_sprite_texture("./res/planets/saturn_ring.png");
+	// TODO scale ring accordingly: start at 1.11f, ends at 2.33f
 
 	lptr<GeometryBatch> __SunBatch = g_Renderer.register_geometry_batch(m_SunShader);
 	TextureData __SunPixelData = TextureData();
@@ -75,9 +79,11 @@ StarSystem::StarSystem()
 	memcpy(&__SunBatch->geometry[0],&__SphereMesh.vertices[0],__SphereMesh.vertices.size()*sizeof(Vertex));
 	__SunBatch->load();
 	__SunBatch->vertex_count = __SphereMesh.vertices.size();
+	m_SunShader->upload("scale",STARSYS_SUN_REFERENCE_SCALE);
 	m_SunShader->upload("tex",RENDERER_TEXTURE_UNMAPPED);
 	// TODO also combine load if possible
 	// TODO detach texture load to reduce stall when loading
+	// TODO model scaling sun: 109.32f
 
 	// register routine
 	g_Wheel.call(UpdateRoutine{ &StarSystem::_update,(void*)this });
@@ -89,14 +95,13 @@ StarSystem::StarSystem()
 void StarSystem::update()
 {
 	// upload planetary texture location
-	for (u8 i=0;i<STARSYS_PLANET_COUNT;i++) planets[i].texture = *m_PlanetTextures[i];
 	m_Halos[0].offset = planets[5].offset;
 	m_Halos[0].scale = planets[5].scale*STARSYS_SATURN_RING_DISTFACTOR;
 	m_Halos[0].texture = *m_HaloTexture;
 
 	// planetary position update
 	m_PlanetBatch->ibo.bind();
-	m_PlanetBatch->ibo.upload_vertices(planets,8,GL_DYNAMIC_DRAW);
+	m_PlanetBatch->ibo.upload_vertices(planets,GL_DYNAMIC_DRAW);
 	m_HaloBatch->ibo.bind();
 	m_HaloBatch->ibo.upload_vertices(m_Halos,1,GL_DYNAMIC_DRAW);
 

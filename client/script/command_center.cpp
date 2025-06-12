@@ -4,15 +4,35 @@
 /**
  *	command center setup
  */
-CommandCenter::CommandCenter() {  }
+CommandCenter::CommandCenter(Font* font,StarSystem* ssys,Flotilla* flt)
+	: m_Font(font),m_StarSystem(ssys),m_Flotilla(flt)
+{
+	g_Camera.target = m_StarSystem->planets[m_PlanetLock].offset;
+	g_Camera.pitch = glm::radians(30.0f);
+}
 
 /**
  *	TODO placeholder until memory management fixed and this is finally on heap
  */
 void CommandCenter::run()
 {
+	// create mode communication
+	m_TxControlMode = g_Renderer.write_text(m_Font,"",vec2(15,-15),15,
+											vec4(0),Alignment{ .align=SCREEN_ALIGN_TOPLEFT });
+	_set_text_locked();
+
+	// jumper menu
+	m_ButtonIdle = g_Renderer.register_sprite_texture("./res/ui/button_idle.png");
+	m_ButtonHover = g_Renderer.register_sprite_texture("./res/ui/button_hover.png");
+	m_ButtonSelect = g_Renderer.register_sprite_texture("./res/ui/button_on.png");
+	lptr<UIBatch> __UIBatch = g_UI.add_batch(m_Font,.75f);
+	for (u8 i=0;i<8;i++) m_BtnJumpers[i] = __UIBatch->add_button(("jump to "+m_PlanetNames[i]).c_str(),
+																 m_ButtonIdle,m_ButtonHover,m_ButtonSelect,
+																 vec2(-15,(i-4)*40),vec2(200,25),
+																 Alignment{ .align=SCREEN_ALIGN_CENTERRIGHT });
+	// FIXME multiple loads of the same button graphics
+
 	g_Wheel.call(UpdateRoutine{ &CommandCenter::_update,(void*)this });
-	g_Camera.pitch = glm::radians(30.0f);
 }
 
 /**
@@ -20,15 +40,55 @@ void CommandCenter::run()
  */
 void CommandCenter::update()
 {
-	// camera movement
-	vec3 __Attitude = glm::normalize(vec3(g_Camera.target.x-g_Camera.position.x,
-										  g_Camera.target.y-g_Camera.position.y,0));
-	vec3 __OrthoAttitude = vec3(-__Attitude.y,__Attitude.x,0);
-	m_CameraMomentum += (vec3(g_Input.keyboard.keys[SDL_SCANCODE_W]-g_Input.keyboard.keys[SDL_SCANCODE_S])
-						 *__Attitude
-						 +vec3(g_Input.keyboard.keys[SDL_SCANCODE_D]-g_Input.keyboard.keys[SDL_SCANCODE_A])
-						 *__OrthoAttitude)
+	// jumper navigation
+	for (u8 i=0;i<8;i++)
+	{
+		if (!m_BtnJumpers[i]->confirm) continue;
+		m_PlanetLock = i;
+		m_CState = CSTATE_LOCKED;
+		_set_text_locked();
+		g_Camera.distance = m_StarSystem->planets[i].scale*2.5f;
+	}
+
+	// control mode
+	vec3 __Attitude,__OrthoAttitude;
+	switch (m_CState)
+	{
+	case CSTATE_LOCKED:
+
+		// switch to freeform movement mode
+		if (g_Input.keyboard.triggered_keys[SDL_SCANCODE_TAB])
+		{
+			m_CState = CSTATE_FREEFORM;
+			_set_text_freeform();
+		}
+
+		// locking camera target to orbiting planet
+		g_Camera.target = m_StarSystem->planets[m_PlanetLock].offset;
+
+		break;
+	case CSTATE_FREEFORM:
+
+		// switch to locked movement mode
+		if (g_Input.keyboard.triggered_keys[SDL_SCANCODE_TAB])
+		{
+			m_CState = CSTATE_LOCKED;
+			_set_text_locked();
+		}
+
+		// update camera target by input
+		__Attitude = glm::normalize(vec3(g_Camera.target.x-g_Camera.position.x,
+										 g_Camera.target.y-g_Camera.position.y,0));
+		__OrthoAttitude = vec3(-__Attitude.y,__Attitude.x,0);
+		m_CameraMomentum += (vec3(g_Input.keyboard.keys[SDL_SCANCODE_W]-g_Input.keyboard.keys[SDL_SCANCODE_S])
+							 *__Attitude
+							 +vec3(g_Input.keyboard.keys[SDL_SCANCODE_D]-g_Input.keyboard.keys[SDL_SCANCODE_A])
+							 *__OrthoAttitude)
 			*CMDSYS_MVMT_ACCELLERATION;
+		g_Camera.target += m_CameraMomentum;
+
+		break;
+	};
 
 	// zoom input & boundaries
 	m_ZoomMomentum += g_Input.mouse.wheel*CMDSYS_ZOOM_ACCELLERATION;
@@ -38,13 +98,12 @@ void CommandCenter::update()
 
 	// camera rotational orbit
 	m_RotMomentum.x += (g_Input.keyboard.keys[SDL_SCANCODE_E]-g_Input.keyboard.keys[SDL_SCANCODE_Q])
-			*CMDSYS_ROT_KEYACC;
+		*CMDSYS_ROT_KEYACC;
 	m_RotMomentum += vec2(g_Input.mouse.buttons[1]*CMDSYS_ROT_MOUSEACC)*g_Input.mouse.velocity;
 	g_Camera.yaw += glm::radians(m_RotMomentum.x);
 	g_Camera.pitch += glm::radians(m_RotMomentum.y);
 
 	// update camera position
-	g_Camera.target += m_CameraMomentum;
 	g_Camera.distance += m_ZoomMomentum;
 	g_Camera.update();
 
@@ -52,4 +111,24 @@ void CommandCenter::update()
 	m_CameraMomentum *= CMDSYS_MVMT_FLOATFACTOR;
 	m_ZoomMomentum *= CMDSYS_ZOOM_FLOATFACTOR;
 	m_RotMomentum *= CMDSYS_ROT_FLOATFACTOR;
+}
+
+/**
+ *	TODO
+ */
+void CommandCenter::_set_text_locked()
+{
+	m_TxControlMode->data = "Orbiting "+m_PlanetNames[m_PlanetLock];
+	m_TxControlMode->colour = vec4(.5f,0,0,1);
+	m_TxControlMode->load_buffer();
+}
+
+/**
+ *	TODO
+ */
+void CommandCenter::_set_text_freeform()
+{
+	m_TxControlMode->data = "System Exploration Mode -> [TAB] to jump to "+m_PlanetNames[m_PlanetLock];
+	m_TxControlMode->colour = vec4(0,0,.5f,1);
+	m_TxControlMode->load_buffer();
 }
