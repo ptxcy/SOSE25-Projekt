@@ -54,7 +54,7 @@ export type CraftingMaterial = [
     number
 ];
 
-type Planet = [
+export type Planet = [
     string,
     Coordinate,
     BuildingRegion[],
@@ -62,7 +62,7 @@ type Planet = [
     Spacestation
 ];
 
-type Spacestation = [
+export type Spacestation = [
     number,
     number,
 ]
@@ -106,7 +106,8 @@ export type ClientData = [
         string | null, // spawn dummy
         dummySetVelocity | null,
         string | null, // connect
-        SetSpaceshipTarget | null
+        SetSpaceshipTarget | null,
+        Coordinate | null,
 ]
 
 export type SetSpaceshipTarget = [

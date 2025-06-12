@@ -95,7 +95,8 @@ type ClientData = [
     string | null,
     dummySetVelocity | null,
     string | null,
-    SetSpaceshipTarget | null
+    SetSpaceshipTarget | null,
+    Coordinate | null,
 ]
 
 type SetSpaceshipTarget = [

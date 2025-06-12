@@ -78,8 +78,8 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
             memberSockets: [ws],
             calculationSocket: null
         };
-        registerLobby.calculationSocket = await connectToCalculationServer(registerLobby);
         addToRegister(registerLobby);
+        registerLobby.calculationSocket = await connectToCalculationServer(registerLobby);
     }
 
     const uint8Array = data instanceof Buffer
@@ -132,7 +132,7 @@ async function connectToCalculationServer(lcomp: LobbyRegistryEntry): Promise<We
             }
         });
         const playtestLobbyPort = 9099 + playTesterLobbyCount;
-        socket = new WebSocket(`ws://calculation_unit_${playTesterLobbyCount}:${playtestLobbyPort}`);
+        socket = new WebSocket(`ws://playtest_calculation_unit_${playTesterLobbyCount}:${playtestLobbyPort}`);
     } else {
         let lobbyCount = 0
         registeredLobbys.forEach((lobby) => {
@@ -140,7 +140,7 @@ async function connectToCalculationServer(lcomp: LobbyRegistryEntry): Promise<We
                 lobbyCount++;
             }
         });
-        const lobbyPort = 9089 + lobbyCount;
+        const lobbyPort = 8089 + lobbyCount;
         socket = new WebSocket(`ws://calculation_unit_${lobbyCount}:${lobbyPort}/msgpack`);
     }
 

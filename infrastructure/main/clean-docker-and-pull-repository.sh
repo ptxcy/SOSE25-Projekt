@@ -13,7 +13,7 @@ ssh -o StrictHostKeyChecking=no -i ~/.ssh/temp_key.pem ec2-user@ec2-3-124-115-76
   echo "Server connected via SSH"
 
   echo "Stopping all running Docker containers, except mongodb-projekt..."
-  docker ps --format '{{.ID}} {{.Names}}' | grep -v 'mongodb-projekt' | awk '{print $1}' | xargs -r docker stop
+  docker ps --format "{{.ID}} {{.Names}}" | grep -v "mongodb-projekt" | awk '{print $1}' | xargs -r docker stop
 
   echo "Cleaning up Docker, except volumes related to mongodb-projekt..."
   docker system prune -a -f

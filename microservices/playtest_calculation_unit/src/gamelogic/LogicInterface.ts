@@ -43,12 +43,12 @@ function extractGameObjects(context: ServerMessage): ObjectContent | null {
     return content;
 }
 
-export function addPlanet(planet: Planet) {
+export function addPlanet(name: string, position: Coordinate, size: number) {
     const context: ServerMessage | null = getGameContext();
     if (!context) return;
     const content = extractGameObjects(context);
     if (!content) return;
-    content[1].push(planet);
+    content[1].push([name, position, [], size, [0, 0]]);
 }
 
 export function getPlanet(name: string): Planet | undefined {
@@ -76,13 +76,13 @@ export function deletePlanet(name: string) {
     }
 }
 
-export function addSpaceShip(ship: SpaceShip) {
+export function addSpaceShip(id: number, speed: number, positon: Coordinate) {
     const context: ServerMessage | null = getGameContext();
     if (!context) return;
     const content = extractGameObjects(context);
     if (!content) return;
     const ships: Record<number, SpaceShip> = content[3];
-    ships[ship[0]] = ship;
+    ships[id] = [id, "Explorer", speed, [0, 0, 0], positon, [10, 10, 10], false, null];
 }
 
 export function setVelocityForSpaceShip(id: number, moveTo: Coordinate) {
@@ -123,7 +123,7 @@ export function getSpaceShip(id: number): SpaceShip | undefined {
     return ships[id];
 }
 
-function printGameContext() {
+export function printGameContext() {
     const context: ServerMessage | null = getGameContext();
     if (!context) {
         console.log("Kein gültiger Kontext vorhanden.");
@@ -131,51 +131,3 @@ function printGameContext() {
     }
     console.log(JSON.stringify(context, null, 2));
 }
-
-function delayedAction(action: Function, delay: number) {
-    setTimeout(action, delay);
-}
-
-function testGameContext() {
-    console.log("Initialer Kontext:");
-    printGameContext();
-
-    delayedAction(() => {
-        console.log("\nFüge einen Planeten hinzu:");
-        addPlanet(["Mars", [0, 0, 0], [], 100]);
-        printGameContext();
-    }, 5000);
-
-    delayedAction(() => {
-        console.log("\nBewege den Planeten:");
-        movePlanet("Mars", [10, 10, 10]);
-        printGameContext();
-    }, 10000);
-
-    delayedAction(() => {
-        console.log("\nLösche den Planeten:");
-        deletePlanet("Mars");
-        printGameContext();
-    }, 15000);
-
-    delayedAction(() => {
-        console.log("\nFüge ein Raumschiff hinzu:");
-        addSpaceShip([1, "Explorer", 5, [0, 0, 0], [0, 0, 0], [10, 10, 10]]);
-        printGameContext();
-    }, 20000);
-
-    delayedAction(() => {
-        console.log("\nBewege das Raumschiff:");
-        moveSpaceShip(1, [5, 5, 5]);
-        printGameContext();
-    }, 25000);
-
-    delayedAction(() => {
-        console.log("\nLösche das Raumschiff:");
-        deleteSpaceShip(1);
-        printGameContext();
-    }, 30000);
-}
-
-testGameContext();
-
