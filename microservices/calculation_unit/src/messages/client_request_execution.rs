@@ -173,6 +173,9 @@ impl ClientRequest {
 			if let Some(a) = game_objects.spaceships.get(value) {
 				unsafe_actions.push(UnsafeAction::DeleteSpaceship(*value));
 			}
+			else {
+				log_with_time("cant delete this spaceship");
+			}
 		}
 		if let Some(value) = &self.connect {
 			log_with_time(format!("a new connection with id {}", value));

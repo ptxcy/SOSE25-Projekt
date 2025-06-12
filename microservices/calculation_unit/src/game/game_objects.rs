@@ -15,10 +15,11 @@ use super::{
 };
 
 pub type PlayerMap = HashMap<String, Player>;
-pub type SendPlayerMap<'a> = HashMap<&'a String, &'a Player>;
 pub type SpaceshipMap = HashMap<usize, Spaceship>;
-pub type SendSpaceshipMap<'a> = HashMap<&'a usize, &'a Spaceship>;
 pub type DummyMap = HashMap<usize, DummyObject>;
+
+pub type SendPlayerMap<'a> = HashMap<&'a String, &'a Player>;
+pub type SendSpaceshipMap<'a> = HashMap<&'a usize, &'a Spaceship>;
 pub type SendDummyMap<'a> = HashMap<&'a usize, &'a DummyObject>;
 
 /// objects that are going to be rendered by client
