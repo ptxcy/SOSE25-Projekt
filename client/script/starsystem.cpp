@@ -44,6 +44,7 @@ StarSystem::StarSystem()
 	m_PlanetTextures[7] = g_Renderer.register_sprite_texture("./res/planets/halfres/neptune.jpg");
 
 	// setup planets
+	/*
 	planets[0] = { vec3(3.9f*STARSYS_DISTANCE_SCALE,0,0),.38f*STARSYS_EARTH_REFERENCE_SCALE };
 	planets[1] = { vec3(7.2f*STARSYS_DISTANCE_SCALE,0,0),.95f*STARSYS_EARTH_REFERENCE_SCALE };
 	planets[2] = { vec3(10.f*STARSYS_DISTANCE_SCALE,0,0),1.f*STARSYS_EARTH_REFERENCE_SCALE };
@@ -52,6 +53,7 @@ StarSystem::StarSystem()
 	planets[5] = { vec3(95.4f*STARSYS_DISTANCE_SCALE,0,0),9.46f*STARSYS_EARTH_REFERENCE_SCALE };
 	planets[6] = { vec3(192.f*STARSYS_DISTANCE_SCALE,0,0),4.01f*STARSYS_EARTH_REFERENCE_SCALE };
 	planets[7] = { vec3(300.6f*STARSYS_DISTANCE_SCALE,0,0),3.89f*STARSYS_EARTH_REFERENCE_SCALE };
+	*/
 
 	// setup planetary halo
 	m_HaloBatch = g_Renderer.register_particle_batch(m_HaloShader);
@@ -93,14 +95,13 @@ StarSystem::StarSystem()
 void StarSystem::update()
 {
 	// upload planetary texture location
-	for (u8 i=0;i<STARSYS_PLANET_COUNT;i++) planets[i].texture = *m_PlanetTextures[i];
 	m_Halos[0].offset = planets[5].offset;
 	m_Halos[0].scale = planets[5].scale*STARSYS_SATURN_RING_DISTFACTOR;
 	m_Halos[0].texture = *m_HaloTexture;
 
 	// planetary position update
 	m_PlanetBatch->ibo.bind();
-	m_PlanetBatch->ibo.upload_vertices(planets,8,GL_DYNAMIC_DRAW);
+	m_PlanetBatch->ibo.upload_vertices(planets,GL_DYNAMIC_DRAW);
 	m_HaloBatch->ibo.bind();
 	m_HaloBatch->ibo.upload_vertices(m_Halos,1,GL_DYNAMIC_DRAW);
 

@@ -29,7 +29,8 @@ public:
 	void update();
 
 public:
-	PlanetaryAttribute planets[STARSYS_PLANET_COUNT];
+	vector<PlanetaryAttribute> planets = vector<PlanetaryAttribute>(STARSYS_PLANET_COUNT);
+	PixelBufferComponent* m_PlanetTextures[STARSYS_PLANET_COUNT];
 
 private:
 
@@ -42,7 +43,6 @@ private:
 	lptr<ParticleBatch> m_HaloBatch;
 
 	// planetary data
-	PixelBufferComponent* m_PlanetTextures[STARSYS_PLANET_COUNT];
 	PixelBufferComponent* m_HaloTexture;
 
 	// batch data

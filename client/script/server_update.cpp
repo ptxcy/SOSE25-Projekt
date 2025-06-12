@@ -23,15 +23,19 @@ void ServerUpdate::update()
 	ServerMessage msg = g_Websocket.receive_message();
 
 	// planetary positions
-	for (u8 i=0;i<msg.request_data.game_objects.planets.size();i++)
+	u32 i = 0;
+	m_SSys->planets.resize(msg.request_data.game_objects.planets.size());
+	for (Planet& p_Planet : msg.request_data.game_objects.planets)
 	{
-		Planet& p_Planet = msg.request_data.game_objects.planets[i];
-		m_SSys->planets[i].offset = vec3(p_Planet.position.x,p_Planet.position.y,p_Planet.position.z)
-			*STARSYS_DISTANCE_SCALE;
+		if (i<8) m_SSys->planets[i].texture = *m_SSys->m_PlanetTextures[i];
+		else m_SSys->planets[i].texture = *m_SSys->m_PlanetTextures[0];
+		m_SSys->planets[i].offset
+			= vec3(p_Planet.position.x,p_Planet.position.y,p_Planet.position.z)*STARSYS_DISTANCE_SCALE;
+		i++;
 	}
 
 	// fleet update
-	u32 i = 0;
+	i = 0;
 	m_Flotilla->spaceships.resize(msg.request_data.game_objects.spaceships.size());
 	for (auto& it : msg.request_data.game_objects.spaceships)
 	{
