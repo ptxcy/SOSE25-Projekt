@@ -63,10 +63,16 @@ void Menu::update()
 							tfname->get_content(),tfpass->get_content(),tflobby->get_content(),
 							tflpass->get_content(),btcreate->confirm);
 		if (g_Websocket.lobby_status!=LOBBY_CONNECTED) return;
-		Request::connect();
+		std::cout << "Sync\n";
 		std::this_thread::sleep_for(std::chrono::milliseconds(NETWORK_CONNECTION_STALL));
+		std::cout << "Sync\n";
+		Request::connect();
+		std::cout << "Sync\n";
+		std::this_thread::sleep_for(std::chrono::milliseconds(NETWORK_CONNECTION_STALL));
+		std::cout << "Sync\n";
 		Request::set_fps(NETWORK_CALCULATION_FRAMES);
-		while (!g_Websocket.state_update) { std::this_thread::sleep_for(std::chrono::milliseconds(10)); }
+		std::cout << "Sync\n";
+		while (!g_Websocket.state_update) { std::this_thread::sleep_for(std::chrono::milliseconds(10)); std::cout << "Sync\n"; }
 #endif
 		m_CC->run();
 		close();

@@ -7,6 +7,7 @@ COPY . /app
 RUN npm install
 
 ARG SERVICE_PORT
-ENV PORT=$SERVICE_PORT
+ENV PORT=9100
 EXPOSE $PORT
-CMD ["npm", "start"]
+CMD ["sh", "-c", "npm start"]
+

@@ -132,7 +132,9 @@ async function connectToCalculationServer(lcomp: LobbyRegistryEntry): Promise<We
             }
         });
         const playtestLobbyPort = 9099 + playTesterLobbyCount;
-        socket = new WebSocket(`ws://playtest_calculation_unit_${playTesterLobbyCount}:${playtestLobbyPort}`);
+        const connectionString = `ws://playtest_calculation_unit_${playTesterLobbyCount}:${playtestLobbyPort}`;
+        console.log(`Connection String: ${connectionString}`);
+        socket = new WebSocket(connectionString);
     } else {
         let lobbyCount = 0
         registeredLobbys.forEach((lobby) => {

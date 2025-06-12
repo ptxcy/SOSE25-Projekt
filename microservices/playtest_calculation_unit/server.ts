@@ -18,12 +18,15 @@ const GAME_CONTEXT: CONTEXT = {
 
 export const FPS: number = 60;
 const port: number = parseInt(process.env.PORT || "9000", 10);
+console.log("recv port", port);
 const wss = new WebSocketServer({port});
 wss.on("connection", async (ws: WebSocket, req) => {
+    console.log("Received connection");
     ws.on("message", async (message: RawData) => {
         console.log("Received message", message);
         // Should be a Client Message
         const clientMessage = await decodeToClientMessage(message);
+        console.log("decoded", clientMessage);
         const connectContent: string | null = clientMessage[1][3];
         if (connectContent === null) {
             return;
@@ -49,7 +52,9 @@ async function sendPeriodicRenderMessages(webSocket: WebSocket) {
     setInterval(() => {
         GAME_CONTEXT.players.forEach(player => {
             GAME_CONTEXT.context[1][0] = player
-            webSocket.send(encode(GAME_CONTEXT.context));
+            const encoded = encode(GAME_CONTEXT.context)
+            console.log("Send Back To Authproxy", encoded)
+            webSocket.send(encoded);
         })
     }, (1000 / FPS))
 }
@@ -61,3 +66,5 @@ export function getGameContext(): ServerMessage | null {
 export function setGameContext(msg: ServerMessage) {
     GAME_CONTEXT.context = msg;
 }
+
+//import "./src/gamelogic/Logic";
