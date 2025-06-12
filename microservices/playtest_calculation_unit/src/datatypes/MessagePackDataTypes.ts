@@ -108,6 +108,7 @@ export type ClientData = [
         string | null, // connect
         SetSpaceshipTarget | null,
         Coordinate | null,
+        number | null, //delete
 ]
 
 export type SetSpaceshipTarget = [

@@ -96,13 +96,21 @@ struct DummyObject
 	MSGPACK_DEFINE(owner,id,name,position,velocity);
 };
 
+struct Spacestation
+{
+	u64 parked;
+	u64 capacity;
+	MSGPACK_DEFINE(parked,capacity);
+};
+
 struct Planet
 {
 	string name;
 	Coordinate position;
 	std::vector<BuildingRegion> building_regions;
 	f64 size;
-	MSGPACK_DEFINE(name,position,building_regions,size);
+	Spacestation spacestation;
+	MSGPACK_DEFINE(name,position,building_regions,size,spacestation);
 };
 
 struct Player
@@ -121,7 +129,9 @@ struct Spaceship
 	Coordinate velocity;
 	Coordinate position;
 	Coordinate target;
-	MSGPACK_DEFINE(id,owner,speed,velocity,position,target);
+	bool docking_mode;
+	std::optional<u64> docking_at;
+	MSGPACK_DEFINE(id,owner,speed,velocity,position,target,docking_mode,docking_at);
 };
 
 struct GameObjects
@@ -129,7 +139,7 @@ struct GameObjects
 	std::unordered_map<u64,DummyObject> dummies;
 	std::vector<Planet> planets;
 	std::unordered_map<string,Player> players;
-	std::unordered_map<u64,Spaceship> spaceships;
+	std::unordered_map<string,Spaceship> spaceships;
 	MSGPACK_DEFINE(dummies,planets,players,spaceships);
 };
 
@@ -172,7 +182,8 @@ struct ClientRequest
 	std::optional<DummySetVelocity> dummy_set_velocity;
 	std::optional<string> connect;
 	std::optional<SetSpaceshipTarget> set_spaceship_target;
-	MSGPACK_DEFINE(set_client_fps,spawn_dummy,dummy_set_velocity,connect,set_spaceship_target);
+	std::optional<Coordinate> spawn_spaceship;
+	MSGPACK_DEFINE(set_client_fps,spawn_dummy,dummy_set_velocity,connect,set_spaceship_target,spawn_spaceship);
 };
 // FIXME heavy contender for worst datastructure in the entire universe
 

@@ -2,7 +2,7 @@ import {WebSocketServer, WebSocket, RawData} from "ws";
 import {decodeToClientMessage, ServerMessage} from "./src/datatypes/MessagePackDataTypes";
 import {decode, encode} from "@msgpack/msgpack";
 import "./src/gamelogic/LogicInterface";
-import {initEmptyGameContext, testGameContext} from "./src/gamelogic/LogicInterface";
+import {initEmptyGameContext} from "./src/gamelogic/LogicInterface";
 
 interface CONTEXT {
     sockets: WebSocket[];
@@ -61,5 +61,3 @@ export function getGameContext(): ServerMessage | null {
 export function setGameContext(msg: ServerMessage) {
     GAME_CONTEXT.context = msg;
 }
-
-testGameContext();

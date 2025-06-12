@@ -97,6 +97,7 @@ type ClientData = [
     string | null,
     SetSpaceshipTarget | null,
     Coordinate | null,
+    number | null,
 ]
 
 type SetSpaceshipTarget = [
