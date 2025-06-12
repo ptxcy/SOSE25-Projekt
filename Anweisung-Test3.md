@@ -100,3 +100,32 @@ Du wirst nun das Spiel dynamisch manipulieren – in Echtzeit – über TypeScri
     printGameContext();
     ```
     * Wird das Raumschiff sauber entfernt?
+
+5. **Perfomance Test**
+   Füge folgenden Code ein und überarbeite ihn nach deinen Vorstelleungen, wenn du möchtest.
+   Dieser Code soll ein Paar Planeten erstellen.
+   ```ts
+   // Hilfsfunktion für zufällige Koordinaten im Bereich von -1000 bis +1000
+   function getRandomCoordinate(): [number, number, number] {
+       const range = 1000;
+       const rand = () => Math.random() * range * 2 - range;
+       return [rand(), rand(), rand()];
+   }
+   
+   // Starte den Spawn-Prozess
+   function spawnMassivePlanetTest(count: number = 10000) {
+       console.log(`Starte Spawning von ${count} Planeten...`);
+       for (let i = 0; i < count; i++) {
+           const name = `Planet_${i}`;
+           const position = getRandomCoordinate();
+           const size = Math.random() * 50 + 10; // zufällige Größe zwischen 10 und 60
+           addPlanet(name, position, size);
+       }
+       console.log("Alle Planeten wurden gespawnt.");
+       printGameContext();
+   }
+   
+   // Jetzt aufrufen:
+   spawnMassivePlanetTest();
+   ```
+   Schau dir nun das Ergebnis an.
