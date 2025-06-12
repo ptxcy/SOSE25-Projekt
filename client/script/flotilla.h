@@ -4,6 +4,7 @@
 
 #include "../core/renderer.h"
 #include "../core/wheel.h"
+#include "../adapter/definition.h"
 
 
 struct SpaceshipData
@@ -13,6 +14,7 @@ struct SpaceshipData
 	PixelBufferComponent texture;
 };
 
+
 class Flotilla
 {
 public:
@@ -21,6 +23,7 @@ public:
 	void update();
 
 public:
+	vector<Spaceship> fleet;
 	vector<SpaceshipData> spaceships;
 
 private:
