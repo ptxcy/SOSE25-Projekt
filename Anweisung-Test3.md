@@ -4,11 +4,11 @@
 
     *  Du befindest dich im Login-Fenster im Spiel.
     * Gib die folgenden Zugangsdaten ein:
-      - **Username:** SpacePionier
-      - **Passwort:** Kosmos2025!
+      - **Username:** Tester
+      - **Passwort:** tsx!
     * Wähle nun den folgenden Lobby-Namen aus:
       - **Lobbyname:** RaumstationOmega
-    * Klicke auf "Einloggen".
+    * Klicke auf "Looby beitreten".
 
 2. **Spielstart & Orientierung:**
 
@@ -33,3 +33,70 @@
 * Wechsle zwischen verschiedenen Kamera-Distanzen (sehr nah an einem Objekt und weit entfernt).
 * Beobachte, wie sich die Bildqualität und Performance verändert, wenn mehrere Objekte gleichzeitig im Sichtfeld sind.
 * Achte besonders auf Licht- und Schatteneffekte sowie Reflexionen auf verschiedenen Oberflächen.
+
+## 6. Modding & Manipulation 
+
+Du wirst nun das Spiel dynamisch manipulieren – in Echtzeit – über TypeScript-Funktionen.
+
+* Öffne die IDE.
+
+### Modding-Workflow: Planeten
+
+1. **Löschen des Planeten**
+    ```ts
+    deletePlanet("Mars");
+    printGameContext();
+    ```
+    * Wird er vollständig entfernt? Was passiert mit seiner Umlaufbahn oder Lichtquelle?
+
+2. **Planet hinzufügen**
+    ```ts
+    addPlanet("Test", [1, 1, 0], 100);
+    printGameContext();
+    ```
+    * Beobachte, ob und wie der Planet "Test" im Spiel erscheint.
+    * Welche Texturen werden geladen?
+
+3. **Bewegung des Planeten**
+    ```ts
+    movePlanet("Test", [10, 10, 10]);
+    printGameContext();
+    ```
+    * Bewegt sich der Planet flüssig?
+    * Gibt es visuelle Latenzen oder Glitches?
+
+
+
+---
+
+### Modding-Workflow: Raumschiffe
+
+1. **Raumschiff hinzufügen**
+    ```ts
+    addSpaceShip(1, 1, [1, 2, 0]);
+    printGameContext();
+    ```
+    * Erscheint das Schiff korrekt?
+    * Ist die Startposition sichtbar und korrekt beleuchtet?
+
+2. **Ziel setzen (Ziel-Koordinate definieren)**
+    ```ts
+    setTargetForSpaceShip(1, [5, 5, 5]);
+    printGameContext();
+    ```
+    * Bewegt sich das Raumschiff automatisch zum Ziel?
+    * Ist die Flugbahn nachvollziehbar?
+
+3. **Geschwindigkeit verändern**
+    ```ts
+    setVelocityForSpaceShip(1, [0.5, 0.5, 0.5]);
+    ```
+    * Wie reagiert das Schiff auf die neue Geschwindigkeit?
+    * Beobachte Bewegung und eventuelle Performanceänderungen.
+
+4. **Schiff löschen**
+    ```ts
+    deleteSpaceShip(1);
+    printGameContext();
+    ```
+    * Wird das Raumschiff sauber entfernt?
