@@ -1,9 +1,8 @@
 use std::ops::{AddAssign, SubAssign};
 
 use super::{
-	building_region::BuildingRegion, coordinate::Coordinate,
-	crafting_material::CraftingMaterial, dummy::DummyObject, factory::Factory,
-	game_objects::GameObjects, gametraits::Crafter, mine::Mine,
+	building_region::BuildingRegion, dummy::DummyObject, factory::Factory,
+	game_objects::GameObjects, mine::Mine,
 	spaceship::Spaceship,
 };
 
@@ -69,23 +68,6 @@ impl<T> Action for SetValue<T> {
 
 /// dont move memory so safe to use when known that memory exists
 pub enum SafeAction {
-	// AddCoordinate {
-	// 	coordinate: *mut Coordinate,
-	// 	other: Coordinate,
-	// 	multiplier: f64,
-	// },
-	// AddUsize(*mut usize, usize),
-	// SubUsize(*mut usize, usize),
-	// ReduceCraftingMaterial {
-	// 	crafter: *mut dyn Crafter,
-	// 	cost: CraftingMaterial,
-	// },
-	// SetCoordinate {
-	// 	coordinate: *mut Coordinate,
-	// 	other: Coordinate,
-	// },
-	// SetDockingAt(*mut Option<usize>, Option<usize>),
-	// SetF64(*mut f64, f64),
 	SpawnDummy(DummyObject),
 	SpawnFactory {
 		region: *mut BuildingRegion,
@@ -104,16 +86,6 @@ impl Action for SafeAction {
 	fn execute(self: Box<SafeAction>, game_objects: *mut GameObjects) {
 		let go = unsafe { &mut *game_objects };
 		match *self {
-			// SafeAction::AddCoordinate {
-			// 	coordinate,
-			// 	other,
-			// 	multiplier,
-			// } => unsafe {
-			// 	(*coordinate).addd(&other, multiplier);
-			// },
-			// SafeAction::SetCoordinate { coordinate, other } => unsafe {
-			// 	(*coordinate).set(&other);
-			// },
 			SafeAction::SpawnFactory { region, factory } => {
 				let region = unsafe { &mut *region };
 				region.factories.push(factory);
@@ -128,22 +100,6 @@ impl Action for SafeAction {
 			SafeAction::SpawnSpaceship(spaceship) => {
 				go.spaceships.insert(spaceship.id, spaceship);
 			}
-			// SafeAction::SetF64(target, value) => {
-			// 	unsafe { *target = value };
-			// }
-			// SafeAction::ReduceCraftingMaterial { crafter, cost } => {
-			// 	let crafter = unsafe { &mut (*crafter) };
-			// 	crafter.get_crafting_material_mut().sub(&cost);
-			// }
-			// SafeAction::AddUsize(target, value) => unsafe {
-			// 	*target += value;
-			// },
-			// SafeAction::SubUsize(target, value) => unsafe {
-			// 	*target -= value;
-			// },
-			// SafeAction::SetDockingAt(target, value) => unsafe {
-			// 	*target = value;
-			// },
 		}
 	}
 }
