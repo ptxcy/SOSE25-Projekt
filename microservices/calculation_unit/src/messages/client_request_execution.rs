@@ -5,7 +5,7 @@ use super::client_message::{
 };
 use crate::{
 	game::{
-		action::{AsRaw, SafeAction, UnsafeAction}, calculation_unit::ServerMessageSenderChannel, coordinate::Coordinate, dummy::DummyObject, game_objects::GameObjects, id_counter::IdCounter, planet::OrbitInfoMap, player::Player, spaceship::Spaceship
+		action::{Action, ActionBox, AsRaw, SafeAction, UnsafeAction}, calculation_unit::ServerMessageSenderChannel, coordinate::Coordinate, dummy::DummyObject, game_objects::GameObjects, id_counter::IdCounter, planet::OrbitInfoMap, player::Player, spaceship::Spaceship
 	},
 	logger::log_with_time,
 };
@@ -34,7 +34,7 @@ fn spawn_dummy(
 	game_objects: &GameObjects,
 	name: &String,
 	id_counter: &mut IdCounter,
-) -> std::result::Result<Vec<SafeAction>, String> {
+) -> std::result::Result<Vec<ActionBox>, String> {
 	// spawn dummy
 	log_with_time("spawn dummy");
 	let actions = DummyObject::craft(player, &"name".to_string(), id_counter);
@@ -122,8 +122,8 @@ impl ClientRequest {
 		delta_days: f64,
 		orbit_info_map: &OrbitInfoMap,
 	) -> std::result::Result<(), String> {
-		let mut actions = Vec::<SafeAction>::new();
-		let mut unsafe_actions = Vec::<UnsafeAction>::new();
+		let mut actions = Vec::<ActionBox>::new();
+		let mut unsafe_actions = Vec::<ActionBox>::new();
 
 		let player = if let Some(player) = game_objects.players.get(username) {
 			player
@@ -132,7 +132,7 @@ impl ClientRequest {
 		};
 
 		if let Some(value) = &self.dummy_set_velocity {
-			actions.push(dummy_set_velocity(username, game_objects, value)?);
+			actions.push(Box::new(dummy_set_velocity(username, game_objects, value)?));
 		}
 		if let Some(value) = &self.spawn_dummy {
 			actions.append(&mut spawn_dummy(
@@ -141,39 +141,39 @@ impl ClientRequest {
 				value,
 				dummy_id_counter,
 			)?);
-			actions.push(SafeAction::SpawnSpaceship(Spaceship::new(
+			actions.push(Box::new(SafeAction::SpawnSpaceship(Spaceship::new(
 				username,
 				0.3,
 				spaceship_id_counter,
 				Coordinate::default()
-			)));
+			))));
 		}
 		if let Some(value) = &self.set_client_fps {
-			actions.push(set_client_fps(
+			actions.push(Box::new(set_client_fps(
 				username,
 				server_message_senders,
 				*value,
-			)?);
+			)?));
 		}
 		if let Some(value) = &self.set_spaceship_target {
-			actions.push(set_spaceship_target(
+			actions.push(Box::new(set_spaceship_target(
 				game_objects,
 				value,
 				julian_day,
 				orbit_info_map,
 				username,
-			)?);
+			)?));
 		}
 		// TEMP later not possible to spawn like this
 		if let Some(value) = &self.spawn_spaceship {
 			let spaceship = Spaceship::new(username, 0.3, spaceship_id_counter, value.clone());
-			actions.push(SafeAction::SpawnSpaceship(spaceship));
+			actions.push(Box::new(SafeAction::SpawnSpaceship(spaceship)));
 		}
 		// TEMP later not possible to delete like this
 		if let Some(value) = &self.delete_spaceship {
 			if let Some(a) = game_objects.spaceships.get(value) {
 				if &a.owner == username {
-					unsafe_actions.push(UnsafeAction::DeleteSpaceship(*value));
+					unsafe_actions.push(Box::new(UnsafeAction::DeleteSpaceship(*value)));
 				}
 				else {
 					log_with_time("cant delete this spaceship, not the owner");

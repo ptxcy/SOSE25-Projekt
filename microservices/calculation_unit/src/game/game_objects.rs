@@ -7,7 +7,7 @@ use std::{
 use serde::{Deserialize, Serialize};
 
 use super::{
-	action::{AsRaw, SafeAction},
+	action::{Action, ActionBox, AddValue, AsRaw, SafeAction},
 	dummy::DummyObject,
 	planet::{OrbitInfoMap, Planet, PlanetReceive},
 	player::Player,
@@ -97,7 +97,7 @@ impl GameObjects {
 		orbit_info_map: &OrbitInfoMap,
 	) -> std::result::Result<(), String> {
 		let (action_sender, action_receiver) =
-			std::sync::mpsc::channel::<SafeAction>();
+			std::sync::mpsc::channel::<Box<dyn Action>>();
 
 		// get actions multithreaded
 		let mut threads = Vec::<JoinHandle<()>>::new();
@@ -138,7 +138,7 @@ impl GameObjects {
 
 	/// store the actions that are going to be executed on dummies
 	pub fn update_dummies(
-		action_sender: Sender<SafeAction>,
+		action_sender: Sender<ActionBox>,
 		game_objects: *const GameObjects,
 		delta_ingame_days: f64,
 	) -> std::thread::JoinHandle<()> {
@@ -146,12 +146,16 @@ impl GameObjects {
 			let dummies = unsafe { &(*game_objects).dummies };
 			move || {
 				for (id, dummy) in dummies.iter() {
+					let mut dv = dummy.velocity.clone();
+					dv.scale(delta_ingame_days);
+
 					action_sender
-						.send(SafeAction::AddCoordinate {
-							coordinate: dummy.position.raw_mut(),
-							other: dummy.velocity.clone(),
-							multiplier: delta_ingame_days,
-						})
+						// .send(Box::new(SafeAction::AddCoordinate {
+						// 	coordinate: dummy.position.raw_mut(),
+						// 	other: dummy.velocity.clone(),
+						// 	multiplier: delta_ingame_days,
+						// }))
+						.send(AddValue::new(dummy.position.raw_mut(), dv))
 						.unwrap();
 				}
 			}
@@ -161,7 +165,7 @@ impl GameObjects {
 
 	/// updating the planet position in their orbits
 	pub fn update_planets(
-		action_sender: Sender<SafeAction>,
+		action_sender: Sender<ActionBox>,
 		game_objects: *const GameObjects,
 		timefactor: f64,
 		orbit_info_map: &OrbitInfoMap,
@@ -172,7 +176,7 @@ impl GameObjects {
 			move || {
 				for planet in planets.iter() {
 					action_sender
-						.send(planet.update(timefactor, &orbit_info_map))
+						.send(Box::new(planet.update(timefactor, &orbit_info_map)))
 						.unwrap();
 				}
 			}
@@ -181,7 +185,7 @@ impl GameObjects {
 	}
 
 	pub fn update_spaceships(
-		action_sender: Sender<SafeAction>,
+		action_sender: Sender<ActionBox>,
 		game_objects: *const GameObjects,
 		delta_days: f64,
 	) -> std::thread::JoinHandle<()> {
@@ -190,7 +194,7 @@ impl GameObjects {
 			move || {
 				for (id, spaceship) in spaceships.iter() {
 					for action in spaceship.update(delta_days) {
-						action_sender.send(action).unwrap();
+						action_sender.send(Box::new(action)).unwrap();
 					}
 				}
 			}
@@ -199,7 +203,7 @@ impl GameObjects {
 	}
 
 	pub fn update_spaceship_planet_relations(
-		action_sender: Sender<SafeAction>,
+		action_sender: Sender<ActionBox>,
 		game_objects: *const GameObjects,
 		delta_days: f64
 	) -> std::thread::JoinHandle<()> {
@@ -217,7 +221,7 @@ impl GameObjects {
 							// spaceship can and wants to dock
 							let actions = spaceship.arrive(planet, i).unwrap();
 							for action in actions {
-								action_sender.send(action).unwrap();
+								action_sender.send(Box::new(action)).unwrap();
 							}
 						}
 					}

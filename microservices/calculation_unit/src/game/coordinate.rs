@@ -1,3 +1,5 @@
+use std::ops::{AddAssign, SubAssign};
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -15,6 +17,18 @@ impl Default for Coordinate {
 			z: 0.0,
 		}
 	}
+}
+
+impl AddAssign for Coordinate {
+    fn add_assign(&mut self, rhs: Self) {
+    	self.add(&rhs);
+    }
+}
+
+impl SubAssign for Coordinate {
+    fn sub_assign(&mut self, rhs: Self) {
+    	self.sub(&rhs);
+    }
 }
 
 impl Coordinate {

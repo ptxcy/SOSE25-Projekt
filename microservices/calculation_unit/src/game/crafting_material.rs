@@ -1,3 +1,5 @@
+use std::ops::{AddAssign, SubAssign};
+
 use serde::{Deserialize, Serialize};
 
 /// materials used for crafting something
@@ -7,6 +9,18 @@ pub struct CraftingMaterial {
 	pub steel: f64,
 	pub gold: f64,
 	pub wood: f64,
+}
+
+impl SubAssign for CraftingMaterial {
+    fn sub_assign(&mut self, rhs: Self) {
+    	self.sub(&rhs);
+    }
+}
+
+impl AddAssign for CraftingMaterial {
+    fn add_assign(&mut self, rhs: Self) {
+    	self.add(&rhs);
+    }
 }
 
 impl CraftingMaterial {
