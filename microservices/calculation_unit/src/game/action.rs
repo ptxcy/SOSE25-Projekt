@@ -7,66 +7,106 @@ use super::{
 };
 
 pub trait AsRaw {
-	fn raw_mut(&self) -> *mut Self;
 	fn raw(&self) -> *const Self;
+	fn raw_mut(&self) -> *mut Self;
+	fn void(&self) -> *mut ();
 }
 
 impl<T> AsRaw for T {
-	fn raw_mut(&self) -> *mut Self {
-		self as *const Self as *mut Self
-	}
-
 	fn raw(&self) -> *const Self {
 		self as *const Self
 	}
-}
-
-pub trait Action: Send {
-	fn execute(self: Box<Self>, game_objects: *mut GameObjects);
-}
-
-pub type ActionBox = Box<dyn Action>;
-
-pub struct AddValue<T: AddAssign>(*mut T, T);
-impl<T: AddAssign + 'static> AddValue<T> {
-	pub fn new(target: *mut T, value: T) -> ActionBox {
-		Box::new(AddValue(target, value))
+	fn raw_mut(&self) -> *mut Self {
+		self.raw() as *mut Self
 	}
-}
-unsafe impl<T: AddAssign> Send for AddValue<T> {}
-impl<T: AddAssign> Action for AddValue<T> {
-    fn execute(self: Box<Self>, game_objects: *mut GameObjects) {
-    	unsafe {*(self.0) += self.1};
+	fn void(&self) -> *mut () {
+		self.raw_mut() as *mut ()
     }
 }
 
-pub struct SubValue<T: SubAssign>(*mut T, T);
-impl<T: SubAssign + 'static> SubValue<T> {
-	pub fn new(target: *mut T, value: T) -> ActionBox {
-		Box::new(SubValue(target, value))
-	}
+/// free it yourself
+fn malloc<T>(data: T) -> *mut () {
+	Box::into_raw(Box::new(data)) as *mut ()
 }
-unsafe impl<T: SubAssign> Send for SubValue<T> {}
-impl<T: SubAssign> Action for SubValue<T> {
-    fn execute(self: Box<Self>, game_objects: *mut GameObjects) {
-    	unsafe {*(self.0) -= self.1};
+
+type ActionFn = fn(*mut (), *mut GameObjects);
+
+pub struct ActionWrapper {
+    data: *mut (),
+    func: ActionFn,
+}
+
+unsafe impl Send for ActionWrapper {}
+
+impl ActionWrapper {
+    pub fn execute(self, go: *mut GameObjects) {
+        (self.func)(self.data, go);
+        unsafe {
+        	// free memory
+        	let _ = Box::from_raw(self.data);
+        }
     }
 }
 
-pub struct SetValue<T>(*mut T, T);
-impl<T: 'static> SetValue<T> {
-	pub fn new(target: *mut T, value: T) -> ActionBox {
-		Box::new(SetValue(target, value))
+pub struct AddValue<T: AddAssign + Copy>(*mut T, T);
+impl<T: AddAssign + Copy> AddValue<T> {
+	fn get_execute() -> ActionFn {
+        fn execute<T: AddAssign + Copy>(data: *mut (), _game_objects: *mut GameObjects) {
+            let data = data as *mut AddValue<T>;
+            unsafe {
+                *(*data).0 += (*data).1;
+            }
+        }
+        execute::<T>
+    }
+    pub fn new(target: *mut T, value: T) -> ActionWrapper {
+		ActionWrapper {
+			data: malloc(AddValue(target, value)),
+			func: Self::get_execute()
+		}
 	}
 }
-unsafe impl<T> Send for SetValue<T> {}
-impl<T> Action for SetValue<T> {
-    fn execute(self: Box<Self>, game_objects: *mut GameObjects) {
-    	unsafe {*(self.0) = self.1};
+
+pub struct SubValue<T: SubAssign + Copy>(*mut T, T);
+impl<T: SubAssign + Copy> SubValue<T> {
+	fn get_execute() -> ActionFn {
+        fn execute<T: SubAssign + Copy>(data: *mut (), _game_objects: *mut GameObjects) {
+            let data = data as *mut SubValue<T>;
+            unsafe {
+                *(*data).0 -= (*data).1;
+            }
+        }
+        execute::<T>
     }
+    pub fn new(target: *mut T, value: T) -> ActionWrapper {
+		ActionWrapper {
+			data: malloc(SubValue(target, value)),
+			func: Self::get_execute()
+		}
+	}
+}
+
+pub struct SetValue<T: Copy>(*mut T, T);
+impl<T: Copy> SetValue<T> {
+	fn get_execute() -> ActionFn {
+        fn execute<T: Copy>(data: *mut (), _game_objects: *mut GameObjects) {
+            let data = data as *mut SetValue<T>;
+            unsafe {
+                *(*data).0 = (*data).1;
+            }
+        }
+        execute::<T>
+    }
+    pub fn new(target: *mut T, value: T) -> ActionWrapper {
+		ActionWrapper {
+			data: malloc(SetValue(target, value)),
+			func: Self::get_execute()
+		}
+	}
 }
 
 /// dont move memory so safe to use when known that memory exists
+#[derive(Clone)]
 pub enum SafeAction {
 	SpawnDummy(DummyObject),
 	SpawnFactory {
@@ -82,10 +122,10 @@ pub enum SafeAction {
 
 unsafe impl Send for SafeAction {}
 
-impl Action for SafeAction {
-	fn execute(self: Box<SafeAction>, game_objects: *mut GameObjects) {
+impl SafeAction {
+	fn execute(self, game_objects: *mut GameObjects) {
 		let go = unsafe { &mut *game_objects };
-		match *self {
+		match self {
 			SafeAction::SpawnFactory { region, factory } => {
 				let region = unsafe { &mut *region };
 				region.factories.push(factory);
@@ -102,20 +142,49 @@ impl Action for SafeAction {
 			}
 		}
 	}
+	fn get_execute() -> ActionFn {
+		fn execute(data: *mut (), game_objects: *mut GameObjects) {
+			let v = data as *mut SafeAction;
+			let sa = unsafe {(*v).clone()};
+			sa.execute(game_objects);
+		}
+		execute
+	}
+    pub fn new(sa: SafeAction) -> ActionWrapper {
+		ActionWrapper {
+			data: malloc(sa),
+			func: Self::get_execute()
+		}
+	}
 }
 
 /// move memory not safe to use at same time as safeaction
+#[derive(Clone)]
 pub enum UnsafeAction {
 	DeleteSpaceship(usize),
 }
 
-impl Action for UnsafeAction {
-	fn execute(self: Box<UnsafeAction>, game_objects: *mut GameObjects) {
+impl UnsafeAction {
+	fn execute(self, game_objects: *mut GameObjects) {
 		let go = unsafe { &mut *game_objects };
-		match *self {
+		match self {
 			UnsafeAction::DeleteSpaceship(index) => {
 				go.spaceships.remove(&index);
 			},
+		}
+	}
+	fn get_execute() -> ActionFn {
+		fn execute(data: *mut (), game_objects: *mut GameObjects) {
+			let v = data as *mut UnsafeAction;
+			let usa = unsafe {(*v).clone()};
+			usa.execute(game_objects);
+		}
+		execute
+	}
+    pub fn new(usa: UnsafeAction) -> ActionWrapper {
+		ActionWrapper {
+			data: malloc(usa),
+			func: Self::get_execute()
 		}
 	}
 }

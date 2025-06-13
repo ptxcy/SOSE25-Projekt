@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::logger::log_with_time;
 
 use super::{
-	action::{ActionBox, AddValue, AsRaw, SafeAction, SetValue, SubValue},
+	action::{ActionWrapper, AddValue, AsRaw, SafeAction, SetValue, SubValue},
 	coordinate::Coordinate,
 	crafting_material::CraftingMaterial,
 	gametraits::{Craftable, IsOwned, Spawnable},
@@ -69,12 +69,12 @@ impl Spaceship {
 		&self,
 		planet: &Planet,
 		planet_index: usize,
-	) -> Result<Vec<ActionBox>, String> {
+	) -> Result<Vec<ActionWrapper>, String> {
 		log_with_time(format!(
 			"spaceship docking at space station on planet {}",
 			planet_index
 		));
-		let mut actions = Vec::<ActionBox>::new();
+		let mut actions = Vec::<ActionWrapper>::new();
 		let spacestation = &planet.spacestation;
 		if spacestation.parked >= spacestation.capacity {
 			return Err(format!("space station is full, docking failed"));
@@ -89,8 +89,8 @@ impl Spaceship {
 		Ok(actions)
 	}
 	/// departing from a spacestation which is on a planet
-	pub fn depart(&self, planet: &Planet) -> Vec<ActionBox> {
-		let mut actions = Vec::<ActionBox>::new();
+	pub fn depart(&self, planet: &Planet) -> Vec<ActionWrapper> {
+		let mut actions = Vec::<ActionWrapper>::new();
 		// self.docking_at = None;
 		actions.push(SetValue::new(self.docking_at.raw_mut(), None));
 		// planet.spacestation.capacity -= 1;
@@ -150,8 +150,8 @@ impl Spaceship {
 		length / self.speed
 	}
 	/// update one spaceship (flying to target mostly)
-	pub fn update(&self, delta_days: f64) -> Vec<ActionBox> {
-		let mut actions = Vec::<ActionBox>::new();
+	pub fn update(&self, delta_days: f64) -> Vec<ActionWrapper> {
+		let mut actions = Vec::<ActionWrapper>::new();
 
 		// no need to execute if arrived
 		if self.position == self.target {

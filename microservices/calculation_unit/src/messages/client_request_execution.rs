@@ -5,7 +5,7 @@ use super::client_message::{
 };
 use crate::{
 	game::{
-		action::{Action, ActionBox, AsRaw, SafeAction, SetValue, UnsafeAction}, calculation_unit::ServerMessageSenderChannel, coordinate::Coordinate, dummy::DummyObject, game_objects::GameObjects, id_counter::IdCounter, planet::OrbitInfoMap, player::Player, spaceship::Spaceship
+		action::{ActionWrapper, AsRaw, SafeAction, SetValue, UnsafeAction}, calculation_unit::ServerMessageSenderChannel, coordinate::Coordinate, dummy::DummyObject, game_objects::GameObjects, id_counter::IdCounter, planet::OrbitInfoMap, player::Player, spaceship::Spaceship
 	},
 	logger::log_with_time,
 };
@@ -14,7 +14,7 @@ fn set_client_fps(
 	username: &String,
 	server_message_senders: &HashMap<String, ServerMessageSenderChannel>,
 	fps: f64,
-) -> std::result::Result<ActionBox, String> {
+) -> std::result::Result<ActionWrapper, String> {
 	match server_message_senders.get(username) {
 		Some(client) => Ok(SetValue::new(
 			client.update_threshold.raw_mut(),
@@ -34,7 +34,7 @@ fn spawn_dummy(
 	game_objects: &GameObjects,
 	name: &String,
 	id_counter: &mut IdCounter,
-) -> std::result::Result<Vec<ActionBox>, String> {
+) -> std::result::Result<Vec<ActionWrapper>, String> {
 	// spawn dummy
 	log_with_time("spawn dummy");
 	let actions = DummyObject::craft(player, &"name".to_string(), id_counter);
@@ -45,7 +45,7 @@ fn dummy_set_velocity(
 	username: &String,
 	game_objects: &GameObjects,
 	value: &DummySetVelocity,
-) -> std::result::Result<ActionBox, String> {
+) -> std::result::Result<ActionWrapper, String> {
 	let dummies = &game_objects.dummies;
 	match dummies.get(&value.id) {
 		Some(dummy) => {
@@ -74,7 +74,7 @@ fn set_spaceship_target(
 	julian_day: f64,
 	orbit_info_map: &OrbitInfoMap,
 	username: &String,
-) -> std::result::Result<ActionBox, String> {
+) -> std::result::Result<ActionWrapper, String> {
 	let spaceship =
 		if let Some(s) = game_objects.spaceships.get(&value.spaceship_id) {
 			s
@@ -116,8 +116,8 @@ impl ClientRequest {
 		delta_days: f64,
 		orbit_info_map: &OrbitInfoMap,
 	) -> std::result::Result<(), String> {
-		let mut actions = Vec::<ActionBox>::new();
-		let mut unsafe_actions = Vec::<ActionBox>::new();
+		let mut actions = Vec::<ActionWrapper>::new();
+		let mut unsafe_actions = Vec::<ActionWrapper>::new();
 
 		let player = if let Some(player) = game_objects.players.get(username) {
 			player
@@ -135,7 +135,7 @@ impl ClientRequest {
 				value,
 				dummy_id_counter,
 			)?);
-			actions.push(Box::new(SafeAction::SpawnSpaceship(Spaceship::new(
+			actions.push(SafeAction::new(SafeAction::SpawnSpaceship(Spaceship::new(
 				username,
 				0.3,
 				spaceship_id_counter,
@@ -161,13 +161,13 @@ impl ClientRequest {
 		// TEMP later not possible to spawn like this
 		if let Some(value) = &self.spawn_spaceship {
 			let spaceship = Spaceship::new(username, 0.3, spaceship_id_counter, value.clone());
-			actions.push(Box::new(SafeAction::SpawnSpaceship(spaceship)));
+			actions.push(SafeAction::new(SafeAction::SpawnSpaceship(spaceship)));
 		}
 		// TEMP later not possible to delete like this
 		if let Some(value) = &self.delete_spaceship {
 			if let Some(a) = game_objects.spaceships.get(value) {
 				if &a.owner == username {
-					unsafe_actions.push(Box::new(UnsafeAction::DeleteSpaceship(*value)));
+					unsafe_actions.push(UnsafeAction::new(UnsafeAction::DeleteSpaceship(*value)));
 				}
 				else {
 					log_with_time("cant delete this spaceship, not the owner");

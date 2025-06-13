@@ -7,7 +7,7 @@ use std::{
 use serde::{Deserialize, Serialize};
 
 use super::{
-	action::{Action, ActionBox, AddValue, AsRaw, SafeAction},
+	action::{ActionWrapper, AddValue, AsRaw, SafeAction},
 	dummy::DummyObject,
 	planet::{OrbitInfoMap, Planet, PlanetReceive},
 	player::Player,
@@ -97,7 +97,7 @@ impl GameObjects {
 		orbit_info_map: &OrbitInfoMap,
 	) -> std::result::Result<(), String> {
 		let (action_sender, action_receiver) =
-			std::sync::mpsc::channel::<Box<dyn Action>>();
+			std::sync::mpsc::channel::<ActionWrapper>();
 
 		// get actions multithreaded
 		let mut threads = Vec::<JoinHandle<()>>::new();
@@ -138,7 +138,7 @@ impl GameObjects {
 
 	/// store the actions that are going to be executed on dummies
 	pub fn update_dummies(
-		action_sender: Sender<ActionBox>,
+		action_sender: Sender<ActionWrapper>,
 		game_objects: *const GameObjects,
 		delta_ingame_days: f64,
 	) -> std::thread::JoinHandle<()> {
@@ -165,7 +165,7 @@ impl GameObjects {
 
 	/// updating the planet position in their orbits
 	pub fn update_planets(
-		action_sender: Sender<ActionBox>,
+		action_sender: Sender<ActionWrapper>,
 		game_objects: *const GameObjects,
 		timefactor: f64,
 		orbit_info_map: &OrbitInfoMap,
@@ -185,7 +185,7 @@ impl GameObjects {
 	}
 
 	pub fn update_spaceships(
-		action_sender: Sender<ActionBox>,
+		action_sender: Sender<ActionWrapper>,
 		game_objects: *const GameObjects,
 		delta_days: f64,
 	) -> std::thread::JoinHandle<()> {
@@ -203,7 +203,7 @@ impl GameObjects {
 	}
 
 	pub fn update_spaceship_planet_relations(
-		action_sender: Sender<ActionBox>,
+		action_sender: Sender<ActionWrapper>,
 		game_objects: *const GameObjects,
 		delta_days: f64
 	) -> std::thread::JoinHandle<()> {

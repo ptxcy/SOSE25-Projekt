@@ -3,7 +3,7 @@ use std::ops::{AddAssign, SubAssign};
 use serde::{Deserialize, Serialize};
 
 /// materials used for crafting something
-#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default, Copy)]
 pub struct CraftingMaterial {
 	pub copper: f64,
 	pub steel: f64,
