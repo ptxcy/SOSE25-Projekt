@@ -5,8 +5,15 @@ SDST_SCRIPT = script/
 LDST = lib/
 TARGET = build
 
-INCLUDE = -I/usr/include/freetype2 -I/usr/include/libpng16
-LINKER = -lGL -lGLEW -lSDL2 -lpthread -lfreetype -lcpr -lcurl -lssl -lcrypto -lz
+CPR_DIR = core/include
+CPR_BUILD = $(CPR_DIR)/build
+CPR_INCLUDE = -I$(CPR_DIR)
+CURL_INCLUDE = -I$(CPR_BUILD)/_deps/curl-src/include
+CPR_STATIC = $(CPR_BUILD)/libcpr.a
+CURL_STATIC = $(CPR_BUILD)/_deps/curl-src/lib/.libs/libcurl.a
+
+INCLUDE = -I/usr/include/freetype2 -I/usr/include/libpng16 $(CPR_INCLUDE) $(CURL_INCLUDE)
+LINKER = -lGL -lGLEW -lSDL2 -lpthread -lfreetype $(CPR_STATIC) $(CURL_STATIC)
 
 DEBUG_SUFFIX = -pg -g -O0 -DDEBUG
 RELEASE_SUFFIX = -O3 -fno-gcse
@@ -14,7 +21,7 @@ RELEASE_SUFFIX = -O3 -fno-gcse
 SRCS_CORE = $(wildcard $(SDST_CORE)*.cpp)
 SRCS_SCRIPT = $(wildcard $(SDST_SCRIPT)*.cpp)
 SRCS = $(SRCS_CORE) $(SRCS_SCRIPT)
-OBJS = $(SRCS:$(SDST)%.cpp=$(LDST)%.o)
+OBJS = $(SRCS:%.cpp=$(LDST)%.o)
 MAIN = main.cpp
 
 CXXFLAGS =
