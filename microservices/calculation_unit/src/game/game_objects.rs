@@ -176,7 +176,7 @@ impl GameObjects {
 			move || {
 				for planet in planets.iter() {
 					action_sender
-						.send(Box::new(planet.update(timefactor, &orbit_info_map)))
+						.send(planet.update(timefactor, &orbit_info_map))
 						.unwrap();
 				}
 			}
@@ -194,7 +194,7 @@ impl GameObjects {
 			move || {
 				for (id, spaceship) in spaceships.iter() {
 					for action in spaceship.update(delta_days) {
-						action_sender.send(Box::new(action)).unwrap();
+						action_sender.send(action).unwrap();
 					}
 				}
 			}
@@ -221,7 +221,7 @@ impl GameObjects {
 							// spaceship can and wants to dock
 							let actions = spaceship.arrive(planet, i).unwrap();
 							for action in actions {
-								action_sender.send(Box::new(action)).unwrap();
+								action_sender.send(action).unwrap();
 							}
 						}
 					}

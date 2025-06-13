@@ -36,6 +36,10 @@ impl Crafter for Player {
 	fn get_crafting_material_mut(&mut self) -> &mut CraftingMaterial {
 		&mut self.crafting_material
 	}
+
+	fn get_crafting_material(&self) -> &CraftingMaterial {
+		&self.crafting_material
+    }
 }
 
 impl Player {

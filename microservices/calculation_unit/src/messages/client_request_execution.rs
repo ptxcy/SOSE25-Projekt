@@ -5,7 +5,7 @@ use super::client_message::{
 };
 use crate::{
 	game::{
-		action::{Action, ActionBox, AsRaw, SafeAction, UnsafeAction}, calculation_unit::ServerMessageSenderChannel, coordinate::Coordinate, dummy::DummyObject, game_objects::GameObjects, id_counter::IdCounter, planet::OrbitInfoMap, player::Player, spaceship::Spaceship
+		action::{Action, ActionBox, AsRaw, SafeAction, SetValue, UnsafeAction}, calculation_unit::ServerMessageSenderChannel, coordinate::Coordinate, dummy::DummyObject, game_objects::GameObjects, id_counter::IdCounter, planet::OrbitInfoMap, player::Player, spaceship::Spaceship
 	},
 	logger::log_with_time,
 };
@@ -14,9 +14,9 @@ fn set_client_fps(
 	username: &String,
 	server_message_senders: &HashMap<String, ServerMessageSenderChannel>,
 	fps: f64,
-) -> std::result::Result<SafeAction, String> {
+) -> std::result::Result<ActionBox, String> {
 	match server_message_senders.get(username) {
-		Some(client) => Ok(SafeAction::SetF64(
+		Some(client) => Ok(SetValue::new(
 			client.update_threshold.raw_mut(),
 			1. / fps,
 		)),
@@ -45,15 +45,12 @@ fn dummy_set_velocity(
 	username: &String,
 	game_objects: &GameObjects,
 	value: &DummySetVelocity,
-) -> std::result::Result<SafeAction, String> {
+) -> std::result::Result<ActionBox, String> {
 	let dummies = &game_objects.dummies;
 	match dummies.get(&value.id) {
 		Some(dummy) => {
 			if dummy.owner == *username {
-				Ok(SafeAction::SetCoordinate {
-					coordinate: dummy.velocity.raw_mut(),
-					other: value.position.clone(),
-				})
+				Ok(SetValue::new(dummy.velocity.raw_mut(), value.position.clone()))
 			} else {
 				return Err(format!(
 					"{} tried moving dummy {} that is not owned",
@@ -77,7 +74,7 @@ fn set_spaceship_target(
 	julian_day: f64,
 	orbit_info_map: &OrbitInfoMap,
 	username: &String,
-) -> std::result::Result<SafeAction, String> {
+) -> std::result::Result<ActionBox, String> {
 	let spaceship =
 		if let Some(s) = game_objects.spaceships.get(&value.spaceship_id) {
 			s
@@ -100,10 +97,7 @@ fn set_spaceship_target(
 	};
 	let target =
 		spaceship.fly_to_get_target(planet, julian_day, orbit_info_map);
-	Ok(SafeAction::SetCoordinate {
-		coordinate: spaceship.target.raw_mut(),
-		other: target,
-	})
+	Ok(SetValue::new(spaceship.target.raw_mut(), target))
 }
 
 impl ClientRequest {
@@ -132,7 +126,7 @@ impl ClientRequest {
 		};
 
 		if let Some(value) = &self.dummy_set_velocity {
-			actions.push(Box::new(dummy_set_velocity(username, game_objects, value)?));
+			actions.push(dummy_set_velocity(username, game_objects, value)?);
 		}
 		if let Some(value) = &self.spawn_dummy {
 			actions.append(&mut spawn_dummy(
@@ -149,20 +143,20 @@ impl ClientRequest {
 			))));
 		}
 		if let Some(value) = &self.set_client_fps {
-			actions.push(Box::new(set_client_fps(
+			actions.push(set_client_fps(
 				username,
 				server_message_senders,
 				*value,
-			)?));
+			)?);
 		}
 		if let Some(value) = &self.set_spaceship_target {
-			actions.push(Box::new(set_spaceship_target(
+			actions.push(set_spaceship_target(
 				game_objects,
 				value,
 				julian_day,
 				orbit_info_map,
 				username,
-			)?));
+			)?);
 		}
 		// TEMP later not possible to spawn like this
 		if let Some(value) = &self.spawn_spaceship {
