@@ -1,5 +1,7 @@
 use std::ops::{AddAssign, SubAssign};
 
+use crate::logger::log_with_time;
+
 use super::{
 	building_region::BuildingRegion, dummy::DummyObject, factory::Factory,
 	game_objects::GameObjects, mine::Mine,
@@ -26,6 +28,7 @@ impl<T> AsRaw for T {
 
 /// free it yourself
 fn malloc<T>(data: T) -> *mut () {
+	// log_with_time("allocating memory");
 	Box::into_raw(Box::new(data)) as *mut ()
 }
 
@@ -43,6 +46,7 @@ impl ActionWrapper {
         (self.func)(self.data, go);
         unsafe {
         	// free memory
+			// log_with_time("freeing memory");
         	let _ = Box::from_raw(self.data);
         }
     }
