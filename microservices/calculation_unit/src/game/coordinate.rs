@@ -20,15 +20,15 @@ impl Default for Coordinate {
 }
 
 impl AddAssign for Coordinate {
-    fn add_assign(&mut self, rhs: Self) {
-    	self.add(&rhs);
-    }
+	fn add_assign(&mut self, rhs: Self) {
+		self.add(&rhs);
+	}
 }
 
 impl SubAssign for Coordinate {
-    fn sub_assign(&mut self, rhs: Self) {
-    	self.sub(&rhs);
-    }
+	fn sub_assign(&mut self, rhs: Self) {
+		self.sub(&rhs);
+	}
 }
 
 impl Coordinate {

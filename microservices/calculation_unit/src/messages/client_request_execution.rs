@@ -5,7 +5,15 @@ use super::client_message::{
 };
 use crate::{
 	game::{
-		action::{ActionWrapper, AsRaw, SafeAction, SetValue, UnsafeAction}, calculation_unit::ServerMessageSenderChannel, coordinate::Coordinate, dummy::DummyObject, game_objects::GameObjects, id_counter::IdCounter, planet::OrbitInfoMap, player::Player, spaceship::Spaceship
+		action::{ActionWrapper, AsRaw, SafeAction, SetValue, UnsafeAction},
+		calculation_unit::ServerMessageSenderChannel,
+		coordinate::Coordinate,
+		dummy::DummyObject,
+		game_objects::GameObjects,
+		id_counter::IdCounter,
+		planet::OrbitInfoMap,
+		player::Player,
+		spaceship::Spaceship,
 	},
 	logger::log_with_time,
 };
@@ -16,10 +24,9 @@ fn set_client_fps(
 	fps: f64,
 ) -> std::result::Result<ActionWrapper, String> {
 	match server_message_senders.get(username) {
-		Some(client) => Ok(SetValue::new(
-			client.update_threshold.raw_mut(),
-			1. / fps,
-		)),
+		Some(client) => {
+			Ok(SetValue::new(client.update_threshold.raw_mut(), 1. / fps))
+		}
 		None => {
 			return Err(format!(
 				"couldnt find servermessagesenderchannel of id {}",
@@ -50,7 +57,10 @@ fn dummy_set_velocity(
 	match dummies.get(&value.id) {
 		Some(dummy) => {
 			if dummy.owner == *username {
-				Ok(SetValue::new(dummy.velocity.raw_mut(), value.position.clone()))
+				Ok(SetValue::new(
+					dummy.velocity.raw_mut(),
+					value.position.clone(),
+				))
 			} else {
 				return Err(format!(
 					"{} tried moving dummy {} that is not owned",
@@ -135,12 +145,14 @@ impl ClientRequest {
 				value,
 				dummy_id_counter,
 			)?);
-			actions.push(SafeAction::new(SafeAction::SpawnSpaceship(Spaceship::new(
-				username,
-				0.3,
-				spaceship_id_counter,
-				Coordinate::default()
-			))));
+			actions.push(SafeAction::new(SafeAction::SpawnSpaceship(
+				Spaceship::new(
+					username,
+					0.3,
+					spaceship_id_counter,
+					Coordinate::default(),
+				),
+			)));
 		}
 		if let Some(value) = &self.set_client_fps {
 			actions.push(set_client_fps(
@@ -160,20 +172,26 @@ impl ClientRequest {
 		}
 		// TEMP later not possible to spawn like this
 		if let Some(value) = &self.spawn_spaceship {
-			let spaceship = Spaceship::new(username, 0.3, spaceship_id_counter, value.clone());
-			actions.push(SafeAction::new(SafeAction::SpawnSpaceship(spaceship)));
+			let spaceship = Spaceship::new(
+				username,
+				0.3,
+				spaceship_id_counter,
+				value.clone(),
+			);
+			actions
+				.push(SafeAction::new(SafeAction::SpawnSpaceship(spaceship)));
 		}
 		// TEMP later not possible to delete like this
 		if let Some(value) = &self.delete_spaceship {
 			if let Some(a) = game_objects.spaceships.get(value) {
 				if &a.owner == username {
-					unsafe_actions.push(UnsafeAction::new(UnsafeAction::DeleteSpaceship(*value)));
-				}
-				else {
+					unsafe_actions.push(UnsafeAction::new(
+						UnsafeAction::DeleteSpaceship(*value),
+					));
+				} else {
 					log_with_time("cant delete this spaceship, not the owner");
 				}
-			}
-			else {
+			} else {
 				log_with_time("cant delete this spaceship, not existing");
 			}
 		}

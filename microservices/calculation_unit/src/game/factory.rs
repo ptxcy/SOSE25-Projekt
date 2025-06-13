@@ -59,7 +59,7 @@ impl Crafter for Factory {
 
 	fn get_crafting_material(&self) -> &CraftingMaterial {
 		&self.storage
-    }
+	}
 }
 
 impl Factory {

@@ -80,10 +80,8 @@ impl Spaceship {
 			return Err(format!("space station is full, docking failed"));
 		}
 		// self.docking_at = Some(planet_index);
-		actions.push(SetValue::new(
-			self.docking_at.raw_mut(),
-			Some(planet_index),
-		));
+		actions
+			.push(SetValue::new(self.docking_at.raw_mut(), Some(planet_index)));
 		// spacestation.capacity += 1;
 		actions.push(AddValue::new(spacestation.capacity.raw_mut(), 1));
 		Ok(actions)
@@ -94,20 +92,23 @@ impl Spaceship {
 		// self.docking_at = None;
 		actions.push(SetValue::new(self.docking_at.raw_mut(), None));
 		// planet.spacestation.capacity -= 1;
-		actions.push(SubValue::new(
-			planet.spacestation.capacity.raw_mut(),
-			1,
-		));
+		actions.push(SubValue::new(planet.spacestation.capacity.raw_mut(), 1));
 		// self.position.set(&planet.position);
 		// actions.push(SafeAction::SetCoordinate {
 		// 	coordinate: self.position.raw_mut(),
 		// 	other: planet.position.c(),
 		// });
-		actions.push(SetValue::new(self.position.raw_mut(), planet.position.c()));
+		actions
+			.push(SetValue::new(self.position.raw_mut(), planet.position.c()));
 		actions
 	}
 	/// default constructor
-	pub fn new(owner: &String, speed: f64, id_counter: &mut IdCounter, position: Coordinate) -> Self {
+	pub fn new(
+		owner: &String,
+		speed: f64,
+		id_counter: &mut IdCounter,
+		position: Coordinate,
+	) -> Self {
 		let ship = Self {
 			id: id_counter.assign(),
 			owner: owner.clone(),
@@ -175,8 +176,14 @@ impl Spaceship {
 		let frame_flight_distance = self.velocity.norm() * delta_days;
 		if norm < frame_flight_distance {
 			log_with_time("spaceship arrived at destination");
-			actions.push(SetValue::new(self.position.raw_mut(), self.target.clone()));
-			actions.push(SetValue::new(self.velocity.raw_mut(), Coordinate::default()));
+			actions.push(SetValue::new(
+				self.position.raw_mut(),
+				self.target.clone(),
+			));
+			actions.push(SetValue::new(
+				self.velocity.raw_mut(),
+				Coordinate::default(),
+			));
 		}
 
 		actions

@@ -39,7 +39,7 @@ impl Crafter for Player {
 
 	fn get_crafting_material(&self) -> &CraftingMaterial {
 		&self.crafting_material
-    }
+	}
 }
 
 impl Player {

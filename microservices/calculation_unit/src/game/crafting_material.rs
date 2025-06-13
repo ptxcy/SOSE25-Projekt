@@ -12,15 +12,15 @@ pub struct CraftingMaterial {
 }
 
 impl SubAssign for CraftingMaterial {
-    fn sub_assign(&mut self, rhs: Self) {
-    	self.sub(&rhs);
-    }
+	fn sub_assign(&mut self, rhs: Self) {
+		self.sub(&rhs);
+	}
 }
 
 impl AddAssign for CraftingMaterial {
-    fn add_assign(&mut self, rhs: Self) {
-    	self.add(&rhs);
-    }
+	fn add_assign(&mut self, rhs: Self) {
+		self.add(&rhs);
+	}
 }
 
 impl CraftingMaterial {

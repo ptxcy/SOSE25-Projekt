@@ -49,7 +49,10 @@ impl DummyObject {
 		// 	crafter: crafter as *const dyn Crafter as *mut dyn Crafter,
 		// 	cost: Self::get_cost(),
 		// }));
-		actions.push(SubValue::new(crafter.get_crafting_material().raw_mut(), Self::get_cost()));
+		actions.push(SubValue::new(
+			crafter.get_crafting_material().raw_mut(),
+			Self::get_cost(),
+		));
 
 		// create object
 		let dummy = DummyObject::new(

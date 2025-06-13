@@ -120,7 +120,7 @@ impl GameObjects {
 		threads.push(GameObjects::update_spaceship_planet_relations(
 			action_sender.clone(),
 			game_objects as *const GameObjects,
-			delta_ingame_days
+			delta_ingame_days,
 		));
 
 		// wait for all threads to finish collecting their actions
@@ -205,7 +205,7 @@ impl GameObjects {
 	pub fn update_spaceship_planet_relations(
 		action_sender: Sender<ActionWrapper>,
 		game_objects: *const GameObjects,
-		delta_days: f64
+		delta_days: f64,
 	) -> std::thread::JoinHandle<()> {
 		let planets_handle = std::thread::spawn({
 			let spaceships = unsafe { &(*game_objects).spaceships };
@@ -217,7 +217,9 @@ impl GameObjects {
 						let mut distance = planet.position.c();
 						distance.sub(&spaceship.position);
 						let norm = distance.norm();
-						if norm < spaceship.speed * delta_days && spaceship.docking_mode {
+						if norm < spaceship.speed * delta_days
+							&& spaceship.docking_mode
+						{
 							// spaceship can and wants to dock
 							let actions = spaceship.arrive(planet, i).unwrap();
 							for action in actions {
