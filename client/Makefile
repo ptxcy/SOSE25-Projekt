@@ -14,7 +14,7 @@ RELEASE_SUFFIX = -O3 -fno-gcse
 SRCS_CORE = $(wildcard $(SDST_CORE)*.cpp)
 SRCS_SCRIPT = $(wildcard $(SDST_SCRIPT)*.cpp)
 SRCS = $(SRCS_CORE) $(SRCS_SCRIPT)
-OBJS = $(SRCS:$(SDST)%.cpp=$(LDST)%.o)
+OBJS = $(SRCS:%.cpp=$(LDST)%.o)
 MAIN = main.cpp
 
 CXXFLAGS =
