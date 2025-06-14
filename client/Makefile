@@ -5,15 +5,8 @@ SDST_SCRIPT = script/
 LDST = lib/
 TARGET = build
 
-CPR_DIR = core/include
-CPR_BUILD = $(CPR_DIR)/build
-CPR_INCLUDE = -I$(CPR_DIR)
-CURL_INCLUDE = -I$(CPR_BUILD)/_deps/curl-src/include
-CPR_STATIC = $(CPR_BUILD)/libcpr.a
-CURL_STATIC = $(CPR_BUILD)/_deps/curl-src/lib/.libs/libcurl.a
-
-INCLUDE = -I/usr/include/freetype2 -I/usr/include/libpng16 $(CPR_INCLUDE) $(CURL_INCLUDE)
-LINKER = -lGL -lGLEW -lSDL2 -lpthread -lfreetype $(CPR_STATIC) $(CURL_STATIC)
+INCLUDE = -I/usr/include/freetype2 -I/usr/include/libpng16
+LINKER = -lGL -lGLEW -lSDL2 -lpthread -lfreetype -lcpr -lcurl -lssl -lcrypto -lz
 
 DEBUG_SUFFIX = -pg -g -O0 -DDEBUG
 RELEASE_SUFFIX = -O3 -fno-gcse
