@@ -7,11 +7,11 @@ use std::{
 use serde::{Deserialize, Serialize};
 
 use super::{
-	action::{ActionWrapper, AddValue, AsRaw, SafeAction},
+	action::{ActionWrapper, AddValue, AsRaw},
 	dummy::DummyObject,
 	planet::{OrbitInfoMap, Planet, PlanetReceive},
 	player::Player,
-	spaceship::Spaceship,
+	spaceship::Spaceship, transport::CraftingMaterialTransport,
 };
 
 pub type PlayerMap = HashMap<String, Player>;
@@ -29,6 +29,9 @@ pub struct GameObjects {
 	pub planets: Vec<Planet>,
 	pub players: HashMap<String, Player>,
 	pub spaceships: SpaceshipMap,
+
+	// #[serde(skip)]
+	// pub crafting_material_transports: Vec<CraftingMaterialTransport>,
 }
 
 /// for dummy client in rust

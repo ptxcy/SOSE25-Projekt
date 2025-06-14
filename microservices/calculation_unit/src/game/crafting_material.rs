@@ -1,4 +1,4 @@
-use std::ops::{AddAssign, SubAssign};
+use std::{cmp::Ordering, ops::{AddAssign, SubAssign}};
 
 use serde::{Deserialize, Serialize};
 
@@ -31,6 +31,29 @@ impl CraftingMaterial {
 	}
 	pub fn add(&mut self, other: &Self) -> &mut Self {
 		self.copper += other.copper;
+		self
+	}
+	pub fn scale(&mut self, value: f64) -> &mut Self {
+		self.copper *= value;
+		self.steel *= value;
+		self.gold *= value;
+		self.wood *= value;
+		self
+	}
+	pub fn mul(&mut self, other: &Self) -> &mut Self {
+		self.copper *= other.copper;
+		self.steel *= other.steel;
+		self.gold *= other.gold;
+		self.wood *= other.wood;
+		self
+	}
+	pub fn trim(&mut self) -> &mut Self {
+		let values = [self.copper, self.steel, self.gold, self.wood];
+		let max = values.iter() .max_by(|a, b| a.partial_cmp(b).unwrap_or(Ordering::Equal)) .unwrap();
+	    self.copper /= max;
+		self.steel /= max;
+		self.gold /= max;
+		self.wood /= max;
 		self
 	}
 	pub fn new_copper(copper: f64) -> Self {
