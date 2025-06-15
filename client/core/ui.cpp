@@ -2,7 +2,95 @@
 
 
 // ----------------------------------------------------------------------------------------------------
-// Interface Batch
+// Button Utility
+
+/**
+ *	update button intersection & states
+ */
+void Button::update()
+{
+	bool __Intersect = bounds.intersect(g_Input.mouse.position);
+
+	// button confirmation
+	if (__Intersect&&g_Input.mouse.buttons[0])
+	{
+		g_Renderer.assign_sprite_texture(canvas,action);
+		holding = true;
+		return;
+	}
+
+	// button hover
+	if (__Intersect)
+	{
+		g_Renderer.assign_sprite_texture(canvas,hover);
+		confirm = holding;
+	}
+
+	// reset button state
+	else g_Renderer.assign_sprite_texture(canvas,idle);
+	holding = false;
+}
+
+/**
+ *	delete button
+ */
+void Button::remove()
+{
+	Renderer::delete_sprite(canvas);
+	g_Renderer.delete_text(label);
+}
+
+
+// ----------------------------------------------------------------------------------------------------
+// Text Field Utility
+
+/**
+ *	update textfield intersection & status
+ *	\param field_switch: true when text fields have been switched without in-between deselect
+ */
+void TextField::update(bool& field_switch)
+{
+	bool __Intersect = bounds.intersect(g_Input.mouse.position);
+
+	// user requests to write to text field buffer & clickout handling
+	if (active)
+	{
+		if (!__Intersect&&g_Input.mouse.buttons[0])
+		{
+			if (!field_switch) Input::unset_input_mode();
+			active = false;
+		}
+		else
+		{
+			content->data = (!hidden) ? buffer : string(buffer.size(),'*');
+			content->load_buffer();
+		}
+	}
+	else if (__Intersect&&g_Input.mouse.buttons[0])
+	{
+		g_Renderer.assign_sprite_texture(canvas,select);
+		g_Input.set_input_mode(&buffer);
+		active = true;
+		field_switch = true;
+	}
+
+	// handle hover over inactive text field & reset to idle if no intersection
+	else if (__Intersect) g_Renderer.assign_sprite_texture(canvas,hover);
+	else g_Renderer.assign_sprite_texture(canvas,idle);
+}
+
+/**
+ *	delete text field
+ */
+void TextField::remove()
+{
+	Renderer::delete_sprite(canvas);
+	g_Renderer.delete_text(content);
+}
+
+
+// ----------------------------------------------------------------------------------------------------
+// Button Entity
 
 /**
  *	add a button to the batch
@@ -65,8 +153,8 @@ lptr<TextField> UIBatch::add_text_field(PixelBufferComponent* tidle,PixelBufferC
 	// setup content draw
 	vec2 __HScale = scale*vec2(.5f);
 	vec2 __TPos = p_TextField->canvas->offset-vec2(__HScale.x*.95f,__HScale.y*.4f);
-	p_TextField->content = g_Renderer.write_text(font,"",__TPos,scale.y*.6,vec4(1),
-												 { .align=SCREEN_ALIGN_BOTTOMLEFT });
+	p_TextField->content = g_Renderer.write_text(font,"",__TPos,scale.y*.6,
+												 vec4(1),{ .align=SCREEN_ALIGN_BOTTOMLEFT });
 
 	// intersection boundaries
 	p_TextField->bounds = {
@@ -88,58 +176,11 @@ void UI::update()
 	for (UIBatch& p_Batch : m_Batches)
 	{
 		// button updates
-		for (Button& p_Button : p_Batch.buttons)
-		{
-			bool __Intersect = p_Button.bounds.intersect(g_Input.mouse.position);
-
-			// button confirmation
-			if (__Intersect&&g_Input.mouse.buttons[0])
-			{
-				g_Renderer.assign_sprite_texture(p_Button.canvas,p_Button.action);
-				p_Button.holding = true;
-				continue;
-			}
-
-			// button hover
-			if (__Intersect)
-			{
-				g_Renderer.assign_sprite_texture(p_Button.canvas,p_Button.hover);
-				p_Button.confirm = p_Button.holding;
-			}
-
-			// reset button state
-			else g_Renderer.assign_sprite_texture(p_Button.canvas,p_Button.idle);
-			p_Button.holding = false;
-		}
+		for (Button& p_Button : p_Batch.buttons) p_Button.update();
 
 		// text field updates
 		bool __SwitchedFields = false;
-		for (TextField& p_TextField : p_Batch.tfields)
-		{
-			bool __Intersect = p_TextField.bounds.intersect(g_Input.mouse.position);
-
-			// user requests to write to text field buffer & clickout handling
-			if (p_TextField.active)
-			{
-				if (!__Intersect&&g_Input.mouse.buttons[0])
-				{
-					if (!__SwitchedFields) Input::unset_input_mode();
-					p_TextField.active = false;
-				}
-				else p_TextField.content->load_buffer();
-			}
-			else if (__Intersect&&g_Input.mouse.buttons[0])
-			{
-				g_Renderer.assign_sprite_texture(p_TextField.canvas,p_TextField.select);
-				g_Input.set_input_mode(&p_TextField.content->data);
-				p_TextField.active = true;
-				__SwitchedFields = true;
-			}
-
-			// handle hover over inactive text field & reset to idle if no intersection
-			else if (__Intersect) g_Renderer.assign_sprite_texture(p_TextField.canvas,p_TextField.hover);
-			else g_Renderer.assign_sprite_texture(p_TextField.canvas,p_TextField.idle);
-		}
+		for (TextField& p_TextField : p_Batch.tfields) p_TextField.update(__SwitchedFields);
 	}
 }
 
@@ -163,19 +204,9 @@ lptr<UIBatch> UI::add_batch(Font* font,f32 alpha)
  */
 void UI::remove_batch(lptr<UIBatch> batch)
 {
-	// remove button components
-	for (Button& p_Button : batch->buttons)
-	{
-		Renderer::delete_sprite(p_Button.canvas);
-		g_Renderer.delete_text(p_Button.label);
-	}
-
-	// remove text field components
-	for (TextField& p_TextField : batch->tfields)
-	{
-		Renderer::delete_sprite(p_TextField.canvas);
-		g_Renderer.delete_text(p_TextField.content);
-	}
+	// remove components
+	for (Button& p_Button : batch->buttons) p_Button.remove();
+	for (TextField& p_TextField : batch->tfields) p_TextField.remove();
 
 	// finish by removing batch from memory & unsetting input mode
 	Input::unset_input_mode();
