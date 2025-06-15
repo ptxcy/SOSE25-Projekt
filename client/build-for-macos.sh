@@ -4,6 +4,7 @@
 brew install glew
 brew install glm
 brew install msgpack-cxx
+brew install meson
 mkdir -p lib
 cd lib
 mkdir -p build_mac
