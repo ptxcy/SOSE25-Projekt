@@ -1,3 +1,5 @@
+use std::sync::{Arc, Mutex};
+
 use serde::{Deserialize, Serialize};
 
 use super::{
@@ -14,6 +16,8 @@ pub struct Mine {
 
 	#[serde(skip)]
 	region: *mut BuildingRegion,
+	#[serde(skip)]
+	validation: Arc<Mutex<bool>>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -44,6 +48,7 @@ impl Mine {
 			owner: owner.to_string(),
 			region: building_region,
 			storage: Default::default(),
+			validation: Arc::new(Mutex::new(true)),
 		}
 	}
 }

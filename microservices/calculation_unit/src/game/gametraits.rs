@@ -31,6 +31,7 @@ pub trait Buyer: IsOwned {
 
 /// anything that can craft a Craftable
 pub trait Crafter: IsOwned + Spawner {
+	fn get_crafting_material(&self) -> &CraftingMaterial;
 	fn get_crafting_material_mut(&mut self) -> &mut CraftingMaterial;
 }
 

@@ -1,44 +1,124 @@
+use std::ops::{AddAssign, SubAssign};
+
+use crate::logger::log_with_time;
+
 use super::{
-	building_region::BuildingRegion, coordinate::Coordinate,
-	crafting_material::CraftingMaterial, dummy::DummyObject, factory::Factory,
-	game_objects::GameObjects, gametraits::Crafter, mine::Mine,
-	spaceship::Spaceship,
+	building_region::BuildingRegion, dummy::DummyObject, factory::Factory,
+	game_objects::GameObjects, mine::Mine, spaceship::Spaceship,
 };
 
 pub trait AsRaw {
-	fn raw_mut(&self) -> *mut Self;
 	fn raw(&self) -> *const Self;
+	fn raw_mut(&self) -> *mut Self;
+	fn void(&self) -> *mut ();
 }
 
 impl<T> AsRaw for T {
-	fn raw_mut(&self) -> *mut Self {
-		self as *const Self as *mut Self
-	}
-
 	fn raw(&self) -> *const Self {
 		self as *const Self
+	}
+	fn raw_mut(&self) -> *mut Self {
+		self.raw() as *mut Self
+	}
+	fn void(&self) -> *mut () {
+		self.raw_mut() as *mut ()
+	}
+}
+
+/// free it yourself
+fn allocate<T>(data: T) -> *mut () {
+	log_with_time("allocating memory");
+	Box::into_raw(Box::new(data)) as *mut ()
+}
+fn drop_data<T>(ptr: *mut ()) {
+    unsafe {
+        let _ = Box::from_raw(ptr as *mut T);
+    }
+}
+
+pub trait Action {
+	fn execute(data: *mut (), game_objects: *mut GameObjects);
+}
+
+type ExecuteFn = fn(*mut (), *mut GameObjects);
+type DropFn = fn(*mut ());
+
+pub struct ActionWrapper {
+	data: *mut (),
+	execute: ExecuteFn,
+	drop: DropFn,
+}
+
+unsafe impl Send for ActionWrapper {}
+
+impl ActionWrapper {
+	pub fn execute(self, go: *mut GameObjects) {
+		(self.execute)(self.data, go);
+		log_with_time("freeing memory");
+		(self.drop)(self.data);
+	}
+}
+
+pub struct AddValue<T: AddAssign + Copy>(*mut T, T);
+impl<T: AddAssign + Copy> AddValue<T> {
+	pub fn new(target: *mut T, value: T) -> ActionWrapper {
+		ActionWrapper {
+			data: allocate(AddValue(target, value)),
+			execute: Self::execute,
+			drop: drop_data::<Self>,
+		}
+	}
+}
+impl<T: AddAssign + Copy> Action for AddValue<T> {
+	fn execute(data: *mut (), _game_objects: *mut GameObjects) {
+		let data = data as *mut Self;
+		unsafe {
+			*(*data).0 += (*data).1;
+		}
+	}
+}
+
+pub struct SubValue<T: SubAssign + Copy>(*mut T, T);
+impl<T: SubAssign + Copy> SubValue<T> {
+	pub fn new(target: *mut T, value: T) -> ActionWrapper {
+		ActionWrapper {
+			data: allocate(SubValue(target, value)),
+			execute: Self::execute,
+			drop: drop_data::<Self>,
+		}
+	}
+}
+impl<T: SubAssign + Copy> Action for SubValue<T> {
+	fn execute(data: *mut (), _game_objects: *mut GameObjects) {
+		let data = data as *mut SubValue<T>;
+		unsafe {
+			*(*data).0 -= (*data).1;
+		}
+	}
+}
+
+pub struct SetValue<T: Copy>(*mut T, T);
+impl<T: Copy> SetValue<T> {
+	pub fn new(target: *mut T, value: T) -> ActionWrapper {
+		ActionWrapper {
+			data: allocate(SetValue(target, value)),
+			execute: Self::execute,
+			drop: drop_data::<Self>,
+		}
+	}
+}
+impl<T: Copy> Action for SetValue<T> {
+	fn execute(data: *mut (), _game_objects: *mut GameObjects) {
+		let data = data as *mut SetValue<T>;
+		unsafe {
+			*(*data).0 = (*data).1;
+		}
 	}
 }
 
 /// dont move memory so safe to use when known that memory exists
+#[derive(Clone)]
 pub enum SafeAction {
-	AddCoordinate {
-		coordinate: *mut Coordinate,
-		other: Coordinate,
-		multiplier: f64,
-	},
-	AddUsize(*mut usize, usize),
-	SubUsize(*mut usize, usize),
-	ReduceCraftingMaterial {
-		crafter: *mut dyn Crafter,
-		cost: CraftingMaterial,
-	},
-	SetCoordinate {
-		coordinate: *mut Coordinate,
-		other: Coordinate,
-	},
-	SetDockingAt(*mut Option<usize>, Option<usize>),
-	SetF64(*mut f64, f64),
 	SpawnDummy(DummyObject),
 	SpawnFactory {
 		region: *mut BuildingRegion,
@@ -54,19 +134,21 @@ pub enum SafeAction {
 unsafe impl Send for SafeAction {}
 
 impl SafeAction {
-	pub fn execute(self, game_objects: *mut GameObjects) {
+	pub fn new(sa: SafeAction) -> ActionWrapper {
+		ActionWrapper {
+			data: allocate(sa),
+			execute: Self::execute,
+			drop: drop_data::<Self>,
+		}
+	}
+}
+
+impl Action for SafeAction {
+	fn execute(data: *mut (), game_objects: *mut GameObjects) {
+		let v = data as *mut SafeAction;
+		let sa = unsafe { (*v).clone() };
 		let go = unsafe { &mut *game_objects };
-		match self {
-			SafeAction::AddCoordinate {
-				coordinate,
-				other,
-				multiplier,
-			} => unsafe {
-				(*coordinate).addd(&other, multiplier);
-			},
-			SafeAction::SetCoordinate { coordinate, other } => unsafe {
-				(*coordinate).set(&other);
-			},
+		match sa {
 			SafeAction::SpawnFactory { region, factory } => {
 				let region = unsafe { &mut *region };
 				region.factories.push(factory);
@@ -81,38 +163,35 @@ impl SafeAction {
 			SafeAction::SpawnSpaceship(spaceship) => {
 				go.spaceships.insert(spaceship.id, spaceship);
 			}
-			SafeAction::SetF64(target, value) => {
-				unsafe { *target = value };
-			}
-			SafeAction::ReduceCraftingMaterial { crafter, cost } => {
-				let crafter = unsafe { &mut (*crafter) };
-				crafter.get_crafting_material_mut().sub(&cost);
-			}
-			SafeAction::AddUsize(target, value) => unsafe {
-				*target += value;
-			},
-			SafeAction::SubUsize(target, value) => unsafe {
-				*target -= value;
-			},
-			SafeAction::SetDockingAt(target, value) => unsafe {
-				*target = value;
-			},
 		}
 	}
 }
 
 /// move memory not safe to use at same time as safeaction
+#[derive(Clone)]
 pub enum UnsafeAction {
 	DeleteSpaceship(usize),
 }
 
 impl UnsafeAction {
-	pub fn execute(self, game_objects: *mut GameObjects) {
+	pub fn new(usa: UnsafeAction) -> ActionWrapper {
+		ActionWrapper {
+			data: allocate(usa),
+			execute: Self::execute,
+			drop: drop_data::<Self>,
+		}
+	}
+}
+
+impl Action for UnsafeAction {
+	fn execute(data: *mut (), game_objects: *mut GameObjects) {
+		let v = data as *mut UnsafeAction;
+		let usa = unsafe { (*v).clone() };
 		let go = unsafe { &mut *game_objects };
-		match self {
+		match usa {
 			UnsafeAction::DeleteSpaceship(index) => {
 				go.spaceships.remove(&index);
-			},
+			}
 		}
 	}
 }
