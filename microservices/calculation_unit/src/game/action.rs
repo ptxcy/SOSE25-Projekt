@@ -26,75 +26,92 @@ impl<T> AsRaw for T {
 }
 
 /// free it yourself
-fn malloc<T>(data: T) -> *mut () {
-	// log_with_time("allocating memory");
+fn allocate<T>(data: T) -> *mut () {
+	log_with_time("allocating memory");
 	Box::into_raw(Box::new(data)) as *mut ()
 }
+fn drop_data<T>(ptr: *mut ()) {
+    unsafe {
+        let _ = Box::from_raw(ptr as *mut T);
+    }
+}
 
-type ActionFn = fn(*mut (), *mut GameObjects);
+pub trait Action {
+	fn execute(data: *mut (), game_objects: *mut GameObjects);
+}
+
+type ExecuteFn = fn(*mut (), *mut GameObjects);
+type DropFn = fn(*mut ());
 
 pub struct ActionWrapper {
 	data: *mut (),
-	func: ActionFn,
+	execute: ExecuteFn,
+	drop: DropFn,
 }
 
 unsafe impl Send for ActionWrapper {}
 
 impl ActionWrapper {
 	pub fn execute(self, go: *mut GameObjects) {
-		(self.func)(self.data, go);
-		unsafe {
-			// free memory
-			// log_with_time("freeing memory");
-			let _ = Box::from_raw(self.data);
-		}
+		(self.execute)(self.data, go);
+		log_with_time("freeing memory");
+		(self.drop)(self.data);
 	}
 }
 
 pub struct AddValue<T: AddAssign + Copy>(*mut T, T);
 impl<T: AddAssign + Copy> AddValue<T> {
-	fn execute(data: *mut (), _game_objects: *mut GameObjects) {
-		let data = data as *mut AddValue<T>;
-		unsafe {
-			*(*data).0 += (*data).1;
-		}
-	}
 	pub fn new(target: *mut T, value: T) -> ActionWrapper {
 		ActionWrapper {
-			data: malloc(AddValue(target, value)),
-			func: Self::execute,
+			data: allocate(AddValue(target, value)),
+			execute: Self::execute,
+			drop: drop_data::<Self>,
+		}
+	}
+}
+impl<T: AddAssign + Copy> Action for AddValue<T> {
+	fn execute(data: *mut (), _game_objects: *mut GameObjects) {
+		let data = data as *mut Self;
+		unsafe {
+			*(*data).0 += (*data).1;
 		}
 	}
 }
 
 pub struct SubValue<T: SubAssign + Copy>(*mut T, T);
 impl<T: SubAssign + Copy> SubValue<T> {
+	pub fn new(target: *mut T, value: T) -> ActionWrapper {
+		ActionWrapper {
+			data: allocate(SubValue(target, value)),
+			execute: Self::execute,
+			drop: drop_data::<Self>,
+		}
+	}
+}
+impl<T: SubAssign + Copy> Action for SubValue<T> {
 	fn execute(data: *mut (), _game_objects: *mut GameObjects) {
 		let data = data as *mut SubValue<T>;
 		unsafe {
 			*(*data).0 -= (*data).1;
 		}
 	}
-	pub fn new(target: *mut T, value: T) -> ActionWrapper {
-		ActionWrapper {
-			data: malloc(SubValue(target, value)),
-			func: Self::execute,
-		}
-	}
 }
 
 pub struct SetValue<T: Copy>(*mut T, T);
 impl<T: Copy> SetValue<T> {
+	pub fn new(target: *mut T, value: T) -> ActionWrapper {
+		ActionWrapper {
+			data: allocate(SetValue(target, value)),
+			execute: Self::execute,
+			drop: drop_data::<Self>,
+		}
+	}
+}
+impl<T: Copy> Action for SetValue<T> {
 	fn execute(data: *mut (), _game_objects: *mut GameObjects) {
 		let data = data as *mut SetValue<T>;
 		unsafe {
 			*(*data).0 = (*data).1;
-		}
-	}
-	pub fn new(target: *mut T, value: T) -> ActionWrapper {
-		ActionWrapper {
-			data: malloc(SetValue(target, value)),
-			func: Self::execute,
 		}
 	}
 }
@@ -117,6 +134,16 @@ pub enum SafeAction {
 unsafe impl Send for SafeAction {}
 
 impl SafeAction {
+	pub fn new(sa: SafeAction) -> ActionWrapper {
+		ActionWrapper {
+			data: allocate(sa),
+			execute: Self::execute,
+			drop: drop_data::<Self>,
+		}
+	}
+}
+
+impl Action for SafeAction {
 	fn execute(data: *mut (), game_objects: *mut GameObjects) {
 		let v = data as *mut SafeAction;
 		let sa = unsafe { (*v).clone() };
@@ -138,12 +165,6 @@ impl SafeAction {
 			}
 		}
 	}
-	pub fn new(sa: SafeAction) -> ActionWrapper {
-		ActionWrapper {
-			data: malloc(sa),
-			func: Self::execute,
-		}
-	}
 }
 
 /// move memory not safe to use at same time as safeaction
@@ -153,6 +174,16 @@ pub enum UnsafeAction {
 }
 
 impl UnsafeAction {
+	pub fn new(usa: UnsafeAction) -> ActionWrapper {
+		ActionWrapper {
+			data: allocate(usa),
+			execute: Self::execute,
+			drop: drop_data::<Self>,
+		}
+	}
+}
+
+impl Action for UnsafeAction {
 	fn execute(data: *mut (), game_objects: *mut GameObjects) {
 		let v = data as *mut UnsafeAction;
 		let usa = unsafe { (*v).clone() };
@@ -161,12 +192,6 @@ impl UnsafeAction {
 			UnsafeAction::DeleteSpaceship(index) => {
 				go.spaceships.remove(&index);
 			}
-		}
-	}
-	pub fn new(usa: UnsafeAction) -> ActionWrapper {
-		ActionWrapper {
-			data: malloc(usa),
-			func: Self::execute,
 		}
 	}
 }
