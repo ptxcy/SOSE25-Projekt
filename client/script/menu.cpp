@@ -31,10 +31,12 @@ Menu::Menu(Font* font,CommandCenter* cc)
 										tfsize,{ .align=SCREEN_ALIGN_CENTER });
 	tfpass = conn_batch->add_text_field(textbox_idle,textbox_hover,textbox_active,vec2(0,tfstart),
 										tfsize,{ .align=SCREEN_ALIGN_CENTER });
+	tfpass->hidden = true;
 	tflobby = conn_batch->add_text_field(textbox_idle,textbox_hover,textbox_active,vec2(0,-tfstart),
 										 tfsize,{ .align=SCREEN_ALIGN_CENTER });
 	tflpass = conn_batch->add_text_field(textbox_idle,textbox_hover,textbox_active,vec2(0,-tfstart-tfdist),
 										 tfsize,{ .align=SCREEN_ALIGN_CENTER });
+	tflpass->hidden = true;
 	btjoin = conn_batch->add_button("Join Lobby",button_idle,button_select,button_hover,
 									vec2(-bteyez,-tfstart-tfdist*2.f),btsize,{ .align=SCREEN_ALIGN_CENTER });
 	btcreate = conn_batch->add_button("Create Lobby",button_idle,button_select,button_hover,

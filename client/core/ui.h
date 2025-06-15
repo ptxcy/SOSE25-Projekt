@@ -8,6 +8,11 @@
 
 struct Button
 {
+	// utility
+	void update();
+	void remove();
+
+	// data
 	Sprite* canvas;
 	PixelBufferComponent* idle;
 	PixelBufferComponent* hover;
@@ -21,16 +26,19 @@ struct Button
 struct TextField
 {
 	// utility
-	inline string& get_content() { return content->data; }
+	void update(bool field_switch);
+	void remove();
 
 	// data
 	Sprite* canvas;
 	PixelBufferComponent* idle;
 	PixelBufferComponent* hover;
 	PixelBufferComponent* select;
+	string buffer;
 	lptr<Text> content;
 	Rect bounds;
 	bool active = false;
+	bool hidden = false;
 };
 
 struct UIBatch

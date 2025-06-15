@@ -52,7 +52,12 @@ void CommandCenter::update()
 	{
 		if (!m_BtnJumpers[i]->confirm) continue;
 
-		if (m_CState==CSTATE_FLIGHT) Request::set_spaceship_target(m_Flotilla->fleet[i].id,i);
+		if (m_CState==CSTATE_FLIGHT)
+		{
+#ifdef FEAT_MULTIPLAYER
+			Request::set_spaceship_target(m_Flotilla->fleet[i].id,i);
+#endif
+		}
 		else
 		{
 			m_PlanetLock = i;
@@ -64,7 +69,9 @@ void CommandCenter::update()
 	}
 
 	// spawning spaceships
+#ifdef FEAT_MULTIPLAYER
 	if (m_BtnBuild->confirm) Request::spawn_spaceship(g_Camera.target+vec3(10,10,0));
+#endif
 
 	// button label update
 	for (u8 i=0;i<10;i++)
