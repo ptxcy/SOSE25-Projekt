@@ -11,7 +11,7 @@ use super::{
 	dummy::DummyObject,
 	planet::{OrbitInfoMap, Planet, PlanetReceive},
 	player::Player,
-	spaceship::Spaceship, transport::CraftingMaterialTransport,
+	spaceship::Spaceship,
 };
 
 pub type PlayerMap = HashMap<String, Player>;
