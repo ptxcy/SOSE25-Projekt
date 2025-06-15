@@ -26,7 +26,7 @@ struct Button
 struct TextField
 {
 	// utility
-	void update(bool field_switch);
+	void update(bool& field_switch);
 	void remove();
 
 	// data

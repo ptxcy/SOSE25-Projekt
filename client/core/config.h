@@ -24,7 +24,7 @@
 #define NETWORK_CONNECTION_STALL 500
 #define NETWORK_CALCULATION_FRAMES 1
 
-//#define FEAT_MULTIPLAYER 1
+#define FEAT_MULTIPLAYER 1
 
 // TODO define in extern config file and store constants at runtime
 

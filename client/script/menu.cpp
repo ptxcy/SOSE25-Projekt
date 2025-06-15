@@ -62,8 +62,7 @@ void Menu::update()
 	{
 #ifdef FEAT_MULTIPLAYER
 		g_Websocket.connect(NETWORK_HOST,NETWORK_PORT_ADAPTER,NETWORK_PORT_WEBSOCKET,
-							tfname->get_content(),tfpass->get_content(),tflobby->get_content(),
-							tflpass->get_content(),btcreate->confirm);
+							tfname->buffer,tfpass->buffer,tflobby->buffer,tflpass->buffer,btcreate->confirm);
 		if (g_Websocket.lobby_status!=LOBBY_CONNECTED) return;
 		Request::connect();
 		std::this_thread::sleep_for(std::chrono::milliseconds(NETWORK_CONNECTION_STALL));

@@ -48,7 +48,7 @@ void Button::remove()
  *	update textfield intersection & status
  *	\param field_switch: true when text fields have been switched without in-between deselect
  */
-void TextField::update(bool field_switch)
+void TextField::update(bool& field_switch)
 {
 	bool __Intersect = bounds.intersect(g_Input.mouse.position);
 
