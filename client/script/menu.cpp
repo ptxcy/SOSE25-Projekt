@@ -64,11 +64,9 @@ void Menu::update()
 		g_Websocket.connect(NETWORK_HOST,NETWORK_PORT_ADAPTER,NETWORK_PORT_WEBSOCKET,
 							tfname->buffer,tfpass->buffer,tflobby->buffer,tflpass->buffer,btcreate->confirm);
 		if (g_Websocket.lobby_status!=LOBBY_CONNECTED) return;
-		std::this_thread::sleep_for(std::chrono::milliseconds(NETWORK_CONNECTION_STALL));
 		Request::connect();
 		std::this_thread::sleep_for(std::chrono::milliseconds(NETWORK_CONNECTION_STALL));
 		Request::set_fps(NETWORK_CALCULATION_FRAMES);
-		std::this_thread::sleep_for(std::chrono::milliseconds(NETWORK_CONNECTION_STALL));
 		while (!g_Websocket.state_update) { std::this_thread::sleep_for(std::chrono::milliseconds(10)); }
 #endif
 		m_CC->run();
