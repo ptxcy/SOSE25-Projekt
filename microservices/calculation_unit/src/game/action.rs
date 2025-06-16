@@ -27,7 +27,7 @@ impl<T> AsRaw for T {
 
 /// free it yourself
 fn allocate<T>(data: T) -> *mut () {
-	log_with_time("allocating memory");
+	// log_with_time("allocating memory");
 	Box::into_raw(Box::new(data)) as *mut ()
 }
 fn drop_data<T>(ptr: *mut ()) {
@@ -54,7 +54,7 @@ unsafe impl Send for ActionWrapper {}
 impl ActionWrapper {
 	pub fn execute(self, go: *mut GameObjects) {
 		(self.execute)(self.data, go);
-		log_with_time("freeing memory");
+		// log_with_time("freeing memory");
 		(self.drop)(self.data);
 	}
 }
