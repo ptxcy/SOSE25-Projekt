@@ -128,7 +128,7 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
 
     const calc_unit_socket: WebSocket | null = registerLobby.calculationSocket;
     if (!calc_unit_socket) {
-        console.error("No calculation socket found!");
+        console.error("No calculation socket found! for lobby", registerLobby);
         ws.close();
         return;
     }
@@ -177,7 +177,7 @@ async function connectToCalculationServer(containerNumber: number, lcomp: LobbyR
                 return;
             }
 
-            console.log("sending: ", String(sendMessage));
+            //console.log("sending: ", String(sendMessage));
             lcomp.memberSockets.forEach((ws: WebSocket) => {
                 ws.send(sendMessage)
             })
@@ -197,7 +197,7 @@ async function connectToCalculationServer(containerNumber: number, lcomp: LobbyR
             return;
         }
 
-        console.log("sending: ", String(sendMessage));
+        //console.log("sending: ", String(sendMessage));
         userSocket.send(sendMessage);
     })
 
@@ -205,7 +205,6 @@ async function connectToCalculationServer(containerNumber: number, lcomp: LobbyR
         console.log('WebSocket closed');
     });
 
-    console.log("WebSocket connected.");
     return socket;
 }
 

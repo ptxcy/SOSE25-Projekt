@@ -28,7 +28,8 @@ export async function stopContainer(containerName: string): Promise<void> {
     try {
         const container = docker.getContainer(containerName);
         await container.stop();
-       // await container.kill()
+        //await container.kill()
+        await container.remove({force: true});
         console.log(`Container ${containerName} wurde gestoppt.`);
     } catch (error) {
         console.error(`Fehler beim Stoppen des Containers ${containerName}:`, error);

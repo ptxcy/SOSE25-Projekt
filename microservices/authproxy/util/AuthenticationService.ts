@@ -32,6 +32,9 @@ export async function validateAuthentication(authHeaderValue: string): Promise<A
         tokenRaw = authHeaderValue.substring(7);
     }else {
         console.error("Expected Bearer Token, but got: ", authHeaderValue);
+        const error = "AuthHeader was invalid!";
+        console.error(error);
+        return createAuthResult(null, false, error);
     }
 
     console.log("Token: ", tokenRaw);

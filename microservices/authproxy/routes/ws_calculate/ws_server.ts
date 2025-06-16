@@ -40,7 +40,7 @@ wss.on("connection", async (ws: WebSocket, req) => {
     })
 
     ws.on("close", () => {
-        console.log("WebSocket disconnected.");
+        console.log("WebSocket From Lobby Member has disconnected!");
     });
 });
 

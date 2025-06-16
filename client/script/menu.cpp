@@ -69,7 +69,7 @@ void Menu::update()
 		std::this_thread::sleep_for(std::chrono::milliseconds(NETWORK_CONNECTION_STALL));
 		Request::set_fps(NETWORK_CALCULATION_FRAMES);
 		std::this_thread::sleep_for(std::chrono::milliseconds(NETWORK_CONNECTION_STALL));
-		while (!g_Websocket.state_update) { std::this_thread::sleep_for(std::chrono::milliseconds(1000)); }
+		while (!g_Websocket.state_update) { std::this_thread::sleep_for(std::chrono::milliseconds(200)); }
 #endif
 		m_CC->run();
 		close();

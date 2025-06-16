@@ -360,8 +360,14 @@ void _handle_websocket_download(Websocket *c)
 	while (c->running)
 	{
 		try
-		{ // read buffer
+		{
+		    // read buffer
 			boost::beast::flat_buffer response_buffer;
+			if (!c->ws.is_open()) {
+                COMM_ERR("WebSocket ist nicht mehr offen!");
+                return;
+            }
+
 			c->ws.read(response_buffer);
 			auto data = response_buffer.data();
 			const char *raw_data = static_cast<const char *>(data.data());
@@ -372,11 +378,11 @@ void _handle_websocket_download(Websocket *c)
 			msgpack::zone zone;
 			msgpack::unpack(oh, raw_data, data_size, nullptr, &zone);
 			msgpack::object obj = oh.get();
-			// COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<obj).str().c_str());
+			COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<obj).str().c_str());
 
 			// try to convert to our ServerMessage structure
 			ServerMessage message;
-			// debugConvertServerMessage(obj);
+			debugConvertServerMessage(obj);
 			obj.convert(message);
 
 			// mutual exclusion
