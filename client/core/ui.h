@@ -6,6 +6,9 @@
 #include "renderer.h"
 
 
+constexpr f32 UI_CURSOR_BLINK_DELTA = .04f;
+
+
 struct Button
 {
 	// utility
@@ -26,7 +29,7 @@ struct Button
 struct TextField
 {
 	// utility
-	void update(bool& field_switch);
+	void update(Font* font,Sprite* cursor,bool& field_switch);
 	void remove();
 
 	// data
@@ -61,6 +64,7 @@ struct UIBatch
 class UI
 {
 public:
+	UI(const char* cursor_path);
 	void update();
 
 	// registration/deregistration
@@ -68,11 +72,17 @@ public:
 	void remove_batch(lptr<UIBatch> batch);
 
 private:
+
+	// data
 	Font* m_Font;
 	list<UIBatch> m_Batches;
+
+	// cursor
+	Sprite* m_CursorSprite;
+	f32 m_CursorAnim = .0f;
 };
 
-inline UI g_UI = UI();
+inline UI g_UI = UI("./res/ui/cursor.png");
 
 
 #endif

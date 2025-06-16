@@ -28,9 +28,8 @@ ThreadSignal _sprite_signal
 void Text::align()
 {
 	// calculate text dimensions
-	f32 wordlen = .0f;
-	for (char c : data) wordlen += font->glyphs[c-32].advance*scale;
-	dimensions = vec2(wordlen,font->size*scale);
+	f32 wordlen = font->estimate_wordlength(data);
+	dimensions = vec2(wordlen,font->size)*scale;
 
 	// calculate position based on alignment and dimensions
 	if (alignment.align<SCREEN_ALIGN_NEUTRAL)

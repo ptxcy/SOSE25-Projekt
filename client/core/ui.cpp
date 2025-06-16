@@ -46,25 +46,35 @@ void Button::remove()
 
 /**
  *	update textfield intersection & status
+ *	\param font: pointer to batch font
+ *	\param cursor: cursor entity to place by selected text field
  *	\param field_switch: true when text fields have been switched without in-between deselect
  */
-void TextField::update(bool& field_switch)
+void TextField::update(Font* font,Sprite* cursor,bool& field_switch)
 {
 	bool __Intersect = bounds.intersect(g_Input.mouse.position);
 
 	// user requests to write to text field buffer & clickout handling
 	if (active)
 	{
+		// handle selection & buffer
 		if (!__Intersect&&g_Input.mouse.buttons[0])
 		{
 			if (!field_switch) Input::unset_input_mode();
 			active = false;
+			return;
 		}
 		else
 		{
 			content->data = (!hidden) ? buffer : string(buffer.size(),'*');
 			content->load_buffer();
 		}
+
+		// place cursor when selected
+		f32 __Offset = font->estimate_wordlength(content->data);
+		cursor->offset = content->position+vec2(__Offset,0);
+		cursor->scale.y = font->size*content->scale;
+		COMM_LOG("%f %f",cursor->scale.x,cursor->scale.y);
 	}
 	else if (__Intersect&&g_Input.mouse.buttons[0])
 	{
@@ -169,10 +179,28 @@ lptr<TextField> UIBatch::add_text_field(PixelBufferComponent* tidle,PixelBufferC
 // Interface Management
 
 /**
+ *	create ui system
+ *	\param cursor_path: path to cursor texture
+ */
+UI::UI(const char* cursor_path)
+{
+	PixelBufferComponent* __CursorTexture = g_Renderer.register_sprite_texture(cursor_path);
+	m_CursorSprite = g_Renderer.register_sprite(__CursorTexture,vec2(100,100),vec2(2,50));
+}
+
+/**
  *	update ui
  */
 void UI::update()
 {
+	// update cursor animation
+	f32 __BlinkFactor = glm::clamp(sin(m_CursorAnim*MATH_PI)*2,-1.,1.);
+	m_CursorAnim += UI_CURSOR_BLINK_DELTA;
+	m_CursorAnim = fmod(m_CursorAnim,2.f);
+	m_CursorSprite->offset = vec2(-100);
+	m_CursorSprite->alpha = __BlinkFactor;
+
+	// update ui batches
 	for (UIBatch& p_Batch : m_Batches)
 	{
 		// button updates
@@ -180,7 +208,8 @@ void UI::update()
 
 		// text field updates
 		bool __SwitchedFields = false;
-		for (TextField& p_TextField : p_Batch.tfields) p_TextField.update(__SwitchedFields);
+		for (TextField& p_TextField : p_Batch.tfields)
+			p_TextField.update(p_Batch.font,m_CursorSprite,__SwitchedFields);
 	}
 }
 
