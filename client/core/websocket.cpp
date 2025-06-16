@@ -378,11 +378,11 @@ void _handle_websocket_download(Websocket *c)
 			msgpack::zone zone;
 			msgpack::unpack(oh, raw_data, data_size, nullptr, &zone);
 			msgpack::object obj = oh.get();
-			COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<obj).str().c_str());
+			//COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<obj).str().c_str());
 
 			// try to convert to our ServerMessage structure
 			ServerMessage message;
-			debugConvertServerMessage(obj);
+			//debugConvertServerMessage(obj);
 			obj.convert(message);
 
 			// mutual exclusion
