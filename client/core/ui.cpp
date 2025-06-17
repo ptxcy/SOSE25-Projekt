@@ -72,10 +72,12 @@ void TextField::update(Font* font,Sprite* cursor,bool& field_switch)
 
 		// place cursor when selected
 		f32 __Offset = font->estimate_wordlength(content->data);
-		cursor->offset = content->position+vec2(__Offset,0);
 		cursor->scale.y = font->size*content->scale;
-		COMM_LOG("%f %f",cursor->scale.x,cursor->scale.y);
+		cursor->offset *= content->position
+				+vec3(__Offset,cursor->scale.y*UI_TEXT_BORDER_Y,content->position.z+.01f);
 	}
+
+	// activate this text field when entity is confirmed on intersection
 	else if (__Intersect&&g_Input.mouse.buttons[0])
 	{
 		g_Renderer.assign_sprite_texture(canvas,select);
@@ -114,7 +116,7 @@ void TextField::remove()
  *	\returns address of button to later read interaction state from
  */
 lptr<Button> UIBatch::add_button(const char* label,PixelBufferComponent* tidle,PixelBufferComponent* thover,
-								 PixelBufferComponent* taction,vec2 position,vec2 scale,Alignment alignment)
+								 PixelBufferComponent* taction,vec3 position,vec2 scale,Alignment alignment)
 {
 	// graphics setup
 	buttons.push_back({
@@ -126,13 +128,14 @@ lptr<Button> UIBatch::add_button(const char* label,PixelBufferComponent* tidle,P
 	p_Button->canvas = g_Renderer.register_sprite(p_Button->idle,position,scale,.0f,alpha,alignment);
 
 	// label text
-	p_Button->label = g_Renderer.write_text(font,label,p_Button->canvas->offset,scale.y*.6f,vec4(1));
+	vec3 __TextPosition = vec3(p_Button->canvas->offset.x,p_Button->canvas->offset.y,position.z+UI_DEPTH_OFFSET);
+	p_Button->label = g_Renderer.write_text(font,label,__TextPosition,scale.y*UI_TEXT_DOWNSCALE,vec4(1));
 
 	// intersection boundaries
 	vec2 __HScale = scale*vec2(.5f);
 	p_Button->bounds = {
-		.position = p_Button->canvas->offset-__HScale,
-		.extent = p_Button->canvas->offset+__HScale
+		.position = p_Button->canvas->offset-vec3(__HScale.x,__HScale.y,0),
+		.extent = p_Button->canvas->offset+vec3(__HScale.x,__HScale.y,0)
 	};
 	return p_Button;
 }
@@ -148,7 +151,7 @@ lptr<Button> UIBatch::add_button(const char* label,PixelBufferComponent* tidle,P
  *	\returns address of text field to later read written contents from
  */
 lptr<TextField> UIBatch::add_text_field(PixelBufferComponent* tidle,PixelBufferComponent* thover,
-										PixelBufferComponent* tselect,vec2 position,vec2 scale,
+										PixelBufferComponent* tselect,vec3 position,vec2 scale,
 										Alignment alignment)
 {
 	// graphics setup
@@ -162,14 +165,15 @@ lptr<TextField> UIBatch::add_text_field(PixelBufferComponent* tidle,PixelBufferC
 
 	// setup content draw
 	vec2 __HScale = scale*vec2(.5f);
-	vec2 __TPos = p_TextField->canvas->offset-vec2(__HScale.x*.95f,__HScale.y*.4f);
-	p_TextField->content = g_Renderer.write_text(font,"",__TPos,scale.y*.6,
+	vec3 __TPos = p_TextField->canvas->offset
+			-vec3(__HScale.x*UI_TEXT_BORDER_X,__HScale.y*UI_TEXT_BORDER_Y,position.z-UI_DEPTH_OFFSET);
+	p_TextField->content = g_Renderer.write_text(font,"",__TPos,scale.y*UI_TEXT_DOWNSCALE,
 												 vec4(1),{ .align=SCREEN_ALIGN_BOTTOMLEFT });
 
 	// intersection boundaries
 	p_TextField->bounds = {
-		.position = p_TextField->canvas->offset-__HScale,
-		.extent = p_TextField->canvas->offset+__HScale
+		.position = p_TextField->canvas->offset-vec3(__HScale.x,__HScale.y,0),
+		.extent = p_TextField->canvas->offset+vec3(__HScale.x,__HScale.y,0)
 	};
 	return p_TextField;
 }
@@ -185,7 +189,7 @@ lptr<TextField> UIBatch::add_text_field(PixelBufferComponent* tidle,PixelBufferC
 UI::UI(const char* cursor_path)
 {
 	PixelBufferComponent* __CursorTexture = g_Renderer.register_sprite_texture(cursor_path);
-	m_CursorSprite = g_Renderer.register_sprite(__CursorTexture,vec2(100,100),vec2(2,50));
+	m_CursorSprite = g_Renderer.register_sprite(__CursorTexture,vec3(-100),vec2(2,50));
 }
 
 /**
@@ -193,12 +197,21 @@ UI::UI(const char* cursor_path)
  */
 void UI::update()
 {
-	// update cursor animation
+	// update cursor animation (smooth)
+	/*
 	f32 __BlinkFactor = glm::clamp(sin(m_CursorAnim*MATH_PI)*2,-1.,1.);
 	m_CursorAnim += UI_CURSOR_BLINK_DELTA;
 	m_CursorAnim = fmod(m_CursorAnim,2.f);
-	m_CursorSprite->offset = vec2(-100);
+	m_CursorSprite->offset = vec3(-100);
 	m_CursorSprite->alpha = __BlinkFactor;
+	*/
+	// TODO make this the actual smooth blinking as soon as autoorder for 2D sprites is fixed
+
+	// update cursor animation (hard)
+	m_CursorSprite->offset = vec3(1)-vec3(-100)*vec3(m_CursorAnim>1.f);
+	m_CursorAnim += UI_CURSOR_BLINK_DELTA;
+	m_CursorAnim = fmod(m_CursorAnim,2.f);
+	m_CursorAnim *= !g_Input.keyboard.key_pressed;
 
 	// update ui batches
 	for (UIBatch& p_Batch : m_Batches)
