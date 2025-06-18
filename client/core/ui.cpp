@@ -49,8 +49,10 @@ void Button::remove()
  *	\param font: pointer to batch font
  *	\param cursor: cursor entity to place by selected text field
  *	\param field_switch: true when text fields have been switched without in-between deselect
+ *	\param tynext: set to true when next text field is supposed to be active
+ *	\param cnf_input: true when batch input is confirmed, force-activates first button this frame
  */
-void TextField::update(Font* font,Sprite* cursor,bool& field_switch)
+void TextField::update(Font* font,Sprite* cursor,bool& field_switch,bool& tynext,bool& cnf_input)
 {
 	bool __Intersect = bounds.intersect(g_Input.mouse.position);
 
@@ -58,9 +60,10 @@ void TextField::update(Font* font,Sprite* cursor,bool& field_switch)
 	if (active)
 	{
 		// handle selection & buffer
-		if (!__Intersect&&g_Input.mouse.buttons[0])
+		if ((!__Intersect&&g_Input.mouse.buttons[0])||g_Input.keyboard.triggered_keys[SDL_SCANCODE_TAB])
 		{
 			if (!field_switch) Input::unset_input_mode();
+			tynext = g_Input.keyboard.triggered_keys[SDL_SCANCODE_TAB];
 			active = false;
 			return;
 		}
@@ -71,6 +74,9 @@ void TextField::update(Font* font,Sprite* cursor,bool& field_switch)
 			content->load_buffer();
 		}
 
+		// handle input confirmation
+		cnf_input = g_Input.keyboard.triggered_keys[SDL_SCANCODE_RETURN];
+
 		// place cursor when selected
 		f32 __Offset = font->estimate_wordlength(content->data);
 		cursor->scale.y = content->dimensions.y;
@@ -79,12 +85,13 @@ void TextField::update(Font* font,Sprite* cursor,bool& field_switch)
 	}
 
 	// activate this text field when entity is confirmed on intersection
-	else if (__Intersect&&g_Input.mouse.buttons[0])
+	else if ((__Intersect&&g_Input.mouse.buttons[0])||tynext)
 	{
 		g_Renderer.assign_sprite_texture(canvas,select);
 		g_Input.set_input_mode(&buffer);
 		active = true;
 		field_switch = true;
+		tynext = false;
 	}
 
 	// handle hover over inactive text field & reset to idle if no intersection
@@ -222,8 +229,11 @@ void UI::update()
 
 		// text field updates
 		bool __SwitchedFields = false;
+		bool __TabNext = false;
+		bool __ConfirmInput = false;
 		for (TextField& p_TextField : p_Batch.tfields)
-			p_TextField.update(p_Batch.font,m_CursorSprite,__SwitchedFields);
+			p_TextField.update(p_Batch.font,m_CursorSprite,__SwitchedFields,__TabNext,__ConfirmInput);
+		p_Batch.buttons.begin()->confirm |= __ConfirmInput;
 	}
 }
 

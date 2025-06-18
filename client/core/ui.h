@@ -33,7 +33,7 @@ struct Button
 struct TextField
 {
 	// utility
-	void update(Font* font,Sprite* cursor,bool& field_switch);
+	void update(Font* font,Sprite* cursor,bool& field_switch,bool& tynext,bool& cnf_input);
 	void remove();
 
 	// data
