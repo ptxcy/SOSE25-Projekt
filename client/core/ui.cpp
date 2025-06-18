@@ -67,14 +67,15 @@ void TextField::update(Font* font,Sprite* cursor,bool& field_switch)
 		else
 		{
 			content->data = (!hidden) ? buffer : string(buffer.size(),'*');
+			content->align();
 			content->load_buffer();
 		}
 
 		// place cursor when selected
 		f32 __Offset = font->estimate_wordlength(content->data);
-		cursor->scale.y = font->size*content->scale;
+		cursor->scale.y = content->dimensions.y;
 		cursor->offset *= content->position
-				+vec3(__Offset,cursor->scale.y*UI_TEXT_BORDER_Y,content->position.z+.01f);
+				+vec3(content->dimensions.x,cursor->scale.y*UI_TEXT_BORDER_Y,content->position.z+.01f);
 	}
 
 	// activate this text field when entity is confirmed on intersection
