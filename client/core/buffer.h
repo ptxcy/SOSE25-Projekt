@@ -118,7 +118,7 @@ struct Glyph
 struct Font
 {
 	// utility
-	f32 estimate_wordlength(string& word);
+	f32 estimate_wordlength(string& word,u32 offset=0);
 
 	// data
 	PixelBufferComponent tex[96];

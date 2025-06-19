@@ -81,6 +81,7 @@ struct Text
 	// utility
 	void align();
 	void load_buffer();
+	u32 intersection(f32 pos);
 
 	// data
 	Font* font;

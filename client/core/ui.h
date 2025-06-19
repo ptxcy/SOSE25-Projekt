@@ -44,6 +44,7 @@ struct TextField
 	string buffer;
 	lptr<Text> content;
 	Rect bounds;
+	s32 cursor_rev = 0;
 	bool active = false;
 	bool hidden = false;
 };

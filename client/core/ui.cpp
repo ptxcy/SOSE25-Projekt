@@ -74,14 +74,23 @@ void TextField::update(Font* font,Sprite* cursor,bool& field_switch,bool& tynext
 			content->load_buffer();
 		}
 
-		// handle input confirmation
+		// handle keyboard input
 		cnf_input = g_Input.keyboard.triggered_keys[SDL_SCANCODE_RETURN];
+		cursor_rev += g_Input.keyboard.triggered_keys[SDL_SCANCODE_LEFT]
+				- g_Input.keyboard.triggered_keys[SDL_SCANCODE_RIGHT];
+		cursor_rev = (g_Input.keyboard.triggered_keys[SDL_SCANCODE_HOME]) ? buffer.size() : cursor_rev;
+		cursor_rev = (g_Input.keyboard.triggered_keys[SDL_SCANCODE_END]) ? 0 : cursor_rev;
+		cursor_rev = glm::clamp(cursor_rev,0,(s32)buffer.size());
+
+		// handle mouse input
+		cursor_rev = (g_Input.mouse.triggered_buttons[0])
+				? content->intersection(g_Input.mouse.position.x) : cursor_rev;
 
 		// place cursor when selected
-		f32 __Offset = font->estimate_wordlength(content->data);
+		f32 __Offset = font->estimate_wordlength(content->data,cursor_rev)*content->scale;
 		cursor->scale.y = content->dimensions.y;
 		cursor->offset *= content->position
-				+vec3(content->dimensions.x,cursor->scale.y*UI_TEXT_BORDER_Y,content->position.z+.01f);
+				+vec3(__Offset,cursor->scale.y*UI_TEXT_BORDER_Y,content->position.z+.01f);
 	}
 
 	// activate this text field when entity is confirmed on intersection
@@ -89,6 +98,7 @@ void TextField::update(Font* font,Sprite* cursor,bool& field_switch,bool& tynext
 	{
 		g_Renderer.assign_sprite_texture(canvas,select);
 		g_Input.set_input_mode(&buffer);
+		cursor_rev = 0;
 		active = true;
 		field_switch = true;
 		tynext = false;

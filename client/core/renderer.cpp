@@ -75,6 +75,28 @@ void Text::load_buffer()
 	}
 }
 
+/**
+ *	calculate horizontal character intersection
+ *	\param pos: horizontal intersecting pixel position
+ *	\returns 0 if end of the word, buffer size if beginning of the word is last intersection and else in-between
+ */
+u32 Text::intersection(f32 pos)
+{
+	u32 i = 0;
+
+	// starting intersection
+	if (!data.size()) return 0;
+	f32 __Cursor = position.x+font->glyphs[data[0]-32].advance*.5*scale;
+
+	// iterate following characters
+	while (i<data.size()-1&&__Cursor<pos)
+	{
+		__Cursor += (font->glyphs[data[i]-32].advance+font->glyphs[data[i+1]-32].advance)*.5*scale;
+		i++;
+	}
+	return data.size()-i;
+}
+
 
 // ----------------------------------------------------------------------------------------------------
 // Mesh Component
