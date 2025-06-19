@@ -13,6 +13,7 @@ struct Keyboard
 {
 	BitwiseWords keys = BitwiseWords(KEYBOARD_INPUT_RANGE);
 	BitwiseWords triggered_keys = BitwiseWords(KEYBOARD_INPUT_RANGE);
+	bool key_pressed = false;
 };
 
 struct Mouse

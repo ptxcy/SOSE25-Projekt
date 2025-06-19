@@ -5,7 +5,7 @@ in vec2 position;
 in vec2 edge_coordinates;
 
 // engine: ibo
-in vec2 offset;
+in vec3 offset;
 in vec2 scale;
 in vec2 bearing;
 in vec4 colour;
@@ -22,8 +22,8 @@ uniform mat4 proj;
 void main()
 {
 	vec2 Position = position+.5;
-	Position = Position*scale+offset+bearing;
-	gl_Position = proj*view*vec4(Position.x,Position.y-scale.y,.0,1.);
+	Position = Position*scale+offset.xy+bearing;
+	gl_Position = proj*view*vec4(Position.x,Position.y-scale.y,offset.z,1.);
 
 	// pass
 	EdgeCoordinates = atlas_position+atlas_dimension*edge_coordinates;

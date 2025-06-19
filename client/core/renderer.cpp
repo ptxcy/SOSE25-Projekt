@@ -28,17 +28,21 @@ ThreadSignal _sprite_signal
 void Text::align()
 {
 	// calculate text dimensions
-	f32 wordlen = .0f;
-	for (char c : data) wordlen += font->glyphs[c-32].advance*scale;
-	dimensions = vec2(wordlen,font->size*scale);
+	f32 wordlen = font->estimate_wordlength(data);
+	dimensions = vec2(wordlen,font->size)*scale;
 
 	// calculate position based on alignment and dimensions
 	if (alignment.align<SCREEN_ALIGN_NEUTRAL)
 	{
-		offset = Renderer::align({ position,dimensions },alignment);
+		vec2 __AlignedOffset = Renderer::align({ position,dimensions },alignment);
+		offset.x = __AlignedOffset.x;
+		offset.y = __AlignedOffset.y;
 		return;
 	}
-	offset = position-vec2(dimensions.x*.5f,dimensions.y*.33f);
+
+	// compliment dimensions by offset
+	offset.x = position.x-dimensions.x*.5f;
+	offset.y = position.y-dimensions.y*.33f;
 }
 
 /**
@@ -51,7 +55,7 @@ void Text::load_buffer()
 	buffer.resize(data.size());
 
 	// load font information for characters
-	vec2 __Cursor = offset;
+	vec3 __Cursor = vec3(offset.x,offset.y,position.z);
 	for (u32 i=0;i<data.size();i++)
 	{
 		TextCharacter& p_Character = buffer[i];
@@ -69,6 +73,28 @@ void Text::load_buffer()
 
 		__Cursor.x += p_Glyph.advance*scale;
 	}
+}
+
+/**
+ *	calculate horizontal character intersection
+ *	\param pos: horizontal intersecting pixel position
+ *	\returns 0 if end of the word, buffer size if beginning of the word is last intersection and else in-between
+ */
+u32 Text::intersection(f32 pos)
+{
+	u32 i = 0;
+
+	// starting intersection
+	if (!data.size()) return 0;
+	f32 __Cursor = position.x+font->glyphs[data[0]-32].advance*.5*scale;
+
+	// iterate following characters
+	while (i<data.size()-1&&__Cursor<pos)
+	{
+		__Cursor += (font->glyphs[data[i]-32].advance+font->glyphs[data[i+1]-32].advance)*.5*scale;
+		i++;
+	}
+	return data.size()-i;
 }
 
 
@@ -315,14 +341,16 @@ void Renderer::update()
 	m_FrameStart = std::chrono::steady_clock::now();
 
 	// 3D segment
-	glEnable(GL_DEPTH_TEST);
 	m_ForwardFrameBuffer.start();
 	_update_mesh();
 	Framebuffer::stop();
 
-	// 2D segment
+	// rendertargets
 	glDisable(GL_DEPTH_TEST);
 	_update_canvas();
+	glEnable(GL_DEPTH_TEST);
+
+	// 2D segment
 	_update_sprites();
 	_update_text();
 
@@ -366,7 +394,7 @@ PixelBufferComponent* Renderer::register_sprite_texture(const char* path)
  *	\param alignment: (default fullscreen neutral) sprite position alignment within borders
  *	\returns pointer to sprite data for modification purposes
  */
-Sprite* Renderer::register_sprite(PixelBufferComponent* texture,vec2 position,vec2 size,f32 rotation,
+Sprite* Renderer::register_sprite(PixelBufferComponent* texture,vec3 position,vec2 size,f32 rotation,
 								  f32 alpha,Alignment alignment)
 {
 	// determine memory location, overwrite has priority over appending
@@ -378,7 +406,9 @@ Sprite* Renderer::register_sprite(PixelBufferComponent* texture,vec2 position,ve
 	if (alignment.align!=SCREEN_ALIGN_NEUTRAL)
 	{
 		vec2 hsize = size*.5f;
-		position = align({ position-hsize,size },alignment)+size;
+		vec2 __AlignedPosition = align({ vec2(position)-hsize,size },alignment)+size;
+		position.x = __AlignedPosition.x;
+		position.y = __AlignedPosition.y;
 	}
 
 	// write information to memory
@@ -459,7 +489,7 @@ Font* Renderer::register_font(const char* path,u16 size)
  *	\param align: (default SCREEN_ALIGN_BOTTOMLEFT) text alignment on screen, modified by positional offset
  *	\returns list container of created text
  */
-lptr<Text> Renderer::write_text(Font* font,string data,vec2 position,f32 scale,vec4 colour,Alignment align)
+lptr<Text> Renderer::write_text(Font* font,string data,vec3 position,f32 scale,vec4 colour,Alignment align)
 {
 	m_GPUFontTextures.signal.wait();
 	m_Texts.push_back({
