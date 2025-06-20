@@ -70,7 +70,6 @@ struct Vertex
 	vec3 normal;
 	vec3 tangent;
 };
-constexpr u8 RENDERER_VERTEX_SIZE = sizeof(Vertex)/sizeof(f32);
 
 
 // ----------------------------------------------------------------------------------------------------
@@ -111,15 +110,16 @@ public:
 struct GeometryBatch
 {
 	// utility
-	void load();
+	void load(Mesh& mesh,vector<TextureData>& tex);
+	void load(void* verts,size_t vsize,size_t ssize,vector<TextureData>& tex);
 
 	// data
 	VertexArray vao;
 	VertexBuffer vbo;
 	lptr<ShaderPipeline> shader;
-	vector<Texture> textures;
 	vector<float> geometry;
-	u32 vertex_count;  // TODO kick this out somehow
+	vector<Texture> textures;
+	u32 vertex_count;
 };
 // TODO detached texture load after definition
 // TODO also link to registered textures and iterate to reduce memory consumption
@@ -127,7 +127,8 @@ struct GeometryBatch
 struct ParticleBatch
 {
 	// utility
-	void load();
+	void load(Mesh& mesh,u32 particles);
+	void load(void* verts,size_t vsize,size_t ssize,u32 particles);
 
 	// data
 	VertexArray vao;
@@ -135,7 +136,7 @@ struct ParticleBatch
 	VertexBuffer ibo;
 	lptr<ShaderPipeline> shader;
 	vector<float> geometry;
-	u32 vertex_count;  // TODO kick this out somehow
+	u32 vertex_count;
 	u32 active_particles = 0;
 };
 

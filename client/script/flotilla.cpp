@@ -16,15 +16,9 @@ Flotilla::Flotilla()
 	Mesh __SpaceshipMesh = Mesh("./res/spaceship.obj");
 
 	// setup spaceship batch
-	m_SpaceshipBatch = g_Renderer.register_particle_batch(m_SpaceshipShader);
-	m_SpaceshipBatch->geometry.resize(__SpaceshipMesh.vertices.size()*RENDERER_VERTEX_SIZE);
-	memcpy(&m_SpaceshipBatch->geometry[0],&__SpaceshipMesh.vertices[0],
-		   __SpaceshipMesh.vertices.size()*sizeof(Vertex));
-	m_SpaceshipBatch->load();
-	m_SpaceshipBatch->vertex_count = __SpaceshipMesh.vertices.size();
-	m_SpaceshipBatch->active_particles = 0;
-	m_SpaceshipShader->upload("tex",RENDERER_TEXTURE_SPRITES);
 	m_SpaceshipTexture = g_Renderer.register_sprite_texture("./res/test.png");
+	m_SpaceshipBatch = g_Renderer.register_particle_batch(m_SpaceshipShader);
+	m_SpaceshipBatch->load(__SpaceshipMesh,0);
 
 	// register routine
 	g_Wheel.call(UpdateRoutine{ &Flotilla::_update,(void*)this });
