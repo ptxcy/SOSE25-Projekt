@@ -46,8 +46,8 @@ struct Alignment
 
 struct Sprite
 {
-	vec2 offset = vec2(0,0);
-	vec2 scale = vec2(0,0);
+	vec3 offset = vec3(0);
+	vec2 scale = vec2(0);
 	f32 rotation = .0f;
 	f32 alpha = 1.f;
 	vec2 tex_position;
@@ -56,7 +56,7 @@ struct Sprite
 
 struct TextCharacter
 {
-	vec2 offset = vec2(0);
+	vec3 offset = vec3(0);
 	vec2 scale = vec2(0);
 	vec2 bearing = vec2(0);
 	vec4 colour = vec4(1);
@@ -81,10 +81,11 @@ struct Text
 	// utility
 	void align();
 	void load_buffer();
+	u32 intersection(f32 pos);
 
 	// data
 	Font* font;
-	vec2 position;
+	vec3 position;
 	vec2 offset;
 	f32 scale;
 	vec2 dimensions;
@@ -152,7 +153,7 @@ public:
 
 	// sprite
 	PixelBufferComponent* register_sprite_texture(const char* path);
-	Sprite* register_sprite(PixelBufferComponent* texture,vec2 position,vec2 size,f32 rotation=.0f,
+	Sprite* register_sprite(PixelBufferComponent* texture,vec3 position,vec2 size,f32 rotation=.0f,
 							f32 alpha=1.f,Alignment alignment={});
 	void assign_sprite_texture(Sprite* sprite,PixelBufferComponent* texture);
 	void delete_sprite_texture(PixelBufferComponent* texture);
@@ -160,7 +161,7 @@ public:
 
 	// text
 	Font* register_font(const char* path,u16 size);
-	lptr<Text> write_text(Font* font,string data,vec2 position,f32 scale,vec4 colour=vec4(1),Alignment align={});
+	lptr<Text> write_text(Font* font,string data,vec3 position,f32 scale,vec4 colour=vec4(1),Alignment align={});
 	inline void delete_text(lptr<Text> text) { m_Texts.erase(text); }
 
 	// scene

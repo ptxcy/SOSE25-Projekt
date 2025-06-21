@@ -3,10 +3,9 @@ use serde::{Deserialize, Serialize};
 use crate::logger::log_with_time;
 
 use super::{
-	action::SafeAction,
+	action::{ActionWrapper, AsRaw, SafeAction, SubValue},
 	coordinate::Coordinate,
 	crafting_material::CraftingMaterial,
-	game_objects::DummyMap,
 	gametraits::{Craftable, Crafter, IsOwned, Spawnable},
 	id_counter::IdCounter,
 };
@@ -42,14 +41,18 @@ impl DummyObject {
 		crafter: &T,
 		name: &'a String,
 		id_counter: &'a mut IdCounter,
-	) -> Vec<SafeAction> {
+	) -> Vec<ActionWrapper> {
 		log_with_time("crafting a dummy with 49 copper");
 		// use materials
-		let mut actions = Vec::<SafeAction>::new();
-		actions.push(SafeAction::ReduceCraftingMaterial {
-			crafter: crafter as *const dyn Crafter as *mut dyn Crafter,
-			cost: Self::get_cost(),
-		});
+		let mut actions = Vec::<ActionWrapper>::new();
+		// actions.push(Box::new(SafeAction::ReduceCraftingMaterial {
+		// 	crafter: crafter as *const dyn Crafter as *mut dyn Crafter,
+		// 	cost: Self::get_cost(),
+		// }));
+		actions.push(SubValue::new(
+			crafter.get_crafting_material().raw_mut(),
+			Self::get_cost(),
+		));
 
 		// create object
 		let dummy = DummyObject::new(
@@ -59,7 +62,7 @@ impl DummyObject {
 			crafter.spawn_at(),
 		);
 		let id = dummy.id;
-		actions.push(dummy.into_game_objects());
+		actions.push(SafeAction::new(dummy.into_game_objects()));
 		actions
 	}
 }

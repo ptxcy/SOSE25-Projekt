@@ -8,8 +8,12 @@ services:
     ports:
       - "8080:8080"
       - "8083:8083"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
 
-  calculation_unit_1:
+  calculation_unit:
     build:
       context: ./microservices/calculation_unit
       dockerfile: Dockerfile
@@ -17,33 +21,6 @@ services:
       - SERVICE_PORT=8090
     ports:
       - "8090:8090"
-
-  calculation_unit_2:
-    build:
-      context: ./microservices/calculation_unit
-      dockerfile: Dockerfile
-    environment:
-      - SERVICE_PORT=8091
-    ports:
-      - "8091:8091"
-
-  playtest_calculation_unit_1:
-    build:
-      context: ./microservices/playtest_calculation_unit
-      dockerfile: Dockerfile
-    environment:
-      - SERVICE_PORT=9100
-    ports:
-      - "9100:9100"
-
-  playtest_calculation_unit_2:
-    build:
-      context: ./microservices/playtest_calculation_unit
-      dockerfile: Dockerfile
-    environment:
-      - SERVICE_PORT=9101
-    ports:
-      - "9101:9101"
 
   mongodb:
     image: mongo:latest

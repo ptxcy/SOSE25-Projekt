@@ -123,6 +123,233 @@ LobbyStatus HTTPAdapter::open_lobby(string &lobby_name, string &lobby_password, 
 // ----------------------------------------------------------------------------------------------------
 // Websocket Connection
 
+
+void debugConvertCoordinate(const msgpack::object& obj, const std::string& label = "Coordinate")
+{
+	try {
+		Coordinate c;
+		obj.convert(c);
+		std::cout << "  [OK] " << label << "\n";
+	} catch (const std::exception& e) {
+		std::cerr << "  [FAIL] " << label << ": " << e.what() << "\n";
+	}
+}
+
+void debugConvertSpacestation(const msgpack::object& obj, const std::string& label = "Spacestation")
+{
+	try {
+		Spacestation s;
+		obj.convert(s);
+		std::cout << "  [OK] " << label << "\n";
+	} catch (const std::exception& e) {
+		std::cerr << "  [FAIL] " << label << ": " << e.what() << "\n";
+	}
+}
+
+void debugConvertSpaceship(const msgpack::object& obj, const std::string& label = "Spaceship")
+{
+	try {
+		Spaceship s;
+		obj.convert(s);
+		std::cout << "  [OK] " << label << "\n";
+		debugConvertCoordinate(obj.via.array.ptr[3], label + ".velocity");
+		debugConvertCoordinate(obj.via.array.ptr[4], label + ".position");
+		debugConvertCoordinate(obj.via.array.ptr[5], label + ".target");
+	} catch (const std::exception& e) {
+		std::cerr << "  [FAIL] " << label << ": " << e.what() << "\n";
+	}
+}
+
+void debugConvertSpaceships(const msgpack::object& obj)
+{
+	std::cout << "[Spaceships]\n";
+	try {
+		if (obj.type != msgpack::type::MAP) throw std::runtime_error("not a map");
+
+		for (uint32_t i = 0; i < obj.via.map.size; ++i) {
+			const auto& kv = obj.via.map.ptr[i];
+			std::string key;
+			try {
+				key = kv.key.as<std::string>();
+			} catch (...) {
+				key = "<invalid>";
+			}
+			debugConvertSpaceship(kv.val, "spaceships[" + key + "]");
+		}
+	} catch (const std::exception& e) {
+		std::cerr << "Spaceships deserialization failed: " << e.what() << "\n";
+	}
+}
+
+void debugConvertPlayer(const msgpack::object& obj, const std::string& label)
+{
+	try {
+		Player p;
+		obj.convert(p);
+		std::cout << "  [OK] " << label << "\n";
+	} catch (const std::exception& e) {
+		std::cerr << "  [FAIL] " << label << ": " << e.what() << "\n";
+	}
+}
+
+void debugConvertPlayers(const msgpack::object& obj)
+{
+	std::cout << "[Players]\n";
+	try {
+		for (uint32_t i = 0; i < obj.via.map.size; ++i) {
+			std::string key;
+			try {
+				key = obj.via.map.ptr[i].key.as<std::string>();
+			} catch (...) {
+				key = "<invalid>";
+			}
+			debugConvertPlayer(obj.via.map.ptr[i].val, "players[" + key + "]");
+		}
+	} catch (const std::exception& e) {
+		std::cerr << "Players deserialization failed: " << e.what() << "\n";
+	}
+}
+
+void debugConvertBuildingRegion(const msgpack::object& obj, const std::string& label)
+{
+	try {
+		BuildingRegion b;
+		obj.convert(b);
+		std::cout << "    [OK] " << label << "\n";
+	} catch (const std::exception& e) {
+		std::cerr << "    [FAIL] " << label << ": " << e.what() << "\n";
+	}
+}
+
+void debugConvertPlanet(const msgpack::object& obj, const std::string& label)
+{
+	try {
+		Planet p;
+		obj.convert(p);
+		std::cout << "  [OK] " << label << "\n";
+
+		if (obj.type == msgpack::type::ARRAY && obj.via.array.size >= 4) {
+			const auto& building_regions = obj.via.array.ptr[2];
+			if (building_regions.type == msgpack::type::ARRAY) {
+				for (uint32_t i = 0; i < building_regions.via.array.size; ++i) {
+					debugConvertBuildingRegion(building_regions.via.array.ptr[i], label + ".building_regions[" + std::to_string(i) + "]");
+				}
+			}
+			debugConvertSpacestation(obj.via.array.ptr[4], label + ".spacestation");
+		}
+	} catch (const std::exception& e) {
+		std::cerr << "  [FAIL] " << label << ": " << e.what() << "\n";
+	}
+}
+
+void debugConvertPlanets(const msgpack::object& obj)
+{
+	std::cout << "[Planets]\n";
+	try {
+		for (uint32_t i = 0; i < obj.via.array.size; ++i) {
+			debugConvertPlanet(obj.via.array.ptr[i], "planets[" + std::to_string(i) + "]");
+		}
+	} catch (const std::exception& e) {
+		std::cerr << "Planets deserialization failed: " << e.what() << "\n";
+	}
+}
+
+void debugConvertDummyObject(const msgpack::object& obj, const std::string& label)
+{
+	try {
+		DummyObject d;
+		obj.convert(d);
+		std::cout << "  [OK] " << label << "\n";
+	} catch (const std::exception& e) {
+		std::cerr << "  [FAIL] " << label << ": " << e.what() << "\n";
+	}
+}
+
+void debugConvertDummyObjects(const msgpack::object& obj)
+{
+	std::cout << "[DummyObjects]\n";
+	try {
+		for (uint32_t i = 0; i < obj.via.map.size; ++i) {
+			std::string key;
+			try {
+				key = obj.via.map.ptr[i].key.as<std::string>();
+			} catch (...) {
+				key = "<invalid>";
+			}
+			debugConvertDummyObject(obj.via.map.ptr[i].val, "dummies[" + key + "]");
+		}
+	} catch (const std::exception& e) {
+		std::cerr << "DummyObjects deserialization failed: " << e.what() << "\n";
+	}
+}
+
+void debugConvertGameObjects(const msgpack::object& obj)
+{
+	std::cout << "[GameObjects]\n";
+	try {
+		auto arr = obj.as<std::vector<msgpack::object>>();
+		if (arr.size() != 4) {
+			std::cerr << "GameObjects array size != 4\n";
+			return;
+		}
+		debugConvertDummyObjects(arr[0]);
+		debugConvertPlanets(arr[1]);
+		debugConvertPlayers(arr[2]);
+		debugConvertSpaceships(arr[3]);
+	} catch (const std::exception& e) {
+		std::cerr << "GameObjects deserialization failed: " << e.what() << "\n";
+	}
+}
+
+void debugConvertRequestInfo(const msgpack::object& obj)
+{
+	try {
+		RequestInfo ri;
+		obj.convert(ri);
+		std::cout << "[OK] RequestInfo\n";
+	} catch (const std::exception& e) {
+		std::cerr << "[FAIL] RequestInfo: " << e.what() << "\n";
+	}
+}
+
+void debugConvertObjectData(const msgpack::object& obj)
+{
+	std::cout << "[ObjectData]\n";
+	try {
+		auto arr = obj.as<std::vector<msgpack::object>>();
+		if (arr.size() != 2) {
+			std::cerr << "ObjectData array size != 2\n";
+			return;
+		}
+		try {
+			std::string id = arr[0].as<std::string>();
+			std::cout << "  target_user_id: " << id << "\n";
+		} catch (const std::exception& e) {
+			std::cerr << "  target_user_id failed: " << e.what() << "\n";
+		}
+		debugConvertGameObjects(arr[1]);
+	} catch (const std::exception& e) {
+		std::cerr << "ObjectData deserialization failed: " << e.what() << "\n";
+	}
+}
+
+void debugConvertServerMessage(const msgpack::object& obj)
+{
+	std::cout << "\n==== [ServerMessage] ====\n";
+	try {
+		auto arr = obj.as<std::vector<msgpack::object>>();
+		if (arr.size() != 2) {
+			std::cerr << "ServerMessage array size != 2\n";
+			return;
+		}
+		debugConvertRequestInfo(arr[0]);
+		debugConvertObjectData(arr[1]);
+	} catch (const std::exception& e) {
+		std::cerr << "ServerMessage deserialization failed: " << e.what() << "\n";
+	}
+}
+
+
 /**
  *	function to handle websocket download traffic
  *	\param c: websocket data
@@ -133,8 +360,14 @@ void _handle_websocket_download(Websocket *c)
 	while (c->running)
 	{
 		try
-		{ // read buffer
+		{
+		    // read buffer
 			boost::beast::flat_buffer response_buffer;
+			if (!c->ws.is_open()) {
+                COMM_ERR("WebSocket ist nicht mehr offen!");
+                return;
+            }
+
 			c->ws.read(response_buffer);
 			auto data = response_buffer.data();
 			const char *raw_data = static_cast<const char *>(data.data());
@@ -145,11 +378,14 @@ void _handle_websocket_download(Websocket *c)
 			msgpack::zone zone;
 			msgpack::unpack(oh, raw_data, data_size, nullptr, &zone);
 			msgpack::object obj = oh.get();
-			// COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<obj).str().c_str());
+			//COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<obj).str().c_str());
 
 			// try to convert to our ServerMessage structure
 			ServerMessage message;
+			//debugConvertServerMessage(obj);
 			obj.convert(message);
+
+			// mutual exclusion
 			c->mutex_server_state.lock();
 			c->server_state = message;
 			c->state_update = true;

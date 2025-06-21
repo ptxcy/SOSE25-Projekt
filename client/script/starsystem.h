@@ -7,7 +7,10 @@
 
 
 constexpr u8 STARSYS_PLANET_COUNT = 8;
+constexpr f32 STARSYS_SUN_REFERENCE_SCALE = 15.f;
+constexpr f32 STARSYS_EARTH_REFERENCE_SCALE = .5f;
 constexpr f32 STARSYS_SATURN_RING_DISTFACTOR = 1.25f;
+constexpr f32 STARSYS_DISTANCE_SCALE = 75.f;
 
 
 struct PlanetaryAttribute
@@ -26,8 +29,8 @@ public:
 	void update();
 
 public:
-	PlanetaryAttribute planets[STARSYS_PLANET_COUNT];
-	// FIXME why not private again??
+	vector<PlanetaryAttribute> planets = vector<PlanetaryAttribute>(STARSYS_PLANET_COUNT);
+	PixelBufferComponent* m_PlanetTextures[STARSYS_PLANET_COUNT];
 
 private:
 
@@ -40,7 +43,6 @@ private:
 	lptr<ParticleBatch> m_HaloBatch;
 
 	// planetary data
-	PixelBufferComponent* m_PlanetTextures[STARSYS_PLANET_COUNT];
 	PixelBufferComponent* m_HaloTexture;
 
 	// batch data

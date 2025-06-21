@@ -343,14 +343,14 @@ public:
 	f32 yaw;
 	f32 fov;
 	f32 near = .1f;
-	f32 far = 1000.f;
+	f32 far = 10000.f;
 
 private:
 
 	f32 m_Ratio;
 };
 
-inline Camera3D g_Camera = Camera3D(vec3(10,-.001,0),2.1f,0,0,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y,60);
+inline Camera3D g_Camera = Camera3D(vec3(0,-.001,0),35.f,0,0,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y,60);
 
 
 // ----------------------------------------------------------------------------------------------------

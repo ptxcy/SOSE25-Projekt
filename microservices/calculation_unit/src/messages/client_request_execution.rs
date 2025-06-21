@@ -5,7 +5,15 @@ use super::client_message::{
 };
 use crate::{
 	game::{
-		action::{AsRaw, SafeAction}, calculation_unit::ServerMessageSenderChannel, coordinate::Coordinate, dummy::DummyObject, game_objects::GameObjects, id_counter::IdCounter, planet::OrbitInfoMap, player::Player, spaceship::Spaceship
+		action::{ActionWrapper, AsRaw, SafeAction, SetValue, UnsafeAction},
+		calculation_unit::ServerMessageSenderChannel,
+		coordinate::Coordinate,
+		dummy::DummyObject,
+		game_objects::GameObjects,
+		id_counter::IdCounter,
+		planet::OrbitInfoMap,
+		player::Player,
+		spaceship::Spaceship,
 	},
 	logger::log_with_time,
 };
@@ -14,12 +22,11 @@ fn set_client_fps(
 	username: &String,
 	server_message_senders: &HashMap<String, ServerMessageSenderChannel>,
 	fps: f64,
-) -> std::result::Result<SafeAction, String> {
+) -> std::result::Result<ActionWrapper, String> {
 	match server_message_senders.get(username) {
-		Some(client) => Ok(SafeAction::SetF64(
-			client.update_threshold.raw_mut(),
-			1. / fps,
-		)),
+		Some(client) => {
+			Ok(SetValue::new(client.update_threshold.raw_mut(), 1. / fps))
+		}
 		None => {
 			return Err(format!(
 				"couldnt find servermessagesenderchannel of id {}",
@@ -34,7 +41,7 @@ fn spawn_dummy(
 	game_objects: &GameObjects,
 	name: &String,
 	id_counter: &mut IdCounter,
-) -> std::result::Result<Vec<SafeAction>, String> {
+) -> std::result::Result<Vec<ActionWrapper>, String> {
 	// spawn dummy
 	log_with_time("spawn dummy");
 	let actions = DummyObject::craft(player, &"name".to_string(), id_counter);
@@ -45,15 +52,15 @@ fn dummy_set_velocity(
 	username: &String,
 	game_objects: &GameObjects,
 	value: &DummySetVelocity,
-) -> std::result::Result<SafeAction, String> {
+) -> std::result::Result<ActionWrapper, String> {
 	let dummies = &game_objects.dummies;
 	match dummies.get(&value.id) {
 		Some(dummy) => {
 			if dummy.owner == *username {
-				Ok(SafeAction::SetCoordinate {
-					coordinate: dummy.velocity.raw_mut(),
-					other: value.position.clone(),
-				})
+				Ok(SetValue::new(
+					dummy.velocity.raw_mut(),
+					value.position.clone(),
+				))
 			} else {
 				return Err(format!(
 					"{} tried moving dummy {} that is not owned",
@@ -77,7 +84,7 @@ fn set_spaceship_target(
 	julian_day: f64,
 	orbit_info_map: &OrbitInfoMap,
 	username: &String,
-) -> std::result::Result<SafeAction, String> {
+) -> std::result::Result<ActionWrapper, String> {
 	let spaceship =
 		if let Some(s) = game_objects.spaceships.get(&value.spaceship_id) {
 			s
@@ -100,10 +107,7 @@ fn set_spaceship_target(
 	};
 	let target =
 		spaceship.fly_to_get_target(planet, julian_day, orbit_info_map);
-	Ok(SafeAction::SetCoordinate {
-		coordinate: spaceship.target.raw_mut(),
-		other: target,
-	})
+	Ok(SetValue::new(spaceship.target.raw_mut(), target))
 }
 
 impl ClientRequest {
@@ -119,9 +123,11 @@ impl ClientRequest {
 		dummy_id_counter: &mut IdCounter,
 		spaceship_id_counter: &mut IdCounter,
 		julian_day: f64,
+		delta_days: f64,
 		orbit_info_map: &OrbitInfoMap,
 	) -> std::result::Result<(), String> {
-		let mut actions = Vec::<SafeAction>::new();
+		let mut actions = Vec::<ActionWrapper>::new();
+		let mut unsafe_actions = Vec::<ActionWrapper>::new();
 
 		let player = if let Some(player) = game_objects.players.get(username) {
 			player
@@ -139,11 +145,13 @@ impl ClientRequest {
 				value,
 				dummy_id_counter,
 			)?);
-			actions.push(SafeAction::SpawnSpaceship(Spaceship::new(
-				username,
-				0.3,
-				spaceship_id_counter,
-				Coordinate::default()
+			actions.push(SafeAction::new(SafeAction::SpawnSpaceship(
+				Spaceship::new(
+					username,
+					0.3,
+					spaceship_id_counter,
+					Coordinate::default(),
+				),
 			)));
 		}
 		if let Some(value) = &self.set_client_fps {
@@ -164,8 +172,28 @@ impl ClientRequest {
 		}
 		// TEMP later not possible to spawn like this
 		if let Some(value) = &self.spawn_spaceship {
-			let spaceship = Spaceship::new(username, 0.3, spaceship_id_counter, value.clone());
-			actions.push(SafeAction::SpawnSpaceship(spaceship));
+			let spaceship = Spaceship::new(
+				username,
+				0.3,
+				spaceship_id_counter,
+				value.clone(),
+			);
+			actions
+				.push(SafeAction::new(SafeAction::SpawnSpaceship(spaceship)));
+		}
+		// TEMP later not possible to delete like this
+		if let Some(value) = &self.delete_spaceship {
+			if let Some(a) = game_objects.spaceships.get(value) {
+				if &a.owner == username {
+					unsafe_actions.push(UnsafeAction::new(
+						UnsafeAction::DeleteSpaceship(*value),
+					));
+				} else {
+					log_with_time("cant delete this spaceship, not the owner");
+				}
+			} else {
+				log_with_time("cant delete this spaceship, not existing");
+			}
 		}
 		if let Some(value) = &self.connect {
 			log_with_time(format!("a new connection with id {}", value));
@@ -174,6 +202,9 @@ impl ClientRequest {
 		// execute actions
 		let go = game_objects.raw_mut();
 		for action in actions {
+			action.execute(go);
+		}
+		for action in unsafe_actions {
 			action.execute(go);
 		}
 		Ok(())

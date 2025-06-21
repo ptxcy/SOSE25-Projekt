@@ -1,7 +1,7 @@
 import {IUser} from "../user/UserModel";
 import {WebSocket, RawData} from "ws";
 import {ILobby} from "./LobbyModel";
-import {searchLobbyOfMember} from "./LobbyService";
+import {deleteLobby, searchLobbyOfMember} from "./LobbyService";
 import {
     ClientMessage,
     decodeToClientMessage,
@@ -9,12 +9,14 @@ import {
     encodeServerMessage,
     ServerMessage
 } from "../datatypes/MessagePackDataTypes";
+import {CONTAINER_PREFIX, startCalculationUnit, stopContainer} from "../../docker-management/DockerManager";
 
 export interface LobbyRegistryEntry {
     lobbyName: string;
     members: IUser[];
     memberSockets: WebSocket[];
     calculationSocket: WebSocket | null;
+    containerInstanceNumber: number;
 }
 
 const registeredLobbys = new Set<LobbyRegistryEntry>();
@@ -24,7 +26,7 @@ export function isRegistered(lobbyName: string): LobbyRegistryEntry | null {
 }
 
 export function startCleanupScheduler() {
-    setInterval(() => {
+    setInterval(async () => {
         for (const lobby of registeredLobbys) {
             const allClosed = lobby.memberSockets.every(socket => socket.readyState === WebSocket.CLOSED);
 
@@ -34,12 +36,13 @@ export function startCleanupScheduler() {
                     lobby.calculationSocket.close();
                     console.log(`Calculation-Socket für ${lobby.lobbyName} geschlossen.`);
                 }
-
+                await stopContainer(CONTAINER_PREFIX + lobby.containerInstanceNumber);
                 registeredLobbys.delete(lobby);
                 console.log(`Lobby ${lobby.lobbyName} aus Registry entfernt.`);
+                console.log("Lobby DatabaseEntry removed successfully: ", await deleteLobby(lobby.lobbyName));
             }
         }
-    }, 10000);
+    }, 30000);
 }
 
 startCleanupScheduler();
@@ -50,6 +53,26 @@ export function addToRegister(lobby: LobbyRegistryEntry): boolean {
     }
     registeredLobbys.add(lobby);
     return true
+}
+
+function findLowestPossibleContainerNumber(): number {
+    let num = 0;
+    let isUsed = false;
+    while (true) {
+        registeredLobbys.forEach((lobby) => {
+            if (lobby.containerInstanceNumber === num) {
+                isUsed = true;
+            }
+        })
+
+        if (!isUsed) {
+            break;
+        }
+
+        num++;
+        isUsed = false;
+    }
+    return num;
 }
 
 export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userData: IUser) {
@@ -70,16 +93,19 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
     if (registerLobby) {
         if (!registerLobby.memberSockets.includes(ws)) {
             registerLobby.memberSockets.push(ws);
+            registerLobby.members.push(userData);
         }
     } else {
+        const lowestContainerNumber = findLowestPossibleContainerNumber();
         registerLobby = {
             lobbyName: userLobby.lobbyName,
             members: [userData],
             memberSockets: [ws],
-            calculationSocket: null
+            calculationSocket: null,
+            containerInstanceNumber: lowestContainerNumber
         };
         addToRegister(registerLobby);
-        registerLobby.calculationSocket = await connectToCalculationServer(registerLobby);
+        registerLobby.calculationSocket = await connectToCalculationServer(lowestContainerNumber, registerLobby);
     }
 
     const uint8Array = data instanceof Buffer
@@ -104,7 +130,7 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
 
     const calc_unit_socket: WebSocket | null = registerLobby.calculationSocket;
     if (!calc_unit_socket) {
-        console.error("No calculation socket found!");
+        console.error("No calculation socket found! for lobby", registerLobby);
         ws.close();
         return;
     }
@@ -119,30 +145,14 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
     calc_unit_socket.send(encoded);
 }
 
-async function connectToCalculationServer(lcomp: LobbyRegistryEntry): Promise<WebSocket> {
+async function connectToCalculationServer(containerNumber: number, lcomp: LobbyRegistryEntry): Promise<WebSocket> {
     //TODO Close Socket If all user connections are closed
     console.log("Connecting to calculation server...");
-
+    await startCalculationUnit(containerNumber, 9000 + containerNumber);
     let socket;
-    if (lcomp.lobbyName.startsWith("playtest_")) {
-        let playTesterLobbyCount = 0
-        registeredLobbys.forEach((lobby) => {
-            if (lobby.lobbyName.startsWith("playtest_")) {
-                playTesterLobbyCount++;
-            }
-        });
-        const playtestLobbyPort = 9099 + playTesterLobbyCount;
-        socket = new WebSocket(`ws://playtest_calculation_unit_${playTesterLobbyCount}:${playtestLobbyPort}`);
-    } else {
-        let lobbyCount = 0
-        registeredLobbys.forEach((lobby) => {
-            if (!lobby.lobbyName.startsWith("playtest_")) {
-                lobbyCount++;
-            }
-        });
-        const lobbyPort = 8089 + lobbyCount;
-        socket = new WebSocket(`ws://calculation_unit_${lobbyCount}:${lobbyPort}/msgpack`);
-    }
+    const lobbyPort = 9000 + containerNumber;
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    socket = new WebSocket(`ws://calculation_unit_${containerNumber}:${lobbyPort}/msgpack`);
 
     socket.onopen = () => {
         console.log("WebSocket Connected to CalcUnit");
@@ -169,7 +179,7 @@ async function connectToCalculationServer(lcomp: LobbyRegistryEntry): Promise<We
                 return;
             }
 
-            console.log("sending: ", String(sendMessage));
+            //console.log("sending: ", String(sendMessage));
             lcomp.memberSockets.forEach((ws: WebSocket) => {
                 ws.send(sendMessage)
             })
@@ -177,6 +187,10 @@ async function connectToCalculationServer(lcomp: LobbyRegistryEntry): Promise<We
         }
 
         const userIndex = lcomp.members.findIndex(member => member.username === targetUsername);
+        if (userIndex === -1) {
+            console.error("User not set in lobby!");
+            return;
+        }
         const userSocket = lcomp.memberSockets[userIndex];
         if (!userSocket) {
             console.error("No user socket!");
@@ -189,7 +203,7 @@ async function connectToCalculationServer(lcomp: LobbyRegistryEntry): Promise<We
             return;
         }
 
-        console.log("sending: ", String(sendMessage));
+        //console.log("sending: ", String(sendMessage));
         userSocket.send(sendMessage);
     })
 
@@ -197,7 +211,6 @@ async function connectToCalculationServer(lcomp: LobbyRegistryEntry): Promise<We
         console.log('WebSocket closed');
     });
 
-    console.log("WebSocket connected.");
     return socket;
 }
 

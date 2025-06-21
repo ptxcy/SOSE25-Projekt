@@ -1,5 +1,5 @@
 use super::{
-	action::{AsRaw, SafeAction},
+	action::{ActionWrapper, AsRaw, SafeAction, SetValue},
 	building_region::{BuildingRegion, BuildingRegionReceive},
 	coordinate::Coordinate,
 	gametraits::HasPosition,
@@ -46,19 +46,21 @@ impl Planet {
 		&self,
 		timefactor: f64,
 		orbit_info_map: &OrbitInfoMap,
-	) -> SafeAction {
+	) -> ActionWrapper {
 		let new_position = self.get_position_at(timefactor, orbit_info_map);
-		SafeAction::SetCoordinate {
-			coordinate: self.position.raw_mut(),
-			other: new_position,
-		}
+		// SafeAction::SetCoordinate {
+		// 	coordinate: self.position.raw_mut(),
+		// 	other: new_position,
+		// }
+		SetValue::new(self.position.raw_mut(), new_position)
 	}
 	pub fn new(name: &str, building_regions: Vec<BuildingRegion>) -> Self {
 		Self {
 			name: name.to_string(),
 			building_regions,
 			size: 1.,
-			..Default::default()
+			position: Coordinate::default(),
+			spacestation: Spacestation::new(),
 		}
 	}
 	pub fn add_building_region(mut self, mut direction: Coordinate) -> Self {

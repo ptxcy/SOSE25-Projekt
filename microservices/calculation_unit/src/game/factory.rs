@@ -56,6 +56,10 @@ impl Crafter for Factory {
 	fn get_crafting_material_mut(&mut self) -> &mut CraftingMaterial {
 		&mut self.storage
 	}
+
+	fn get_crafting_material(&self) -> &CraftingMaterial {
+		&self.storage
+	}
 }
 
 impl Factory {

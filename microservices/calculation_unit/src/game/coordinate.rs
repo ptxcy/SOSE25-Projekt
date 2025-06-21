@@ -1,6 +1,8 @@
+use std::ops::{AddAssign, SubAssign};
+
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Copy)]
 pub struct Coordinate {
 	pub x: f64,
 	pub y: f64,
@@ -14,6 +16,18 @@ impl Default for Coordinate {
 			y: 0.0,
 			z: 0.0,
 		}
+	}
+}
+
+impl AddAssign for Coordinate {
+	fn add_assign(&mut self, rhs: Self) {
+		self.add(&rhs);
+	}
+}
+
+impl SubAssign for Coordinate {
+	fn sub_assign(&mut self, rhs: Self) {
+		self.sub(&rhs);
 	}
 }
 

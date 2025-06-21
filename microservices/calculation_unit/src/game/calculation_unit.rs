@@ -33,7 +33,7 @@ impl ServerMessageSenderChannel {
 			username,
 			sender,
 			// default 60 fps value till updated
-			update_threshold: 1. / 2.,
+			update_threshold: 1. / 60.,
 			tick_counter: 0.,
 		}
 	}
@@ -121,6 +121,7 @@ pub async fn start(
 					&mut server_message_senders,
 					&mut dummy_id_counter,
 					&mut spaceship_id_counter,
+					julian_day,
 					delta_ingame_days,
 					&orbit_map,
 				)

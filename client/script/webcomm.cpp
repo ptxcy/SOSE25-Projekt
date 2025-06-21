@@ -47,5 +47,25 @@ void Request::spawn_dummy(string dummy)
 	g_Websocket.send_message(__Msg);
 }
 
+/**
+ *	TODO
+ */
+void Request::spawn_spaceship(vec3 pos)
+{
+	ClientMessage __Msg = _create_message();
+	__Msg.request_data.spawn_spaceship = std::optional<Coordinate>(Coordinate{ 0,0,0 });
+	g_Websocket.send_message(__Msg);
+}
+
+/**
+ *	TODO
+ */
+void Request::set_spaceship_target(u64 id,u64 planet)
+{
+	ClientMessage __Msg = _create_message();
+	__Msg.request_data.set_spaceship_target = std::optional<SetSpaceshipTarget>(SetSpaceshipTarget{ id,planet });
+	g_Websocket.send_message(__Msg);
+}
+
 
 #endif
