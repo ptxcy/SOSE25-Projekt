@@ -42,6 +42,8 @@ struct TextField
 	PixelBufferComponent* hover;
 	PixelBufferComponent* select;
 	string buffer;
+	string buffer_head = "";
+	string buffer_tail = "";
 	lptr<Text> content;
 	Rect bounds;
 	s32 cursor_rev = 0;

@@ -204,29 +204,93 @@ Mesh::Mesh(const char* path)
 }
 
 /**
- *	upload load batch geometry to gpu
+ *	setup batch by mesh geometry
+ *	\param mesh: loaded mesh for explicit geometry information
+ *	\param tex: multichannel texture data to upload
  */
-void GeometryBatch::load()
+void GeometryBatch::load(Mesh& mesh,vector<TextureData>& tex)
+{
+	load(&mesh.vertices[0],mesh.vertices.size(),sizeof(Vertex),tex);
+}
+
+/**
+ *	upload load batch geometry to gpu
+ *	\param verts: single precision floats, explicitly defining geometry
+ *	\param vsize: amount of vertices (this is the pointer length divided by the upload dimension)
+ *	\param ssize: upload dimension !in memory width!
+ *	\param tex: multichannel texture data to upload
+ */
+void GeometryBatch::load(void* verts,size_t vsize,size_t ssize,vector<TextureData>& tex)
 {
 	COMM_LOG("uploading geometry batch to gpu");
+	size_t size = vsize*ssize;
+	geometry.resize(size/sizeof(f32));
+	memcpy(&geometry[0],verts,size);
+
+	// auto-mapping geometry shader pipeline
 	vao.bind();
 	vbo.bind();
 	vbo.upload_vertices(geometry);
 	shader->map(&vbo);
+
+	// store geometry information
+	vertex_count = vsize;
+
+	// load texture information
+	shader->upload("tex",RENDERER_TEXTURE_UNMAPPED);
+	textures.resize(tex.size());
+	for (u8 i=0;i<textures.size();i++)
+	{
+		Texture& p_Texture = textures[i];
+		p_Texture.bind(RENDERER_TEXTURE_UNMAPPED+i);  // FIXME this should be insignificant for upload
+		// FIXME do not bind new for loading process
+		tex[i].gpu_upload();
+		Texture::set_texture_parameter_linear_mipmap();
+		Texture::set_texture_parameter_clamp_to_edge();
+		Texture::generate_mipmap();
+	}
+}
+// TODO detach texture load and schedule the upload automatically when load is done. (like sprites)
+
+/**
+ *	setup particle batch by mesh geometry
+ *	\param mesh: loaded mesh for explicit geometry information
+ *	\param particles: amount of particles
+ */
+void ParticleBatch::load(Mesh& mesh,u32 particles)
+{
+	load(&mesh.vertices[0],mesh.vertices.size(),sizeof(Vertex),particles);
 }
 
 /**
  *	load particle mesh into batch memory
+ *	\param verts: single precision floats, explicitly defining geometry
+ *	\param vsize: amount of vertices (this is the pointer length divided by the upload dimension)
+ *	\param ssize: upload dimension !in memory width!
+ *	\param particles: amount of particles
  */
-void ParticleBatch::load()
+void ParticleBatch::load(void* verts,size_t vsize,size_t ssize,u32 particles)
 {
 	COMM_LOG("loading particle mesh geometry information");
+	size_t size = vsize*ssize;
+	geometry.resize(size/sizeof(f32));
+	memcpy(&geometry[0],verts,size);
+
+	// auto-mapping particle shader pipeline
 	vao.bind();
 	vbo.bind();
 	vbo.upload_vertices(geometry);
 	shader->map(&vbo,&ibo);
+
+	// store geometry information
+	vertex_count = vsize;
+	active_particles = particles;
+
+	// upload texture information
+	shader->upload("tex",RENDERER_TEXTURE_SPRITES);
 }
 // FIXME absolutely twinning :3
+// FIXME change the vertex size repeat to dimensional not bytewidth
 
 
 // ----------------------------------------------------------------------------------------------------

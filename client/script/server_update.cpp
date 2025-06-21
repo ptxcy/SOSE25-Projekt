@@ -24,11 +24,8 @@ void ServerUpdate::update()
 
 	// planetary positions
 	u32 i = 0;
-	m_SSys->planets.resize(msg.request_data.game_objects.planets.size());
 	for (Planet& p_Planet : msg.request_data.game_objects.planets)
 	{
-		if (i<8) m_SSys->planets[i].texture = *m_SSys->m_PlanetTextures[i];
-		else m_SSys->planets[i].texture = *m_SSys->m_PlanetTextures[0];
 		m_SSys->planets[i].offset
 			= vec3(p_Planet.position.x,p_Planet.position.y,p_Planet.position.z)*STARSYS_DISTANCE_SCALE;
 		i++;

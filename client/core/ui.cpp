@@ -54,6 +54,7 @@ void Button::remove()
  */
 void TextField::update(Font* font,Sprite* cursor,bool& field_switch,bool& tynext,bool& cnf_input)
 {
+	buffer = buffer_head+buffer_tail;
 	bool __Intersect = bounds.intersect(g_Input.mouse.position);
 
 	// user requests to write to text field buffer & clickout handling
@@ -86,6 +87,11 @@ void TextField::update(Font* font,Sprite* cursor,bool& field_switch,bool& tynext
 		cursor_rev = (g_Input.mouse.triggered_buttons[0])
 				? content->intersection(g_Input.mouse.position.x) : cursor_rev;
 
+		// split buffer memory by cursor position
+		u32 __CursorPos = buffer.size()-cursor_rev;
+		buffer_head = buffer.substr(0,__CursorPos);
+		buffer_tail = buffer.substr(__CursorPos);
+
 		// place cursor when selected
 		f32 __Offset = font->estimate_wordlength(content->data,cursor_rev)*content->scale;
 		cursor->scale.y = content->dimensions.y;
@@ -97,7 +103,7 @@ void TextField::update(Font* font,Sprite* cursor,bool& field_switch,bool& tynext
 	else if ((__Intersect&&g_Input.mouse.buttons[0])||tynext)
 	{
 		g_Renderer.assign_sprite_texture(canvas,select);
-		g_Input.set_input_mode(&buffer);
+		g_Input.set_input_mode(&buffer_head);
 		cursor_rev = 0;
 		active = true;
 		field_switch = true;
