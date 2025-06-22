@@ -236,6 +236,7 @@ void GeometryBatch::add_geometry(void* verts,size_t vsize,size_t ssize,vector<Te
 		});
 	geometry_cursor += __Size;
 }
+// TODO upload train for shader uniforms at mesh update (explicitly define, automap would be a detriment)
 
 /**
  *	upload batch geometry to gpu & automap shader pipeline
@@ -243,15 +244,10 @@ void GeometryBatch::add_geometry(void* verts,size_t vsize,size_t ssize,vector<Te
  */
 void GeometryBatch::load(vector<string> texvars)
 {
-	// auto-mapping geometry shader pipeline
 	vao.bind();
 	vbo.bind();
 	vbo.upload_vertices(geometry);
-	shader->map(&vbo);
-
-	// define texture variables
-	for (u8 i=0;i<texvars.size();i++) shader->upload(texvars[i].c_str(),RENDERER_TEXTURE_UNMAPPED+i);
-	// TODO why not also automap the texture uploads?!?? this seems like a nice idea
+	shader->map(RENDERER_TEXTURE_UNMAPPED,&vbo);
 }
 
 /**
@@ -282,14 +278,11 @@ void ParticleBatch::load(void* verts,size_t vsize,size_t ssize,u32 particles)
 	vao.bind();
 	vbo.bind();
 	vbo.upload_vertices(geometry);
-	shader->map(&vbo,&ibo);
+	shader->map(RENDERER_TEXTURE_SPRITES,&vbo,&ibo);
 
 	// store geometry information
 	vertex_count = vsize;
 	active_particles = particles;
-
-	// upload texture information
-	shader->upload("tex",RENDERER_TEXTURE_SPRITES);
 }
 // FIXME absolutely twinning :3
 
@@ -335,18 +328,14 @@ Renderer::Renderer()
 	m_SpriteVertexArray.bind();
 	m_SpriteVertexBuffer.bind();
 	m_SpriteVertexBuffer.upload_vertices(__QuadVertices,24);
-	m_SpritePipeline.map(&m_SpriteVertexBuffer,&m_SpriteInstanceBuffer);
-
-	m_SpritePipeline.upload("tex",RENDERER_TEXTURE_SPRITES);
+	m_SpritePipeline.map(RENDERER_TEXTURE_SPRITES,&m_SpriteVertexBuffer,&m_SpriteInstanceBuffer);
 	m_SpritePipeline.upload_coordinate_system();
 
 	COMM_LOG("text pipeline");
 	m_TextPipeline.assemble(__TextVertexShader,__TextFragmentShader);
 	m_TextVertexArray.bind();
 	m_SpriteVertexBuffer.bind();
-	m_TextPipeline.map(&m_SpriteVertexBuffer,&m_TextInstanceBuffer);
-
-	m_TextPipeline.upload("tex",RENDERER_TEXTURE_FONTS);
+	m_TextPipeline.map(RENDERER_TEXTURE_FONTS,&m_SpriteVertexBuffer,&m_TextInstanceBuffer);
 	m_TextPipeline.upload_coordinate_system();
 
 	COMM_LOG("canvas pipeline");
@@ -354,9 +343,7 @@ Renderer::Renderer()
 	m_CanvasVertexArray.bind();
 	m_CanvasVertexBuffer.bind();
 	m_CanvasVertexBuffer.upload_vertices(__CanvasVertices,24);
-	m_CanvasPipeline.map(&m_CanvasVertexBuffer);
-
-	m_CanvasPipeline.upload("tex",RENDERER_TEXTURE_FORWARD);
+	m_CanvasPipeline.map(RENDERER_TEXTURE_FORWARD,&m_CanvasVertexBuffer);
 
 	// ----------------------------------------------------------------------------------------------------
 	// GPU Memory

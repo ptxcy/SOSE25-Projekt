@@ -43,10 +43,12 @@ private:
 class FragmentShader
 {
 public:
+	FragmentShader() {  }  // TODO remove this after pointing to the correct shader instead of copy
 	FragmentShader(const char* path);
 
 public:
 	u32 shader;
+	vector<string> sampler_attribs;
 };
 
 
@@ -54,8 +56,8 @@ class ShaderPipeline
 {
 public:
 	ShaderPipeline() {  }
-	void assemble(VertexShader vs,FragmentShader& fs);
-	void map(VertexBuffer* vbo,VertexBuffer* ibo=nullptr);
+	void assemble(VertexShader vs,FragmentShader fs);
+	void map(u16 channel,VertexBuffer* vbo,VertexBuffer* ibo=nullptr);
 
 	// usage
 	void enable();
@@ -81,6 +83,7 @@ private:
 	// program
 	u32 m_ShaderProgram;
 	VertexShader m_VertexShader;
+	FragmentShader m_FragmentShader;
 
 	// working iteration
 	size_t m_VertexCursor = 0;

@@ -8,7 +8,7 @@
 
 constexpr f32 RENDERER_POSITIONAL_DELETION_CODE = -1247.f;
 
-enum TextureChannelMap : u8
+enum TextureChannelMap : u16
 {
 	RENDERER_TEXTURE_SPRITES,
 	RENDERER_TEXTURE_FONTS,

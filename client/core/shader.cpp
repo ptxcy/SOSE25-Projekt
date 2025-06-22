@@ -83,10 +83,8 @@ VertexShader::VertexShader(const char* path)
 		else if (__Line.find("void main()")==0) break;
 
 		// extract input information
-		std::stringstream str(__Line);
-		string token;
 		vector<string> tokens;
-		while (str>>token) tokens.push_back(token);
+		split_words(tokens,__Line);
 		tokens[2].pop_back();
 
 		// interpret input definition line
@@ -107,6 +105,27 @@ VertexShader::VertexShader(const char* path)
 FragmentShader::FragmentShader(const char* path)
 {
 	shader = Shader::compile(path,GL_FRAGMENT_SHADER);
+	if (!shader)
+	{
+		COMM_ERR("[SHADER] skipping sample mapping, fragment shader is corrupted");
+		return;
+	}
+
+	// grind fragment shader for texture
+	std::ifstream __File(path);
+	string __Line;
+	while(!__File.eof())
+	{
+		std::getline(__File,__Line);
+		if (__Line.find("uniform sampler2D")!=0) continue;
+		else if (__Line.find("void main()")==0) break;
+
+		// extract sampler variables
+		vector<string> tokens;
+		split_words(tokens,__Line);
+		tokens[2].pop_back();
+		sampler_attribs.push_back(tokens[2]);
+	}
 }
 
 
@@ -117,11 +136,12 @@ FragmentShader::FragmentShader(const char* path)
  *	assemble shader pipeline from compiled shaders
  *	pipeline flow: vertex shader -> (geometry shader) -> fragment shader
  *	\param vs: compiled vertex shader
- *	\param fs: reference to compiled fragment shader
+ *	\param fs: compiled fragment shader
  */
-void ShaderPipeline::assemble(VertexShader vs,FragmentShader& fs)
+void ShaderPipeline::assemble(VertexShader vs,FragmentShader fs)
 {
 	m_VertexShader = vs;
+	m_FragmentShader = fs;
 	// FIXME this CAN and SHOULD be critisized! awful memory management through heavy copy!
 
 	// assemble program
@@ -133,11 +153,12 @@ void ShaderPipeline::assemble(VertexShader vs,FragmentShader& fs)
 
 /**
  *	automatically map vertex and index buffer object to vertex shader input
+ *	\param channel: starting texture channel
  *	\param vbo: vertex buffer object
  *	\param ibo: (default nullptr) index buffer object
  *	NOTE vertex buffer needs to be active
  */
-void ShaderPipeline::map(VertexBuffer* vbo,VertexBuffer* ibo)
+void ShaderPipeline::map(u16 channel,VertexBuffer* vbo,VertexBuffer* ibo)
 {
 	// vertex buffer
 	COMM_LOG("mapping shader (vbo = %lu:%lu,ibo = %lu:%lu)",
@@ -146,6 +167,10 @@ void ShaderPipeline::map(VertexBuffer* vbo,VertexBuffer* ibo)
 	enable();
 	for (ShaderAttribute& attrib : m_VertexShader.vbo_attribs) _define_attribute(attrib);
 	m_VertexCursor = 0;
+
+	// texture mapping
+	for (u16 i=0;i<m_FragmentShader.sampler_attribs.size();i++)
+		upload(m_FragmentShader.sampler_attribs[i].c_str(),channel+i);
 
 	// index buffer
 	if (ibo==nullptr||!m_VertexShader.ibo_attribs.size()) return;
