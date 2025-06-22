@@ -76,7 +76,6 @@ private:
 	bool m_TextureFlag = false;
 };
 
-
 class Texture
 {
 public:
@@ -99,6 +98,12 @@ public:
 
 private:
 	u32 m_Memory;
+};
+
+struct TextureDataTuple
+{
+	TextureData data;
+	Texture* texture;
 };
 
 

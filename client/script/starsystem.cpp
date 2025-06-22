@@ -24,10 +24,6 @@ StarSystem::StarSystem()
 	__HaloMesh.vertices.insert(__HaloMesh.vertices.end(),
 							   __HaloMeshBS.vertices.begin(),__HaloMeshBS.vertices.end());
 
-	// load textures
-	vector<TextureData> __SunPixelData = vector<TextureData>(1);
-	__SunPixelData[0].load("./res/planets/halfres/sun.jpg");
-
 	// setup planetary geometry
 	m_PlanetBatch = g_Renderer.register_particle_batch(m_PlanetShader);
 	m_PlanetBatch->load(__SphereMesh,8);
@@ -60,9 +56,16 @@ StarSystem::StarSystem()
 	// TODO scale ring accordingly: start at 1.11f, ends at 2.33f
 	// TODO join batch definition methods
 
+	// load textures
+	vector<TextureData> __SunPixelData = vector<TextureData>(1);
+	__SunPixelData[0].load("./res/planets/halfres/sun.jpg");
+
 	// setup sun geometry
+	Texture* __SunTexture = g_Renderer.register_texture("./res/planets/halfres/sun.jpg");
 	lptr<GeometryBatch> __SunBatch = g_Renderer.register_geometry_batch(m_SunShader);
-	__SunBatch->load(__SphereMesh,__SunPixelData);
+	__SunBatch->load(__SphereMesh);
+	__SunBatch->textures.push_back(__SunTexture);
+	m_SunShader->upload("tex",RENDERER_TEXTURE_UNMAPPED);  // TODO define an extra function to assign unmapped+i
 	m_SunShader->upload("scale",STARSYS_SUN_REFERENCE_SCALE);
 	// TODO detach texture load to reduce stall when loading
 	// TODO model scaling sun: 109.32f

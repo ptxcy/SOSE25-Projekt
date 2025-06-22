@@ -110,15 +110,15 @@ public:
 struct GeometryBatch
 {
 	// utility
-	void load(Mesh& mesh,vector<TextureData>& tex);
-	void load(void* verts,size_t vsize,size_t ssize,vector<TextureData>& tex);
+	void load(Mesh& mesh);
+	void load(void* verts,size_t vsize,size_t ssize);
 
 	// data
 	VertexArray vao;
 	VertexBuffer vbo;
 	lptr<ShaderPipeline> shader;
 	vector<float> geometry;
-	vector<Texture> textures;
+	vector<Texture*> textures;
 	u32 vertex_count;
 };
 // TODO detached texture load after definition
@@ -164,6 +164,9 @@ public:
 	Font* register_font(const char* path,u16 size);
 	lptr<Text> write_text(Font* font,string data,vec3 position,f32 scale,vec4 colour=vec4(1),Alignment align={});
 	inline void delete_text(lptr<Text> text) { m_Texts.erase(text); }
+
+	// textures
+	Texture* register_texture(const char* path);
 
 	// scene
 	lptr<ShaderPipeline> register_pipeline(VertexShader& vs,FragmentShader& fs);
@@ -223,6 +226,11 @@ private:
 	// textures
 	GPUPixelBuffer m_GPUSpriteTextures;
 	GPUPixelBuffer m_GPUFontTextures;
+
+	// mesh textures
+	InPlaceArray<Texture> m_MeshTextures = InPlaceArray<Texture>(RENDERER_MAXIMUM_TEXTURE_COUNT);
+	queue<TextureDataTuple> m_MeshTextureUploadQueue;
+	std::mutex m_MutexMeshTextureUpload;
 
 	// sprites
 	InPlaceArray<Sprite> m_Sprites = InPlaceArray<Sprite>(BUFFER_MAXIMUM_TEXTURE_COUNT);

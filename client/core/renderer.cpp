@@ -208,9 +208,9 @@ Mesh::Mesh(const char* path)
  *	\param mesh: loaded mesh for explicit geometry information
  *	\param tex: multichannel texture data to upload
  */
-void GeometryBatch::load(Mesh& mesh,vector<TextureData>& tex)
+void GeometryBatch::load(Mesh& mesh)
 {
-	load(&mesh.vertices[0],mesh.vertices.size(),sizeof(Vertex),tex);
+	load(&mesh.vertices[0],mesh.vertices.size(),sizeof(Vertex));
 }
 
 /**
@@ -220,7 +220,7 @@ void GeometryBatch::load(Mesh& mesh,vector<TextureData>& tex)
  *	\param ssize: upload dimension !in memory width!
  *	\param tex: multichannel texture data to upload
  */
-void GeometryBatch::load(void* verts,size_t vsize,size_t ssize,vector<TextureData>& tex)
+void GeometryBatch::load(void* verts,size_t vsize,size_t ssize)
 {
 	COMM_LOG("uploading geometry batch to gpu");
 	size_t size = vsize*ssize;
@@ -235,22 +235,7 @@ void GeometryBatch::load(void* verts,size_t vsize,size_t ssize,vector<TextureDat
 
 	// store geometry information
 	vertex_count = vsize;
-
-	// load texture information
-	shader->upload("tex",RENDERER_TEXTURE_UNMAPPED);
-	textures.resize(tex.size());
-	for (u8 i=0;i<textures.size();i++)
-	{
-		Texture& p_Texture = textures[i];
-		p_Texture.bind(RENDERER_TEXTURE_UNMAPPED+i);  // FIXME this should be insignificant for upload
-		// FIXME do not bind new for loading process
-		tex[i].gpu_upload();
-		Texture::set_texture_parameter_linear_mipmap();
-		Texture::set_texture_parameter_clamp_to_edge();
-		Texture::generate_mipmap();
-	}
 }
-// TODO detach texture load and schedule the upload automatically when load is done. (like sprites)
 
 /**
  *	setup particle batch by mesh geometry
@@ -290,7 +275,6 @@ void ParticleBatch::load(void* verts,size_t vsize,size_t ssize,u32 particles)
 	shader->upload("tex",RENDERER_TEXTURE_SPRITES);
 }
 // FIXME absolutely twinning :3
-// FIXME change the vertex size repeat to dimensional not bytewidth
 
 
 // ----------------------------------------------------------------------------------------------------
@@ -572,6 +556,37 @@ lptr<Text> Renderer::write_text(Font* font,string data,vec3 position,f32 scale,v
 }
 
 /**
+ *	load texture into ram in background and register for vram upload when ready
+ *	\param texture: pointer to texture in memory
+ *	\param path: path to texture
+ *	\param data_queue: queue for texture vram upload
+ *	\param queue_mutex: mutual exclusion for data queue to prevent race conditions
+ */
+void _load_texture(Texture* texture,const char* path,queue<TextureDataTuple>* data_queue,std::mutex* queue_mutex)
+{
+	TextureData __Data = TextureData();
+	__Data.load(path);
+	queue_mutex->lock();
+	data_queue->push(TextureDataTuple{ __Data,texture });
+	queue_mutex->unlock();
+}
+// TODO allow for different format uploads
+
+/**
+ *	load texture into memory
+ *	\param path: path to texture file
+ *	\returns pointer to texture in ram, referencing texture in vram
+ */
+Texture* Renderer::register_texture(const char* path)
+{
+	COMM_LOG("mesh texture register of %s",path);
+	Texture* p_Texture = m_MeshTextures.next_free();
+	thread __LoadThread(_load_texture,p_Texture,path,&m_MeshTextureUploadQueue,&m_MutexMeshTextureUpload);
+	__LoadThread.detach();
+	return p_Texture;
+}
+
+/**
  *	register shader pipeline
  *	\param vs: vertex shader
  *	\param fs: fragment shader
@@ -637,7 +652,22 @@ void Renderer::_gpu_upload()
 {
 	m_GPUSpriteTextures.gpu_upload(RENDERER_TEXTURE_SPRITES,m_FrameStart);
 	m_GPUFontTextures.gpu_upload(RENDERER_TEXTURE_FONTS,m_FrameStart);
+
+	// singular textures
+	m_MutexMeshTextureUpload.lock();
+	while (m_MeshTextureUploadQueue.size()&&calculate_delta_time(m_FrameStart)<FRAME_TIME_BUDGET_MS)
+	{
+		TextureDataTuple& p_Tuple = m_MeshTextureUploadQueue.front();
+		p_Tuple.texture->bind(RENDERER_TEXTURE_UNMAPPED);
+		p_Tuple.data.gpu_upload();
+		m_MeshTextureUploadQueue.pop();
+		Texture::set_texture_parameter_linear_mipmap();
+		Texture::set_texture_parameter_clamp_to_edge();
+		Texture::generate_mipmap();
+	}
+	m_MutexMeshTextureUpload.unlock();
 }
+// FIXME the same is happening in buffer.cpp, it seems untidy and is worth another thought
 
 /**
  *	update all registered sprites
@@ -690,7 +720,7 @@ void Renderer::_update_mesh()
 	{
 		p_Batch.shader->enable();
 		p_Batch.vao.bind();
-		for (u8 i=0;i<p_Batch.textures.size();i++) p_Batch.textures[i].bind(RENDERER_TEXTURE_UNMAPPED+i);
+		for (u8 i=0;i<p_Batch.textures.size();i++) p_Batch.textures[i]->bind(RENDERER_TEXTURE_UNMAPPED+i);
 		glDrawArrays(GL_TRIANGLES,0,p_Batch.vertex_count);
 	}
 
