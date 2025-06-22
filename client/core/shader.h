@@ -52,6 +52,15 @@ public:
 };
 
 
+enum UniformDimension : u8
+{
+	SHADER_UNIFORM_FLOAT,
+	SHADER_UNIFORM_VEC2,
+	SHADER_UNIFORM_VEC3,
+	SHADER_UNIFORM_VEC4,
+	SHADER_UNIFORM_MAT44
+};
+
 class ShaderPipeline
 {
 public:
@@ -64,6 +73,8 @@ public:
 	static void disable();
 
 	// upload
+	void upload(const char* varname,UniformDimension dim,f32* data);
+	void upload(u16 uloc,UniformDimension dim,f32* data);
 	void upload(const char* varname,s32 value);
 	void upload(const char* varname,f32 value);
 	void upload(const char* varname,vec2 value);

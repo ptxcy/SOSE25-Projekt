@@ -185,10 +185,43 @@ void ShaderPipeline::map(u16 channel,VertexBuffer* vbo,VertexBuffer* ibo)
 void ShaderPipeline::enable() { glUseProgram(m_ShaderProgram); }
 void ShaderPipeline::disable() { glUseProgram(0); }
 
+// uniform variable upload function correlation map
+typedef void (*uniform_upload)(u16,f32*);
+void _upload1f(u16 uloc,f32* data) { glUniform1f(uloc,data[0]); }
+void _upload2f(u16 uloc,f32* data) { glUniform2f(uloc,data[0],data[1]); }
+void _upload3f(u16 uloc,f32* data) { glUniform3f(uloc,data[0],data[1],data[2]); }
+void _upload4f(u16 uloc,f32* data) { glUniform4f(uloc,data[0],data[1],data[2],data[3]); }
+void _upload4m(u16 uloc,f32* data) { glUniformMatrix4fv(uloc,1,GL_FALSE,data); }
+uniform_upload uploadf[] = { _upload1f,_upload2f,_upload3f,_upload4f,_upload4m };
+
+/**
+ *	upload float uniform variable to shader by variable name
+ *	\param varname: uniform variable name
+ *	\param dim: uniform dimension
+ *	\param data: pointer to data, that will be uploaded to uniform variable
+ *	NOTE shader pipeline needs to be active to upload values to uniform variables
+ */
+void ShaderPipeline::upload(const char* varname,UniformDimension dim,f32* data)
+{
+	uploadf[dim](glGetUniformLocation(m_ShaderProgram,varname),data);
+}
+
+/**
+ *	upload float uniform variable to shader
+ *	\param uloc: uniform location id
+ *	\param dim: uniform dimension
+ *	\param data: pointer to data, that will be uploaded to uniform variable
+ *	NOTE shader pipeline needs to be active to upload values to uniform variables
+ */
+void ShaderPipeline::upload(u16 uloc,UniformDimension dim,f32* data)
+{
+	uploadf[dim](uloc,data);
+}
+
 /**
  *	upload uniform variable to shader
- *	\param un: variable name as defined as "uniform" in shader (must be part of the pipeline)
- *	\param uv: value to upload to specified variable
+ *	\param varname: variable name as defined as "uniform" in shader (must be part of the pipeline)
+ *	\param value: value to upload to specified variable
  *	NOTE shader pipeline needs to be active to upload values to uniform variables
  */
 void ShaderPipeline::upload(const char* varname,s32 value)
@@ -210,8 +243,8 @@ void ShaderPipeline::upload(const char* varname,mat4 value)
  */
 void ShaderPipeline::upload_coordinate_system()
 {
-	upload("view",g_CoordinateSystem.view);
-	upload("proj",g_CoordinateSystem.proj);
+	upload("view",SHADER_UNIFORM_MAT44,glm::value_ptr(g_CoordinateSystem.view));
+	upload("proj",SHADER_UNIFORM_MAT44,glm::value_ptr(g_CoordinateSystem.proj));
 }
 
 /**
@@ -220,8 +253,8 @@ void ShaderPipeline::upload_coordinate_system()
  */
 void ShaderPipeline::upload_camera()
 {
-	upload("view",g_Camera.view);
-	upload("proj",g_Camera.proj);
+	upload("view",SHADER_UNIFORM_MAT44,glm::value_ptr(g_Camera.view));
+	upload("proj",SHADER_UNIFORM_MAT44,glm::value_ptr(g_Camera.proj));
 }
 
 /**

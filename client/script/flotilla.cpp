@@ -41,8 +41,4 @@ void Flotilla::update()
 	// update fleet positions
 	m_SpaceshipBatch->ibo.bind();
 	m_SpaceshipBatch->ibo.upload_vertices(spaceships,GL_DYNAMIC_DRAW);
-
-	// update camera matrices
-	m_SpaceshipShader->enable();
-	m_SpaceshipShader->upload_camera();
 }

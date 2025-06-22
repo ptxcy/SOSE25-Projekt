@@ -119,7 +119,7 @@ struct GeometryBatch
 	// utility
 	void add_geometry(Mesh& mesh,vector<Texture*>& tex);
 	void add_geometry(void* verts,size_t vsize,size_t ssize,vector<Texture*>& tex);
-	void load(vector<string> texvars);
+	void load();
 
 	// data
 	VertexArray vao;

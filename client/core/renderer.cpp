@@ -240,9 +240,8 @@ void GeometryBatch::add_geometry(void* verts,size_t vsize,size_t ssize,vector<Te
 
 /**
  *	upload batch geometry to gpu & automap shader pipeline
- *	\param texvars: in-order variable names for multichannel textures
  */
-void GeometryBatch::load(vector<string> texvars)
+void GeometryBatch::load()
 {
 	vao.bind();
 	vbo.bind();
@@ -284,7 +283,6 @@ void ParticleBatch::load(void* verts,size_t vsize,size_t ssize,u32 particles)
 	vertex_count = vsize;
 	active_particles = particles;
 }
-// FIXME absolutely twinning :3
 
 
 // ----------------------------------------------------------------------------------------------------
@@ -723,6 +721,7 @@ void Renderer::_update_mesh()
 	for (GeometryBatch& p_Batch : m_GeometryBatches)
 	{
 		p_Batch.shader->enable();
+		p_Batch.shader->upload_camera();
 		p_Batch.vao.bind();
 		for (GeometryTuple& p_Tuple : p_Batch.object)
 		{
@@ -735,6 +734,7 @@ void Renderer::_update_mesh()
 	for (ParticleBatch& p_Batch : m_ParticleBatches)
 	{
 		p_Batch.shader->enable();
+		p_Batch.shader->upload_camera();
 		p_Batch.vao.bind();
 		glDrawArraysInstanced(GL_TRIANGLES,0,p_Batch.vertex_count,p_Batch.active_particles);
 	}

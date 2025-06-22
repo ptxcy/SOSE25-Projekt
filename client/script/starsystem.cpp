@@ -27,7 +27,6 @@ StarSystem::StarSystem()
 	// setup planetary geometry
 	m_PlanetBatch = g_Renderer.register_particle_batch(m_PlanetShader);
 	m_PlanetBatch->load(__SphereMesh,8);
-	m_PlanetShader->upload("tex",RENDERER_TEXTURE_SPRITES);
 
 	// load planet textures
 	m_PlanetTextures[0] = g_Renderer.register_sprite_texture("./res/planets/halfres/mercury.jpg");
@@ -63,7 +62,7 @@ StarSystem::StarSystem()
 	COMM_LOG("load sun geometry and textures");
 	vector<Texture*> __SunTextures = { g_Renderer.register_texture("./res/planets/halfres/sun.jpg") };
 	__SunBatch->add_geometry(__SphereMesh,__SunTextures);
-	__SunBatch->load({ "tex" });
+	__SunBatch->load();
 	m_SunShader->upload("scale",STARSYS_SUN_REFERENCE_SCALE);
 	// TODO model scaling sun: 109.32f
 
@@ -89,13 +88,4 @@ void StarSystem::update()
 	m_PlanetBatch->ibo.upload_vertices(planets,8,GL_DYNAMIC_DRAW);
 	m_HaloBatch->ibo.bind();
 	m_HaloBatch->ibo.upload_vertices(m_Halos,1,GL_DYNAMIC_DRAW);
-
-	// update camera matrices
-	m_PlanetShader->enable();
-	m_PlanetShader->upload_camera();
-	m_HaloShader->enable();
-	m_HaloShader->upload_camera();
-	m_SunShader->enable();
-	m_SunShader->upload_camera();
-	// FIXME this should not happen like this. automate!
 }
