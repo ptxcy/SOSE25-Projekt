@@ -208,9 +208,9 @@ Mesh::Mesh(const char* path)
  *	\param mesh: loaded mesh for explicit geometry information
  *	\param tex: multichannel texture data to upload
  */
-void GeometryBatch::load(Mesh& mesh)
+void GeometryBatch::add_geometry(Mesh& mesh,vector<Texture*>& tex)
 {
-	load(&mesh.vertices[0],mesh.vertices.size(),sizeof(Vertex));
+	add_geometry(&mesh.vertices[0],mesh.vertices.size(),sizeof(Vertex),tex);
 }
 
 /**
@@ -220,21 +220,38 @@ void GeometryBatch::load(Mesh& mesh)
  *	\param ssize: upload dimension !in memory width!
  *	\param tex: multichannel texture data to upload
  */
-void GeometryBatch::load(void* verts,size_t vsize,size_t ssize)
+void GeometryBatch::add_geometry(void* verts,size_t vsize,size_t ssize,vector<Texture*>& tex)
 {
 	COMM_LOG("uploading geometry batch to gpu");
-	size_t size = vsize*ssize;
-	geometry.resize(size/sizeof(f32));
-	memcpy(&geometry[0],verts,size);
+	size_t __MemSize = vsize*ssize;
+	size_t __Size = __MemSize/sizeof(f32);
+	geometry.resize(__Size);
+	memcpy(&geometry[geometry_cursor],verts,__MemSize);
 
+	// store geometry information
+	object.push_back({
+			.offset = geometry_cursor/ssize,
+			.vertex_count = vsize,
+			.textures = tex
+		});
+	geometry_cursor += __Size;
+}
+
+/**
+ *	upload batch geometry to gpu & automap shader pipeline
+ *	\param texvars: in-order variable names for multichannel textures
+ */
+void GeometryBatch::load(vector<string> texvars)
+{
 	// auto-mapping geometry shader pipeline
 	vao.bind();
 	vbo.bind();
 	vbo.upload_vertices(geometry);
 	shader->map(&vbo);
 
-	// store geometry information
-	vertex_count = vsize;
+	// define texture variables
+	for (u8 i=0;i<texvars.size();i++) shader->upload(texvars[i].c_str(),RENDERER_TEXTURE_UNMAPPED+i);
+	// TODO why not also automap the texture uploads?!?? this seems like a nice idea
 }
 
 /**
@@ -720,8 +737,11 @@ void Renderer::_update_mesh()
 	{
 		p_Batch.shader->enable();
 		p_Batch.vao.bind();
-		for (u8 i=0;i<p_Batch.textures.size();i++) p_Batch.textures[i]->bind(RENDERER_TEXTURE_UNMAPPED+i);
-		glDrawArrays(GL_TRIANGLES,0,p_Batch.vertex_count);
+		for (GeometryTuple& p_Tuple : p_Batch.object)
+		{
+			for (u8 i=0;i<p_Tuple.textures.size();i++) p_Tuple.textures[i]->bind(RENDERER_TEXTURE_UNMAPPED+i);
+			glDrawArrays(GL_TRIANGLES,p_Tuple.offset,p_Tuple.vertex_count);
+		}
 	}
 
 	// iterate particle geometry

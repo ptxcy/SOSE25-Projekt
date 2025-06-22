@@ -107,19 +107,27 @@ public:
 // ----------------------------------------------------------------------------------------------------
 // Batches
 
+struct GeometryTuple
+{
+	size_t offset;
+	size_t vertex_count;
+	vector<Texture*> textures;
+};
+
 struct GeometryBatch
 {
 	// utility
-	void load(Mesh& mesh);
-	void load(void* verts,size_t vsize,size_t ssize);
+	void add_geometry(Mesh& mesh,vector<Texture*>& tex);
+	void add_geometry(void* verts,size_t vsize,size_t ssize,vector<Texture*>& tex);
+	void load(vector<string> texvars);
 
 	// data
 	VertexArray vao;
 	VertexBuffer vbo;
 	lptr<ShaderPipeline> shader;
+	vector<GeometryTuple> object;
 	vector<float> geometry;
-	vector<Texture*> textures;
-	u32 vertex_count;
+	u32 geometry_cursor = 0;
 };
 // TODO detached texture load after definition
 // TODO also link to registered textures and iterate to reduce memory consumption
