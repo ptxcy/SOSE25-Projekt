@@ -76,7 +76,6 @@ private:
 	bool m_TextureFlag = false;
 };
 
-
 class Texture
 {
 public:

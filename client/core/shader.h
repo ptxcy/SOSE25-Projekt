@@ -43,25 +43,39 @@ private:
 class FragmentShader
 {
 public:
+	FragmentShader() {  }  // TODO remove this after pointing to the correct shader instead of copy
 	FragmentShader(const char* path);
 
 public:
 	u32 shader;
+	vector<string> sampler_attribs;
 };
 
+
+enum UniformDimension : u8
+{
+	SHADER_UNIFORM_FLOAT,
+	SHADER_UNIFORM_VEC2,
+	SHADER_UNIFORM_VEC3,
+	SHADER_UNIFORM_VEC4,
+	SHADER_UNIFORM_MAT44
+};
 
 class ShaderPipeline
 {
 public:
 	ShaderPipeline() {  }
-	void assemble(VertexShader vs,FragmentShader& fs);
-	void map(VertexBuffer* vbo,VertexBuffer* ibo=nullptr);
+	void assemble(VertexShader vs,FragmentShader fs);
+	void map(u16 channel,VertexBuffer* vbo,VertexBuffer* ibo=nullptr);
 
 	// usage
 	void enable();
 	static void disable();
+	u32 get_uniform_location(const char* uname);
 
 	// upload
+	void upload(const char* varname,UniformDimension dim,f32* data);
+	void upload(u16 uloc,UniformDimension dim,f32* data);
 	void upload(const char* varname,s32 value);
 	void upload(const char* varname,f32 value);
 	void upload(const char* varname,vec2 value);
@@ -81,6 +95,7 @@ private:
 	// program
 	u32 m_ShaderProgram;
 	VertexShader m_VertexShader;
+	FragmentShader m_FragmentShader;
 
 	// working iteration
 	size_t m_VertexCursor = 0;
