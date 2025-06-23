@@ -107,6 +107,12 @@ public:
 // ----------------------------------------------------------------------------------------------------
 // Batches
 
+struct TextureDataTuple
+{
+	TextureData data;
+	Texture* texture;
+};
+
 struct GeometryUniformUpload
 {
 	u32 uloc;
@@ -145,8 +151,6 @@ struct GeometryBatch
 	vector<float> geometry;
 	u32 geometry_cursor = 0;
 };
-// TODO detached texture load after definition
-// TODO also link to registered textures and iterate to reduce memory consumption
 
 struct ParticleBatch
 {

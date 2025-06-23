@@ -100,12 +100,6 @@ private:
 	u32 m_Memory;
 };
 
-struct TextureDataTuple
-{
-	TextureData data;
-	Texture* texture;
-};
-
 
 struct PixelBufferComponent
 {

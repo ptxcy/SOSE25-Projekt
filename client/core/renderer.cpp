@@ -239,7 +239,6 @@ u32 GeometryBatch::add_geometry(void* verts,size_t vsize,size_t ssize,vector<Tex
 	geometry_cursor += __Size;
 	return object.size()-1;
 }
-// TODO upload train for shader uniforms at mesh update (explicitly define, automap would be a detriment)
 
 /**
  *	upload batch geometry to gpu & automap shader pipeline
@@ -299,7 +298,6 @@ void GeometryBatch::attach_uniform(u32 gid,const char* name,mat4* var)
 			.data = glm::value_ptr(*var)
 		});
 }
-// FIXME find out how value ptr works and get behind why the hell i cannot just point to M0,0
 
 /**
  *	setup particle batch by mesh geometry

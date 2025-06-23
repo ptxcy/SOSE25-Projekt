@@ -3,7 +3,6 @@
 
 
 #include "../core/renderer.h"
-#include "../core/input.h"
 #include "../core/wheel.h"
 
 
