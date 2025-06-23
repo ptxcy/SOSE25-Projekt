@@ -61,7 +61,8 @@ StarSystem::StarSystem()
 	// setup sun geometry
 	COMM_LOG("load sun geometry and textures");
 	vector<Texture*> __SunTextures = { g_Renderer.register_texture("./res/planets/halfres/sun.jpg") };
-	__SunBatch->add_geometry(__SphereMesh,__SunTextures);
+	u32 __Sun0 = __SunBatch->add_geometry(__SphereMesh,__SunTextures);
+	u32 __Sun1 = __SunBatch->add_geometry(__SphereMesh,__SunTextures);
 	__SunBatch->load();
 	m_SunShader->upload("scale",STARSYS_SUN_REFERENCE_SCALE);
 	// TODO model scaling sun: 109.32f
@@ -88,4 +89,5 @@ void StarSystem::update()
 	m_PlanetBatch->ibo.upload_vertices(planets,8,GL_DYNAMIC_DRAW);
 	m_HaloBatch->ibo.bind();
 	m_HaloBatch->ibo.upload_vertices(m_Halos,1,GL_DYNAMIC_DRAW);
+	// TODO add an option to automate this process when per-frame update is actually needed
 }

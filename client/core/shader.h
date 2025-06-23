@@ -71,6 +71,7 @@ public:
 	// usage
 	void enable();
 	static void disable();
+	u32 get_uniform_location(const char* uname);
 
 	// upload
 	void upload(const char* varname,UniformDimension dim,f32* data);

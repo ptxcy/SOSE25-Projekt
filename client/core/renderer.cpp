@@ -207,10 +207,11 @@ Mesh::Mesh(const char* path)
  *	setup batch by mesh geometry
  *	\param mesh: loaded mesh for explicit geometry information
  *	\param tex: multichannel texture data to upload
+ *	\returns geometry id
  */
-void GeometryBatch::add_geometry(Mesh& mesh,vector<Texture*>& tex)
+u32 GeometryBatch::add_geometry(Mesh& mesh,vector<Texture*>& tex)
 {
-	add_geometry(&mesh.vertices[0],mesh.vertices.size(),sizeof(Vertex),tex);
+	return add_geometry(&mesh.vertices[0],mesh.vertices.size(),sizeof(Vertex),tex);
 }
 
 /**
@@ -219,13 +220,14 @@ void GeometryBatch::add_geometry(Mesh& mesh,vector<Texture*>& tex)
  *	\param vsize: amount of vertices (this is the pointer length divided by the upload dimension)
  *	\param ssize: upload dimension !in memory width!
  *	\param tex: multichannel texture data to upload
+ *	\returns geometry id
  */
-void GeometryBatch::add_geometry(void* verts,size_t vsize,size_t ssize,vector<Texture*>& tex)
+u32 GeometryBatch::add_geometry(void* verts,size_t vsize,size_t ssize,vector<Texture*>& tex)
 {
 	COMM_LOG("uploading geometry batch to gpu");
 	size_t __MemSize = vsize*ssize;
 	size_t __Size = __MemSize/sizeof(f32);
-	geometry.resize(__Size);
+	geometry.resize(geometry_cursor+__Size);
 	memcpy(&geometry[geometry_cursor],verts,__MemSize);
 
 	// store geometry information
@@ -235,6 +237,7 @@ void GeometryBatch::add_geometry(void* verts,size_t vsize,size_t ssize,vector<Te
 			.textures = tex
 		});
 	geometry_cursor += __Size;
+	return object.size()-1;
 }
 // TODO upload train for shader uniforms at mesh update (explicitly define, automap would be a detriment)
 
@@ -243,11 +246,60 @@ void GeometryBatch::add_geometry(void* verts,size_t vsize,size_t ssize,vector<Te
  */
 void GeometryBatch::load()
 {
+	COMM_LOG("uploading geometry information to GPU");
 	vao.bind();
 	vbo.bind();
 	vbo.upload_vertices(geometry);
 	shader->map(RENDERER_TEXTURE_UNMAPPED,&vbo);
 }
+
+/**
+ *	attach variable in ram to auto update uniform in vram
+ *	\param gid: geometry id, returned when geometry was registered in batch
+ *	\param name: uniform name in shader
+ *	\param var: pointer to variable in memory, that will automatically be uploaded to gpu
+ */
+void GeometryBatch::attach_uniform(u32 gid,const char* name,f32* var)
+{
+	object[gid].uploads.push_back({
+			.uloc = shader->get_uniform_location(name),
+			.udim = SHADER_UNIFORM_FLOAT,
+			.data = var
+		});
+}
+void GeometryBatch::attach_uniform(u32 gid,const char* name,vec2* var)
+{
+	object[gid].uploads.push_back({
+			.uloc = shader->get_uniform_location(name),
+			.udim = SHADER_UNIFORM_VEC2,
+			.data = &var->x
+		});
+}
+void GeometryBatch::attach_uniform(u32 gid,const char* name,vec3* var)
+{
+	object[gid].uploads.push_back({
+			.uloc = shader->get_uniform_location(name),
+			.udim = SHADER_UNIFORM_VEC3,
+			.data = &var->x
+		});
+}
+void GeometryBatch::attach_uniform(u32 gid,const char* name,vec4* var)
+{
+	object[gid].uploads.push_back({
+			.uloc = shader->get_uniform_location(name),
+			.udim = SHADER_UNIFORM_VEC4,
+			.data = &var->x
+		});
+}
+void GeometryBatch::attach_uniform(u32 gid,const char* name,mat4* var)
+{
+	object[gid].uploads.push_back({
+			.uloc = shader->get_uniform_location(name),
+			.udim = SHADER_UNIFORM_MAT44,
+			.data = glm::value_ptr(*var)
+		});
+}
+// FIXME find out how value ptr works and get behind why the hell i cannot just point to M0,0
 
 /**
  *	setup particle batch by mesh geometry
@@ -726,6 +778,8 @@ void Renderer::_update_mesh()
 		for (GeometryTuple& p_Tuple : p_Batch.object)
 		{
 			for (u8 i=0;i<p_Tuple.textures.size();i++) p_Tuple.textures[i]->bind(RENDERER_TEXTURE_UNMAPPED+i);
+			for (GeometryUniformUpload& p_Upload : p_Tuple.uploads)
+				p_Batch.shader->upload(p_Upload.uloc,p_Upload.udim,p_Upload.data);
 			glDrawArrays(GL_TRIANGLES,p_Tuple.offset,p_Tuple.vertex_count);
 		}
 	}

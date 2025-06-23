@@ -107,19 +107,35 @@ public:
 // ----------------------------------------------------------------------------------------------------
 // Batches
 
+struct GeometryUniformUpload
+{
+	u32 uloc;
+	UniformDimension udim;
+	f32* data;
+};
+
 struct GeometryTuple
 {
 	size_t offset;
 	size_t vertex_count;
 	vector<Texture*> textures;
+	vector<GeometryUniformUpload> uploads;
 };
 
 struct GeometryBatch
 {
 	// utility
-	void add_geometry(Mesh& mesh,vector<Texture*>& tex);
-	void add_geometry(void* verts,size_t vsize,size_t ssize,vector<Texture*>& tex);
+	// batch geometry loading
+	u32 add_geometry(Mesh& mesh,vector<Texture*>& tex);
+	u32 add_geometry(void* verts,size_t vsize,size_t ssize,vector<Texture*>& tex);
 	void load();
+
+	// auto uniform upload
+	void attach_uniform(u32 gid,const char* name,f32* var);
+	void attach_uniform(u32 gid,const char* name,vec2* var);
+	void attach_uniform(u32 gid,const char* name,vec3* var);
+	void attach_uniform(u32 gid,const char* name,vec4* var);
+	void attach_uniform(u32 gid,const char* name,mat4* var);
 
 	// data
 	VertexArray vao;

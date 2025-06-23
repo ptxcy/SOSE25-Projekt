@@ -185,6 +185,16 @@ void ShaderPipeline::map(u16 channel,VertexBuffer* vbo,VertexBuffer* ibo)
 void ShaderPipeline::enable() { glUseProgram(m_ShaderProgram); }
 void ShaderPipeline::disable() { glUseProgram(0); }
 
+/**
+ *	extract uniform location from shader program
+ *	\param uname: literal uniform variable name in shader program
+ *	\returns uniform location
+ */
+u32 ShaderPipeline::get_uniform_location(const char* uname)
+{
+	return glGetUniformLocation(m_ShaderProgram,uname);
+}
+
 // uniform variable upload function correlation map
 typedef void (*uniform_upload)(u16,f32*);
 void _upload1f(u16 uloc,f32* data) { glUniform1f(uloc,data[0]); }
@@ -203,7 +213,7 @@ uniform_upload uploadf[] = { _upload1f,_upload2f,_upload3f,_upload4f,_upload4m }
  */
 void ShaderPipeline::upload(const char* varname,UniformDimension dim,f32* data)
 {
-	uploadf[dim](glGetUniformLocation(m_ShaderProgram,varname),data);
+	uploadf[dim](get_uniform_location(varname),data);
 }
 
 /**
@@ -225,17 +235,17 @@ void ShaderPipeline::upload(u16 uloc,UniformDimension dim,f32* data)
  *	NOTE shader pipeline needs to be active to upload values to uniform variables
  */
 void ShaderPipeline::upload(const char* varname,s32 value)
-	{ glUniform1i(glGetUniformLocation(m_ShaderProgram,varname),value); }
+	{ glUniform1i(get_uniform_location(varname),value); }
 void ShaderPipeline::upload(const char* varname,f32 value)
-	{ glUniform1f(glGetUniformLocation(m_ShaderProgram,varname),value); }
+	{ glUniform1f(get_uniform_location(varname),value); }
 void ShaderPipeline::upload(const char* varname,vec2 value)
-	{ glUniform2f(glGetUniformLocation(m_ShaderProgram,varname),value.x,value.y); }
+	{ glUniform2f(get_uniform_location(varname),value.x,value.y); }
 void ShaderPipeline::upload(const char* varname,vec3 value)
-	{ glUniform3f(glGetUniformLocation(m_ShaderProgram,varname),value.x,value.y,value.z); }
+	{ glUniform3f(get_uniform_location(varname),value.x,value.y,value.z); }
 void ShaderPipeline::upload(const char* varname,vec4 value)
-	{ glUniform4f(glGetUniformLocation(m_ShaderProgram,varname),value.x,value.y,value.z,value.w); }
+	{ glUniform4f(get_uniform_location(varname),value.x,value.y,value.z,value.w); }
 void ShaderPipeline::upload(const char* varname,mat4 value)
-	{ glUniformMatrix4fv(glGetUniformLocation(m_ShaderProgram,varname),1,GL_FALSE,glm::value_ptr(value)); }
+	{ glUniformMatrix4fv(get_uniform_location(varname),1,GL_FALSE,glm::value_ptr(value)); }
 
 /**
  *	automatically upload the global 2D coordinate system to the shader
