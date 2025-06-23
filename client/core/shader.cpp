@@ -83,10 +83,8 @@ VertexShader::VertexShader(const char* path)
 		else if (__Line.find("void main()")==0) break;
 
 		// extract input information
-		std::stringstream str(__Line);
-		string token;
 		vector<string> tokens;
-		while (str>>token) tokens.push_back(token);
+		split_words(tokens,__Line);
 		tokens[2].pop_back();
 
 		// interpret input definition line
@@ -107,6 +105,27 @@ VertexShader::VertexShader(const char* path)
 FragmentShader::FragmentShader(const char* path)
 {
 	shader = Shader::compile(path,GL_FRAGMENT_SHADER);
+	if (!shader)
+	{
+		COMM_ERR("[SHADER] skipping sample mapping, fragment shader is corrupted");
+		return;
+	}
+
+	// grind fragment shader for texture
+	std::ifstream __File(path);
+	string __Line;
+	while(!__File.eof())
+	{
+		std::getline(__File,__Line);
+		if (__Line.find("uniform sampler2D")!=0) continue;
+		else if (__Line.find("void main()")==0) break;
+
+		// extract sampler variables
+		vector<string> tokens;
+		split_words(tokens,__Line);
+		tokens[2].pop_back();
+		sampler_attribs.push_back(tokens[2]);
+	}
 }
 
 
@@ -117,11 +136,12 @@ FragmentShader::FragmentShader(const char* path)
  *	assemble shader pipeline from compiled shaders
  *	pipeline flow: vertex shader -> (geometry shader) -> fragment shader
  *	\param vs: compiled vertex shader
- *	\param fs: reference to compiled fragment shader
+ *	\param fs: compiled fragment shader
  */
-void ShaderPipeline::assemble(VertexShader vs,FragmentShader& fs)
+void ShaderPipeline::assemble(VertexShader vs,FragmentShader fs)
 {
 	m_VertexShader = vs;
+	m_FragmentShader = fs;
 	// FIXME this CAN and SHOULD be critisized! awful memory management through heavy copy!
 
 	// assemble program
@@ -133,11 +153,12 @@ void ShaderPipeline::assemble(VertexShader vs,FragmentShader& fs)
 
 /**
  *	automatically map vertex and index buffer object to vertex shader input
+ *	\param channel: starting texture channel
  *	\param vbo: vertex buffer object
  *	\param ibo: (default nullptr) index buffer object
  *	NOTE vertex buffer needs to be active
  */
-void ShaderPipeline::map(VertexBuffer* vbo,VertexBuffer* ibo)
+void ShaderPipeline::map(u16 channel,VertexBuffer* vbo,VertexBuffer* ibo)
 {
 	// vertex buffer
 	COMM_LOG("mapping shader (vbo = %lu:%lu,ibo = %lu:%lu)",
@@ -146,6 +167,10 @@ void ShaderPipeline::map(VertexBuffer* vbo,VertexBuffer* ibo)
 	enable();
 	for (ShaderAttribute& attrib : m_VertexShader.vbo_attribs) _define_attribute(attrib);
 	m_VertexCursor = 0;
+
+	// texture mapping
+	for (u16 i=0;i<m_FragmentShader.sampler_attribs.size();i++)
+		upload(m_FragmentShader.sampler_attribs[i].c_str(),channel+i);
 
 	// index buffer
 	if (ibo==nullptr||!m_VertexShader.ibo_attribs.size()) return;
@@ -161,23 +186,66 @@ void ShaderPipeline::enable() { glUseProgram(m_ShaderProgram); }
 void ShaderPipeline::disable() { glUseProgram(0); }
 
 /**
+ *	extract uniform location from shader program
+ *	\param uname: literal uniform variable name in shader program
+ *	\returns uniform location
+ */
+u32 ShaderPipeline::get_uniform_location(const char* uname)
+{
+	return glGetUniformLocation(m_ShaderProgram,uname);
+}
+
+// uniform variable upload function correlation map
+typedef void (*uniform_upload)(u16,f32*);
+void _upload1f(u16 uloc,f32* data) { glUniform1f(uloc,data[0]); }
+void _upload2f(u16 uloc,f32* data) { glUniform2f(uloc,data[0],data[1]); }
+void _upload3f(u16 uloc,f32* data) { glUniform3f(uloc,data[0],data[1],data[2]); }
+void _upload4f(u16 uloc,f32* data) { glUniform4f(uloc,data[0],data[1],data[2],data[3]); }
+void _upload4m(u16 uloc,f32* data) { glUniformMatrix4fv(uloc,1,GL_FALSE,data); }
+uniform_upload uploadf[] = { _upload1f,_upload2f,_upload3f,_upload4f,_upload4m };
+
+/**
+ *	upload float uniform variable to shader by variable name
+ *	\param varname: uniform variable name
+ *	\param dim: uniform dimension
+ *	\param data: pointer to data, that will be uploaded to uniform variable
+ *	NOTE shader pipeline needs to be active to upload values to uniform variables
+ */
+void ShaderPipeline::upload(const char* varname,UniformDimension dim,f32* data)
+{
+	uploadf[dim](get_uniform_location(varname),data);
+}
+
+/**
+ *	upload float uniform variable to shader
+ *	\param uloc: uniform location id
+ *	\param dim: uniform dimension
+ *	\param data: pointer to data, that will be uploaded to uniform variable
+ *	NOTE shader pipeline needs to be active to upload values to uniform variables
+ */
+void ShaderPipeline::upload(u16 uloc,UniformDimension dim,f32* data)
+{
+	uploadf[dim](uloc,data);
+}
+
+/**
  *	upload uniform variable to shader
- *	\param un: variable name as defined as "uniform" in shader (must be part of the pipeline)
- *	\param uv: value to upload to specified variable
+ *	\param varname: variable name as defined as "uniform" in shader (must be part of the pipeline)
+ *	\param value: value to upload to specified variable
  *	NOTE shader pipeline needs to be active to upload values to uniform variables
  */
 void ShaderPipeline::upload(const char* varname,s32 value)
-	{ glUniform1i(glGetUniformLocation(m_ShaderProgram,varname),value); }
+	{ glUniform1i(get_uniform_location(varname),value); }
 void ShaderPipeline::upload(const char* varname,f32 value)
-	{ glUniform1f(glGetUniformLocation(m_ShaderProgram,varname),value); }
+	{ glUniform1f(get_uniform_location(varname),value); }
 void ShaderPipeline::upload(const char* varname,vec2 value)
-	{ glUniform2f(glGetUniformLocation(m_ShaderProgram,varname),value.x,value.y); }
+	{ glUniform2f(get_uniform_location(varname),value.x,value.y); }
 void ShaderPipeline::upload(const char* varname,vec3 value)
-	{ glUniform3f(glGetUniformLocation(m_ShaderProgram,varname),value.x,value.y,value.z); }
+	{ glUniform3f(get_uniform_location(varname),value.x,value.y,value.z); }
 void ShaderPipeline::upload(const char* varname,vec4 value)
-	{ glUniform4f(glGetUniformLocation(m_ShaderProgram,varname),value.x,value.y,value.z,value.w); }
+	{ glUniform4f(get_uniform_location(varname),value.x,value.y,value.z,value.w); }
 void ShaderPipeline::upload(const char* varname,mat4 value)
-	{ glUniformMatrix4fv(glGetUniformLocation(m_ShaderProgram,varname),1,GL_FALSE,glm::value_ptr(value)); }
+	{ glUniformMatrix4fv(get_uniform_location(varname),1,GL_FALSE,glm::value_ptr(value)); }
 
 /**
  *	automatically upload the global 2D coordinate system to the shader
@@ -185,8 +253,8 @@ void ShaderPipeline::upload(const char* varname,mat4 value)
  */
 void ShaderPipeline::upload_coordinate_system()
 {
-	upload("view",g_CoordinateSystem.view);
-	upload("proj",g_CoordinateSystem.proj);
+	upload("view",SHADER_UNIFORM_MAT44,glm::value_ptr(g_CoordinateSystem.view));
+	upload("proj",SHADER_UNIFORM_MAT44,glm::value_ptr(g_CoordinateSystem.proj));
 }
 
 /**
@@ -195,8 +263,8 @@ void ShaderPipeline::upload_coordinate_system()
  */
 void ShaderPipeline::upload_camera()
 {
-	upload("view",g_Camera.view);
-	upload("proj",g_Camera.proj);
+	upload("view",SHADER_UNIFORM_MAT44,glm::value_ptr(g_Camera.view));
+	upload("proj",SHADER_UNIFORM_MAT44,glm::value_ptr(g_Camera.proj));
 }
 
 /**

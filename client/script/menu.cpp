@@ -27,26 +27,26 @@ Menu::Menu(Font* font,CommandCenter* cc)
 
 	// setup lobby login ui
 	conn_batch = g_UI.add_batch(font);
-	tfname = conn_batch->add_text_field(textbox_idle,textbox_hover,textbox_active,vec2(0,tfstart+tfdist),
+	tfname = conn_batch->add_text_field(textbox_idle,textbox_hover,textbox_active,vec3(0,tfstart+tfdist,0),
 										tfsize,{ .align=SCREEN_ALIGN_CENTER });
-	tfpass = conn_batch->add_text_field(textbox_idle,textbox_hover,textbox_active,vec2(0,tfstart),
+	tfpass = conn_batch->add_text_field(textbox_idle,textbox_hover,textbox_active,vec3(0,tfstart,0),
 										tfsize,{ .align=SCREEN_ALIGN_CENTER });
 	tfpass->hidden = true;
-	tflobby = conn_batch->add_text_field(textbox_idle,textbox_hover,textbox_active,vec2(0,-tfstart),
+	tflobby = conn_batch->add_text_field(textbox_idle,textbox_hover,textbox_active,vec3(0,-tfstart,0),
 										 tfsize,{ .align=SCREEN_ALIGN_CENTER });
-	tflpass = conn_batch->add_text_field(textbox_idle,textbox_hover,textbox_active,vec2(0,-tfstart-tfdist),
+	tflpass = conn_batch->add_text_field(textbox_idle,textbox_hover,textbox_active,vec3(0,-tfstart-tfdist,0),
 										 tfsize,{ .align=SCREEN_ALIGN_CENTER });
 	tflpass->hidden = true;
 	btjoin = conn_batch->add_button("Join Lobby",button_idle,button_select,button_hover,
-									vec2(-bteyez,-tfstart-tfdist*2.f),btsize,{ .align=SCREEN_ALIGN_CENTER });
+									vec3(-bteyez,-tfstart-tfdist*2.f,0),btsize,{ .align=SCREEN_ALIGN_CENTER });
 	btcreate = conn_batch->add_button("Create Lobby",button_idle,button_select,button_hover,
-									  vec2(bteyez,-tfstart-tfdist*2.f),btsize,{ .align=SCREEN_ALIGN_CENTER });
+									  vec3(bteyez,-tfstart-tfdist*2.f,0),btsize,{ .align=SCREEN_ALIGN_CENTER });
 
 	// setup player communication
-	__TUsr = g_Renderer.write_text(font,"username",tfname->canvas->offset+vec2(0,tftitle),ttsize);
-	__TPsw = g_Renderer.write_text(font,"password",tfpass->canvas->offset+vec2(0,tftitle),ttsize);
-	__TLby = g_Renderer.write_text(font,"lobby",tflobby->canvas->offset+vec2(0,tftitle),ttsize);
-	__TLpw = g_Renderer.write_text(font,"lobby password",tflpass->canvas->offset+vec2(0,tftitle),ttsize);
+	__TUsr = g_Renderer.write_text(font,"username",tfname->canvas->offset+vec3(0,tftitle,0),ttsize);
+	__TPsw = g_Renderer.write_text(font,"password",tfpass->canvas->offset+vec3(0,tftitle,0),ttsize);
+	__TLby = g_Renderer.write_text(font,"lobby",tflobby->canvas->offset+vec3(0,tftitle,0),ttsize);
+	__TLpw = g_Renderer.write_text(font,"lobby password",tflpass->canvas->offset+vec3(0,tftitle,0),ttsize);
 
 	// register routine
 	ref = g_Wheel.call(UpdateRoutine{ &Menu::_update,(void*)this });

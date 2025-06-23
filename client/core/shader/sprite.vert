@@ -5,7 +5,7 @@ in vec2 position;
 in vec2 edge_coordinates;
 
 // engine: ibo
-in vec2 offset;
+in vec3 offset;
 in vec2 scale;
 in float rotation;
 in float alpha;
@@ -26,7 +26,7 @@ void main()
 	float rotation_sin = sin(rd_rotation);
 	float rotation_cos = cos(rd_rotation);
 	vec2 Position = mat2(rotation_cos,-rotation_sin,rotation_sin,rotation_cos)*position;
-	gl_Position = proj*view*vec4(Position*scale+offset,.0,1.);
+	gl_Position = proj*view*vec4(Position*scale+offset.xy,offset.z,1.);
 
 	// pass
 	EdgeCoordinates = tex_position+tex_dimension*edge_coordinates;

@@ -18,7 +18,7 @@ CommandCenter::CommandCenter(Font* font,StarSystem* ssys,Flotilla* flt)
 void CommandCenter::run()
 {
 	// create mode communication
-	m_TxControlMode = g_Renderer.write_text(m_Font,"",vec2(15,-15),15,
+	m_TxControlMode = g_Renderer.write_text(m_Font,"",vec3(15,-15,0),15,
 											vec4(0),Alignment{ .align=SCREEN_ALIGN_TOPLEFT });
 	_set_text_locked();
 
@@ -29,14 +29,14 @@ void CommandCenter::run()
 	lptr<UIBatch> __UIBatch = g_UI.add_batch(m_Font,.75f);
 	for (u8 i=0;i<8;i++) m_BtnJumpers[i] = __UIBatch->add_button(("jump to "+m_PlanetNames[i]).c_str(),
 																 m_ButtonIdle,m_ButtonHover,m_ButtonSelect,
-																 vec2(-15,(i-4)*-40),vec2(200,25),
+																 vec3(-15,(i-4)*-40,0),vec2(200,25),
 																 Alignment{ .align=SCREEN_ALIGN_CENTERRIGHT });
 	for (u8 i=0;i<10;i++) m_BtnFleet[i] = __UIBatch->add_button("Free Ship Slot",
 																m_ButtonIdle,m_ButtonHover,m_ButtonSelect,
-																vec2(15,(i-5)*-40),vec2(200,25),
+																vec3(15,(i-5)*-40,0),vec2(200,25),
 																Alignment{ .align=SCREEN_ALIGN_CENTERLEFT });
 	m_BtnBuild = __UIBatch->add_button("create spaceship",m_ButtonIdle,m_ButtonHover,m_ButtonSelect,
-									   vec2(15,15),vec2(200,40),Alignment{ .align=SCREEN_ALIGN_BOTTOMLEFT });
+									   vec3(15,15,0),vec2(200,40),Alignment{ .align=SCREEN_ALIGN_BOTTOMLEFT });
 	// FIXME multiple loads of the same button graphics
 
 	g_Wheel.call(UpdateRoutine{ &CommandCenter::_update,(void*)this });

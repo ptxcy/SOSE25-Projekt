@@ -1,7 +1,7 @@
 import {IUser} from "../user/UserModel";
 import {WebSocket, RawData} from "ws";
 import {ILobby} from "./LobbyModel";
-import {searchLobbyOfMember} from "./LobbyService";
+import {deleteLobby, searchLobbyOfMember} from "./LobbyService";
 import {
     ClientMessage,
     decodeToClientMessage,
@@ -39,6 +39,7 @@ export function startCleanupScheduler() {
                 await stopContainer(CONTAINER_PREFIX + lobby.containerInstanceNumber);
                 registeredLobbys.delete(lobby);
                 console.log(`Lobby ${lobby.lobbyName} aus Registry entfernt.`);
+                console.log("Lobby DatabaseEntry removed successfully: ", await deleteLobby(lobby.lobbyName));
             }
         }
     }, 30000);
@@ -92,6 +93,7 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
     if (registerLobby) {
         if (!registerLobby.memberSockets.includes(ws)) {
             registerLobby.memberSockets.push(ws);
+            registerLobby.members.push(userData);
         }
     } else {
         const lowestContainerNumber = findLowestPossibleContainerNumber();
@@ -185,6 +187,10 @@ async function connectToCalculationServer(containerNumber: number, lcomp: LobbyR
         }
 
         const userIndex = lcomp.members.findIndex(member => member.username === targetUsername);
+        if (userIndex === -1) {
+            console.error("User not set in lobby!");
+            return;
+        }
         const userSocket = lcomp.memberSockets[userIndex];
         if (!userSocket) {
             console.error("No user socket!");
