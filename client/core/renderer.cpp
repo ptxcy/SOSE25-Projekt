@@ -28,17 +28,21 @@ ThreadSignal _sprite_signal
 void Text::align()
 {
 	// calculate text dimensions
-	f32 wordlen = .0f;
-	for (char c : data) wordlen += font->glyphs[c-32].advance*scale;
-	dimensions = vec2(wordlen,font->size*scale);
+	f32 wordlen = font->estimate_wordlength(data);
+	dimensions = vec2(wordlen,font->size)*scale;
 
 	// calculate position based on alignment and dimensions
 	if (alignment.align<SCREEN_ALIGN_NEUTRAL)
 	{
-		offset = Renderer::align({ position,dimensions },alignment);
+		vec2 __AlignedOffset = Renderer::align({ position,dimensions },alignment);
+		offset.x = __AlignedOffset.x;
+		offset.y = __AlignedOffset.y;
 		return;
 	}
-	offset = position-vec2(dimensions.x*.5f,dimensions.y*.33f);
+
+	// compliment dimensions by offset
+	offset.x = position.x-dimensions.x*.5f;
+	offset.y = position.y-dimensions.y*.33f;
 }
 
 /**
@@ -51,7 +55,7 @@ void Text::load_buffer()
 	buffer.resize(data.size());
 
 	// load font information for characters
-	vec2 __Cursor = offset;
+	vec3 __Cursor = vec3(offset.x,offset.y,position.z);
 	for (u32 i=0;i<data.size();i++)
 	{
 		TextCharacter& p_Character = buffer[i];
@@ -69,6 +73,28 @@ void Text::load_buffer()
 
 		__Cursor.x += p_Glyph.advance*scale;
 	}
+}
+
+/**
+ *	calculate horizontal character intersection
+ *	\param pos: horizontal intersecting pixel position
+ *	\returns 0 if end of the word, buffer size if beginning of the word is last intersection and else in-between
+ */
+u32 Text::intersection(f32 pos)
+{
+	u32 i = 0;
+
+	// starting intersection
+	if (!data.size()) return 0;
+	f32 __Cursor = position.x+font->glyphs[data[0]-32].advance*.5*scale;
+
+	// iterate following characters
+	while (i<data.size()-1&&__Cursor<pos)
+	{
+		__Cursor += (font->glyphs[data[i]-32].advance+font->glyphs[data[i+1]-32].advance)*.5*scale;
+		i++;
+	}
+	return data.size()-i;
 }
 
 
@@ -178,29 +204,135 @@ Mesh::Mesh(const char* path)
 }
 
 /**
+ *	setup batch by mesh geometry
+ *	\param mesh: loaded mesh for explicit geometry information
+ *	\param tex: multichannel texture data to upload
+ *	\returns geometry id
+ */
+u32 GeometryBatch::add_geometry(Mesh& mesh,vector<Texture*>& tex)
+{
+	return add_geometry(&mesh.vertices[0],mesh.vertices.size(),sizeof(Vertex),tex);
+}
+
+/**
  *	upload load batch geometry to gpu
+ *	\param verts: single precision floats, explicitly defining geometry
+ *	\param vsize: amount of vertices (this is the pointer length divided by the upload dimension)
+ *	\param ssize: upload dimension !in memory width!
+ *	\param tex: multichannel texture data to upload
+ *	\returns geometry id
+ */
+u32 GeometryBatch::add_geometry(void* verts,size_t vsize,size_t ssize,vector<Texture*>& tex)
+{
+	COMM_LOG("uploading geometry batch to gpu");
+	size_t __MemSize = vsize*ssize;
+	size_t __Size = __MemSize/sizeof(f32);
+	geometry.resize(geometry_cursor+__Size);
+	memcpy(&geometry[geometry_cursor],verts,__MemSize);
+
+	// store geometry information
+	object.push_back({
+			.offset = geometry_cursor/ssize,
+			.vertex_count = vsize,
+			.textures = tex
+		});
+	geometry_cursor += __Size;
+	return object.size()-1;
+}
+
+/**
+ *	upload batch geometry to gpu & automap shader pipeline
  */
 void GeometryBatch::load()
 {
-	COMM_LOG("uploading geometry batch to gpu");
+	COMM_LOG("uploading geometry information to GPU");
 	vao.bind();
 	vbo.bind();
 	vbo.upload_vertices(geometry);
-	shader->map(&vbo);
+	shader->map(RENDERER_TEXTURE_UNMAPPED,&vbo);
+}
+
+/**
+ *	attach variable in ram to auto update uniform in vram
+ *	\param gid: geometry id, returned when geometry was registered in batch
+ *	\param name: uniform name in shader
+ *	\param var: pointer to variable in memory, that will automatically be uploaded to gpu
+ */
+void GeometryBatch::attach_uniform(u32 gid,const char* name,f32* var)
+{
+	object[gid].uploads.push_back({
+			.uloc = shader->get_uniform_location(name),
+			.udim = SHADER_UNIFORM_FLOAT,
+			.data = var
+		});
+}
+void GeometryBatch::attach_uniform(u32 gid,const char* name,vec2* var)
+{
+	object[gid].uploads.push_back({
+			.uloc = shader->get_uniform_location(name),
+			.udim = SHADER_UNIFORM_VEC2,
+			.data = &var->x
+		});
+}
+void GeometryBatch::attach_uniform(u32 gid,const char* name,vec3* var)
+{
+	object[gid].uploads.push_back({
+			.uloc = shader->get_uniform_location(name),
+			.udim = SHADER_UNIFORM_VEC3,
+			.data = &var->x
+		});
+}
+void GeometryBatch::attach_uniform(u32 gid,const char* name,vec4* var)
+{
+	object[gid].uploads.push_back({
+			.uloc = shader->get_uniform_location(name),
+			.udim = SHADER_UNIFORM_VEC4,
+			.data = &var->x
+		});
+}
+void GeometryBatch::attach_uniform(u32 gid,const char* name,mat4* var)
+{
+	object[gid].uploads.push_back({
+			.uloc = shader->get_uniform_location(name),
+			.udim = SHADER_UNIFORM_MAT44,
+			.data = glm::value_ptr(*var)
+		});
+}
+
+/**
+ *	setup particle batch by mesh geometry
+ *	\param mesh: loaded mesh for explicit geometry information
+ *	\param particles: amount of particles
+ */
+void ParticleBatch::load(Mesh& mesh,u32 particles)
+{
+	load(&mesh.vertices[0],mesh.vertices.size(),sizeof(Vertex),particles);
 }
 
 /**
  *	load particle mesh into batch memory
+ *	\param verts: single precision floats, explicitly defining geometry
+ *	\param vsize: amount of vertices (this is the pointer length divided by the upload dimension)
+ *	\param ssize: upload dimension !in memory width!
+ *	\param particles: amount of particles
  */
-void ParticleBatch::load()
+void ParticleBatch::load(void* verts,size_t vsize,size_t ssize,u32 particles)
 {
 	COMM_LOG("loading particle mesh geometry information");
+	size_t size = vsize*ssize;
+	geometry.resize(size/sizeof(f32));
+	memcpy(&geometry[0],verts,size);
+
+	// auto-mapping particle shader pipeline
 	vao.bind();
 	vbo.bind();
 	vbo.upload_vertices(geometry);
-	shader->map(&vbo,&ibo);
+	shader->map(RENDERER_TEXTURE_SPRITES,&vbo,&ibo);
+
+	// store geometry information
+	vertex_count = vsize;
+	active_particles = particles;
 }
-// FIXME absolutely twinning :3
 
 
 // ----------------------------------------------------------------------------------------------------
@@ -244,18 +376,14 @@ Renderer::Renderer()
 	m_SpriteVertexArray.bind();
 	m_SpriteVertexBuffer.bind();
 	m_SpriteVertexBuffer.upload_vertices(__QuadVertices,24);
-	m_SpritePipeline.map(&m_SpriteVertexBuffer,&m_SpriteInstanceBuffer);
-
-	m_SpritePipeline.upload("tex",RENDERER_TEXTURE_SPRITES);
+	m_SpritePipeline.map(RENDERER_TEXTURE_SPRITES,&m_SpriteVertexBuffer,&m_SpriteInstanceBuffer);
 	m_SpritePipeline.upload_coordinate_system();
 
 	COMM_LOG("text pipeline");
 	m_TextPipeline.assemble(__TextVertexShader,__TextFragmentShader);
 	m_TextVertexArray.bind();
 	m_SpriteVertexBuffer.bind();
-	m_TextPipeline.map(&m_SpriteVertexBuffer,&m_TextInstanceBuffer);
-
-	m_TextPipeline.upload("tex",RENDERER_TEXTURE_FONTS);
+	m_TextPipeline.map(RENDERER_TEXTURE_FONTS,&m_SpriteVertexBuffer,&m_TextInstanceBuffer);
 	m_TextPipeline.upload_coordinate_system();
 
 	COMM_LOG("canvas pipeline");
@@ -263,9 +391,7 @@ Renderer::Renderer()
 	m_CanvasVertexArray.bind();
 	m_CanvasVertexBuffer.bind();
 	m_CanvasVertexBuffer.upload_vertices(__CanvasVertices,24);
-	m_CanvasPipeline.map(&m_CanvasVertexBuffer);
-
-	m_CanvasPipeline.upload("tex",RENDERER_TEXTURE_FORWARD);
+	m_CanvasPipeline.map(RENDERER_TEXTURE_FORWARD,&m_CanvasVertexBuffer);
 
 	// ----------------------------------------------------------------------------------------------------
 	// GPU Memory
@@ -315,14 +441,16 @@ void Renderer::update()
 	m_FrameStart = std::chrono::steady_clock::now();
 
 	// 3D segment
-	glEnable(GL_DEPTH_TEST);
 	m_ForwardFrameBuffer.start();
 	_update_mesh();
 	Framebuffer::stop();
 
-	// 2D segment
+	// rendertargets
 	glDisable(GL_DEPTH_TEST);
 	_update_canvas();
+	glEnable(GL_DEPTH_TEST);
+
+	// 2D segment
 	_update_sprites();
 	_update_text();
 
@@ -366,7 +494,7 @@ PixelBufferComponent* Renderer::register_sprite_texture(const char* path)
  *	\param alignment: (default fullscreen neutral) sprite position alignment within borders
  *	\returns pointer to sprite data for modification purposes
  */
-Sprite* Renderer::register_sprite(PixelBufferComponent* texture,vec2 position,vec2 size,f32 rotation,
+Sprite* Renderer::register_sprite(PixelBufferComponent* texture,vec3 position,vec2 size,f32 rotation,
 								  f32 alpha,Alignment alignment)
 {
 	// determine memory location, overwrite has priority over appending
@@ -378,7 +506,9 @@ Sprite* Renderer::register_sprite(PixelBufferComponent* texture,vec2 position,ve
 	if (alignment.align!=SCREEN_ALIGN_NEUTRAL)
 	{
 		vec2 hsize = size*.5f;
-		position = align({ position-hsize,size },alignment)+size;
+		vec2 __AlignedPosition = align({ vec2(position)-hsize,size },alignment)+size;
+		position.x = __AlignedPosition.x;
+		position.y = __AlignedPosition.y;
 	}
 
 	// write information to memory
@@ -459,7 +589,7 @@ Font* Renderer::register_font(const char* path,u16 size)
  *	\param align: (default SCREEN_ALIGN_BOTTOMLEFT) text alignment on screen, modified by positional offset
  *	\returns list container of created text
  */
-lptr<Text> Renderer::write_text(Font* font,string data,vec2 position,f32 scale,vec4 colour,Alignment align)
+lptr<Text> Renderer::write_text(Font* font,string data,vec3 position,f32 scale,vec4 colour,Alignment align)
 {
 	m_GPUFontTextures.signal.wait();
 	m_Texts.push_back({
@@ -475,6 +605,37 @@ lptr<Text> Renderer::write_text(Font* font,string data,vec2 position,f32 scale,v
 	p_Text->align();
 	p_Text->load_buffer();
 	return p_Text;
+}
+
+/**
+ *	load texture into ram in background and register for vram upload when ready
+ *	\param texture: pointer to texture in memory
+ *	\param path: path to texture
+ *	\param data_queue: queue for texture vram upload
+ *	\param queue_mutex: mutual exclusion for data queue to prevent race conditions
+ */
+void _load_texture(Texture* texture,const char* path,queue<TextureDataTuple>* data_queue,std::mutex* queue_mutex)
+{
+	TextureData __Data = TextureData();
+	__Data.load(path);
+	queue_mutex->lock();
+	data_queue->push(TextureDataTuple{ __Data,texture });
+	queue_mutex->unlock();
+}
+// TODO allow for different format uploads
+
+/**
+ *	load texture into memory
+ *	\param path: path to texture file
+ *	\returns pointer to texture in ram, referencing texture in vram
+ */
+Texture* Renderer::register_texture(const char* path)
+{
+	COMM_LOG("mesh texture register of %s",path);
+	Texture* p_Texture = m_MeshTextures.next_free();
+	thread __LoadThread(_load_texture,p_Texture,path,&m_MeshTextureUploadQueue,&m_MutexMeshTextureUpload);
+	__LoadThread.detach();
+	return p_Texture;
 }
 
 /**
@@ -543,7 +704,22 @@ void Renderer::_gpu_upload()
 {
 	m_GPUSpriteTextures.gpu_upload(RENDERER_TEXTURE_SPRITES,m_FrameStart);
 	m_GPUFontTextures.gpu_upload(RENDERER_TEXTURE_FONTS,m_FrameStart);
+
+	// singular textures
+	m_MutexMeshTextureUpload.lock();
+	while (m_MeshTextureUploadQueue.size()&&calculate_delta_time(m_FrameStart)<FRAME_TIME_BUDGET_MS)
+	{
+		TextureDataTuple& p_Tuple = m_MeshTextureUploadQueue.front();
+		p_Tuple.texture->bind(RENDERER_TEXTURE_UNMAPPED);
+		p_Tuple.data.gpu_upload();
+		m_MeshTextureUploadQueue.pop();
+		Texture::set_texture_parameter_linear_mipmap();
+		Texture::set_texture_parameter_clamp_to_edge();
+		Texture::generate_mipmap();
+	}
+	m_MutexMeshTextureUpload.unlock();
 }
+// FIXME the same is happening in buffer.cpp, it seems untidy and is worth another thought
 
 /**
  *	update all registered sprites
@@ -595,15 +771,22 @@ void Renderer::_update_mesh()
 	for (GeometryBatch& p_Batch : m_GeometryBatches)
 	{
 		p_Batch.shader->enable();
+		p_Batch.shader->upload_camera();
 		p_Batch.vao.bind();
-		for (u8 i=0;i<p_Batch.textures.size();i++) p_Batch.textures[i].bind(RENDERER_TEXTURE_UNMAPPED+i);
-		glDrawArrays(GL_TRIANGLES,0,p_Batch.vertex_count);
+		for (GeometryTuple& p_Tuple : p_Batch.object)
+		{
+			for (u8 i=0;i<p_Tuple.textures.size();i++) p_Tuple.textures[i]->bind(RENDERER_TEXTURE_UNMAPPED+i);
+			for (GeometryUniformUpload& p_Upload : p_Tuple.uploads)
+				p_Batch.shader->upload(p_Upload.uloc,p_Upload.udim,p_Upload.data);
+			glDrawArrays(GL_TRIANGLES,p_Tuple.offset,p_Tuple.vertex_count);
+		}
 	}
 
 	// iterate particle geometry
 	for (ParticleBatch& p_Batch : m_ParticleBatches)
 	{
 		p_Batch.shader->enable();
+		p_Batch.shader->upload_camera();
 		p_Batch.vao.bind();
 		glDrawArraysInstanced(GL_TRIANGLES,0,p_Batch.vertex_count,p_Batch.active_particles);
 	}

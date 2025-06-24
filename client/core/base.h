@@ -34,6 +34,7 @@
 #include <SDL2/SDL_opengl.h>
 
 // math
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -218,6 +219,7 @@ static inline f64 profiler_average(RuntimeProfilerData* data)
 
 
 bool check_file_exists(const char* path);
+void split_words(vector<string>& words,string& line);
 inline f64 calculate_delta_time(std::chrono::steady_clock::time_point& t)
 {
 	return (std::chrono::steady_clock::now()-t).count()*MATH_CONVERSION_MS;

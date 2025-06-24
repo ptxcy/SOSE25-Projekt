@@ -22,6 +22,9 @@ void Input::update(bool& running)
 	mouse.triggered_buttons.reset();
 	// FIXME trigger logic utterly broken
 
+	// reset keypress state
+	keyboard.key_pressed = false;
+
 	// process peripheral events
 	while (SDL_PollEvent(&m_Event))
 	{
@@ -29,6 +32,7 @@ void Input::update(bool& running)
 		{
 			// keyboard input
 		case SDL_KEYDOWN:
+			keyboard.key_pressed = true;
 
 			// action input
 			keyboard.keys.set(m_Event.key.keysym.scancode);

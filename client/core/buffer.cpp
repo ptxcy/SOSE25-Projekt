@@ -269,6 +269,21 @@ void Texture::generate_mipmap()
 }
 
 
+// ----------------------------------------------------------------------------------------------------
+// Pixel Buffer Feature
+
+/**
+ *	calculate estimated word length in given font
+ *	\param word: given word for length estimation
+ *	\param offset: (default 0) wordlength character offset to exclude buffer tail
+ */
+f32 Font::estimate_wordlength(string& word,u32 offset)
+{
+	f32 out = .0f;
+	for (u32 i=0;i<word.size()-offset;i++) out += glyphs[word[i]-32].advance;
+	return out;
+}
+
 /**
  *	allocate video memory to use as we, the programmers please
  *	\param width: buffer width

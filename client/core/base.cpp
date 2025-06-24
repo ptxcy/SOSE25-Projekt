@@ -16,6 +16,18 @@ bool check_file_exists(const char* path)
 	return stat(path,&tf)==0;
 }
 
+/**
+ *	split line into words
+ *	\param words: output vector for words
+ *	\param line: raw input line
+ */
+void split_words(vector<string>& words,string& line)
+{
+	std::stringstream stream(line);
+	string word;
+	while (stream>>word) words.push_back(word);
+}
+
 
 // ----------------------------------------------------------------------------------------------------
 // Low-Level Data

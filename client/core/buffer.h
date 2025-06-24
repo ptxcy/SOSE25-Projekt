@@ -76,7 +76,6 @@ private:
 	bool m_TextureFlag = false;
 };
 
-
 class Texture
 {
 public:
@@ -117,6 +116,10 @@ struct Glyph
 
 struct Font
 {
+	// utility
+	f32 estimate_wordlength(string& word,u32 offset=0);
+
+	// data
 	PixelBufferComponent tex[96];
 	Glyph glyphs[96];
 	u16 size;

@@ -8,7 +8,7 @@
 
 constexpr f32 RENDERER_POSITIONAL_DELETION_CODE = -1247.f;
 
-enum TextureChannelMap : u8
+enum TextureChannelMap : u16
 {
 	RENDERER_TEXTURE_SPRITES,
 	RENDERER_TEXTURE_FONTS,
@@ -46,8 +46,8 @@ struct Alignment
 
 struct Sprite
 {
-	vec2 offset = vec2(0,0);
-	vec2 scale = vec2(0,0);
+	vec3 offset = vec3(0);
+	vec2 scale = vec2(0);
 	f32 rotation = .0f;
 	f32 alpha = 1.f;
 	vec2 tex_position;
@@ -56,7 +56,7 @@ struct Sprite
 
 struct TextCharacter
 {
-	vec2 offset = vec2(0);
+	vec3 offset = vec3(0);
 	vec2 scale = vec2(0);
 	vec2 bearing = vec2(0);
 	vec4 colour = vec4(1);
@@ -70,7 +70,6 @@ struct Vertex
 	vec3 normal;
 	vec3 tangent;
 };
-constexpr u8 RENDERER_VERTEX_SIZE = sizeof(Vertex)/sizeof(f32);
 
 
 // ----------------------------------------------------------------------------------------------------
@@ -81,10 +80,11 @@ struct Text
 	// utility
 	void align();
 	void load_buffer();
+	u32 intersection(f32 pos);
 
 	// data
 	Font* font;
-	vec2 position;
+	vec3 position;
 	vec2 offset;
 	f32 scale;
 	vec2 dimensions;
@@ -107,26 +107,56 @@ public:
 // ----------------------------------------------------------------------------------------------------
 // Batches
 
+struct TextureDataTuple
+{
+	TextureData data;
+	Texture* texture;
+};
+
+struct GeometryUniformUpload
+{
+	u32 uloc;
+	UniformDimension udim;
+	f32* data;
+};
+
+struct GeometryTuple
+{
+	size_t offset;
+	size_t vertex_count;
+	vector<Texture*> textures;
+	vector<GeometryUniformUpload> uploads;
+};
+
 struct GeometryBatch
 {
 	// utility
+	// batch geometry loading
+	u32 add_geometry(Mesh& mesh,vector<Texture*>& tex);
+	u32 add_geometry(void* verts,size_t vsize,size_t ssize,vector<Texture*>& tex);
 	void load();
+
+	// auto uniform upload
+	void attach_uniform(u32 gid,const char* name,f32* var);
+	void attach_uniform(u32 gid,const char* name,vec2* var);
+	void attach_uniform(u32 gid,const char* name,vec3* var);
+	void attach_uniform(u32 gid,const char* name,vec4* var);
+	void attach_uniform(u32 gid,const char* name,mat4* var);
 
 	// data
 	VertexArray vao;
 	VertexBuffer vbo;
 	lptr<ShaderPipeline> shader;
-	vector<Texture> textures;
+	vector<GeometryTuple> object;
 	vector<float> geometry;
-	u32 vertex_count;  // TODO kick this out somehow
+	u32 geometry_cursor = 0;
 };
-// TODO detached texture load after definition
-// TODO also link to registered textures and iterate to reduce memory consumption
 
 struct ParticleBatch
 {
 	// utility
-	void load();
+	void load(Mesh& mesh,u32 particles);
+	void load(void* verts,size_t vsize,size_t ssize,u32 particles);
 
 	// data
 	VertexArray vao;
@@ -134,7 +164,7 @@ struct ParticleBatch
 	VertexBuffer ibo;
 	lptr<ShaderPipeline> shader;
 	vector<float> geometry;
-	u32 vertex_count;  // TODO kick this out somehow
+	u32 vertex_count;
 	u32 active_particles = 0;
 };
 
@@ -152,7 +182,7 @@ public:
 
 	// sprite
 	PixelBufferComponent* register_sprite_texture(const char* path);
-	Sprite* register_sprite(PixelBufferComponent* texture,vec2 position,vec2 size,f32 rotation=.0f,
+	Sprite* register_sprite(PixelBufferComponent* texture,vec3 position,vec2 size,f32 rotation=.0f,
 							f32 alpha=1.f,Alignment alignment={});
 	void assign_sprite_texture(Sprite* sprite,PixelBufferComponent* texture);
 	void delete_sprite_texture(PixelBufferComponent* texture);
@@ -160,8 +190,11 @@ public:
 
 	// text
 	Font* register_font(const char* path,u16 size);
-	lptr<Text> write_text(Font* font,string data,vec2 position,f32 scale,vec4 colour=vec4(1),Alignment align={});
+	lptr<Text> write_text(Font* font,string data,vec3 position,f32 scale,vec4 colour=vec4(1),Alignment align={});
 	inline void delete_text(lptr<Text> text) { m_Texts.erase(text); }
+
+	// textures
+	Texture* register_texture(const char* path);
 
 	// scene
 	lptr<ShaderPipeline> register_pipeline(VertexShader& vs,FragmentShader& fs);
@@ -221,6 +254,11 @@ private:
 	// textures
 	GPUPixelBuffer m_GPUSpriteTextures;
 	GPUPixelBuffer m_GPUFontTextures;
+
+	// mesh textures
+	InPlaceArray<Texture> m_MeshTextures = InPlaceArray<Texture>(RENDERER_MAXIMUM_TEXTURE_COUNT);
+	queue<TextureDataTuple> m_MeshTextureUploadQueue;
+	std::mutex m_MutexMeshTextureUpload;
 
 	// sprites
 	InPlaceArray<Sprite> m_Sprites = InPlaceArray<Sprite>(BUFFER_MAXIMUM_TEXTURE_COUNT);
