@@ -1,6 +1,7 @@
 pub mod client_message;
 pub mod pong;
 pub mod server_message;
+pub mod action;
 
 use std::env;
 
@@ -108,22 +109,18 @@ async fn handle_ws_msgpack(
                 Ok(m) => m,
                 Err(_) => continue,
             };
-            let user_id = client_message.user_id;
+            let user_id = client_message.user_id.clone();
 
-            match &client_message.request_data.connect {
-                Some(id) => {
-                    // send the server_message_tx to the calculation task
-                    let sender_sender = sender_sender.clone();
-                    let server_message_tx = server_message_tx.clone();
-                    let id = id.clone();
-                    tokio::spawn(async move {
-                        let result = sender_sender
-                            .send(ServerMessageSenderChannel::new(user_id, server_message_tx))
-                            .await
-                            .logm("failed to send server_message_tx");
-                    });
-                }
-                _ => {}
+            if client_message.request_data.connect {
+                // send the server_message_tx to the calculation task
+                let sender_sender = sender_sender.clone();
+                let server_message_tx = server_message_tx.clone();
+                tokio::spawn(async move {
+                    let result = sender_sender
+                        .send(ServerMessageSenderChannel::new(user_id, server_message_tx))
+                        .await
+                        .logm("failed to send server_message_tx");
+                });
             };
 
             // send client message to calculation task

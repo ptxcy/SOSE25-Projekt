@@ -1,0 +1,3 @@
+[editor]
+workspace-lsp-roots = ["./"]
+
