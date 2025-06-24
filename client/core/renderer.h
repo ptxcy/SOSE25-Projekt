@@ -13,6 +13,10 @@ enum TextureChannelMap : u16
 	RENDERER_TEXTURE_SPRITES,
 	RENDERER_TEXTURE_FONTS,
 	RENDERER_TEXTURE_FORWARD,
+	RENDERER_TEXTURE_DEFERRED_COLOUR,
+	RENDERER_TEXTURE_DEFERRED_POSITION,
+	RENDERER_TEXTURE_DEFERRED_NORMAL,
+	RENDERER_TEXTURE_DEFERRED_MATERIAL,
 	RENDERER_TEXTURE_UNMAPPED
 };
 
@@ -199,6 +203,7 @@ public:
 	// scene
 	lptr<ShaderPipeline> register_pipeline(VertexShader& vs,FragmentShader& fs);
 	lptr<GeometryBatch> register_geometry_batch(lptr<ShaderPipeline> pipeline);
+	lptr<GeometryBatch> register_deferred_geometry_batch(lptr<ShaderPipeline> pipeline);
 	lptr<ParticleBatch> register_particle_batch(lptr<ShaderPipeline> pipeline);
 
 	// utility
@@ -209,7 +214,7 @@ private:
 	void _update_sprites();
 	void _update_text();
 	void _update_canvas();
-	void _update_mesh();
+	static void _update_mesh(list<GeometryBatch>& gb,list<ParticleBatch>& pb);
 
 	// background procedures
 	template<typename T> static void _collector(InPlaceArray<T>* xs,ThreadSignal* signal);
@@ -247,6 +252,7 @@ private:
 	ShaderPipeline m_CanvasPipeline;
 
 	Framebuffer m_ForwardFrameBuffer = Framebuffer(1);
+	Framebuffer m_DeferredFrameBuffer = Framebuffer(4);
 
 	// ----------------------------------------------------------------------------------------------------
 	// Render Object Information
@@ -272,6 +278,8 @@ private:
 	list<ShaderPipeline> m_ShaderPipelines;
 	list<GeometryBatch> m_GeometryBatches;
 	list<ParticleBatch> m_ParticleBatches;
+	list<GeometryBatch> m_DeferredGeometryBatches;
+	list<ParticleBatch> m_DeferredParticleBatches;
 };
 
 inline Renderer g_Renderer = Renderer();

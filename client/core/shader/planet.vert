@@ -16,6 +16,7 @@ out vec3 Position;
 out vec2 UV;
 out vec3 Normal;
 out mat3 TBN;
+// TODO remove normal pass overuse
 
 uniform mat4 view;
 uniform mat4 proj;

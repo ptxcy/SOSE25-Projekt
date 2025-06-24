@@ -411,11 +411,20 @@ Renderer::Renderer()
 	// ----------------------------------------------------------------------------------------------------
 	// Render Targets
 
-	COMM_LOG("creating scene render target");
+	COMM_LOG("creating forward render target");
 	m_ForwardFrameBuffer.start();
 	m_ForwardFrameBuffer.define_colour_component(0,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y);
 	m_ForwardFrameBuffer.define_depth_component(FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y);
 	m_ForwardFrameBuffer.finalize();
+
+	COMM_LOG("creating deferred render target");
+	m_DeferredFrameBuffer.start();
+	m_DeferredFrameBuffer.define_colour_component(0,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y);
+	m_DeferredFrameBuffer.define_colour_component(1,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y,true);
+	m_DeferredFrameBuffer.define_colour_component(2,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y,true);
+	m_DeferredFrameBuffer.define_colour_component(3,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y,true);
+	m_DeferredFrameBuffer.define_depth_component(FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y);
+	m_DeferredFrameBuffer.finalize();
 	Framebuffer::stop();
 
 	// ----------------------------------------------------------------------------------------------------
@@ -442,7 +451,9 @@ void Renderer::update()
 
 	// 3D segment
 	m_ForwardFrameBuffer.start();
-	_update_mesh();
+	_update_mesh(m_GeometryBatches,m_ParticleBatches);
+	m_DeferredFrameBuffer.start();
+	_update_mesh(m_DeferredGeometryBatches,m_DeferredParticleBatches);
 	Framebuffer::stop();
 
 	// rendertargets
@@ -664,6 +675,18 @@ lptr<GeometryBatch> Renderer::register_geometry_batch(lptr<ShaderPipeline> pipel
 }
 
 /**
+ *	register physical mesh batch
+ *	\param pipeline: shader pipeline, handling physical pass for newly created batch
+ *	\returns pointer to created physical mesh batch
+ */
+lptr<GeometryBatch> Renderer::register_deferred_geometry_batch(lptr<ShaderPipeline> pipeline)
+{
+	m_DeferredGeometryBatches.push_back({ .shader = pipeline });
+	return std::prev(m_DeferredGeometryBatches.end());
+}
+// TODO make this autoassign the pass shader maybee????
+
+/**
  *	register particle batch
  *	\param pipeline: shader pipeline, handling pixel output for newly created batch
  *	\returns pointer to created particle batch
@@ -765,10 +788,10 @@ void Renderer::_update_canvas()
 /**
  *	update triangle meshes
  */
-void Renderer::_update_mesh()
+void Renderer::_update_mesh(list<GeometryBatch>& gb,list<ParticleBatch>& pb)
 {
 	// iterate static geometry
-	for (GeometryBatch& p_Batch : m_GeometryBatches)
+	for (GeometryBatch& p_Batch : gb)
 	{
 		p_Batch.shader->enable();
 		p_Batch.shader->upload_camera();
@@ -783,7 +806,7 @@ void Renderer::_update_mesh()
 	}
 
 	// iterate particle geometry
-	for (ParticleBatch& p_Batch : m_ParticleBatches)
+	for (ParticleBatch& p_Batch : pb)
 	{
 		p_Batch.shader->enable();
 		p_Batch.shader->upload_camera();

@@ -37,6 +37,7 @@ private:
 	lptr<ShaderPipeline> m_PlanetShader;
 	lptr<ShaderPipeline> m_SunShader;
 	lptr<ShaderPipeline> m_HaloShader;
+	lptr<ShaderPipeline> m_GPassShader;
 
 	lptr<ParticleBatch> m_PlanetBatch;
 	lptr<ParticleBatch> m_HaloBatch;
