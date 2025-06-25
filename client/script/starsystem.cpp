@@ -26,7 +26,6 @@ StarSystem::StarSystem()
 	Mesh __HaloMeshBS = Mesh("./res/planets/ring_bs.obj");
 	__HaloMesh.vertices.insert(__HaloMesh.vertices.end(),
 							   __HaloMeshBS.vertices.begin(),__HaloMeshBS.vertices.end());
-	Mesh __TestFloor = Mesh("./res/physical/test_floor.obj");
 
 	// setup planetary geometry
 	m_PlanetBatch = g_Renderer.register_particle_batch(m_PlanetShader);
@@ -75,7 +74,7 @@ StarSystem::StarSystem()
 		g_Renderer.register_texture("./res/physical/paquet_material.png"),
 	};
 	lptr<GeometryBatch> __PhysicalBatch = g_Renderer.register_deferred_geometry_batch(m_GPassShader);
-	__PhysicalBatch->add_geometry(__TestFloor,__PhysicalTextures);
+	__PhysicalBatch->add_geometry(__SphereMesh,__PhysicalTextures);
 	__PhysicalBatch->load();
 
 	// register routine

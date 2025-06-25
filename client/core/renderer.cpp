@@ -365,7 +365,7 @@ Renderer::Renderer()
 	VertexShader __TextVertexShader = VertexShader("core/shader/text.vert");
 	FragmentShader __TextFragmentShader = FragmentShader("core/shader/text.frag");
 	VertexShader __CanvasVertexShader = VertexShader("core/shader/canvas.vert");
-	FragmentShader __CanvasFragmentShader = FragmentShader("core/shader/canvas.frag");
+	FragmentShader __LightingPassFragmentShader = FragmentShader("core/shader/pbs.frag");
 
 	// ----------------------------------------------------------------------------------------------------
 	// Sprite Pipeline
@@ -387,7 +387,7 @@ Renderer::Renderer()
 	m_TextPipeline.upload_coordinate_system();
 
 	COMM_LOG("canvas pipeline");
-	m_CanvasPipeline.assemble(__CanvasVertexShader,__CanvasFragmentShader);
+	m_CanvasPipeline.assemble(__CanvasVertexShader,__LightingPassFragmentShader);
 	m_CanvasVertexArray.bind();
 	m_CanvasVertexBuffer.bind();
 	m_CanvasVertexBuffer.upload_vertices(__CanvasVertices,24);
@@ -721,30 +721,6 @@ vec2 Renderer::align(Rect geom,Alignment alignment)
 }
 
 /**
- *	helper to unclutter the automatic load callbacks for gpu data
- */
-void Renderer::_gpu_upload()
-{
-	m_GPUSpriteTextures.gpu_upload(RENDERER_TEXTURE_SPRITES,m_FrameStart);
-	m_GPUFontTextures.gpu_upload(RENDERER_TEXTURE_FONTS,m_FrameStart);
-
-	// singular textures
-	m_MutexMeshTextureUpload.lock();
-	while (m_MeshTextureUploadQueue.size()&&calculate_delta_time(m_FrameStart)<FRAME_TIME_BUDGET_MS)
-	{
-		TextureDataTuple& p_Tuple = m_MeshTextureUploadQueue.front();
-		p_Tuple.texture->bind(RENDERER_TEXTURE_UNMAPPED);
-		p_Tuple.data.gpu_upload();
-		m_MeshTextureUploadQueue.pop();
-		Texture::set_texture_parameter_linear_mipmap();
-		Texture::set_texture_parameter_clamp_to_edge();
-		Texture::generate_mipmap();
-	}
-	m_MutexMeshTextureUpload.unlock();
-}
-// FIXME the same is happening in buffer.cpp, it seems untidy and is worth another thought
-
-/**
  *	update all registered sprites
  */
 void Renderer::_update_sprites()
@@ -782,6 +758,10 @@ void Renderer::_update_canvas()
 	m_CanvasVertexArray.bind();
 	m_CanvasPipeline.enable();
 	m_ForwardFrameBuffer.bind_colour_component(RENDERER_TEXTURE_FORWARD,0);
+	m_DeferredFrameBuffer.bind_colour_component(RENDERER_TEXTURE_DEFERRED_COLOUR,0);
+	m_DeferredFrameBuffer.bind_colour_component(RENDERER_TEXTURE_DEFERRED_POSITION,1);
+	m_DeferredFrameBuffer.bind_colour_component(RENDERER_TEXTURE_DEFERRED_NORMAL,2);
+	m_DeferredFrameBuffer.bind_colour_component(RENDERER_TEXTURE_DEFERRED_MATERIAL,3);
 	glDrawArrays(GL_TRIANGLES,0,6);
 }
 
@@ -814,6 +794,30 @@ void Renderer::_update_mesh(list<GeometryBatch>& gb,list<ParticleBatch>& pb)
 		glDrawArraysInstanced(GL_TRIANGLES,0,p_Batch.vertex_count,p_Batch.active_particles);
 	}
 }
+
+/**
+ *	helper to unclutter the automatic load callbacks for gpu data
+ */
+void Renderer::_gpu_upload()
+{
+	m_GPUSpriteTextures.gpu_upload(RENDERER_TEXTURE_SPRITES,m_FrameStart);
+	m_GPUFontTextures.gpu_upload(RENDERER_TEXTURE_FONTS,m_FrameStart);
+
+	// singular textures
+	m_MutexMeshTextureUpload.lock();
+	while (m_MeshTextureUploadQueue.size()&&calculate_delta_time(m_FrameStart)<FRAME_TIME_BUDGET_MS)
+	{
+		TextureDataTuple& p_Tuple = m_MeshTextureUploadQueue.front();
+		p_Tuple.texture->bind(RENDERER_TEXTURE_UNMAPPED);
+		p_Tuple.data.gpu_upload();
+		m_MeshTextureUploadQueue.pop();
+		Texture::set_texture_parameter_linear_mipmap();
+		Texture::set_texture_parameter_clamp_to_edge();
+		Texture::generate_mipmap();
+	}
+	m_MutexMeshTextureUpload.unlock();
+}
+// FIXME the same is happening in buffer.cpp, it seems untidy and is worth another thought
 
 
 // ----------------------------------------------------------------------------------------------------

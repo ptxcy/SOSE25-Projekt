@@ -210,11 +210,11 @@ public:
 	static vec2 align(Rect geom,Alignment alignment);
 
 private:
-	void _gpu_upload();
 	void _update_sprites();
 	void _update_text();
 	void _update_canvas();
 	static void _update_mesh(list<GeometryBatch>& gb,list<ParticleBatch>& pb);
+	void _gpu_upload();
 
 	// background procedures
 	template<typename T> static void _collector(InPlaceArray<T>* xs,ThreadSignal* signal);

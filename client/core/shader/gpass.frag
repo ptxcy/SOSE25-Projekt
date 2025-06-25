@@ -5,10 +5,10 @@ in vec3 Position;
 in vec2 EdgeCoordinates;
 in mat3 TBN;
 
-out vec4 gbuffer_colour;
-out vec4 gbuffer_position;
-out vec4 gbuffer_normals;
-out vec4 gbuffer_materials;
+layout(location = 0) out vec4 gbuffer_colour;
+layout(location = 1) out vec4 gbuffer_position;
+layout(location = 2) out vec4 gbuffer_normals;
+layout(location = 3) out vec4 gbuffer_materials;
 
 uniform sampler2D colour_map;
 uniform sampler2D normal_map;
