@@ -644,6 +644,7 @@ Texture* Renderer::register_texture(const char* path)
 {
 	COMM_LOG("mesh texture register of %s",path);
 	Texture* p_Texture = m_MeshTextures.next_free();
+	new(p_Texture) Texture();
 	thread __LoadThread(_load_texture,p_Texture,path,&m_MeshTextureUploadQueue,&m_MutexMeshTextureUpload);
 	__LoadThread.detach();
 	return p_Texture;
@@ -718,6 +719,15 @@ vec2 Renderer::align(Rect geom,Alignment alignment)
 	u8 horizontal_alignment = alignment.align/3;
 	if (!!horizontal_alignment) __Position.x += horizontal_alignment*(__BorderCenter.x-__GeomCenter.x);
 	return __Position;
+}
+
+/**
+ *	TODO
+ */
+void Renderer::switch_component(u32 switcher)
+{
+	m_CanvasPipeline.enable();
+	m_CanvasPipeline.upload("switcher",(s32)switcher);
 }
 
 /**

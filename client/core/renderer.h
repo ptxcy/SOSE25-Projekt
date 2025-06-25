@@ -209,6 +209,10 @@ public:
 	// utility
 	static vec2 align(Rect geom,Alignment alignment);
 
+#ifdef DEBUG
+	void switch_component(u32 switcher);
+#endif
+
 private:
 	void _update_sprites();
 	void _update_text();
