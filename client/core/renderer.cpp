@@ -232,10 +232,11 @@ u32 GeometryBatch::add_geometry(void* verts,size_t vsize,size_t ssize,vector<Tex
 
 	// store geometry information
 	object.push_back({
-			.offset = geometry_cursor/ssize,
+			.offset = offset_cursor,
 			.vertex_count = vsize,
 			.textures = tex
 		});
+	offset_cursor += vsize;
 	geometry_cursor += __Size;
 	return object.size()-1;
 }
@@ -722,15 +723,6 @@ vec2 Renderer::align(Rect geom,Alignment alignment)
 }
 
 /**
- *	TODO
- */
-void Renderer::switch_component(u32 switcher)
-{
-	m_CanvasPipeline.enable();
-	m_CanvasPipeline.upload("switcher",(s32)switcher);
-}
-
-/**
  *	update all registered sprites
  */
 void Renderer::_update_sprites()
@@ -772,6 +764,8 @@ void Renderer::_update_canvas()
 	m_DeferredFrameBuffer.bind_colour_component(RENDERER_TEXTURE_DEFERRED_POSITION,1);
 	m_DeferredFrameBuffer.bind_colour_component(RENDERER_TEXTURE_DEFERRED_NORMAL,2);
 	m_DeferredFrameBuffer.bind_colour_component(RENDERER_TEXTURE_DEFERRED_MATERIAL,3);
+	m_ForwardFrameBuffer.bind_depth_component(RENDERER_TEXTURE_FORWARD_DEPTH);
+	m_DeferredFrameBuffer.bind_depth_component(RENDERER_TEXTURE_DEFERRED_DEPTH);
 	glDrawArrays(GL_TRIANGLES,0,6);
 }
 

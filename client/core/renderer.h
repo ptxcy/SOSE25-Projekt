@@ -17,6 +17,8 @@ enum TextureChannelMap : u16
 	RENDERER_TEXTURE_DEFERRED_POSITION,
 	RENDERER_TEXTURE_DEFERRED_NORMAL,
 	RENDERER_TEXTURE_DEFERRED_MATERIAL,
+	RENDERER_TEXTURE_FORWARD_DEPTH,
+	RENDERER_TEXTURE_DEFERRED_DEPTH,
 	RENDERER_TEXTURE_UNMAPPED
 };
 
@@ -154,6 +156,7 @@ struct GeometryBatch
 	vector<GeometryTuple> object;
 	vector<float> geometry;
 	u32 geometry_cursor = 0;
+	u32 offset_cursor = 0;
 };
 
 struct ParticleBatch
@@ -208,10 +211,6 @@ public:
 
 	// utility
 	static vec2 align(Rect geom,Alignment alignment);
-
-#ifdef DEBUG
-	void switch_component(u32 switcher);
-#endif
 
 private:
 	void _update_sprites();

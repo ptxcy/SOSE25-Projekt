@@ -22,10 +22,15 @@ TestScene::TestScene()
 
 	// textures
 	vector<Texture*> __SunTextures = { g_Renderer.register_texture("./res/planets/halfres/sun.jpg") };
-	vector<Texture*> __PhysicalTextures = {
+	vector<Texture*> __ParquetTextures = {
 		g_Renderer.register_texture("./res/physical/paquet_colour.png"),
 		g_Renderer.register_texture("./res/physical/paquet_normal.png"),
 		g_Renderer.register_texture("./res/physical/paquet_material.png"),
+	};
+	vector<Texture*> __MarbleTextures = {
+		g_Renderer.register_texture("./res/physical/marble_colour.png"),
+		g_Renderer.register_texture("./res/physical/marble_normal.png"),
+		g_Renderer.register_texture("./res/physical/marble_material.png"),
 	};
 
 	// freeform buffer
@@ -35,8 +40,8 @@ TestScene::TestScene()
 
 	// physical buffer
 	lptr<GeometryBatch> __PhysicalBatch = g_Renderer.register_deferred_geometry_batch(__GPassShader);
-	__PhysicalBatch->add_geometry(__FloorMesh,__PhysicalTextures);
-	__PhysicalBatch->add_geometry(__MonkeyMesh,__PhysicalTextures);
+	__PhysicalBatch->add_geometry(__FloorMesh,__ParquetTextures);
+	__PhysicalBatch->add_geometry(__MonkeyMesh,__MarbleTextures);
 	__PhysicalBatch->load();
 
 	g_Wheel.call(UpdateRoutine{ &TestScene::_update,(void*)this });
@@ -45,10 +50,4 @@ TestScene::TestScene()
 /**
  *	update test scene
  */
-void TestScene::update()
-{
-	// switcher system
-	switcher += g_Input.keyboard.triggered_keys[SDL_SCANCODE_N];
-	switcher %= 6;
-	g_Renderer.switch_component(switcher);
-}
+void TestScene::update() {  }
