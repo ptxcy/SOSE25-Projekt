@@ -301,6 +301,16 @@ void GeometryBatch::attach_uniform(u32 gid,const char* name,mat4* var)
 }
 
 /**
+ *	change an objects texel density
+ *	\param gid: geometry id of object in question
+ *	\param texel: texel density value
+ */
+void GeometryBatch::set_texel(u32 gid,f32 texel)
+{
+	object[gid].texel = texel;
+}
+
+/**
  *	setup particle batch by mesh geometry
  *	\param mesh: loaded mesh for explicit geometry information
  *	\param particles: amount of particles
@@ -838,9 +848,15 @@ void Renderer::_update_mesh(list<GeometryBatch>& gb,list<ParticleBatch>& pb)
 		p_Batch.vao.bind();
 		for (GeometryTuple& p_Tuple : p_Batch.object)
 		{
+			// texture upload
 			for (u8 i=0;i<p_Tuple.textures.size();i++) p_Tuple.textures[i]->bind(RENDERER_TEXTURE_UNMAPPED+i);
+
+			// upload attached uniform value pointers
 			for (GeometryUniformUpload& p_Upload : p_Tuple.uploads)
 				p_Batch.shader->upload(p_Upload.uloc,p_Upload.udim,p_Upload.data);
+
+			// upload standard values & call gpu
+			p_Batch.shader->upload("texel",p_Tuple.texel);
 			glDrawArrays(GL_TRIANGLES,p_Tuple.offset,p_Tuple.vertex_count);
 		}
 	}

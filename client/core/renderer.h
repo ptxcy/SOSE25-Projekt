@@ -132,6 +132,7 @@ struct GeometryTuple
 	size_t vertex_count;
 	vector<Texture*> textures;
 	vector<GeometryUniformUpload> uploads;
+	f32 texel = 1.f;
 };
 // TODO add a model matrix as standard uniform, model matrices belong in every geometry tuple!
 //		acually maybe also add the model matrix as a result of a transform3D struct that can be modified
@@ -150,6 +151,9 @@ struct GeometryBatch
 	void attach_uniform(u32 gid,const char* name,vec3* var);
 	void attach_uniform(u32 gid,const char* name,vec4* var);
 	void attach_uniform(u32 gid,const char* name,mat4* var);
+
+	// settings
+	void set_texel(u32 gid,f32 texel);
 
 	// data
 	VertexArray vao;

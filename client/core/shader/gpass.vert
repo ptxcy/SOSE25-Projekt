@@ -14,7 +14,7 @@ uniform mat4 view;
 uniform mat4 proj;
 
 uniform vec3 offset = vec3(0);
-uniform float texel_scale = 5.;
+uniform float texel = 1.;
 
 
 void main()
@@ -23,7 +23,7 @@ void main()
 	gl_Position = proj*view*vec4(Position,1.);
 
 	// calculate texture coordinates
-	EdgeCoordinates = edge_coordinates*texel_scale;
+	EdgeCoordinates = edge_coordinates*texel;
 
 	// gram-schmidt reorthogonalization
 	vec3 Tangent = normalize(tangent-dot(tangent,normals)*normals);

@@ -71,6 +71,12 @@ TestScene::TestScene()
 	__PhysicalBatch->attach_uniform(o1,"offset",&m_ObjPosition1);
 	__PhysicalBatch->attach_uniform(o2,"offset",&m_ObjPosition2);
 
+	// set texel density
+	__PhysicalBatch->set_texel(t0,5);
+	__PhysicalBatch->set_texel(o0,5);
+	__PhysicalBatch->set_texel(o1,5);
+	__PhysicalBatch->set_texel(o2,2);
+
 	// add light
 	g_Renderer.add_pointlight(m_SunPosition0,vec3(.8f,.4f,.1f),10.f,1.f,.8f,.24f);
 	g_Renderer.add_pointlight(m_SunPosition1,vec3(.1f,.1f,.8f),10.f,1.f,.8f,.24f);
