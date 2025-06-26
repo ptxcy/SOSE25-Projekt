@@ -13,12 +13,13 @@ out mat3 TBN;
 uniform mat4 view;
 uniform mat4 proj;
 
-uniform float texel_scale = 1.;
+uniform vec3 offset = vec3(0);
+uniform float texel_scale = 5.;
 
 
 void main()
 {
-	Position = position;
+	Position = position+offset;
 	gl_Position = proj*view*vec4(Position,1.);
 
 	// calculate texture coordinates

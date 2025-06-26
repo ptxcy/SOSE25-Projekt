@@ -9,7 +9,7 @@ in vec3 tangent;
 
 out vec2 UV;
 
-uniform float disp = 2.;
+uniform vec3 offset = vec3(0);
 uniform float scale = 1.;
 
 uniform mat4 view;
@@ -18,7 +18,7 @@ uniform mat4 proj;
 
 void main()
 {
-	vec3 Position = vec3(position.x+disp,position.y+disp,position.z);
+	vec3 Position = position+offset;
 	gl_Position = proj*view*vec4(Position*scale,1.);
 	UV = uv;
 }

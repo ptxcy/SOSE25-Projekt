@@ -28,7 +28,7 @@ uniform sampler2D gbuffer_depth;
 // camera parameters
 uniform vec3 camera_position;
 uniform float exposure = 1.;
-uniform float gamma = 1/2.2;
+uniform float gamma = 2.2;
 
 // simulated lights
 uniform light_point pointlights[64];
@@ -83,7 +83,7 @@ void main()
 
 	// colour corrections
 	final = vec3(1.)-exp(-final*exposure);
-	final = pow(final,vec3(gamma));
+	final = pow(final,vec3(1./gamma));
 
 	// calculate final pixel colour
 	final = mix(final,cmp_forward.rgb,cmp_forward.a*int(cmp_fdepth<cmp_gdepth));

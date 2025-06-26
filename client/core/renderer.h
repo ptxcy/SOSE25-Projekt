@@ -133,6 +133,8 @@ struct GeometryTuple
 	vector<Texture*> textures;
 	vector<GeometryUniformUpload> uploads;
 };
+// TODO add a model matrix as standard uniform, model matrices belong in every geometry tuple!
+//		acually maybe also add the model matrix as a result of a transform3D struct that can be modified
 
 struct GeometryBatch
 {
@@ -177,6 +179,26 @@ struct ParticleBatch
 
 
 // ----------------------------------------------------------------------------------------------------
+// Lighting
+
+struct PointLight
+{
+	vec3 position;
+	vec3 colour;
+	f32 intensity;
+	f32 constant;
+	f32 linear;
+	f32 quadratic;
+};
+
+struct Lighting
+{
+	PointLight pointlights[64];
+	u8 pointlights_active = 0;
+};
+
+
+// ----------------------------------------------------------------------------------------------------
 // Renderer Component
 
 class Renderer
@@ -201,7 +223,7 @@ public:
 	inline void delete_text(lptr<Text> text) { m_Texts.erase(text); }
 
 	// textures
-	Texture* register_texture(const char* path);
+	Texture* register_texture(const char* path,s32 iformat=GL_RGBA,s32 format=GL_RGBA);
 
 	// scene
 	lptr<ShaderPipeline> register_pipeline(VertexShader& vs,FragmentShader& fs);
@@ -211,6 +233,8 @@ public:
 
 	// lighting
 	void add_pointlight(vec3 position,vec3 colour,f32 intensity,f32 constant,f32 linear,f32 quadratic);
+	void upload_lighting();
+	void reset_lighting();
 
 	// utility
 	static vec2 align(Rect geom,Alignment alignment);
@@ -289,6 +313,9 @@ private:
 	list<ParticleBatch> m_ParticleBatches;
 	list<GeometryBatch> m_DeferredGeometryBatches;
 	list<ParticleBatch> m_DeferredParticleBatches;
+
+	// lighting
+	Lighting m_Lighting;
 };
 
 inline Renderer g_Renderer = Renderer();

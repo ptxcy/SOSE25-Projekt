@@ -15,7 +15,17 @@ public:
 	void update();
 
 private:
-	u32 switcher = 0;
+
+	// sun information
+	vec3 m_SunPosition0 = vec3(2,2,0);
+	vec3 m_SunPosition1 = vec3(-3,-4,0);
+	vec3 m_SunPosition2 = vec3(-4.5,7,-1);
+
+	// object positions
+	vec3 m_BasePosition = vec3(0,0,0);
+	vec3 m_ObjPosition0 = vec3(0,0,0);
+	vec3 m_ObjPosition1 = vec3(-4,0,0);
+	vec3 m_ObjPosition2 = vec3(-2,3,0);
 };
 
 

@@ -81,12 +81,12 @@ void VertexBuffer::upload_elements(vector<u32> elements)
 
 /**
  *	allocation and setup for texture data load
- *	\param format: (default GL_RGBA) texture buffer upload format
+ *	\param format: (default GL_RGBA) texture channel format
+ *	\param iformat: (default GL_RGBA) texture internal colour format
  */
-TextureData::TextureData(s32 format)
-	: m_Format(format) {  }
-//m_Format = GL_RGBA+corrected*0x7338;
-// TODO outsource correction format adjustment
+TextureData::TextureData(u32 format,u32 iformat)
+	: m_Format(format),m_InternalFormat(iformat)
+{  }
 
 /**
  *	make the cpu load the texture data & dimensions from file
@@ -106,7 +106,7 @@ void TextureData::load(const char* path)
  */
 void TextureData::gpu_upload()
 {
-	glTexImage2D(GL_TEXTURE_2D,0,m_Format,width,height,0,m_Format,GL_UNSIGNED_BYTE,data);
+	glTexImage2D(GL_TEXTURE_2D,0,m_InternalFormat,width,height,0,m_Format,GL_UNSIGNED_BYTE,data);
 	_free();
 }
 

@@ -57,7 +57,7 @@ private:
 struct TextureData
 {
 public:
-	TextureData(s32 format=GL_RGBA);
+	TextureData(u32 format=GL_RGBA,u32 iformat=GL_RGBA);
 
 	void load(const char* path);
 	void gpu_upload();
@@ -73,6 +73,7 @@ public:
 
 private:
 	s32 m_Format;
+	s32 m_InternalFormat;
 	bool m_TextureFlag = false;
 };
 

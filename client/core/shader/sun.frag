@@ -11,4 +11,5 @@ uniform sampler2D tex;
 void main()
 {
 	pixelColour = texture(tex,UV);
+	pixelColour = pixelColour;
 }

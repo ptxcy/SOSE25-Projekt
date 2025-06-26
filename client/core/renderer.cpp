@@ -623,12 +623,15 @@ lptr<Text> Renderer::write_text(Font* font,string data,vec3 position,f32 scale,v
  *	load texture into ram in background and register for vram upload when ready
  *	\param texture: pointer to texture in memory
  *	\param path: path to texture
+ *	\param format: texture channel format
+ *	\param iformat: colour format for texture upload
  *	\param data_queue: queue for texture vram upload
  *	\param queue_mutex: mutual exclusion for data queue to prevent race conditions
  */
-void _load_texture(Texture* texture,const char* path,queue<TextureDataTuple>* data_queue,std::mutex* queue_mutex)
+void _load_texture(Texture* texture,const char* path,s32 format,s32 sformat,
+				   queue<TextureDataTuple>* data_queue,std::mutex* queue_mutex)
 {
-	TextureData __Data = TextureData();
+	TextureData __Data = TextureData(format,sformat);
 	__Data.load(path);
 	queue_mutex->lock();
 	data_queue->push(TextureDataTuple{ __Data,texture });
@@ -639,14 +642,17 @@ void _load_texture(Texture* texture,const char* path,queue<TextureDataTuple>* da
 /**
  *	load texture into memory
  *	\param path: path to texture file
+ *	\param iformat: (default GL_RGBA) colour format for texture upload
+ *	\param format: (default GL_RGBA) texture channel format
  *	\returns pointer to texture in ram, referencing texture in vram
  */
-Texture* Renderer::register_texture(const char* path)
+Texture* Renderer::register_texture(const char* path,s32 iformat,s32 format)
 {
 	COMM_LOG("mesh texture register of %s",path);
 	Texture* p_Texture = m_MeshTextures.next_free();
 	new(p_Texture) Texture();
-	thread __LoadThread(_load_texture,p_Texture,path,&m_MeshTextureUploadQueue,&m_MutexMeshTextureUpload);
+	thread __LoadThread(_load_texture,p_Texture,path,format,iformat,
+						&m_MeshTextureUploadQueue,&m_MutexMeshTextureUpload);
 	__LoadThread.detach();
 	return p_Texture;
 }
@@ -700,18 +706,50 @@ lptr<ParticleBatch> Renderer::register_particle_batch(lptr<ShaderPipeline> pipel
 }
 
 /**
- *	TODO
+ *	TODO document
+ *	TODO return a pointer to the light
  */
 void Renderer::add_pointlight(vec3 position,vec3 colour,f32 intensity,f32 constant,f32 linear,f32 quadratic)
 {
+	m_Lighting.pointlights[m_Lighting.pointlights_active++] = {
+		.position = position,
+		.colour = colour,
+		.intensity = intensity,
+		.constant = constant,
+		.linear = linear,
+		.quadratic = quadratic
+	};
+}
+
+/**
+ *	upload all setup lights to gpu lighting simulation processing
+ *	TODO place the upload routine into the light to improve dynamic upload when user receives a pointer
+ */
+void Renderer::upload_lighting()
+{
 	m_CanvasPipeline.enable();
-	m_CanvasPipeline.upload("pointlights[0].position",position);
-	m_CanvasPipeline.upload("pointlights[0].colour",colour);
-	m_CanvasPipeline.upload("pointlights[0].intensity",intensity);
-	m_CanvasPipeline.upload("pointlights[0].constant",constant);
-	m_CanvasPipeline.upload("pointlights[0].linear",linear);
-	m_CanvasPipeline.upload("pointlights[0].quadratic",quadratic);
-	m_CanvasPipeline.upload("pointlights_active",1);
+
+	// upload pointlights
+	for (u8 i=0;i<m_Lighting.pointlights_active;i++)
+	{
+		PointLight& light = m_Lighting.pointlights[i];
+		string __ArrayLocation = "pointlights["+std::to_string(i)+"].";
+		m_CanvasPipeline.upload((__ArrayLocation+"position").c_str(),light.position);
+		m_CanvasPipeline.upload((__ArrayLocation+"colour").c_str(),light.colour);
+		m_CanvasPipeline.upload((__ArrayLocation+"intensity").c_str(),light.intensity);
+		m_CanvasPipeline.upload((__ArrayLocation+"constant").c_str(),light.constant);
+		m_CanvasPipeline.upload((__ArrayLocation+"linear").c_str(),light.linear);
+		m_CanvasPipeline.upload((__ArrayLocation+"quadratic").c_str(),light.quadratic);
+	}
+	m_CanvasPipeline.upload("pointlights_active",m_Lighting.pointlights_active);
+}
+
+/**
+ *	deactivate all lights to fundamentally reset the lighting setup
+ */
+void Renderer::reset_lighting()
+{
+	m_Lighting.pointlights_active = 0;
 }
 
 /**
@@ -787,6 +825,8 @@ void Renderer::_update_canvas()
 
 /**
  *	update triangle meshes
+ *	\param gb: geometry batch to draw contained geometry from
+ *	\param pb: particle batch to draw contained particles geometry from
  */
 void Renderer::_update_mesh(list<GeometryBatch>& gb,list<ParticleBatch>& pb)
 {
@@ -832,7 +872,7 @@ void Renderer::_gpu_upload()
 		p_Tuple.data.gpu_upload();
 		m_MeshTextureUploadQueue.pop();
 		Texture::set_texture_parameter_linear_mipmap();
-		Texture::set_texture_parameter_clamp_to_edge();
+		Texture::set_texture_parameter_repeat();
 		Texture::generate_mipmap();
 	}
 	m_MutexMeshTextureUpload.unlock();
