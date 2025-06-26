@@ -209,10 +209,16 @@ public:
 	lptr<GeometryBatch> register_deferred_geometry_batch(lptr<ShaderPipeline> pipeline);
 	lptr<ParticleBatch> register_particle_batch(lptr<ShaderPipeline> pipeline);
 
+	// lighting
+	void add_pointlight(vec3 position,vec3 colour,f32 intensity,f32 constant,f32 linear,f32 quadratic);
+
 	// utility
 	static vec2 align(Rect geom,Alignment alignment);
+	// TODO maybe make this private?
 
 private:
+
+	// pipeline steps
 	void _update_sprites();
 	void _update_text();
 	void _update_canvas();

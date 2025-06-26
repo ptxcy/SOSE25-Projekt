@@ -44,6 +44,9 @@ TestScene::TestScene()
 	__PhysicalBatch->add_geometry(__MonkeyMesh,__MarbleTextures);
 	__PhysicalBatch->load();
 
+	// add light
+	g_Renderer.add_pointlight(vec3(2,2,0),vec3(.8f,.4f,.1f),10.f,1.f,.8f,.24f);
+
 	g_Wheel.call(UpdateRoutine{ &TestScene::_update,(void*)this });
 }
 

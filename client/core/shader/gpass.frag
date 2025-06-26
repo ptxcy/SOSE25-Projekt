@@ -20,7 +20,7 @@ void main()
 {
 	// extract colour & position
 	gbuffer_colour = vec4(texture(colour_map,EdgeCoordinates).rgb,1.);
-	gbuffer_position = vec4(Position,0);
+	gbuffer_position = vec4(Position,1.);
 
 	// translate normals
 	vec3 normals = texture(normal_map,EdgeCoordinates).rgb*2.0-1.0;

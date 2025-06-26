@@ -700,6 +700,21 @@ lptr<ParticleBatch> Renderer::register_particle_batch(lptr<ShaderPipeline> pipel
 }
 
 /**
+ *	TODO
+ */
+void Renderer::add_pointlight(vec3 position,vec3 colour,f32 intensity,f32 constant,f32 linear,f32 quadratic)
+{
+	m_CanvasPipeline.enable();
+	m_CanvasPipeline.upload("pointlights[0].position",position);
+	m_CanvasPipeline.upload("pointlights[0].colour",colour);
+	m_CanvasPipeline.upload("pointlights[0].intensity",intensity);
+	m_CanvasPipeline.upload("pointlights[0].constant",constant);
+	m_CanvasPipeline.upload("pointlights[0].linear",linear);
+	m_CanvasPipeline.upload("pointlights[0].quadratic",quadratic);
+	m_CanvasPipeline.upload("pointlights_active",1);
+}
+
+/**
  *	geometry realignment based on position
  *	\param geom: intersection rectangle over aligning geometry
  *	\param alignment: (default fullscreen neutral) target alignment within specified border
@@ -766,6 +781,7 @@ void Renderer::_update_canvas()
 	m_DeferredFrameBuffer.bind_colour_component(RENDERER_TEXTURE_DEFERRED_MATERIAL,3);
 	m_ForwardFrameBuffer.bind_depth_component(RENDERER_TEXTURE_FORWARD_DEPTH);
 	m_DeferredFrameBuffer.bind_depth_component(RENDERER_TEXTURE_DEFERRED_DEPTH);
+	m_CanvasPipeline.upload("camera_position",g_Camera.position);
 	glDrawArrays(GL_TRIANGLES,0,6);
 }
 
