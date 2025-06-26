@@ -15,7 +15,6 @@ public:
 	void update();
 
 private:
-
 	u32 switcher = 0;
 };
 

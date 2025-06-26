@@ -17,6 +17,8 @@ TestScene::TestScene()
 
 	// geometry
 	Mesh __SphereMesh = Mesh("./res/sphere.obj");
+	Mesh __MonkeyMesh = Mesh("./res/physical/test_obj.obj");
+	Mesh __FloorMesh = Mesh("./res/physical/test_floor.obj");
 
 	// textures
 	vector<Texture*> __SunTextures = { g_Renderer.register_texture("./res/planets/halfres/sun.jpg") };
@@ -33,7 +35,8 @@ TestScene::TestScene()
 
 	// physical buffer
 	lptr<GeometryBatch> __PhysicalBatch = g_Renderer.register_deferred_geometry_batch(__GPassShader);
-	__PhysicalBatch->add_geometry(__SphereMesh,__PhysicalTextures);
+	__PhysicalBatch->add_geometry(__FloorMesh,__PhysicalTextures);
+	__PhysicalBatch->add_geometry(__MonkeyMesh,__PhysicalTextures);
 	__PhysicalBatch->load();
 
 	g_Wheel.call(UpdateRoutine{ &TestScene::_update,(void*)this });
@@ -44,7 +47,8 @@ TestScene::TestScene()
  */
 void TestScene::update()
 {
+	// switcher system
 	switcher += g_Input.keyboard.triggered_keys[SDL_SCANCODE_N];
-	switcher %= 5;
+	switcher %= 6;
 	g_Renderer.switch_component(switcher);
 }

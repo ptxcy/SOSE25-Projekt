@@ -10,18 +10,6 @@
 #include "flotilla.h"
 
 
-// zoom
-constexpr f32 CMDSYS_ZOOM_ACCELLERATION = -.15f;
-constexpr f32 CMDSYS_ZOOM_FLOATFACTOR = .9f;
-constexpr f32 CMDSYS_ZOOM_MINDIST = 2.f;
-constexpr f32 CMDSYS_ZOOM_MAXDIST = 50.f;
-constexpr f32 CMDSYS_ZOOM_EASE = .25f;
-
-// yaw
-constexpr f32 CMDSYS_ROT_MOUSEACC = -.05f;
-constexpr f32 CMDSYS_ROT_KEYACC = .5f;
-constexpr f32 CMDSYS_ROT_FLOATFACTOR = .8f;
-
 // movement
 constexpr f32 CMDSYS_MVMT_ACCELLERATION = .15f;
 constexpr f32 CMDSYS_MVMT_FLOATFACTOR = .8f;
@@ -61,8 +49,6 @@ private:
 
 	// camera movement
 	vec3 m_CameraMomentum = vec3(0);
-	f32 m_ZoomMomentum = .3f;
-	vec2 m_RotMomentum = vec2(.0f);
 	ControlState m_CState = CSTATE_LOCKED;
 	u8 m_PlanetLock = 2;
 	u8 m_ShipLock = 0;

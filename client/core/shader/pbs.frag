@@ -23,12 +23,14 @@ void main()
 	vec4 cmp_position = texture(gbuffer_position,EdgeCoordinates);
 	vec4 cmp_normals = texture(gbuffer_normals,EdgeCoordinates);
 	vec4 cmp_material = texture(gbuffer_material,EdgeCoordinates);
-	vec4 cmps[5] = vec4[5](
-		cmp_forward,
+	vec4 cmp_comb = cmp_forward+cmp_colour*int((cmp_forward.x+cmp_forward.y+cmp_forward.z)<.1);
+	vec4 cmps[6] = vec4[6](
 		cmp_colour,
 		cmp_position,
 		cmp_normals,
-		cmp_material
+		cmp_material,
+		cmp_forward,
+		cmp_comb
 	);
 
 	// calculate final pixel colour
