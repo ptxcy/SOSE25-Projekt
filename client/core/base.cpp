@@ -102,6 +102,120 @@ bool Rect::intersect(vec2 point)
 }
 
 
+/**
+ *	transform object
+ *	\param p: object position
+ *	\param s: object scale
+ *	\param r: object rotation
+ */
+void Transform3D::transform(vec3 p,f32 s,vec3 r)
+{
+	translate(p);
+	scale(s);
+	rotate(r);
+}
+
+/**
+ *	transform object around arbitrary origin
+ *	\param p: object position
+ *	\param s: object scale
+ *	\param r: object rotation
+ *	\param a: arbitrary point of origin
+ */
+void Transform3D::transform(vec3 p,f32 s,vec3 r,vec3 a)
+{
+	model = mat4(1.f);
+	translate(a-position);
+	transform(position+p-a,s,r);
+}
+
+/**
+ *	translate object position
+ *	\param p: object position
+ */
+void Transform3D::translate(vec3 p)
+{
+	model[3][0] = p.x;
+	model[3][1] = p.y;
+	model[3][2] = p.z;
+}
+
+/**
+ *	set model scaling
+ *	\param s: scaling, 1.f is default size
+ */
+void Transform3D::scale(f32 s)
+{
+	model[0][0] = s;
+	model[1][1] = s;
+	model[2][2] = s;
+}
+
+/**
+ *	scale object around arbitrary origin
+ *	\param s: scaling, 1.f is default size
+ *	\param a: arbitrary point of origin
+ */
+void Transform3D::scale(f32 s,vec3 a)
+{
+	model = glm::mat4(1.f);
+	translate(a-position);
+	transform(position-a,s,rotation);
+}
+
+/**
+ *	rotate model around the x axis
+ *	\param x: rotation around x in degrees
+ */
+void Transform3D::rotate_x(f32 x)
+{
+	model = glm::rotate(model,glm::radians(x),vec3(1,0,0));
+}
+
+/**
+ *	rotate model around the y axis
+ *	\param y: rotation around y in degrees
+ */
+void Transform3D::rotate_y(f32 y)
+{
+	model = glm::rotate(model,glm::radians(y),vec3(0,1,0));
+}
+
+/**
+ *	rotate model around the z axis
+ *	\param z: rotation around z in degrees
+ */
+void Transform3D::rotate_z(f32 z)
+{
+	model = glm::rotate(model,glm::radians(z),vec3(0,0,1));
+}
+
+/**
+ *	set model rotation
+ *	\param r: object rotation
+ */
+void Transform3D::rotate(vec3 r)
+{
+	rotate_x(r.x);
+	rotate_y(r.y);
+	rotate_z(r.z);
+	rotation = r;
+}
+
+/**
+ *	rotate model around an arbitrary origin
+ *	\param r: object rotation
+ *	\param a: arbitrary point of origin
+ */
+void Transform3D::rotate(vec3 r,vec3 a)
+{
+	f32 __ScaleFactor = model[0][0];
+	model = mat4(1.f);
+	translate(a-position);
+	transform(position-a,__ScaleFactor,r);
+}
+
+
 // ----------------------------------------------------------------------------------------------------
 // Coordinate System
 

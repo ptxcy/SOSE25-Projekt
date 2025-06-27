@@ -79,14 +79,25 @@ void VertexBuffer::upload_elements(vector<u32> elements)
 // ----------------------------------------------------------------------------------------------------
 // Colour Buffers
 
+s32 _texture_format_channels[] = {
+	GL_RGBA,
+	GL_RGBA,
+	GL_RED
+};
+
+s32 _texture_format_internal[] = {
+	GL_RGBA,
+	GL_SRGB8_ALPHA8,
+	GL_RED
+};
+
 /**
  *	allocation and setup for texture data load
- *	\param format: (default GL_RGBA) texture buffer upload format
+ *	\param format: (default TEXTURE_FORMAT_RGBA) texture channel format
  */
-TextureData::TextureData(s32 format)
-	: m_Format(format) {  }
-//m_Format = GL_RGBA+corrected*0x7338;
-// TODO outsource correction format adjustment
+TextureData::TextureData(TextureFormat format)
+	: m_Format(format)
+{  }
 
 /**
  *	make the cpu load the texture data & dimensions from file
@@ -106,7 +117,8 @@ void TextureData::load(const char* path)
  */
 void TextureData::gpu_upload()
 {
-	glTexImage2D(GL_TEXTURE_2D,0,m_Format,width,height,0,m_Format,GL_UNSIGNED_BYTE,data);
+	glTexImage2D(GL_TEXTURE_2D,0,_texture_format_internal[m_Format],width,height,0,
+				 _texture_format_channels[m_Format],GL_UNSIGNED_BYTE,data);
 	_free();
 }
 
@@ -117,7 +129,7 @@ void TextureData::gpu_upload()
  */
 void TextureData::gpu_upload_subtexture()
 {
-	glTexSubImage2D(GL_TEXTURE_2D,0,x,y,width,height,m_Format,GL_UNSIGNED_BYTE,data);
+	glTexSubImage2D(GL_TEXTURE_2D,0,x,y,width,height,_texture_format_channels[m_Format],GL_UNSIGNED_BYTE,data);
 	_free();
 }
 
@@ -351,7 +363,7 @@ void GPUPixelBuffer::load_font(GPUPixelBuffer* gpb,Font* font,const char* path,u
 		COMM_ERR_COND(_failed,"rasterization of character %c failed",(char)i+32);
 
 		// subtexture attributes
-		TextureData __TextureData = TextureData(GL_RED);
+		TextureData __TextureData = TextureData(TEXTURE_FORMAT_MONOCHROME);
 		__TextureData.width = __Face->glyph->bitmap.width;
 		__TextureData.height = __Face->glyph->bitmap.rows;
 

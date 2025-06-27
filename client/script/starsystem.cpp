@@ -54,12 +54,10 @@ StarSystem::StarSystem()
 	m_HaloBatch->load(__HaloMesh,1);
 	// TODO scale ring accordingly: start at 1.11f, ends at 2.33f
 
-	COMM_LOG("setup starsystem batches");
-	lptr<GeometryBatch> __SunBatch = g_Renderer.register_geometry_batch(m_SunShader);
-
 	// setup sun geometry
 	COMM_LOG("load sun geometry and textures");
 	vector<Texture*> __SunTextures = { g_Renderer.register_texture("./res/planets/halfres/sun.jpg") };
+	lptr<GeometryBatch> __SunBatch = g_Renderer.register_geometry_batch(m_SunShader);
 	__SunBatch->add_geometry(__SphereMesh,__SunTextures);
 	__SunBatch->load();
 	m_SunShader->upload("scale",STARSYS_SUN_REFERENCE_SCALE);

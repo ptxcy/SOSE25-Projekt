@@ -13,6 +13,12 @@ enum TextureChannelMap : u16
 	RENDERER_TEXTURE_SPRITES,
 	RENDERER_TEXTURE_FONTS,
 	RENDERER_TEXTURE_FORWARD,
+	RENDERER_TEXTURE_DEFERRED_COLOUR,
+	RENDERER_TEXTURE_DEFERRED_POSITION,
+	RENDERER_TEXTURE_DEFERRED_NORMAL,
+	RENDERER_TEXTURE_DEFERRED_MATERIAL,
+	RENDERER_TEXTURE_FORWARD_DEPTH,
+	RENDERER_TEXTURE_DEFERRED_DEPTH,
 	RENDERER_TEXTURE_UNMAPPED
 };
 
@@ -124,8 +130,10 @@ struct GeometryTuple
 {
 	size_t offset;
 	size_t vertex_count;
+	Transform3D transform;
 	vector<Texture*> textures;
 	vector<GeometryUniformUpload> uploads;
+	f32 texel = 1.f;
 };
 
 struct GeometryBatch
@@ -150,6 +158,7 @@ struct GeometryBatch
 	vector<GeometryTuple> object;
 	vector<float> geometry;
 	u32 geometry_cursor = 0;
+	u32 offset_cursor = 0;
 };
 
 struct ParticleBatch
@@ -166,6 +175,33 @@ struct ParticleBatch
 	vector<float> geometry;
 	u32 vertex_count;
 	u32 active_particles = 0;
+};
+
+
+// ----------------------------------------------------------------------------------------------------
+// Lighting
+
+struct SunLight
+{
+	vec3 position;
+	vec3 colour;
+};
+
+struct PointLight
+{
+	vec3 position;
+	vec3 colour;
+	f32 constant;
+	f32 linear;
+	f32 quadratic;
+};
+
+struct Lighting
+{
+	SunLight sunlights[8];
+	PointLight pointlights[64];
+	u8 sunlights_active = 0;
+	u8 pointlights_active = 0;
 };
 
 
@@ -194,22 +230,32 @@ public:
 	inline void delete_text(lptr<Text> text) { m_Texts.erase(text); }
 
 	// textures
-	Texture* register_texture(const char* path);
+	Texture* register_texture(const char* path,TextureFormat format=TEXTURE_FORMAT_RGBA);
 
 	// scene
 	lptr<ShaderPipeline> register_pipeline(VertexShader& vs,FragmentShader& fs);
 	lptr<GeometryBatch> register_geometry_batch(lptr<ShaderPipeline> pipeline);
+	lptr<GeometryBatch> register_deferred_geometry_batch();
+	lptr<GeometryBatch> register_deferred_geometry_batch(lptr<ShaderPipeline> pipeline);
 	lptr<ParticleBatch> register_particle_batch(lptr<ShaderPipeline> pipeline);
+
+	// lighting
+	SunLight* add_sunlight(vec3 position,vec3 colour,f32 intensity);
+	PointLight* add_pointlight(vec3 position,vec3 colour,f32 intensity,f32 constant,f32 linear,f32 quadratic);
+	void upload_lighting();
+	void reset_lighting();
 
 	// utility
 	static vec2 align(Rect geom,Alignment alignment);
 
 private:
-	void _gpu_upload();
+
+	// pipeline steps
 	void _update_sprites();
 	void _update_text();
 	void _update_canvas();
-	void _update_mesh();
+	static void _update_mesh(list<GeometryBatch>& gb,list<ParticleBatch>& pb);
+	void _gpu_upload();
 
 	// background procedures
 	template<typename T> static void _collector(InPlaceArray<T>* xs,ThreadSignal* signal);
@@ -247,6 +293,7 @@ private:
 	ShaderPipeline m_CanvasPipeline;
 
 	Framebuffer m_ForwardFrameBuffer = Framebuffer(1);
+	Framebuffer m_DeferredFrameBuffer = Framebuffer(4);
 
 	// ----------------------------------------------------------------------------------------------------
 	// Render Object Information
@@ -272,6 +319,12 @@ private:
 	list<ShaderPipeline> m_ShaderPipelines;
 	list<GeometryBatch> m_GeometryBatches;
 	list<ParticleBatch> m_ParticleBatches;
+	list<GeometryBatch> m_DeferredGeometryBatches;
+	list<ParticleBatch> m_DeferredParticleBatches;
+
+	// lighting
+	lptr<ShaderPipeline> m_GeometryPassPipeline;
+	Lighting m_Lighting;
 };
 
 inline Renderer g_Renderer = Renderer();

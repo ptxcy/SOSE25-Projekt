@@ -5,14 +5,17 @@
 #include "core/wheel.h"
 #include "core/websocket.h"
 
+#include "script/camera_control.h"
 #include "script/menu.h"
 #include "script/starsystem.h"
 #include "script/server_update.h"
+#include "script/test.h"
 
 
 s32 main(s32 argc,char** argv)
 {
 	Font* __Ubuntu = g_Renderer.register_font("./res/font/ubuntu.ttf",20);
+	/*
 	StarSystem __StarSystem = StarSystem();
 	Flotilla __Flotilla = Flotilla();
 	CommandCenter __CCenter = CommandCenter(__Ubuntu,&__StarSystem,&__Flotilla);
@@ -20,6 +23,9 @@ s32 main(s32 argc,char** argv)
 	ServerUpdate __ServerUpdate = ServerUpdate(&__StarSystem,&__Flotilla);
 #endif
 	Menu __Menu = Menu(__Ubuntu,&__CCenter);
+	*/
+	CameraController __CamControl = CameraController();
+	TestScene __TestScene = TestScene();
 
 	bool running = true;
 	while (running)
