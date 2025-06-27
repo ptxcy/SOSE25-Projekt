@@ -30,3 +30,4 @@ void main()
 	vec3 Tangent = normalize(tangent-dot(tangent,normals)*normals);
 	TBN = mat3(Tangent,cross(normals,Tangent),normals);
 }
+// TODO adjust normals for world space now that we have a model matrix!

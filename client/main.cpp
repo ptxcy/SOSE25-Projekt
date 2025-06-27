@@ -9,6 +9,7 @@
 #include "script/menu.h"
 #include "script/starsystem.h"
 #include "script/server_update.h"
+#include "script/planet_focus.h"
 #include "script/test.h"
 
 
@@ -25,7 +26,8 @@ s32 main(s32 argc,char** argv)
 	Menu __Menu = Menu(__Ubuntu,&__CCenter);
 	*/
 	CameraController __CamControl = CameraController();
-	TestScene __TestScene = TestScene();
+	//TestScene __TestScene = TestScene();
+	PlanetFocus __PlanetFocus = PlanetFocus();
 
 	bool running = true;
 	while (running)
