@@ -26,11 +26,11 @@ impl<T> AsRaw for T {
 }
 
 /// free it yourself
-fn allocate<T>(data: T) -> *mut () {
+pub fn allocate<T>(data: T) -> *mut () {
 	// log_with_time("allocating memory");
 	Box::into_raw(Box::new(data)) as *mut ()
 }
-fn drop_data<T>(ptr: *mut ()) {
+pub fn drop_data<T>(ptr: *mut ()) {
     unsafe {
         let _ = Box::from_raw(ptr as *mut T);
     }
@@ -40,8 +40,8 @@ pub trait Action {
 	fn execute(data: *mut (), game_objects: *mut GameObjects);
 }
 
-type ExecuteFn = fn(*mut (), *mut GameObjects);
-type DropFn = fn(*mut ());
+pub type ExecuteFn = fn(*mut (), *mut GameObjects);
+pub type DropFn = fn(*mut ());
 
 pub struct ActionWrapper {
 	data: *mut (),
@@ -193,5 +193,103 @@ impl Action for UnsafeAction {
 				go.spaceships.remove(&index);
 			}
 		}
+	}
+}
+
+#[cfg(test)]
+pub mod action_tests {
+    use std::thread::{self, JoinHandle};
+
+    use crate::game::{action::ActionWrapper, game_objects::GameObjects};
+
+    use super::{AddValue, AsRaw};
+
+	#[test]
+	pub fn test_single_action() {
+		let go = GameObjects::new();
+		let a = 5;
+		let action = AddValue::new(a.raw_mut(), 1);
+		action.execute(go.raw_mut());
+		assert_eq!(a, 6);
+	}
+	
+	#[test]
+	pub fn test_multi_action() {
+		let (action_sender, action_receiver) =
+			std::sync::mpsc::channel::<ActionWrapper>();
+		let mut threads = Vec::<JoinHandle<()>>::new();
+
+		let go = GameObjects::new();
+
+		let counter = 0;
+		let counter_pointer = counter.raw_mut();
+
+		threads.push({
+			let counter_reference = unsafe {&(*counter_pointer)};
+			let action_sender = action_sender.clone();
+			thread::spawn(move || {
+				for _ in 0..1000000 {
+					let action = AddValue::new(counter_reference.raw_mut(), 1);
+					action_sender.send(action).unwrap();
+				}
+			})
+		});
+		threads.push({
+			let counter_reference = unsafe {&(*counter_pointer)};
+			let action_sender = action_sender.clone();
+			thread::spawn(move || {
+				for _ in 0..1000000 {
+					let action = AddValue::new(counter_reference.raw_mut(), 1);
+					action_sender.send(action).unwrap();
+				}
+			})
+		});
+
+		// wait all threads
+		for thread in threads {
+			thread.join().unwrap();
+		}
+
+		// execute all threads
+		while let Ok(action) = action_receiver.try_recv() {
+			action.execute(go.raw_mut());
+		}
+		assert_eq!(counter, 2000000);
+	}
+
+	#[test]
+	pub fn test_multi_add_datarace() {
+		let mut threads = Vec::<JoinHandle<()>>::new();
+
+		let counter = 0;
+		let counter_pointer = counter.raw_mut();
+
+		threads.push({
+			let counter_reference = unsafe {&(*counter_pointer)};
+			thread::spawn(move || {
+				for _ in 0..1000000 {
+					unsafe {
+						*counter_reference.raw_mut() += 1;
+					}
+				}
+			})
+		});
+		threads.push({
+			let counter_reference = unsafe {&(*counter_pointer)};
+			thread::spawn(move || {
+				for _ in 0..1000000 {
+					unsafe {
+						*counter_reference.raw_mut() += 1;
+					}
+				}
+			})
+		});
+
+		// wait all threads
+		for thread in threads {
+			thread.join().unwrap();
+		}
+
+		assert_ne!(counter, 2000000);
 	}
 }
