@@ -1,0 +1,9 @@
+<map id="UIBatch" name="UIBatch">
+<area shape="rect" id="Node000001" title=" " alt="" coords="111,199,180,224"/>
+<area shape="rect" id="Node000002" href="$struct_font.html" title=" " alt="" coords="122,102,169,128"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,143,148,198,143,198,143,143"/>
+<area shape="rect" id="Node000003" href="$struct_pixel_buffer_component.html" title=" " alt="" coords="5,5,158,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="100,43,139,100,135,103,96,46"/>
+<area shape="rect" id="Node000004" href="$struct_glyph.html" title=" " alt="" coords="182,5,237,31"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="195,46,156,103,152,100,191,43"/>
+</map>

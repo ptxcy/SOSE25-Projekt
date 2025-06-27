@@ -1,0 +1,8 @@
+<map id="StarSystem" name="StarSystem">
+<area shape="rect" id="Node000001" title=" " alt="" coords="75,237,165,262"/>
+<area shape="rect" id="Node000002" href="$struct_planetary_attribute.html" title=" " alt="" coords="198,111,323,136"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="237,149,136,238,132,234,234,145"/>
+<area shape="rect" id="Node000003" href="$struct_pixel_buffer_component.html" title=" " alt="" coords="5,5,158,31"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="78,47,72,93,75,145,94,196,115,235,110,237,89,198,70,146,67,93,73,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="117,37,241,108,238,113,114,41"/>
+</map>

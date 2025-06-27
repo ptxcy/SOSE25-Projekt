@@ -1,3 +1,14 @@
+/**
+ * @file renderer.h
+ * @brief OpenGL-based rendering system for the game client
+ * @author SOSE25 Game Development Team
+ * @date 2025
+ * 
+ * This file contains the main rendering engine, supporting both forward and deferred
+ * rendering pipelines, texture management, and various rendering techniques including
+ * mesh rendering, sprite rendering, and text rendering.
+ */
+
 #ifndef CORE_RENDERER_HEADER
 #define CORE_RENDERER_HEADER
 
@@ -6,20 +17,25 @@
 #include "shader.h"
 
 
+/// Constant used for marking positions for deletion in the renderer
 constexpr f32 RENDERER_POSITIONAL_DELETION_CODE = -1247.f;
 
+/**
+ * @enum TextureChannelMap
+ * @brief Enumeration for different texture channels used in rendering
+ */
 enum TextureChannelMap : u16
 {
-	RENDERER_TEXTURE_SPRITES,
-	RENDERER_TEXTURE_FONTS,
-	RENDERER_TEXTURE_FORWARD,
-	RENDERER_TEXTURE_DEFERRED_COLOUR,
-	RENDERER_TEXTURE_DEFERRED_POSITION,
-	RENDERER_TEXTURE_DEFERRED_NORMAL,
-	RENDERER_TEXTURE_DEFERRED_MATERIAL,
-	RENDERER_TEXTURE_FORWARD_DEPTH,
-	RENDERER_TEXTURE_DEFERRED_DEPTH,
-	RENDERER_TEXTURE_UNMAPPED
+	RENDERER_TEXTURE_SPRITES,           ///< Sprite textures
+	RENDERER_TEXTURE_FONTS,             ///< Font textures
+	RENDERER_TEXTURE_FORWARD,           ///< Forward rendering textures
+	RENDERER_TEXTURE_DEFERRED_COLOUR,   ///< Deferred rendering color buffer
+	RENDERER_TEXTURE_DEFERRED_POSITION, ///< Deferred rendering position buffer
+	RENDERER_TEXTURE_DEFERRED_NORMAL,   ///< Deferred rendering normal buffer
+	RENDERER_TEXTURE_DEFERRED_MATERIAL, ///< Deferred rendering material buffer
+	RENDERER_TEXTURE_FORWARD_DEPTH,     ///< Forward rendering depth buffer
+	RENDERER_TEXTURE_DEFERRED_DEPTH,    ///< Deferred rendering depth buffer
+	RENDERER_TEXTURE_UNMAPPED           ///< Unmapped texture channel
 };
 
 

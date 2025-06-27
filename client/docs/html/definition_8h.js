@@ -1,0 +1,25 @@
+var definition_8h =
+[
+    [ "Coordinate", "struct_coordinate.html", "struct_coordinate" ],
+    [ "ClientInfo", "struct_client_info.html", "struct_client_info" ],
+    [ "AuthproxyInfo", "struct_authproxy_info.html", "struct_authproxy_info" ],
+    [ "RequestSyncInfo", "struct_request_sync_info.html", "struct_request_sync_info" ],
+    [ "CalculationUnitInfo", "struct_calculation_unit_info.html", "struct_calculation_unit_info" ],
+    [ "RequestInfo", "struct_request_info.html", "struct_request_info" ],
+    [ "CraftingMaterial", "struct_crafting_material.html", "struct_crafting_material" ],
+    [ "Mine", "struct_mine.html", "struct_mine" ],
+    [ "Factory", "struct_factory.html", "struct_factory" ],
+    [ "BuildingRegion", "struct_building_region.html", "struct_building_region" ],
+    [ "DummyObject", "struct_dummy_object.html", "struct_dummy_object" ],
+    [ "Spacestation", "struct_spacestation.html", "struct_spacestation" ],
+    [ "Planet", "struct_planet.html", "struct_planet" ],
+    [ "Player", "struct_player.html", "struct_player" ],
+    [ "Spaceship", "struct_spaceship.html", "struct_spaceship" ],
+    [ "GameObjects", "struct_game_objects.html", "struct_game_objects" ],
+    [ "ObjectData", "struct_object_data.html", "struct_object_data" ],
+    [ "ServerMessage", "struct_server_message.html", "struct_server_message" ],
+    [ "DummySetVelocity", "struct_dummy_set_velocity.html", "struct_dummy_set_velocity" ],
+    [ "SetSpaceshipTarget", "struct_set_spaceship_target.html", "struct_set_spaceship_target" ],
+    [ "ClientRequest", "struct_client_request.html", "struct_client_request" ],
+    [ "ClientMessage", "struct_client_message.html", "struct_client_message" ]
+];

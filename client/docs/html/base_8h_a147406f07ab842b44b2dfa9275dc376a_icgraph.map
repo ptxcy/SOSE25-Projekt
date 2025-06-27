@@ -1,0 +1,9 @@
+<map id="calculate_delta_time" name="calculate_delta_time">
+<area shape="rect" id="Node000001" title=" " alt="" coords="378,35,518,60"/>
+<area shape="rect" id="Node000002" href="$class_renderer.html#a430cba8ed92086fe7d42cded6070339a" title=" " alt="" coords="175,5,330,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="362,37,330,32,331,27,363,32"/>
+<area shape="rect" id="Node000004" href="$struct_g_p_u_pixel_buffer.html#ab6c65fa6feeaa8f3eaeaaf35ed0024a9" title=" " alt="" coords="181,55,324,96"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="363,62,325,68,324,63,362,57"/>
+<area shape="rect" id="Node000003" href="$class_renderer.html#af39230ac153ec5e1b0e5f078ebe351e1" title=" " alt="" coords="5,5,127,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="159,21,127,21,127,16,159,16"/>
+</map>

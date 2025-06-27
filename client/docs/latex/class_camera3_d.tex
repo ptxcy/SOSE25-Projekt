@@ -1,0 +1,183 @@
+\doxysection{Camera3D Class Reference}
+\hypertarget{class_camera3_d}{}\label{class_camera3_d}\index{Camera3D@{Camera3D}}
+
+
+{\ttfamily \#include $<$base.\+h$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_camera3_d_ac53c8aa2b9cccb0f45086dab26ac8e3a}{Camera3D}} (\mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}} tgt, \mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} dist, \mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} p, \mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} y, \mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} width, \mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} height, \mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} ifov)
+\item 
+void \mbox{\hyperlink{class_camera3_d_ae965c8566248d1102c5eb839ba8fa7ad}{update}} ()
+\item 
+void \mbox{\hyperlink{class_camera3_d_a1ae9f24b23a03551b8e59b75c2d7b522}{project}} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{group___base_types_ga2db59f395fe82a7394c6324956c265d8}{mat4}} \mbox{\hyperlink{class_camera3_d_a0dfcfcfb244b90694e2d520767070bb5}{view}}
+\item 
+\mbox{\hyperlink{group___base_types_ga2db59f395fe82a7394c6324956c265d8}{mat4}} \mbox{\hyperlink{class_camera3_d_a04bd47a64c0dd1c6a1047883e1ee6a48}{proj}}
+\item 
+\mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}} \mbox{\hyperlink{class_camera3_d_aec554874b35ccf22363af87e906dca2c}{position}}
+\item 
+\mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}} \mbox{\hyperlink{class_camera3_d_a282948ee817a1032a505d04f75bc4ff7}{target}}
+\item 
+\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} \mbox{\hyperlink{class_camera3_d_a3950697e1a713dbba4d89b2ff1444bc5}{distance}}
+\item 
+\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} \mbox{\hyperlink{class_camera3_d_a5947bf436e3786f5e9367dc14f3b5544}{pitch}}
+\item 
+\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} \mbox{\hyperlink{class_camera3_d_ab5a64d34d36b574705d1a089c2f37bc5}{yaw}}
+\item 
+\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} \mbox{\hyperlink{class_camera3_d_a21a952536b5a28148a894d389ff5546f}{fov}}
+\item 
+\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} \mbox{\hyperlink{class_camera3_d_a0a0173841f7884b0b5a875fa7a60733d}{near}} = .\+1f
+\item 
+\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} \mbox{\hyperlink{class_camera3_d_a8e3d3f29d0ba4cdc899663144ff43b25}{far}} = 10000.f
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} \mbox{\hyperlink{class_camera3_d_aec48e4c0e8dea1c4466837ab82f32e4b}{m\+\_\+\+Ratio}}
+\end{DoxyCompactItemize}
+
+
+\label{doc-constructors}
+\Hypertarget{class_camera3_d_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{class_camera3_d_ac53c8aa2b9cccb0f45086dab26ac8e3a}\index{Camera3D@{Camera3D}!Camera3D@{Camera3D}}
+\index{Camera3D@{Camera3D}!Camera3D@{Camera3D}}
+\doxysubsubsection{\texorpdfstring{Camera3D()}{Camera3D()}}
+{\footnotesize\ttfamily \label{class_camera3_d_ac53c8aa2b9cccb0f45086dab26ac8e3a} 
+Camera3\+D\+::\+Camera3D (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}}}]{tgt}{, }\item[{\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}}}]{dist}{, }\item[{\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}}}]{p}{, }\item[{\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}}}]{y}{, }\item[{\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}}}]{width}{, }\item[{\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}}}]{height}{, }\item[{\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}}}]{ifov}{}\end{DoxyParamCaption})}
+
+create 3D camera 
+\begin{DoxyParams}{Parameters}
+{\em tgt} & starting camera view focus target \\
+\hline
+{\em width} & screen resolution width, can also be downscaled to ratio \\
+\hline
+{\em height} & screen resolution height, can also be downscaled to ratio \\
+\hline
+{\em ifov} & field of view in degrees TODO \\
+\hline
+\end{DoxyParams}
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=331pt]{class_camera3_d_ac53c8aa2b9cccb0f45086dab26ac8e3a_cgraph}
+\end{center}
+\end{figure}
+
+
+\label{doc-func-members}
+\Hypertarget{class_camera3_d_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_camera3_d_a1ae9f24b23a03551b8e59b75c2d7b522}\index{Camera3D@{Camera3D}!project@{project}}
+\index{project@{project}!Camera3D@{Camera3D}}
+\doxysubsubsection{\texorpdfstring{project()}{project()}}
+{\footnotesize\ttfamily \label{class_camera3_d_a1ae9f24b23a03551b8e59b75c2d7b522} 
+void Camera3\+D\+::project (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+update camera projection Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=331pt]{class_camera3_d_a1ae9f24b23a03551b8e59b75c2d7b522_icgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_camera3_d_ae965c8566248d1102c5eb839ba8fa7ad}\index{Camera3D@{Camera3D}!update@{update}}
+\index{update@{update}!Camera3D@{Camera3D}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily \label{class_camera3_d_ae965c8566248d1102c5eb839ba8fa7ad} 
+void Camera3\+D\+::update (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+update camera view matrix based on position and target parameters Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=331pt]{class_camera3_d_ae965c8566248d1102c5eb839ba8fa7ad_icgraph}
+\end{center}
+\end{figure}
+
+
+\label{doc-variable-members}
+\Hypertarget{class_camera3_d_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{class_camera3_d_a3950697e1a713dbba4d89b2ff1444bc5}\index{Camera3D@{Camera3D}!distance@{distance}}
+\index{distance@{distance}!Camera3D@{Camera3D}}
+\doxysubsubsection{\texorpdfstring{distance}{distance}}
+{\footnotesize\ttfamily \label{class_camera3_d_a3950697e1a713dbba4d89b2ff1444bc5} 
+\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} Camera3\+D\+::distance}
+
+\Hypertarget{class_camera3_d_a8e3d3f29d0ba4cdc899663144ff43b25}\index{Camera3D@{Camera3D}!far@{far}}
+\index{far@{far}!Camera3D@{Camera3D}}
+\doxysubsubsection{\texorpdfstring{far}{far}}
+{\footnotesize\ttfamily \label{class_camera3_d_a8e3d3f29d0ba4cdc899663144ff43b25} 
+\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} Camera3\+D\+::far = 10000.f}
+
+\Hypertarget{class_camera3_d_a21a952536b5a28148a894d389ff5546f}\index{Camera3D@{Camera3D}!fov@{fov}}
+\index{fov@{fov}!Camera3D@{Camera3D}}
+\doxysubsubsection{\texorpdfstring{fov}{fov}}
+{\footnotesize\ttfamily \label{class_camera3_d_a21a952536b5a28148a894d389ff5546f} 
+\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} Camera3\+D\+::fov}
+
+\Hypertarget{class_camera3_d_aec48e4c0e8dea1c4466837ab82f32e4b}\index{Camera3D@{Camera3D}!m\_Ratio@{m\_Ratio}}
+\index{m\_Ratio@{m\_Ratio}!Camera3D@{Camera3D}}
+\doxysubsubsection{\texorpdfstring{m\_Ratio}{m\_Ratio}}
+{\footnotesize\ttfamily \label{class_camera3_d_aec48e4c0e8dea1c4466837ab82f32e4b} 
+\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} Camera3\+D\+::m\+\_\+\+Ratio\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_camera3_d_a0a0173841f7884b0b5a875fa7a60733d}\index{Camera3D@{Camera3D}!near@{near}}
+\index{near@{near}!Camera3D@{Camera3D}}
+\doxysubsubsection{\texorpdfstring{near}{near}}
+{\footnotesize\ttfamily \label{class_camera3_d_a0a0173841f7884b0b5a875fa7a60733d} 
+\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} Camera3\+D\+::near = .\+1f}
+
+\Hypertarget{class_camera3_d_a5947bf436e3786f5e9367dc14f3b5544}\index{Camera3D@{Camera3D}!pitch@{pitch}}
+\index{pitch@{pitch}!Camera3D@{Camera3D}}
+\doxysubsubsection{\texorpdfstring{pitch}{pitch}}
+{\footnotesize\ttfamily \label{class_camera3_d_a5947bf436e3786f5e9367dc14f3b5544} 
+\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} Camera3\+D\+::pitch}
+
+\Hypertarget{class_camera3_d_aec554874b35ccf22363af87e906dca2c}\index{Camera3D@{Camera3D}!position@{position}}
+\index{position@{position}!Camera3D@{Camera3D}}
+\doxysubsubsection{\texorpdfstring{position}{position}}
+{\footnotesize\ttfamily \label{class_camera3_d_aec554874b35ccf22363af87e906dca2c} 
+\mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}} Camera3\+D\+::position}
+
+\Hypertarget{class_camera3_d_a04bd47a64c0dd1c6a1047883e1ee6a48}\index{Camera3D@{Camera3D}!proj@{proj}}
+\index{proj@{proj}!Camera3D@{Camera3D}}
+\doxysubsubsection{\texorpdfstring{proj}{proj}}
+{\footnotesize\ttfamily \label{class_camera3_d_a04bd47a64c0dd1c6a1047883e1ee6a48} 
+\mbox{\hyperlink{group___base_types_ga2db59f395fe82a7394c6324956c265d8}{mat4}} Camera3\+D\+::proj}
+
+\Hypertarget{class_camera3_d_a282948ee817a1032a505d04f75bc4ff7}\index{Camera3D@{Camera3D}!target@{target}}
+\index{target@{target}!Camera3D@{Camera3D}}
+\doxysubsubsection{\texorpdfstring{target}{target}}
+{\footnotesize\ttfamily \label{class_camera3_d_a282948ee817a1032a505d04f75bc4ff7} 
+\mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}} Camera3\+D\+::target}
+
+\Hypertarget{class_camera3_d_a0dfcfcfb244b90694e2d520767070bb5}\index{Camera3D@{Camera3D}!view@{view}}
+\index{view@{view}!Camera3D@{Camera3D}}
+\doxysubsubsection{\texorpdfstring{view}{view}}
+{\footnotesize\ttfamily \label{class_camera3_d_a0dfcfcfb244b90694e2d520767070bb5} 
+\mbox{\hyperlink{group___base_types_ga2db59f395fe82a7394c6324956c265d8}{mat4}} Camera3\+D\+::view}
+
+\Hypertarget{class_camera3_d_ab5a64d34d36b574705d1a089c2f37bc5}\index{Camera3D@{Camera3D}!yaw@{yaw}}
+\index{yaw@{yaw}!Camera3D@{Camera3D}}
+\doxysubsubsection{\texorpdfstring{yaw}{yaw}}
+{\footnotesize\ttfamily \label{class_camera3_d_ab5a64d34d36b574705d1a089c2f37bc5} 
+\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} Camera3\+D\+::yaw}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+core/\mbox{\hyperlink{base_8h}{base.\+h}}\item 
+core/\mbox{\hyperlink{base_8cpp}{base.\+cpp}}\end{DoxyCompactItemize}

@@ -1,0 +1,5 @@
+<map id="Spaceship" name="Spaceship">
+<area shape="rect" id="Node000001" title=" " alt="" coords="6,143,89,168"/>
+<area shape="rect" id="Node000002" href="$struct_coordinate.html" title=" " alt="" coords="5,5,90,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="50,46,50,142,45,142,45,46"/>
+</map>

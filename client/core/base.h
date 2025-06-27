@@ -1,3 +1,14 @@
+/**
+ * @file base.h
+ * @brief Core base definitions and utilities for the game client
+ * @author SOSE25 Game Development Team
+ * @date 2025
+ * 
+ * This file contains fundamental type definitions, logging utilities, and base classes
+ * used throughout the game client. It provides platform-specific definitions and
+ * essential data structures for memory management and runtime profiling.
+ */
+
 #ifndef CORE_BASE_HEADER
 #define CORE_BASE_HEADER
 
@@ -52,34 +63,50 @@
 #include FT_FREETYPE_H
 
 
-// ----------------------------------------------------------------------------------------------------
-// basetype definitions to n64 standard
-// unsigned data
-typedef uint8_t u8;
-typedef uint16_t u16;
-typedef uint32_t u32;
-typedef uint64_t u64;
+/**
+ * @defgroup BaseTypes Base Type Definitions
+ * @brief N64-style type definitions for consistent data types across platforms
+ * @{
+ */
 
-// signed integers
-typedef int8_t s8;
-typedef int16_t s16;
-typedef int32_t s32;
-typedef int64_t s64;
+/// @name Unsigned Data Types
+/// @{
+typedef uint8_t u8;     ///< 8-bit unsigned integer
+typedef uint16_t u16;   ///< 16-bit unsigned integer
+typedef uint32_t u32;   ///< 32-bit unsigned integer
+typedef uint64_t u64;   ///< 64-bit unsigned integer
+/// @}
 
-// floating points
-typedef float f32;
-typedef double f64;
+/// @name Signed Data Types
+/// @{
+typedef int8_t s8;    ///< 8-bit signed integer
+typedef int16_t s16;  ///< 16-bit signed integer
+typedef int32_t s32;  ///< 32-bit signed integer
+typedef int64_t s64;  ///< 64-bit signed integer
+/// @}
 
-// vectors
-typedef glm::vec2 vec2;
-typedef glm::vec3 vec3;
-typedef glm::vec4 vec4;
-typedef glm::quat quat;
-typedef glm::mat4 mat4;
+/// @name Floating Point Types
+/// @{
+typedef float f32;    ///< 32-bit floating point
+typedef double f64;   ///< 64-bit floating point
+/// @}
 
-// basic magic
-typedef std::string string;
-typedef std::thread thread;
+/// @name Vector and Matrix Types
+/// @{
+typedef glm::vec2 vec2;  ///< 2D vector
+typedef glm::vec3 vec3;  ///< 3D vector
+typedef glm::vec4 vec4;  ///< 4D vector
+typedef glm::quat quat;  ///< Quaternion for rotations
+typedef glm::mat4 mat4;  ///< 4x4 matrix
+/// @}
+
+/// @name Standard Library Aliases
+/// @{
+typedef std::string string;   ///< String type alias
+typedef std::thread thread;   ///< Thread type alias
+/// @}
+
+/** @} */ // end of BaseTypes group
 /*
 #define clock std::chrono::steady_clock
 #define time std::chrono::steady_clock::time_point

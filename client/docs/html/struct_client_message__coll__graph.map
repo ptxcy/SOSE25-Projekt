@@ -1,0 +1,15 @@
+<map id="ClientMessage" name="ClientMessage">
+<area shape="rect" id="Node000001" title=" " alt="" coords="232,199,341,224"/>
+<area shape="rect" id="Node000002" href="$struct_request_info.html" title=" " alt="" coords="179,102,272,128"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="231,142,242,173,253,186,266,196,263,200,249,190,237,176,226,144"/>
+<area shape="rect" id="Node000003" href="$struct_client_info.html" title=" " alt="" coords="5,5,83,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="76,38,140,76,193,99,191,104,137,80,73,42"/>
+<area shape="rect" id="Node000004" href="$struct_authproxy_info.html" title=" " alt="" coords="106,5,208,31"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="177,43,201,76,219,100,214,103,197,80,173,46"/>
+<area shape="rect" id="Node000005" href="$struct_request_sync_info.html" title=" " alt="" coords="232,5,354,31"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="285,47,266,80,243,103,239,100,262,76,280,44"/>
+<area shape="rect" id="Node000006" href="$struct_calculation_unit_info.html" title=" " alt="" coords="379,5,512,31"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="424,44,399,63,370,80,328,94,273,107,272,102,327,89,368,76,396,59,420,40"/>
+<area shape="rect" id="Node000007" href="$struct_client_request.html" title=" " alt="" coords="296,102,400,128"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="339,143,321,176,301,200,297,197,316,173,335,141"/>
+</map>

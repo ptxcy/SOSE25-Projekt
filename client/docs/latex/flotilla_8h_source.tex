@@ -1,0 +1,42 @@
+\doxysection{flotilla.\+h}
+\hypertarget{flotilla_8h_source}{}\label{flotilla_8h_source}\index{script/flotilla.h@{script/flotilla.h}}
+\mbox{\hyperlink{flotilla_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#ifndef\ SCRIPT\_FLOTILLA\_HEADER}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#define\ SCRIPT\_FLOTILLA\_HEADER}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{renderer_8h}{../core/renderer.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wheel_8h}{../core/wheel.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{definition_8h}{../adapter/definition.h}}"{}}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_spaceship_data}{SpaceshipData}}}
+\DoxyCodeLine{00011\ \{}
+\DoxyCodeLine{00012\ \ \ \ \ \mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}}\ \mbox{\hyperlink{struct_spaceship_data_a357c79f4606fc06c614c9ca1e9d00dd5}{offset}};}
+\DoxyCodeLine{00013\ \ \ \ \ \mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}}\ \mbox{\hyperlink{struct_spaceship_data_ab1356db4a7e08c542aeedd2ae2a2a83f}{scale}};}
+\DoxyCodeLine{00014\ \ \ \ \ \mbox{\hyperlink{struct_pixel_buffer_component}{PixelBufferComponent}}\ \mbox{\hyperlink{struct_spaceship_data_a03fb98de14e61cd70bf9734ed1f2522d}{texture}};}
+\DoxyCodeLine{00015\ \};}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_flotilla_a1fbba645d5fc5fbaf8e8217653164578}{Flotilla}}}
+\DoxyCodeLine{00019\ \{}
+\DoxyCodeLine{00020\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00021\ \ \ \ \ \mbox{\hyperlink{class_flotilla_a1fbba645d5fc5fbaf8e8217653164578}{Flotilla}}();}
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_flotilla_a4e31de55c42f94437987e05a5463e96d}{\_update}}(\textcolor{keywordtype}{void}*\ flotilla)\ \{\ \mbox{\hyperlink{class_flotilla_a1fbba645d5fc5fbaf8e8217653164578}{Flotilla}}*\ p\ =\ (\mbox{\hyperlink{class_flotilla_a1fbba645d5fc5fbaf8e8217653164578}{Flotilla}}*)flotilla;\ p-\/>\mbox{\hyperlink{class_flotilla_a0ed562baf4f3af555bc102c7afeb12fb}{update}}();\ \}}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_flotilla_a0ed562baf4f3af555bc102c7afeb12fb}{update}}();}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00026\ \ \ \ \ std::map<u64,Spaceship>\ \mbox{\hyperlink{class_flotilla_ad56896e890cbf8baf69b625179366f4c}{fleet}};}
+\DoxyCodeLine{00027\ \ \ \ \ \mbox{\hyperlink{base_8h_ae04d1c68c250f6c36de3f0dce87363cd}{vector<SpaceshipData>}}\ \mbox{\hyperlink{class_flotilla_a1fd18ec46f7eb8a0c37329dc0d4ec67c}{spaceships}};}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00030\ \ \ \ \ \mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr<ShaderPipeline>}}\ \mbox{\hyperlink{class_flotilla_af9695b02d0355f4c059237dd4e4e4a4a}{m\_SpaceshipShader}};}
+\DoxyCodeLine{00031\ \ \ \ \ \mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr<ParticleBatch>}}\ \mbox{\hyperlink{class_flotilla_a45ea814c90e52f19f128faf05e15ff98}{m\_SpaceshipBatch}};}
+\DoxyCodeLine{00032\ \ \ \ \ \mbox{\hyperlink{struct_pixel_buffer_component}{PixelBufferComponent}}*\ \mbox{\hyperlink{class_flotilla_a38dd724e7b6c49786561e1d8f21f1b13}{m\_SpaceshipTexture}};}
+\DoxyCodeLine{00033\ \};}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00036\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

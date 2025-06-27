@@ -1,0 +1,85 @@
+\doxysection{Font Struct Reference}
+\hypertarget{struct_font}{}\label{struct_font}\index{Font@{Font}}
+
+
+{\ttfamily \#include $<$buffer.\+h$>$}
+
+
+
+Collaboration diagram for Font\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=254pt]{struct_font__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} \mbox{\hyperlink{struct_font_a72d17ca3df5d57cae38d3d4af36bd602}{estimate\+\_\+wordlength}} (\mbox{\hyperlink{group___base_types_gad453f9f71ce1f9153fb748d6bb25e454}{string}} \&word, \mbox{\hyperlink{group___base_types_gafaa62991928fb9fb18ff0db62a040aba}{u32}} offset=0)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{struct_pixel_buffer_component}{Pixel\+Buffer\+Component}} \mbox{\hyperlink{struct_font_aec0d8ca27c9c648052669edaa53939e4}{tex}} \mbox{[}96\mbox{]}
+\item 
+\mbox{\hyperlink{struct_glyph}{Glyph}} \mbox{\hyperlink{struct_font_aacef0a9f43e7ec90104d8444f8e36bb9}{glyphs}} \mbox{[}96\mbox{]}
+\item 
+\mbox{\hyperlink{group___base_types_gace9d960e74685e2cd84b36132dbbf8aa}{u16}} \mbox{\hyperlink{struct_font_af14e18c0cc0925f0e868ed2756e6ef7d}{size}}
+\end{DoxyCompactItemize}
+
+
+\label{doc-func-members}
+\Hypertarget{struct_font_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{struct_font_a72d17ca3df5d57cae38d3d4af36bd602}\index{Font@{Font}!estimate\_wordlength@{estimate\_wordlength}}
+\index{estimate\_wordlength@{estimate\_wordlength}!Font@{Font}}
+\doxysubsubsection{\texorpdfstring{estimate\_wordlength()}{estimate\_wordlength()}}
+{\footnotesize\ttfamily \label{struct_font_a72d17ca3df5d57cae38d3d4af36bd602} 
+\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} Font\+::estimate\+\_\+wordlength (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{group___base_types_gad453f9f71ce1f9153fb748d6bb25e454}{string}} \&}]{word}{, }\item[{\mbox{\hyperlink{group___base_types_gafaa62991928fb9fb18ff0db62a040aba}{u32}}}]{offset}{ = {\ttfamily 0}}\end{DoxyParamCaption})}
+
+calculate estimated word length in given font 
+\begin{DoxyParams}{Parameters}
+{\em word} & given word for length estimation \\
+\hline
+{\em offset} & (default 0) wordlength character offset to exclude buffer tail \\
+\hline
+\end{DoxyParams}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{struct_font_a72d17ca3df5d57cae38d3d4af36bd602_icgraph}
+\end{center}
+\end{figure}
+
+
+\label{doc-variable-members}
+\Hypertarget{struct_font_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{struct_font_aacef0a9f43e7ec90104d8444f8e36bb9}\index{Font@{Font}!glyphs@{glyphs}}
+\index{glyphs@{glyphs}!Font@{Font}}
+\doxysubsubsection{\texorpdfstring{glyphs}{glyphs}}
+{\footnotesize\ttfamily \label{struct_font_aacef0a9f43e7ec90104d8444f8e36bb9} 
+\mbox{\hyperlink{struct_glyph}{Glyph}} Font\+::glyphs\mbox{[}96\mbox{]}}
+
+\Hypertarget{struct_font_af14e18c0cc0925f0e868ed2756e6ef7d}\index{Font@{Font}!size@{size}}
+\index{size@{size}!Font@{Font}}
+\doxysubsubsection{\texorpdfstring{size}{size}}
+{\footnotesize\ttfamily \label{struct_font_af14e18c0cc0925f0e868ed2756e6ef7d} 
+\mbox{\hyperlink{group___base_types_gace9d960e74685e2cd84b36132dbbf8aa}{u16}} Font\+::size}
+
+\Hypertarget{struct_font_aec0d8ca27c9c648052669edaa53939e4}\index{Font@{Font}!tex@{tex}}
+\index{tex@{tex}!Font@{Font}}
+\doxysubsubsection{\texorpdfstring{tex}{tex}}
+{\footnotesize\ttfamily \label{struct_font_aec0d8ca27c9c648052669edaa53939e4} 
+\mbox{\hyperlink{struct_pixel_buffer_component}{Pixel\+Buffer\+Component}} Font\+::tex\mbox{[}96\mbox{]}}
+
+
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+core/\mbox{\hyperlink{buffer_8h}{buffer.\+h}}\item 
+core/\mbox{\hyperlink{buffer_8cpp}{buffer.\+cpp}}\end{DoxyCompactItemize}
