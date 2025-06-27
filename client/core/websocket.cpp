@@ -422,11 +422,11 @@ void _handle_websocket_upload(Websocket *c)
 			msgpack::sbuffer msg_buffer;
 			msgpack::pack(msg_buffer, outMsg);
 			c->ws.write(boost::asio::buffer(msg_buffer.data(), msg_buffer.size()));
-			c->mutex_client_messages.unlock();
 		}
 		catch (const std::exception &e)
 		{
 			COMM_ERR("sending upload -> %s", e.what());
+			c->mutex_client_messages.unlock();
 		}
 	}
 }

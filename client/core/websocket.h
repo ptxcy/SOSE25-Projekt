@@ -40,7 +40,7 @@ class Websocket
 public:
 	Websocket() {  }
 	void connect(string host,string port_ad,string port_ws,string name,string pass,string lnom,
-				 string lpass,bool create);
+				 bool create);
 	ServerMessage receive_message();
 	void send_message(ClientMessage msg);
 	void exit();
