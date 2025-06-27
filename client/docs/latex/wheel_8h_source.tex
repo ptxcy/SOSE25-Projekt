@@ -1,0 +1,33 @@
+\doxysection{wheel.\+h}
+\hypertarget{wheel_8h_source}{}\label{wheel_8h_source}\index{core/wheel.h@{core/wheel.h}}
+\mbox{\hyperlink{wheel_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#ifndef\ CORE\_WHEEL\_HEADER}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#define\ CORE\_WHEEL\_HEADER}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{base_8h}{base.h}}"{}}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_update_routine}{UpdateRoutine}}}
+\DoxyCodeLine{00009\ \{}
+\DoxyCodeLine{00010\ \ \ \ \ void\ (*\mbox{\hyperlink{struct_update_routine_ae38b502af30ce1b852464ed4dcf5e49f}{update}})(\textcolor{keywordtype}{void}*);}
+\DoxyCodeLine{00011\ \ \ \ \ \textcolor{keywordtype}{void}*\ \mbox{\hyperlink{struct_update_routine_a394fa69129059455e1ab2ab5eee7bf9c}{memory}};}
+\DoxyCodeLine{00012\ \};}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00014\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_wheel}{Wheel}}}
+\DoxyCodeLine{00015\ \{}
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{comment}{//\ utility}}
+\DoxyCodeLine{00017\ \ \ \ \ \mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr<UpdateRoutine>}}\ \mbox{\hyperlink{struct_wheel_a60d3127ae2b8176b9931f3d67b908699}{call}}(\mbox{\hyperlink{struct_update_routine}{UpdateRoutine}}\ routine);}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{struct_wheel_adc731d16440ff33646617026c53d5d1f}{update}}();}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{comment}{//\ data}}
+\DoxyCodeLine{00021\ \ \ \ \ \mbox{\hyperlink{base_8h_a50bd7d245d7870ed8c926b7f7df06328}{list<UpdateRoutine>}}\ \mbox{\hyperlink{struct_wheel_a4c01edf53cc4ef84cce5379613121a3e}{routines}};}
+\DoxyCodeLine{00022\ \};}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{struct_wheel}{Wheel}}\ \mbox{\hyperlink{wheel_8h_af769401fc11b40df91a5bb408e755ccd}{g\_Wheel}};}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

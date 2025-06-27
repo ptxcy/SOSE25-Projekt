@@ -1,0 +1,11 @@
+<map id="UI::update" name="UI::update">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,88,56"/>
+<area shape="rect" id="Node000002" href="$struct_button.html#ad8e030c1c8846d43f3126047d4a3667f" title=" " alt="" coords="143,5,250,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="88,34,127,27,128,32,88,39"/>
+<area shape="rect" id="Node000003" href="$struct_text_field.html#a84e15d4e1ec13d0b0d79ce3d5cbe9cf7" title=" " alt="" coords="136,55,257,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="88,47,121,53,120,58,88,53"/>
+<area shape="rect" id="Node000004" href="$struct_font.html#a72d17ca3df5d57cae38d3d4af36bd602" title=" " alt="" coords="305,29,480,55"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="257,57,289,53,290,58,258,62"/>
+<area shape="rect" id="Node000005" href="$class_input.html#a8adb3186e1c6b1cf5576e3a3d5e15df1" title=" " alt="" coords="310,79,475,104"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="258,72,295,77,295,82,257,78"/>
+</map>

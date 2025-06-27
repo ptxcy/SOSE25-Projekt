@@ -1,0 +1,59 @@
+\doxysection{input.\+h}
+\hypertarget{input_8h_source}{}\label{input_8h_source}\index{core/input.h@{core/input.h}}
+\mbox{\hyperlink{input_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#ifndef\ CORE\_INPUT\_HEADER}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#define\ CORE\_INPUT\_HEADER}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{base_8h}{base.h}}"{}}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{group___base_types_gace9d960e74685e2cd84b36132dbbf8aa}{u16}}\ \mbox{\hyperlink{input_8h_af2dbd23d0423a91096d06127f0f403bd}{KEYBOARD\_INPUT\_RANGE}}\ =\ 512;}
+\DoxyCodeLine{00009\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{group___base_types_ga92c50087ca0e64fa93fc59402c55f8ca}{u8}}\ \mbox{\hyperlink{input_8h_ad7a1690284f7d103cbfb5aa91ff437dc}{MOUSE\_INPUT\_RANGE}}\ =\ 5;}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_keyboard}{Keyboard}}}
+\DoxyCodeLine{00013\ \{}
+\DoxyCodeLine{00014\ \ \ \ \ \mbox{\hyperlink{class_bitwise_words}{BitwiseWords}}\ \mbox{\hyperlink{struct_keyboard_a490d5f30106df61e994247671cecac28}{keys}}\ =\ \mbox{\hyperlink{class_bitwise_words}{BitwiseWords}}(\mbox{\hyperlink{input_8h_af2dbd23d0423a91096d06127f0f403bd}{KEYBOARD\_INPUT\_RANGE}});}
+\DoxyCodeLine{00015\ \ \ \ \ \mbox{\hyperlink{class_bitwise_words}{BitwiseWords}}\ \mbox{\hyperlink{struct_keyboard_a599b709317b46b0f5611f3532293d613}{triggered\_keys}}\ =\ \mbox{\hyperlink{class_bitwise_words}{BitwiseWords}}(\mbox{\hyperlink{input_8h_af2dbd23d0423a91096d06127f0f403bd}{KEYBOARD\_INPUT\_RANGE}});}
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{struct_keyboard_aa6980e14abaeca4ccc0027e633139ca7}{key\_pressed}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00017\ \};}
+\DoxyCodeLine{00018\ }
+\DoxyCodeLine{00019\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_mouse}{Mouse}}}
+\DoxyCodeLine{00020\ \{}
+\DoxyCodeLine{00021\ \ \ \ \ \mbox{\hyperlink{group___base_types_gae9b1af5c037e57a98884758875d3a7c4}{s32}}\ \mbox{\hyperlink{struct_mouse_ae0c8fe34d23da91498bb26b8f9e2d730}{apos\_x}},\mbox{\hyperlink{struct_mouse_aac832008aab6f54600ce3956bfe03e43}{apos\_y}};}
+\DoxyCodeLine{00022\ \ \ \ \ \mbox{\hyperlink{group___base_types_ga43182e59794291f6ab00e51b160706c2}{vec2}}\ \mbox{\hyperlink{struct_mouse_a283c2dd8795b61901cba4217cbcf21d3}{last\_position}}\ =\ \mbox{\hyperlink{group___base_types_ga43182e59794291f6ab00e51b160706c2}{vec2}}(0);}
+\DoxyCodeLine{00023\ \ \ \ \ \mbox{\hyperlink{group___base_types_ga43182e59794291f6ab00e51b160706c2}{vec2}}\ \mbox{\hyperlink{struct_mouse_aa9c2610f71c2b701399ed0f3bb6cf7d6}{position}};}
+\DoxyCodeLine{00024\ \ \ \ \ \mbox{\hyperlink{group___base_types_ga43182e59794291f6ab00e51b160706c2}{vec2}}\ \mbox{\hyperlink{struct_mouse_a96a7bcdade33fd0e6b7f6253e1492c36}{velocity}};}
+\DoxyCodeLine{00025\ \ \ \ \ \mbox{\hyperlink{group___base_types_gae9b1af5c037e57a98884758875d3a7c4}{s32}}\ \mbox{\hyperlink{struct_mouse_a2f51982eec8707c153c5007aef01870c}{wheel}};}
+\DoxyCodeLine{00026\ \ \ \ \ \mbox{\hyperlink{class_bitwise_words}{BitwiseWords}}\ \mbox{\hyperlink{struct_mouse_a0cd3b406f18146b7f3c5dddd27e20509}{buttons}}\ =\ \mbox{\hyperlink{class_bitwise_words}{BitwiseWords}}(\mbox{\hyperlink{input_8h_ad7a1690284f7d103cbfb5aa91ff437dc}{MOUSE\_INPUT\_RANGE}});}
+\DoxyCodeLine{00027\ \ \ \ \ \mbox{\hyperlink{class_bitwise_words}{BitwiseWords}}\ \mbox{\hyperlink{struct_mouse_a63e5a34abccd2a70751158153419e0ad}{triggered\_buttons}}\ =\ \mbox{\hyperlink{class_bitwise_words}{BitwiseWords}}(\mbox{\hyperlink{input_8h_ad7a1690284f7d103cbfb5aa91ff437dc}{MOUSE\_INPUT\_RANGE}});}
+\DoxyCodeLine{00028\ \};}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_input_abae3f379d3f157cf42dc857309832dba}{Input}}}
+\DoxyCodeLine{00032\ \{}
+\DoxyCodeLine{00033\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00034\ \ \ \ \ \mbox{\hyperlink{class_input_abae3f379d3f157cf42dc857309832dba}{Input}}();}
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_input_a4d4e89765dea301eab6421618dcbfdf4}{update}}(\textcolor{keywordtype}{bool}\&\ running);}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \ \ \ \ \textcolor{comment}{//\ text\ input}}
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_input_a633c4b351cbc6004793e7609ea15fb56}{set\_input\_mode}}(\textcolor{keywordtype}{string}*\ buffer);}
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_input_a8adb3186e1c6b1cf5576e3a3d5e15df1}{unset\_input\_mode}}()\ \{\ SDL\_StopTextInput();\ \}}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{struct_keyboard}{Keyboard}}\ \mbox{\hyperlink{class_input_a75c99f5ad23c28924e04d6365eaee913}{keyboard}};}
+\DoxyCodeLine{00043\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{struct_mouse}{Mouse}}\ \mbox{\hyperlink{class_input_aa550a7cbd9bd67b21bfb40eca7d190c5}{mouse}};}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00046\ \ \ \ \ SDL\_Event\ \mbox{\hyperlink{class_input_af5d09e64019615334869f3b8b1474d32}{m\_Event}};}
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{keywordtype}{string}*\ \mbox{\hyperlink{class_input_aaa64b274ab910e60a6d9da839304c8ae}{m\_TextBuffer}};}
+\DoxyCodeLine{00048\ \};}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{class_input}{Input}}\ \mbox{\hyperlink{input_8h_ab9dcc1bc8c4e604a15b4a5e5ec51229e}{g\_Input}};}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

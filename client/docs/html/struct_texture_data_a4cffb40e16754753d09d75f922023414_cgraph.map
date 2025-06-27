@@ -1,0 +1,7 @@
+<map id="TextureData::gpu_upload" name="TextureData::gpu_upload">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,172,31"/>
+<area shape="rect" id="Node000002" href="$struct_texture_data.html#ace8a5079623c17b86873978852127772" title=" " alt="" coords="220,5,349,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,16,204,16,204,21,172,21"/>
+<area shape="rect" id="Node000003" href="$stb__image_8h.html#ad3e11bb44412a7ba348acfbad09caacb" title=" " alt="" coords="397,5,510,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="350,16,381,16,381,21,350,21"/>
+</map>

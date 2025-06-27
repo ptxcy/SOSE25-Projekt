@@ -1,0 +1,8 @@
+<map id="StarSystem::_update" name="StarSystem::_update">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,150,31"/>
+<area shape="rect" id="Node000002" href="$class_star_system.html#ac725dd1dfdb4474127ca1ae36885196b" title=" " alt="" coords="198,5,365,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,24,182,24,182,30,150,29"/>
+<area shape="rect" id="Node000003" href="$class_star_system.html#ad0a300aaedc3aa3c08f9039a9e079a15" title=" " alt="" coords="213,55,350,80"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="134,29,211,48,210,53,133,34"/>
+<area shape="poly" id="edge2_Node000002_Node000001" title=" " alt="" coords="197,12,165,12,165,7,197,7"/>
+</map>

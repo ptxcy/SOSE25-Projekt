@@ -1,0 +1,150 @@
+\doxysection{Text Struct Reference}
+\hypertarget{struct_text}{}\label{struct_text}\index{Text@{Text}}
+
+
+{\ttfamily \#include $<$renderer.\+h$>$}
+
+
+
+Collaboration diagram for Text\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=331pt]{struct_text__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{struct_text_abed0fd65b6347f926aea7b87bbefa797}{align}} ()
+\item 
+void \mbox{\hyperlink{struct_text_a8fa0920312065eb7f35ad1d768c2257b}{load\+\_\+buffer}} ()
+\item 
+\mbox{\hyperlink{group___base_types_gafaa62991928fb9fb18ff0db62a040aba}{u32}} \mbox{\hyperlink{struct_text_a3bc7d8b5b1ed136d7a462575e1308fb4}{intersection}} (\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} pos)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{struct_font}{Font}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{struct_text_abfb964c463119bc51e8b294546a4278b}{font}}
+\item 
+\mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}} \mbox{\hyperlink{struct_text_a6a4d9fee419fce7b414495b3cbd5d1ac}{position}}
+\item 
+\mbox{\hyperlink{group___base_types_ga43182e59794291f6ab00e51b160706c2}{vec2}} \mbox{\hyperlink{struct_text_a91132a7df0c2b0c0c47ea42d48642d7c}{offset}}
+\item 
+\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} \mbox{\hyperlink{struct_text_a3ea2c1adbfa22713702af401f0beb3e6}{scale}}
+\item 
+\mbox{\hyperlink{group___base_types_ga43182e59794291f6ab00e51b160706c2}{vec2}} \mbox{\hyperlink{struct_text_a0d16e6405001c82d5b6ef7615832cc50}{dimensions}}
+\item 
+\mbox{\hyperlink{group___base_types_gac54e849f8b2339f592307eaf6cdbba77}{vec4}} \mbox{\hyperlink{struct_text_a0710732e34310af37cec376719d5c02a}{colour}}
+\item 
+\mbox{\hyperlink{struct_alignment}{Alignment}} \mbox{\hyperlink{struct_text_aa7b659c353424d47ea9406c9dadfac19}{alignment}}
+\item 
+\mbox{\hyperlink{group___base_types_gad453f9f71ce1f9153fb748d6bb25e454}{string}} \mbox{\hyperlink{struct_text_afd9a19805b838612cfa03ca01866023e}{data}}
+\item 
+\mbox{\hyperlink{base_8h_ae04d1c68c250f6c36de3f0dce87363cd}{vector}}$<$ \mbox{\hyperlink{struct_text_character}{Text\+Character}} $>$ \mbox{\hyperlink{struct_text_a16c19019cf9fc6166d2b571dfd614cbc}{buffer}}
+\end{DoxyCompactItemize}
+
+
+\label{doc-func-members}
+\Hypertarget{struct_text_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{struct_text_abed0fd65b6347f926aea7b87bbefa797}\index{Text@{Text}!align@{align}}
+\index{align@{align}!Text@{Text}}
+\doxysubsubsection{\texorpdfstring{align()}{align()}}
+{\footnotesize\ttfamily \label{struct_text_abed0fd65b6347f926aea7b87bbefa797} 
+void Text\+::align (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+dynamically align text content based on content dimensions Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=259pt]{struct_text_abed0fd65b6347f926aea7b87bbefa797_cgraph}
+\end{center}
+\end{figure}
+\Hypertarget{struct_text_a3bc7d8b5b1ed136d7a462575e1308fb4}\index{Text@{Text}!intersection@{intersection}}
+\index{intersection@{intersection}!Text@{Text}}
+\doxysubsubsection{\texorpdfstring{intersection()}{intersection()}}
+{\footnotesize\ttfamily \label{struct_text_a3bc7d8b5b1ed136d7a462575e1308fb4} 
+\mbox{\hyperlink{group___base_types_gafaa62991928fb9fb18ff0db62a040aba}{u32}} Text\+::intersection (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}}}]{pos}{}\end{DoxyParamCaption})}
+
+calculate horizontal character intersection 
+\begin{DoxyParams}{Parameters}
+{\em pos} & horizontal intersecting pixel position \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 if end of the word, buffer size if beginning of the word is last intersection and else in-\/between 
+\end{DoxyReturn}
+\Hypertarget{struct_text_a8fa0920312065eb7f35ad1d768c2257b}\index{Text@{Text}!load\_buffer@{load\_buffer}}
+\index{load\_buffer@{load\_buffer}!Text@{Text}}
+\doxysubsubsection{\texorpdfstring{load\_buffer()}{load\_buffer()}}
+{\footnotesize\ttfamily \label{struct_text_a8fa0920312065eb7f35ad1d768c2257b} 
+void Text\+::load\+\_\+buffer (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+load instance buffer for text content according to specified font 
+
+\label{doc-variable-members}
+\Hypertarget{struct_text_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{struct_text_aa7b659c353424d47ea9406c9dadfac19}\index{Text@{Text}!alignment@{alignment}}
+\index{alignment@{alignment}!Text@{Text}}
+\doxysubsubsection{\texorpdfstring{alignment}{alignment}}
+{\footnotesize\ttfamily \label{struct_text_aa7b659c353424d47ea9406c9dadfac19} 
+\mbox{\hyperlink{struct_alignment}{Alignment}} Text\+::alignment}
+
+\Hypertarget{struct_text_a16c19019cf9fc6166d2b571dfd614cbc}\index{Text@{Text}!buffer@{buffer}}
+\index{buffer@{buffer}!Text@{Text}}
+\doxysubsubsection{\texorpdfstring{buffer}{buffer}}
+{\footnotesize\ttfamily \label{struct_text_a16c19019cf9fc6166d2b571dfd614cbc} 
+\mbox{\hyperlink{base_8h_ae04d1c68c250f6c36de3f0dce87363cd}{vector}}$<$\mbox{\hyperlink{struct_text_character}{Text\+Character}}$>$ Text\+::buffer}
+
+\Hypertarget{struct_text_a0710732e34310af37cec376719d5c02a}\index{Text@{Text}!colour@{colour}}
+\index{colour@{colour}!Text@{Text}}
+\doxysubsubsection{\texorpdfstring{colour}{colour}}
+{\footnotesize\ttfamily \label{struct_text_a0710732e34310af37cec376719d5c02a} 
+\mbox{\hyperlink{group___base_types_gac54e849f8b2339f592307eaf6cdbba77}{vec4}} Text\+::colour}
+
+\Hypertarget{struct_text_afd9a19805b838612cfa03ca01866023e}\index{Text@{Text}!data@{data}}
+\index{data@{data}!Text@{Text}}
+\doxysubsubsection{\texorpdfstring{data}{data}}
+{\footnotesize\ttfamily \label{struct_text_afd9a19805b838612cfa03ca01866023e} 
+\mbox{\hyperlink{group___base_types_gad453f9f71ce1f9153fb748d6bb25e454}{string}} Text\+::data}
+
+\Hypertarget{struct_text_a0d16e6405001c82d5b6ef7615832cc50}\index{Text@{Text}!dimensions@{dimensions}}
+\index{dimensions@{dimensions}!Text@{Text}}
+\doxysubsubsection{\texorpdfstring{dimensions}{dimensions}}
+{\footnotesize\ttfamily \label{struct_text_a0d16e6405001c82d5b6ef7615832cc50} 
+\mbox{\hyperlink{group___base_types_ga43182e59794291f6ab00e51b160706c2}{vec2}} Text\+::dimensions}
+
+\Hypertarget{struct_text_abfb964c463119bc51e8b294546a4278b}\index{Text@{Text}!font@{font}}
+\index{font@{font}!Text@{Text}}
+\doxysubsubsection{\texorpdfstring{font}{font}}
+{\footnotesize\ttfamily \label{struct_text_abfb964c463119bc51e8b294546a4278b} 
+\mbox{\hyperlink{struct_font}{Font}}\texorpdfstring{$\ast$}{*} Text\+::font}
+
+\Hypertarget{struct_text_a91132a7df0c2b0c0c47ea42d48642d7c}\index{Text@{Text}!offset@{offset}}
+\index{offset@{offset}!Text@{Text}}
+\doxysubsubsection{\texorpdfstring{offset}{offset}}
+{\footnotesize\ttfamily \label{struct_text_a91132a7df0c2b0c0c47ea42d48642d7c} 
+\mbox{\hyperlink{group___base_types_ga43182e59794291f6ab00e51b160706c2}{vec2}} Text\+::offset}
+
+\Hypertarget{struct_text_a6a4d9fee419fce7b414495b3cbd5d1ac}\index{Text@{Text}!position@{position}}
+\index{position@{position}!Text@{Text}}
+\doxysubsubsection{\texorpdfstring{position}{position}}
+{\footnotesize\ttfamily \label{struct_text_a6a4d9fee419fce7b414495b3cbd5d1ac} 
+\mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}} Text\+::position}
+
+\Hypertarget{struct_text_a3ea2c1adbfa22713702af401f0beb3e6}\index{Text@{Text}!scale@{scale}}
+\index{scale@{scale}!Text@{Text}}
+\doxysubsubsection{\texorpdfstring{scale}{scale}}
+{\footnotesize\ttfamily \label{struct_text_a3ea2c1adbfa22713702af401f0beb3e6} 
+\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} Text\+::scale}
+
+
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+core/\mbox{\hyperlink{renderer_8h}{renderer.\+h}}\item 
+core/\mbox{\hyperlink{renderer_8cpp}{renderer.\+cpp}}\end{DoxyCompactItemize}

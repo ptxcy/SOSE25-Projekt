@@ -1,0 +1,6 @@
+<map id="Flotilla::Flotilla" name="Flotilla::Flotilla">
+<area shape="rect" id="Node000001" title=" " alt="" coords="167,5,272,31"/>
+<area shape="rect" id="Node000002" href="$class_flotilla.html#a4e31de55c42f94437987e05a5463e96d" title=" " alt="" coords="5,5,119,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="151,30,119,30,119,24,151,24"/>
+<area shape="poly" id="edge2_Node000002_Node000001" title=" " alt="" coords="134,7,166,7,166,12,134,12"/>
+</map>

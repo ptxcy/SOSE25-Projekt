@@ -1,0 +1,106 @@
+/**
+ * @mainpage SOSE25 Game Client Documentation
+ * 
+ * @section intro_sec Introduction
+ * 
+ * Welcome to the documentation for the SOSE25 Game Client, a C++ OpenGL-based game engine
+ * designed for space simulation and exploration games. This client features a modern
+ * rendering pipeline with both forward and deferred rendering capabilities.
+ * 
+ * @section features_sec Key Features
+ * 
+ * - **Modern OpenGL Rendering**: Supports both forward and deferred rendering pipelines
+ * - **Shader Management**: Comprehensive shader system for various rendering techniques
+ * - **Cross-Platform Support**: Builds on macOS, Windows, and Linux
+ * - **WebSocket Communication**: Real-time communication with game servers
+ * - **Asset Management**: Efficient loading and management of 3D models, textures, and fonts
+ * - **UI System**: Integrated user interface rendering system
+ * - **Input Handling**: Keyboard and mouse input management
+ * - **Profiling Tools**: Built-in performance profiling and debugging utilities
+ * 
+ * @section structure_sec Project Structure
+ * 
+ * The project is organized into several key directories:
+ * 
+ * ### Core Components
+ * - `core/` - Core engine functionality
+ *   - `base.h/cpp` - Base definitions and utilities
+ *   - `renderer.h/cpp` - Main rendering engine
+ *   - `shader.h/cpp` - Shader management system
+ *   - `buffer.h/cpp` - Vertex and index buffer management
+ *   - `input.h/cpp` - Input handling system
+ *   - `ui.h/cpp` - User interface rendering
+ *   - `websocket.h/cpp` - Network communication
+ * 
+ * ### Game Logic
+ * - `script/` - Game-specific logic and systems
+ *   - `camera_control.h/cpp` - Camera management
+ *   - `flotilla.h/cpp` - Fleet management system
+ *   - `starsystem.h/cpp` - Star system simulation
+ *   - `command_center.h/cpp` - Command interface
+ *   - `menu.h/cpp` - Menu system
+ * 
+ * ### Resources
+ * - `res/` - Game assets and resources
+ *   - `obj/` - 3D model files
+ *   - `font/` - Font files
+ *   - `planets/` - Planet textures
+ *   - `ui/` - UI graphics
+ * 
+ * @section building_sec Building the Project
+ * 
+ * The project uses CMake for cross-platform building:
+ * 
+ * ```bash
+ * mkdir build
+ * cd build
+ * cmake ..
+ * make
+ * ```
+ * 
+ * On macOS, you can also use the provided build script:
+ * ```bash
+ * ./build-for-macos.sh
+ * ```
+ * 
+ * @section documentation_sec Generating Documentation
+ * 
+ * To generate this documentation:
+ * 
+ * ```bash
+ * ./generate-docs.sh
+ * ```
+ * 
+ * Or using CMake:
+ * ```bash
+ * make docs
+ * ```
+ * 
+ * @section dependencies_sec Dependencies
+ * 
+ * The project relies on several external libraries:
+ * - **OpenGL** - Graphics rendering
+ * - **GLEW** - OpenGL extension loading
+ * - **SDL2** - Window management and input
+ * - **GLM** - Mathematics library
+ * - **FreeType** - Font rendering
+ * - **CPR** - HTTP client library
+ * - **fmt** - String formatting
+ * - **spdlog** - Logging framework
+ * - **WebSocket++** - WebSocket communication
+ * 
+ * @section getting_started_sec Getting Started
+ * 
+ * For detailed setup instructions, see the [Getting Started Guide](doc/getting_started.md).
+ * 
+ * For information about the project's coding standards, see the [Writing Style Guide](doc/writing_style.md).
+ * 
+ * @section contact_sec Contact
+ * 
+ * This project is part of the SOSE25 university project. For questions or contributions,
+ * please refer to the project repository.
+ * 
+ * @author SOSE25 Game Development Team
+ * @date June 2025
+ * @version 1.0
+ */

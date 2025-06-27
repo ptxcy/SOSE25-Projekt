@@ -1,0 +1,129 @@
+\doxysection{Thread\+Signal Struct Reference}
+\hypertarget{struct_thread_signal}{}\label{struct_thread_signal}\index{ThreadSignal@{ThreadSignal}}
+
+
+{\ttfamily \#include $<$base.\+h$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{struct_thread_signal_ad17b81f05f66ea3e98c4b04ef2882de0}{wait}} ()
+\item 
+void \mbox{\hyperlink{struct_thread_signal_a0b2745c3c7a7ee95dfb0a22c7a1155fc}{stall}} ()
+\item 
+void \mbox{\hyperlink{struct_thread_signal_a552a3b40b261cc0f267f93d54c4fcef7}{proceed}} (bool force=false)
+\item 
+void \mbox{\hyperlink{struct_thread_signal_ad431313fb6b5ed2c3aa4aaceb72eda27}{exit}} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::mutex \mbox{\hyperlink{struct_thread_signal_a5bf486d5c9776d6f0492f28b7ba4ec6f}{mutex}}
+\item 
+std\+::condition\+\_\+variable \mbox{\hyperlink{struct_thread_signal_ae60b57a7bbc9c78c4313b0f727cbd166}{cv}}
+\item 
+\mbox{\hyperlink{group___base_types_ga9e382f207c65ca13ab4ae98363aeda80}{s8}} \mbox{\hyperlink{struct_thread_signal_ac4894fb5e61f1964d50ba93a92cff734}{semaphore}} = 0
+\item 
+bool \mbox{\hyperlink{struct_thread_signal_a7d71dab68943eb805a5a2e69c14a18b7}{running}} = true
+\end{DoxyCompactItemize}
+
+
+\label{doc-func-members}
+\Hypertarget{struct_thread_signal_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{struct_thread_signal_ad431313fb6b5ed2c3aa4aaceb72eda27}\index{ThreadSignal@{ThreadSignal}!exit@{exit}}
+\index{exit@{exit}!ThreadSignal@{ThreadSignal}}
+\doxysubsubsection{\texorpdfstring{exit()}{exit()}}
+{\footnotesize\ttfamily \label{struct_thread_signal_ad431313fb6b5ed2c3aa4aaceb72eda27} 
+void Thread\+Signal\+::exit (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+signal subprocess to vanish Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=324pt]{struct_thread_signal_ad431313fb6b5ed2c3aa4aaceb72eda27_cgraph}
+\end{center}
+\end{figure}
+\Hypertarget{struct_thread_signal_a552a3b40b261cc0f267f93d54c4fcef7}\index{ThreadSignal@{ThreadSignal}!proceed@{proceed}}
+\index{proceed@{proceed}!ThreadSignal@{ThreadSignal}}
+\doxysubsubsection{\texorpdfstring{proceed()}{proceed()}}
+{\footnotesize\ttfamily \label{struct_thread_signal_a552a3b40b261cc0f267f93d54c4fcef7} 
+void Thread\+Signal\+::proceed (\begin{DoxyParamCaption}\item[{bool}]{force}{ = {\ttfamily false}}\end{DoxyParamCaption})}
+
+signal all threads listening to continue with procedure 
+\begin{DoxyParams}{Parameters}
+{\em force} & (default=false) force proceeding regardless of semaphore state \\
+\hline
+\end{DoxyParams}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{struct_thread_signal_a552a3b40b261cc0f267f93d54c4fcef7_icgraph}
+\end{center}
+\end{figure}
+\Hypertarget{struct_thread_signal_a0b2745c3c7a7ee95dfb0a22c7a1155fc}\index{ThreadSignal@{ThreadSignal}!stall@{stall}}
+\index{stall@{stall}!ThreadSignal@{ThreadSignal}}
+\doxysubsubsection{\texorpdfstring{stall()}{stall()}}
+{\footnotesize\ttfamily \label{struct_thread_signal_a0b2745c3c7a7ee95dfb0a22c7a1155fc} 
+void Thread\+Signal\+::stall (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{struct_thread_signal_a0b2745c3c7a7ee95dfb0a22c7a1155fc_icgraph}
+\end{center}
+\end{figure}
+\Hypertarget{struct_thread_signal_ad17b81f05f66ea3e98c4b04ef2882de0}\index{ThreadSignal@{ThreadSignal}!wait@{wait}}
+\index{wait@{wait}!ThreadSignal@{ThreadSignal}}
+\doxysubsubsection{\texorpdfstring{wait()}{wait()}}
+{\footnotesize\ttfamily \label{struct_thread_signal_ad17b81f05f66ea3e98c4b04ef2882de0} 
+void Thread\+Signal\+::wait (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+start to wait for a continue signal Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{struct_thread_signal_ad17b81f05f66ea3e98c4b04ef2882de0_icgraph}
+\end{center}
+\end{figure}
+
+
+\label{doc-variable-members}
+\Hypertarget{struct_thread_signal_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{struct_thread_signal_ae60b57a7bbc9c78c4313b0f727cbd166}\index{ThreadSignal@{ThreadSignal}!cv@{cv}}
+\index{cv@{cv}!ThreadSignal@{ThreadSignal}}
+\doxysubsubsection{\texorpdfstring{cv}{cv}}
+{\footnotesize\ttfamily \label{struct_thread_signal_ae60b57a7bbc9c78c4313b0f727cbd166} 
+std\+::condition\+\_\+variable Thread\+Signal\+::cv}
+
+\Hypertarget{struct_thread_signal_a5bf486d5c9776d6f0492f28b7ba4ec6f}\index{ThreadSignal@{ThreadSignal}!mutex@{mutex}}
+\index{mutex@{mutex}!ThreadSignal@{ThreadSignal}}
+\doxysubsubsection{\texorpdfstring{mutex}{mutex}}
+{\footnotesize\ttfamily \label{struct_thread_signal_a5bf486d5c9776d6f0492f28b7ba4ec6f} 
+std\+::mutex Thread\+Signal\+::mutex}
+
+\Hypertarget{struct_thread_signal_a7d71dab68943eb805a5a2e69c14a18b7}\index{ThreadSignal@{ThreadSignal}!running@{running}}
+\index{running@{running}!ThreadSignal@{ThreadSignal}}
+\doxysubsubsection{\texorpdfstring{running}{running}}
+{\footnotesize\ttfamily \label{struct_thread_signal_a7d71dab68943eb805a5a2e69c14a18b7} 
+bool Thread\+Signal\+::running = true}
+
+\Hypertarget{struct_thread_signal_ac4894fb5e61f1964d50ba93a92cff734}\index{ThreadSignal@{ThreadSignal}!semaphore@{semaphore}}
+\index{semaphore@{semaphore}!ThreadSignal@{ThreadSignal}}
+\doxysubsubsection{\texorpdfstring{semaphore}{semaphore}}
+{\footnotesize\ttfamily \label{struct_thread_signal_ac4894fb5e61f1964d50ba93a92cff734} 
+\mbox{\hyperlink{group___base_types_ga9e382f207c65ca13ab4ae98363aeda80}{s8}} Thread\+Signal\+::semaphore = 0}
+
+
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+core/\mbox{\hyperlink{base_8h}{base.\+h}}\item 
+core/\mbox{\hyperlink{base_8cpp}{base.\+cpp}}\end{DoxyCompactItemize}

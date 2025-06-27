@@ -1,0 +1,7 @@
+<map id="Texture::set_texture_parameter_nearest_unfiltered" name="Texture::set_texture_parameter_nearest_unfiltered">
+<area shape="rect" id="Node000001" title=" " alt="" coords="188,39,384,79"/>
+<area shape="rect" id="Node000002" href="$class_framebuffer.html#aa1bd7c3d41bee016359f41841432330f" title=" " alt="" coords="5,5,140,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,44,140,39,140,34,173,39"/>
+<area shape="rect" id="Node000003" href="$class_framebuffer.html#ab0b22af75057e7601f219b77dc3180dc" title=" " alt="" coords="5,71,140,111"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="173,79,140,84,140,78,172,73"/>
+</map>

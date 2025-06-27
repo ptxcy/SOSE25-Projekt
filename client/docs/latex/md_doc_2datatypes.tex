@@ -1,0 +1,143 @@
+\chapter{datatypes }
+\hypertarget{md_doc_2datatypes}{}\label{md_doc_2datatypes}\index{datatypes@{datatypes}}
+back\hypertarget{md_doc_2datatypes_autotoc_md24}{}\doxysection{\texorpdfstring{Datatypes}{Datatypes}}\label{md_doc_2datatypes_autotoc_md24}
+alongside the usual c/c++ datatypes the n64 conventions can (and should) be used.\hypertarget{md_doc_2datatypes_autotoc_md25}{}\doxysubsection{\texorpdfstring{Unsigned}{Unsigned}}\label{md_doc_2datatypes_autotoc_md25}
+\tabulinesep=1mm
+\begin{longtabu}spread 0pt [c]{*{3}{|X[-1]}|}
+\hline
+\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Type  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Syntax  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Correlation  }\\\cline{1-3}
+\endfirsthead
+\hline
+\endfoot
+\hline
+\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Type  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Syntax  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Correlation  }\\\cline{1-3}
+\endhead
+single bit  &unsigned  &bool (both valid)  \\\cline{1-3}
+byte  &\doxylink{group___base_types_ga92c50087ca0e64fa93fc59402c55f8ca}{u8}  &unsigned byte  \\\cline{1-3}
+16-\/bit data  &\doxylink{group___base_types_gace9d960e74685e2cd84b36132dbbf8aa}{u16}  &unsigned short  \\\cline{1-3}
+32-\/bit data  &\doxylink{group___base_types_gafaa62991928fb9fb18ff0db62a040aba}{u32}  &unsigned int  \\\cline{1-3}
+64-\/bit data  &\doxylink{group___base_types_ga3f7e2bcbb0b4c338f3c4f6c937cd4234}{u64}  &unsigned long  \\\cline{1-3}
+\end{longtabu}
+\hypertarget{md_doc_2datatypes_autotoc_md26}{}\doxysubsection{\texorpdfstring{Signed}{Signed}}\label{md_doc_2datatypes_autotoc_md26}
+\tabulinesep=1mm
+\begin{longtabu}spread 0pt [c]{*{3}{|X[-1]}|}
+\hline
+\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Type  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Syntax  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Correlation  }\\\cline{1-3}
+\endfirsthead
+\hline
+\endfoot
+\hline
+\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Type  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Syntax  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Correlation  }\\\cline{1-3}
+\endhead
+signed byte  &\doxylink{group___base_types_ga9e382f207c65ca13ab4ae98363aeda80}{s8}  &byte  \\\cline{1-3}
+signed short  &\doxylink{group___base_types_gaa980e2c02ba2305e0f489d5650655425}{s16}  &short  \\\cline{1-3}
+signed integer  &\doxylink{group___base_types_gae9b1af5c037e57a98884758875d3a7c4}{s32}  &int  \\\cline{1-3}
+signed long  &\doxylink{group___base_types_ga350c6fc928e3bdc6c6486268ac8fb269}{s64}  &long  \\\cline{1-3}
+\end{longtabu}
+\hypertarget{md_doc_2datatypes_autotoc_md27}{}\doxysubsection{\texorpdfstring{Floating Point}{Floating Point}}\label{md_doc_2datatypes_autotoc_md27}
+\tabulinesep=1mm
+\begin{longtabu}spread 0pt [c]{*{3}{|X[-1]}|}
+\hline
+\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Type  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Syntax  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Correlation  }\\\cline{1-3}
+\endfirsthead
+\hline
+\endfoot
+\hline
+\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Type  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Syntax  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Correlation  }\\\cline{1-3}
+\endhead
+single precision  &\doxylink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}  &float  \\\cline{1-3}
+double precision  &\doxylink{group___base_types_ga94dab5770726ccbef8c7d026cfbdf8e5}{f64}  &double  \\\cline{1-3}
+\end{longtabu}
+\hypertarget{md_doc_2datatypes_autotoc_md28}{}\doxysubsection{\texorpdfstring{Vector}{Vector}}\label{md_doc_2datatypes_autotoc_md28}
+\tabulinesep=1mm
+\begin{longtabu}spread 0pt [c]{*{3}{|X[-1]}|}
+\hline
+\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Type  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Syntax  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Correlation  }\\\cline{1-3}
+\endfirsthead
+\hline
+\endfoot
+\hline
+\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Type  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Syntax  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Correlation  }\\\cline{1-3}
+\endhead
+2D single precision vector  &\doxylink{group___base_types_ga43182e59794291f6ab00e51b160706c2}{vec2}  &Vector2f  \\\cline{1-3}
+3D single precision vector  &\doxylink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}  &Vector3f  \\\cline{1-3}
+4D single precision vector  &\doxylink{group___base_types_gac54e849f8b2339f592307eaf6cdbba77}{vec4}  &Vector4f  \\\cline{1-3}
+hamilton quaternion  &quat  &Quaternion  \\\cline{1-3}
+4x4 matrix  &\doxylink{group___base_types_ga2db59f395fe82a7394c6324956c265d8}{mat4}  &Matrix4x4f  \\\cline{1-3}
+\end{longtabu}
+\hypertarget{md_doc_2datatypes_autotoc_md29}{}\doxysubsection{\texorpdfstring{Complex Data}{Complex Data}}\label{md_doc_2datatypes_autotoc_md29}
+\tabulinesep=1mm
+\begin{longtabu}spread 0pt [c]{*{3}{|X[-1]}|}
+\hline
+\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Type  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Syntax  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Correlation  }\\\cline{1-3}
+\endfirsthead
+\hline
+\endfoot
+\hline
+\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Type  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Syntax  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Correlation  }\\\cline{1-3}
+\endhead
+character string  &string  &std\+::string  \\\cline{1-3}
+full system register length  &\doxylink{base_8h_aa9a59e63bbe5b270f030a53f85c687f4}{\+\_\+\+\_\+system\+\_\+word}  &void\texorpdfstring{$\ast$}{*}  \\\cline{1-3}
+\end{longtabu}
+\hypertarget{md_doc_2datatypes_autotoc_md30}{}\doxysubsection{\texorpdfstring{Bitwise\+Words}{Bitwise\+Words}}\label{md_doc_2datatypes_autotoc_md30}
+structure to store boolean arrays next to each other in a block that benefits the cpu
+
+usage 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\mbox{\hyperlink{group___base_types_gafaa62991928fb9fb18ff0db62a040aba}{u32}}\ number\_of\_booleans\ =\ 16;}
+\DoxyCodeLine{\mbox{\hyperlink{class_bitwise_words}{BitwiseWords}}\ arr\ =\ \mbox{\hyperlink{class_bitwise_words}{BitwiseWords}}(number\_of\_booleans);\ \ \textcolor{comment}{//\ create\ array}}
+\DoxyCodeLine{\mbox{\hyperlink{group___base_types_ga92c50087ca0e64fa93fc59402c55f8ca}{u8}}\ i\ =\ arr[4]\ ?\ 1\ :\ 0;\ \ \textcolor{comment}{//\ access\ boolean\ in\ array}}
+\DoxyCodeLine{arr.\mbox{\hyperlink{class_bitwise_words_abdaec823a0cf9cc27ac242a8d194a200}{set}}(4);\ \ \textcolor{comment}{//\ set\ boolean\ in\ array\ to\ true}}
+\DoxyCodeLine{arr.\mbox{\hyperlink{class_bitwise_words_a04dfe5fd783c79e9b2855fd3179b19d3}{unset}}(4);\ \ \textcolor{comment}{//\ set\ boolean\ in\ array\ to\ false}}
+\DoxyCodeLine{arr.\mbox{\hyperlink{class_bitwise_words_ab7ea01c2f4bab4bc387f0702ec148dc9}{reset}}();\ \ \textcolor{comment}{//\ set\ all\ bits\ to\ false}}
+
+\end{DoxyCode}
+\hypertarget{md_doc_2datatypes_autotoc_md31}{}\doxysubsection{\texorpdfstring{In\+Place\+Array}{In\+Place\+Array}}\label{md_doc_2datatypes_autotoc_md31}
+array that allows to overwrite and extract the most optimal memory position \textbackslash{} !never use this in a self-\/allocating data structure!
+
+usage 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\mbox{\hyperlink{group___base_types_gafaa62991928fb9fb18ff0db62a040aba}{u32}}\ maximum\_number\_of\_entities\ =\ 16;}
+\DoxyCodeLine{\mbox{\hyperlink{class_in_place_array}{InPlaceArray<T>}}\ arr\ =\ \mbox{\hyperlink{class_in_place_array}{InPlaceArray<T>}}(maximum\_number\_of\_entities);\ \ \textcolor{comment}{//\ create\ array}}
+\DoxyCodeLine{T*\ ex\ =\ arr.\mbox{\hyperlink{class_in_place_array_a48d7c07036b2b53cb49212a57ba790bc}{next\_free}}();\ \ \textcolor{comment}{//\ get\ next\ free\ memory\ address}}
+\DoxyCodeLine{T\ ex\ =\ arr.\mbox{\hyperlink{class_in_place_array_a205e6df8cf013f2630477c643a05d6f3}{mem}}[4];\ \ \textcolor{comment}{//\ extract\ value\ from\ memory}}
+\DoxyCodeLine{arr.\mbox{\hyperlink{class_in_place_array_a317bddbb85481168f6e31d58143b82b2}{active\_range}}\ =\ 4;\ \ \textcolor{comment}{//\ resize\ the\ active\ range}}
+\DoxyCodeLine{arr.\mbox{\hyperlink{class_in_place_array_a33b1af8fb0e0522d377682708c83b62c}{overwrites}}.push(4);\ \ \textcolor{comment}{//\ sign\ an\ index\ as\ free\ and\ overwritable}}
+
+\end{DoxyCode}
+\hypertarget{md_doc_2datatypes_autotoc_md32}{}\doxysubsection{\texorpdfstring{Thread\+Signal}{Thread\+Signal}}\label{md_doc_2datatypes_autotoc_md32}
+structure to guarantee thread safety and to streamline signaling
+
+usage \textbackslash{} thread 1 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\mbox{\hyperlink{struct_thread_signal}{ThreadSignal}}\ signal;}
+\DoxyCodeLine{\textcolor{comment}{//\ do\ preparing\ things}}
+\DoxyCodeLine{signal.\mbox{\hyperlink{struct_thread_signal_a552a3b40b261cc0f267f93d54c4fcef7}{proceed}}();}
+\DoxyCodeLine{\textcolor{comment}{//\ do\ terminating\ things}}
+\DoxyCodeLine{signal.\mbox{\hyperlink{struct_thread_signal_ad431313fb6b5ed2c3aa4aaceb72eda27}{exit}}();}
+
+\end{DoxyCode}
+
+
+thread 2 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{keywordflow}{while}\ (signal.\mbox{\hyperlink{struct_thread_signal_a7d71dab68943eb805a5a2e69c14a18b7}{running}})}
+\DoxyCodeLine{\{}
+\DoxyCodeLine{\ \ \ \ signal.\mbox{\hyperlink{struct_thread_signal_ad17b81f05f66ea3e98c4b04ef2882de0}{wait}}();}
+\DoxyCodeLine{\ \ \ \ \textcolor{comment}{//\ do\ depending\ things}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+\hypertarget{md_doc_2datatypes_autotoc_md33}{}\doxysubsection{\texorpdfstring{Rect}{Rect}}\label{md_doc_2datatypes_autotoc_md33}
+defines a rectangle that can mathematically interact with other geometry
+
+usage 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\mbox{\hyperlink{struct_rect}{Rect}}\ rect\ =\ \{}
+\DoxyCodeLine{\ \ \ \ .position\ =\ \mbox{\hyperlink{group___base_types_ga43182e59794291f6ab00e51b160706c2}{vec2}}(200,200),\ \ \textcolor{comment}{//\ lower\ left\ position}}
+\DoxyCodeLine{\ \ \ \ .extent\ =\ \mbox{\hyperlink{group___base_types_ga43182e59794291f6ab00e51b160706c2}{vec2}}(600,600)\ \ \textcolor{comment}{//\ upper\ right\ position}}
+\DoxyCodeLine{\};}
+\DoxyCodeLine{\textcolor{keywordtype}{bool}\ its\ =\ rect.\mbox{\hyperlink{struct_rect_a3af6bd59c2b2a04f623135122fc40e2d}{intersect}}(\mbox{\hyperlink{group___base_types_ga43182e59794291f6ab00e51b160706c2}{vec2}}(400,400))\ \ \textcolor{comment}{//\ tests\ intersection\ with\ given\ point}}
+
+\end{DoxyCode}
+ 

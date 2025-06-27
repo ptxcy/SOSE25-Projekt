@@ -1,0 +1,37 @@
+\doxysection{blitter.\+h}
+\hypertarget{blitter_8h_source}{}\label{blitter_8h_source}\index{core/blitter.h@{core/blitter.h}}
+\mbox{\hyperlink{blitter_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#ifndef\ CORE\_BLITTER\_HEADER}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#define\ CORE\_BLITTER\_HEADER}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{base_8h}{base.h}}"{}}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}}\ \mbox{\hyperlink{blitter_8h_a3bbf26573c2707c89b14fb941ca3c506}{BLITTER\_CLEAR\_COLOUR}}\ =\ \mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}}(0);}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_frame_a7653acc5b7b30cbdb6a4e8694105e9bb}{Frame}}}
+\DoxyCodeLine{00012\ \{}
+\DoxyCodeLine{00013\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00014\ \ \ \ \ \mbox{\hyperlink{class_frame_a7653acc5b7b30cbdb6a4e8694105e9bb}{Frame}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ title,\mbox{\hyperlink{group___base_types_gace9d960e74685e2cd84b36132dbbf8aa}{u16}}\ width,\mbox{\hyperlink{group___base_types_gace9d960e74685e2cd84b36132dbbf8aa}{u16}}\ height,\textcolor{keywordtype}{bool}\ vsync=\textcolor{keyword}{true});}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_frame_a5262e9b3dab1dd34777b19cfe7db6196}{clear}}();}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_frame_a31aee47f16abb8322dd96860a4363fda}{update}}();}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_frame_a80e4f7d76ca2abd4bc706196700a890f}{close}}();}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_frame_a3bcaec01cbc9994ec9cf379b1eab424f}{gpu\_vsync\_on}}();}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_frame_a2033d79bd3b233ea69f9d04747e01797}{gpu\_vsync\_off}}();}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00024\ \ \ \ \ SDL\_Window*\ \mbox{\hyperlink{class_frame_a73f0e9f47df9e6a2776b930fd8400e0f}{m\_Frame}};}
+\DoxyCodeLine{00025\ \ \ \ \ SDL\_GLContext\ \mbox{\hyperlink{class_frame_ab67359eef9f40458fc9057e0fbcd0962}{m\_Context}};}
+\DoxyCodeLine{00026\ \};}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \textcolor{keyword}{inline}\ \mbox{\hyperlink{class_frame}{Frame}}\ \mbox{\hyperlink{blitter_8h_a8b7424c045c82699bcd51333ced962eb}{g\_Frame}}\ =\ \mbox{\hyperlink{class_frame}{Frame}}(\textcolor{stringliteral}{"{}BHT\ Projekt"{}},\mbox{\hyperlink{config_8h_a37e9bff38ca5fa92d6159f7996fc6bf1}{FRAME\_RESOLUTION\_X}},\mbox{\hyperlink{config_8h_a9dc071f06abfcaddc8faba40dc69dde8}{FRAME\_RESOLUTION\_Y}});}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}
