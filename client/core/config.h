@@ -1,7 +1,6 @@
 #ifndef CORE_CONFIG_HEADER
 #define CORE_CONFIG_HEADER
 
-
 // blitter
 #define FRAME_RESOLUTION_X 1600
 #define FRAME_RESOLUTION_Y 900
@@ -25,9 +24,8 @@
 #define NETWORK_CONNECTION_STALL 15000
 #define NETWORK_CALCULATION_FRAMES 1
 
-//#define FEAT_MULTIPLAYER 1
+#define FEAT_MULTIPLAYER 1
 
 // TODO define in extern config file and store constants at runtime
-
 
 #endif
