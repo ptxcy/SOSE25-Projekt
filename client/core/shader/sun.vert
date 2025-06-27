@@ -10,7 +10,7 @@ in vec3 tangent;
 out vec2 UV;
 
 uniform vec3 offset = vec3(0);
-uniform float scale = 1.;
+uniform float scale = 1.f;
 
 uniform mat4 view;
 uniform mat4 proj;

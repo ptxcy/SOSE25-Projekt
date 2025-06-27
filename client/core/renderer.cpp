@@ -367,6 +367,8 @@ Renderer::Renderer()
 	FragmentShader __TextFragmentShader = FragmentShader("core/shader/text.frag");
 	VertexShader __CanvasVertexShader = VertexShader("core/shader/canvas.vert");
 	FragmentShader __LightingPassFragmentShader = FragmentShader("core/shader/pbs.frag");
+	VertexShader __GeometryPassVertexShader = VertexShader("core/shader/gpass.vert");
+	FragmentShader __GeometryPassFragmentShader = FragmentShader("core/shader/gpass.frag");
 
 	// ----------------------------------------------------------------------------------------------------
 	// Sprite Pipeline
@@ -393,6 +395,9 @@ Renderer::Renderer()
 	m_CanvasVertexBuffer.bind();
 	m_CanvasVertexBuffer.upload_vertices(__CanvasVertices,24);
 	m_CanvasPipeline.map(RENDERER_TEXTURE_FORWARD,&m_CanvasVertexBuffer);
+
+	COMM_LOG("geometry pass pipeline");
+	m_GeometryPassPipeline = register_pipeline(__GeometryPassVertexShader,__GeometryPassFragmentShader);
 
 	// ----------------------------------------------------------------------------------------------------
 	// GPU Memory
@@ -623,36 +628,32 @@ lptr<Text> Renderer::write_text(Font* font,string data,vec3 position,f32 scale,v
  *	load texture into ram in background and register for vram upload when ready
  *	\param texture: pointer to texture in memory
  *	\param path: path to texture
- *	\param format: texture channel format
- *	\param iformat: colour format for texture upload
+ *	\param format: texture colour channel format
  *	\param data_queue: queue for texture vram upload
  *	\param queue_mutex: mutual exclusion for data queue to prevent race conditions
  */
-void _load_texture(Texture* texture,const char* path,s32 format,s32 sformat,
+void _load_texture(Texture* texture,const char* path,TextureFormat format,
 				   queue<TextureDataTuple>* data_queue,std::mutex* queue_mutex)
 {
-	TextureData __Data = TextureData(format,sformat);
+	TextureData __Data = TextureData(format);
 	__Data.load(path);
 	queue_mutex->lock();
 	data_queue->push(TextureDataTuple{ __Data,texture });
 	queue_mutex->unlock();
 }
-// TODO allow for different format uploads
 
 /**
  *	load texture into memory
  *	\param path: path to texture file
- *	\param iformat: (default GL_RGBA) colour format for texture upload
- *	\param format: (default GL_RGBA) texture channel format
+ *	\param format: (default TEXTURE_FORMAT_RGBA) texture colour channel format
  *	\returns pointer to texture in ram, referencing texture in vram
  */
-Texture* Renderer::register_texture(const char* path,s32 iformat,s32 format)
+Texture* Renderer::register_texture(const char* path,TextureFormat format)
 {
 	COMM_LOG("mesh texture register of %s",path);
 	Texture* p_Texture = m_MeshTextures.next_free();
 	new(p_Texture) Texture();
-	thread __LoadThread(_load_texture,p_Texture,path,format,iformat,
-						&m_MeshTextureUploadQueue,&m_MutexMeshTextureUpload);
+	thread __LoadThread(_load_texture,p_Texture,path,format,&m_MeshTextureUploadQueue,&m_MutexMeshTextureUpload);
 	__LoadThread.detach();
 	return p_Texture;
 }
@@ -683,6 +684,16 @@ lptr<GeometryBatch> Renderer::register_geometry_batch(lptr<ShaderPipeline> pipel
 }
 
 /**
+ *	register phyiscal mesh batch with standard geometry pass shader
+ *	\returns pointer to created physical mesh batch
+ */
+lptr<GeometryBatch> Renderer::register_deferred_geometry_batch()
+{
+	m_DeferredGeometryBatches.push_back({ .shader = m_GeometryPassPipeline });
+	return std::prev(m_DeferredGeometryBatches.end());
+}
+
+/**
  *	register physical mesh batch
  *	\param pipeline: shader pipeline, handling physical pass for newly created batch
  *	\returns pointer to created physical mesh batch
@@ -692,7 +703,6 @@ lptr<GeometryBatch> Renderer::register_deferred_geometry_batch(lptr<ShaderPipeli
 	m_DeferredGeometryBatches.push_back({ .shader = pipeline });
 	return std::prev(m_DeferredGeometryBatches.end());
 }
-// TODO make this autoassign the pass shader maybee????
 
 /**
  *	register particle batch

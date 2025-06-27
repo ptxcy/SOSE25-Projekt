@@ -13,12 +13,9 @@ StarSystem::StarSystem()
 	FragmentShader __PlanetFragmentShader = FragmentShader("core/shader/planet.frag");
 	FragmentShader __SunFragmentShader = FragmentShader("core/shader/sun.frag");
 	FragmentShader __HaloFragmentShader = FragmentShader("core/shader/halo.frag");
-	VertexShader __GeometryPassVertexShader = VertexShader("core/shader/gpass.vert");
-	FragmentShader __GeometryPassFragmentShader = FragmentShader("core/shader/gpass.frag");
 	m_PlanetShader = g_Renderer.register_pipeline(__PlanetVertexShader,__PlanetFragmentShader);
 	m_SunShader = g_Renderer.register_pipeline(__SunVertexShader,__SunFragmentShader);
 	m_HaloShader = g_Renderer.register_pipeline(__HaloVertexShader,__HaloFragmentShader);
-	m_GPassShader = g_Renderer.register_pipeline(__GeometryPassVertexShader,__GeometryPassFragmentShader);
 
 	// load geometry
 	Mesh __SphereMesh = Mesh("./res/sphere.obj");
@@ -65,17 +62,6 @@ StarSystem::StarSystem()
 	__SunBatch->load();
 	m_SunShader->upload("scale",STARSYS_SUN_REFERENCE_SCALE);
 	// TODO model scaling sun: 109.32f
-
-	// setup physical test
-	COMM_LOG("setup physical test");
-	vector<Texture*> __PhysicalTextures = {
-		g_Renderer.register_texture("./res/physical/paquet_colour.png"),
-		g_Renderer.register_texture("./res/physical/paquet_normal.png"),
-		g_Renderer.register_texture("./res/physical/paquet_material.png"),
-	};
-	lptr<GeometryBatch> __PhysicalBatch = g_Renderer.register_deferred_geometry_batch(m_GPassShader);
-	__PhysicalBatch->add_geometry(__SphereMesh,__PhysicalTextures);
-	__PhysicalBatch->load();
 
 	// register routine
 	g_Wheel.call(UpdateRoutine{ &StarSystem::_update,(void*)this });

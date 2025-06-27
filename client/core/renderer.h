@@ -135,8 +135,6 @@ struct GeometryTuple
 	vector<GeometryUniformUpload> uploads;
 	f32 texel = 1.f;
 };
-// TODO add a model matrix as standard uniform, model matrices belong in every geometry tuple!
-//		acually maybe also add the model matrix as a result of a transform3D struct that can be modified
 
 struct GeometryBatch
 {
@@ -232,11 +230,12 @@ public:
 	inline void delete_text(lptr<Text> text) { m_Texts.erase(text); }
 
 	// textures
-	Texture* register_texture(const char* path,s32 iformat=GL_RGBA,s32 format=GL_RGBA);
+	Texture* register_texture(const char* path,TextureFormat format=TEXTURE_FORMAT_RGBA);
 
 	// scene
 	lptr<ShaderPipeline> register_pipeline(VertexShader& vs,FragmentShader& fs);
 	lptr<GeometryBatch> register_geometry_batch(lptr<ShaderPipeline> pipeline);
+	lptr<GeometryBatch> register_deferred_geometry_batch();
 	lptr<GeometryBatch> register_deferred_geometry_batch(lptr<ShaderPipeline> pipeline);
 	lptr<ParticleBatch> register_particle_batch(lptr<ShaderPipeline> pipeline);
 
@@ -248,7 +247,6 @@ public:
 
 	// utility
 	static vec2 align(Rect geom,Alignment alignment);
-	// TODO maybe make this private?
 
 private:
 
@@ -325,6 +323,7 @@ private:
 	list<ParticleBatch> m_DeferredParticleBatches;
 
 	// lighting
+	lptr<ShaderPipeline> m_GeometryPassPipeline;
 	Lighting m_Lighting;
 };
 

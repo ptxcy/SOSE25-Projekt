@@ -9,11 +9,7 @@ TestScene::TestScene()
 	// shaders
 	VertexShader __SunVertexShader = VertexShader("core/shader/sun.vert");
 	FragmentShader __SunFragmentShader = FragmentShader("core/shader/sun.frag");
-	VertexShader __GeometryPassVertexShader = VertexShader("core/shader/gpass.vert");
-	FragmentShader __GeometryPassFragmentShader = FragmentShader("core/shader/gpass.frag");
 	lptr<ShaderPipeline> __SunShader = g_Renderer.register_pipeline(__SunVertexShader,__SunFragmentShader);
-	lptr<ShaderPipeline> __GPassShader
-			= g_Renderer.register_pipeline(__GeometryPassVertexShader,__GeometryPassFragmentShader);
 
 	// geometry
 	Mesh __SphereMesh = Mesh("./res/sphere.obj");
@@ -25,22 +21,22 @@ TestScene::TestScene()
 	vector<Texture*> __SunTexture1 = { g_Renderer.register_texture("./res/planets/halfres/neptune.jpg") };
 	vector<Texture*> __SunTexture2 = { g_Renderer.register_texture("./res/planets/halfres/mars.jpg") };
 	vector<Texture*> __ParquetTextures = {
-		g_Renderer.register_texture("./res/physical/paquet_colour.png",GL_SRGB8_ALPHA8),
+		g_Renderer.register_texture("./res/physical/paquet_colour.png",TEXTURE_FORMAT_SRGB),
 		g_Renderer.register_texture("./res/physical/paquet_normal.png"),
 		g_Renderer.register_texture("./res/physical/paquet_material.png"),
 	};
 	vector<Texture*> __MarbleTextures = {
-		g_Renderer.register_texture("./res/physical/marble_colour.png",GL_SRGB8_ALPHA8),
+		g_Renderer.register_texture("./res/physical/marble_colour.png",TEXTURE_FORMAT_SRGB),
 		g_Renderer.register_texture("./res/physical/marble_normal.png"),
 		g_Renderer.register_texture("./res/physical/marble_material.png"),
 	};
 	vector<Texture*> __GoldTextures = {
-		g_Renderer.register_texture("./res/physical/gold_colour.png",GL_SRGB8_ALPHA8),
+		g_Renderer.register_texture("./res/physical/gold_colour.png",TEXTURE_FORMAT_SRGB),
 		g_Renderer.register_texture("./res/physical/gold_normal.png"),
 		g_Renderer.register_texture("./res/physical/gold_material.png"),
 	};
 	vector<Texture*> __FabricTextures = {
-		g_Renderer.register_texture("./res/physical/fabric_colour.png",GL_SRGB8_ALPHA8),
+		g_Renderer.register_texture("./res/physical/fabric_colour.png",TEXTURE_FORMAT_SRGB),
 		g_Renderer.register_texture("./res/physical/fabric_normal.png"),
 		g_Renderer.register_texture("./res/physical/fabric_material.png"),
 	};
@@ -58,7 +54,7 @@ TestScene::TestScene()
 	__FreeformBatch->attach_uniform(s2,"offset",&m_SunPosition2);
 
 	// physical buffer
-	lptr<GeometryBatch> __PhysicalBatch = g_Renderer.register_deferred_geometry_batch(__GPassShader);
+	lptr<GeometryBatch> __PhysicalBatch = g_Renderer.register_deferred_geometry_batch();
 	u32 t0 = __PhysicalBatch->add_geometry(__FloorMesh,__ParquetTextures);
 	u32 o0 = __PhysicalBatch->add_geometry(__MonkeyMesh,__MarbleTextures);
 	u32 o1 = __PhysicalBatch->add_geometry(__MonkeyMesh,__GoldTextures);
