@@ -90,10 +90,9 @@ string HTTPAdapter::authenticate_on_server(string &username, string &password)
  *	\param create: true if new lobby should be created, false if existing lobby should be joined
  *	\returns lobby connection status
  */
-LobbyStatus HTTPAdapter::open_lobby(string &lobby_name, string &lobby_password, string &jwt_token, bool create)
+LobbyStatus HTTPAdapter::open_lobby(string &lobby_name, string &jwt_token, bool create)
 {
 	string body = R"({"lobbyName":")" + lobby_name + R"(")";
-	body += R"(,"lobbyPassword":")" + lobby_password + R"(")";
 	body += "}";
 
 	// create lobby
@@ -423,11 +422,11 @@ void _handle_websocket_upload(Websocket *c)
 			msgpack::sbuffer msg_buffer;
 			msgpack::pack(msg_buffer, outMsg);
 			c->ws.write(boost::asio::buffer(msg_buffer.data(), msg_buffer.size()));
-			c->mutex_client_messages.unlock();
 		}
 		catch (const std::exception &e)
 		{
 			COMM_ERR("sending upload -> %s", e.what());
+			c->mutex_client_messages.unlock();
 		}
 	}
 }
@@ -478,7 +477,7 @@ void Websocket::connect(string host, string port_ad, string port_ws, string name
 	HTTPAdapter __Adapter = HTTPAdapter(host, port_ad);
 	COMM_ERR_COND(!__Adapter.create_user(name, pass), "user creation did not work");
 	string token = __Adapter.authenticate_on_server(name, pass);
-	lobby_status = __Adapter.open_lobby(lnom, lpass, token, create);
+	lobby_status = __Adapter.open_lobby(lnom, token, create);
 
 	// websocket connection
 	try
