@@ -311,6 +311,27 @@ struct Rect
 };
 
 
+struct Transform3D
+{
+	// utility
+	void transform(vec3 p,f32 s,vec3 r);
+	void transform(vec3 p,f32 s,vec3 r,vec3 a);
+	void translate(vec3 p);
+	void scale(f32 s);
+	void scale(f32 s,vec3 a);
+	void rotate_x(f32 x);
+	void rotate_y(f32 y);
+	void rotate_z(f32 z);
+	void rotate(vec3 r);
+	void rotate(vec3 r,vec3 a);
+
+	// data
+	vec3 position = vec3(.0f);
+	vec3 rotation = vec3(.0f);
+	mat4 model = mat4(1.f);
+};
+
+
 class CoordinateSystem2D
 {
 public:

@@ -13,14 +13,15 @@ out mat3 TBN;
 uniform mat4 view;
 uniform mat4 proj;
 
-uniform vec3 offset = vec3(0);
+uniform mat4 model;
 uniform float texel = 1.;
 
 
 void main()
 {
-	Position = position+offset;
-	gl_Position = proj*view*vec4(Position,1.);
+	vec4 world_position = model*vec4(position,1.);
+	Position = world_position.xyz;
+	gl_Position = proj*view*world_position;
 
 	// calculate texture coordinates
 	EdgeCoordinates = edge_coordinates*texel;

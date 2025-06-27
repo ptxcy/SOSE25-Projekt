@@ -301,16 +301,6 @@ void GeometryBatch::attach_uniform(u32 gid,const char* name,mat4* var)
 }
 
 /**
- *	change an objects texel density
- *	\param gid: geometry id of object in question
- *	\param texel: texel density value
- */
-void GeometryBatch::set_texel(u32 gid,f32 texel)
-{
-	object[gid].texel = texel;
-}
-
-/**
  *	setup particle batch by mesh geometry
  *	\param mesh: loaded mesh for explicit geometry information
  *	\param particles: amount of particles
@@ -716,28 +706,59 @@ lptr<ParticleBatch> Renderer::register_particle_batch(lptr<ShaderPipeline> pipel
 }
 
 /**
- *	TODO document
- *	TODO return a pointer to the light
+ *	create directional sunlight
+ *	\param position: direction to sunlight, inverted direction will be direction of emission
+ *	\param colour: colour of the emission
+ *	\param intensity: emission intensity, multiplying the colour influence
  */
-void Renderer::add_pointlight(vec3 position,vec3 colour,f32 intensity,f32 constant,f32 linear,f32 quadratic)
+SunLight* Renderer::add_sunlight(vec3 position,vec3 colour,f32 intensity)
 {
-	m_Lighting.pointlights[m_Lighting.pointlights_active++] = {
+	m_Lighting.sunlights[m_Lighting.sunlights_active] = {
 		.position = position,
-		.colour = colour,
-		.intensity = intensity,
+		.colour = colour*intensity,
+	};
+	return &m_Lighting.sunlights[m_Lighting.sunlights_active++];
+}
+
+/**
+ *	create pointlight
+ *	\param position: position of the light emitter
+ *	\param colour: colour of the emission
+ *	\param intensity: emission intensity, multiplying the colour influence
+ *	\param constant: constant component in attenuation
+ *	\param linear: linear component in attenutation
+ *	\param quadratic: quadratic component in attenuation
+ *	\returns pointer to pointlight
+ */
+PointLight* Renderer::add_pointlight(vec3 position,vec3 colour,f32 intensity,f32 constant,
+									 f32 linear,f32 quadratic)
+{
+	m_Lighting.pointlights[m_Lighting.pointlights_active] = {
+		.position = position,
+		.colour = colour*intensity,
 		.constant = constant,
 		.linear = linear,
 		.quadratic = quadratic
 	};
+	return &m_Lighting.pointlights[m_Lighting.pointlights_active++];
 }
 
 /**
  *	upload all setup lights to gpu lighting simulation processing
- *	TODO place the upload routine into the light to improve dynamic upload when user receives a pointer
  */
 void Renderer::upload_lighting()
 {
 	m_CanvasPipeline.enable();
+
+	// upload directionlights
+	for (u8 i=0;i<m_Lighting.sunlights_active;i++)
+	{
+		SunLight& light = m_Lighting.sunlights[i];
+		string __ArrayLocation = "sunlights["+std::to_string(i)+"].";
+		m_CanvasPipeline.upload((__ArrayLocation+"position").c_str(),light.position);
+		m_CanvasPipeline.upload((__ArrayLocation+"colour").c_str(),light.colour);
+	}
+	m_CanvasPipeline.upload("sunlights_active",m_Lighting.sunlights_active);
 
 	// upload pointlights
 	for (u8 i=0;i<m_Lighting.pointlights_active;i++)
@@ -746,20 +767,22 @@ void Renderer::upload_lighting()
 		string __ArrayLocation = "pointlights["+std::to_string(i)+"].";
 		m_CanvasPipeline.upload((__ArrayLocation+"position").c_str(),light.position);
 		m_CanvasPipeline.upload((__ArrayLocation+"colour").c_str(),light.colour);
-		m_CanvasPipeline.upload((__ArrayLocation+"intensity").c_str(),light.intensity);
 		m_CanvasPipeline.upload((__ArrayLocation+"constant").c_str(),light.constant);
 		m_CanvasPipeline.upload((__ArrayLocation+"linear").c_str(),light.linear);
 		m_CanvasPipeline.upload((__ArrayLocation+"quadratic").c_str(),light.quadratic);
 	}
 	m_CanvasPipeline.upload("pointlights_active",m_Lighting.pointlights_active);
 }
+// TODO dynamic upload, e.g. when a single light gets updated all the lights need to be uploaded again
 
 /**
  *	deactivate all lights to fundamentally reset the lighting setup
  */
 void Renderer::reset_lighting()
 {
+	m_Lighting.sunlights_active = 0;
 	m_Lighting.pointlights_active = 0;
+	upload_lighting();
 }
 
 /**
@@ -856,6 +879,7 @@ void Renderer::_update_mesh(list<GeometryBatch>& gb,list<ParticleBatch>& pb)
 				p_Batch.shader->upload(p_Upload.uloc,p_Upload.udim,p_Upload.data);
 
 			// upload standard values & call gpu
+			p_Batch.shader->upload("model",p_Tuple.transform.model);
 			p_Batch.shader->upload("texel",p_Tuple.texel);
 			glDrawArrays(GL_TRIANGLES,p_Tuple.offset,p_Tuple.vertex_count);
 		}

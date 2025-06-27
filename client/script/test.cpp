@@ -66,21 +66,22 @@ TestScene::TestScene()
 	__PhysicalBatch->load();
 
 	// attach physical transforms
-	__PhysicalBatch->attach_uniform(t0,"offset",&m_BasePosition);
-	__PhysicalBatch->attach_uniform(o0,"offset",&m_ObjPosition0);
-	__PhysicalBatch->attach_uniform(o1,"offset",&m_ObjPosition1);
-	__PhysicalBatch->attach_uniform(o2,"offset",&m_ObjPosition2);
+	__PhysicalBatch->object[t0].transform.translate(m_BasePosition);
+	__PhysicalBatch->object[o0].transform.translate(m_ObjPosition0);
+	__PhysicalBatch->object[o1].transform.translate(m_ObjPosition1);
+	__PhysicalBatch->object[o2].transform.translate(m_ObjPosition2);
 
 	// set texel density
-	__PhysicalBatch->set_texel(t0,5);
-	__PhysicalBatch->set_texel(o0,5);
-	__PhysicalBatch->set_texel(o1,5);
-	__PhysicalBatch->set_texel(o2,2);
+	__PhysicalBatch->object[t0].texel = 5;
+	__PhysicalBatch->object[o0].texel = 5;
+	__PhysicalBatch->object[o1].texel = 5;
+	__PhysicalBatch->object[o2].texel = 2;
 
 	// add light
 	g_Renderer.add_pointlight(m_SunPosition0,vec3(.8f,.4f,.1f),10.f,1.f,.8f,.24f);
 	g_Renderer.add_pointlight(m_SunPosition1,vec3(.1f,.1f,.8f),10.f,1.f,.8f,.24f);
 	g_Renderer.add_pointlight(m_SunPosition2,vec3(.9f,.2f,.1f),10.f,1.f,.8f,.24f);
+	//g_Renderer.add_sunlight(vec3(20,20,-20),vec3(1.f),1.f);
 	g_Renderer.upload_lighting();
 
 	g_Wheel.call(UpdateRoutine{ &TestScene::_update,(void*)this });

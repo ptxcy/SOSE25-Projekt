@@ -130,6 +130,7 @@ struct GeometryTuple
 {
 	size_t offset;
 	size_t vertex_count;
+	Transform3D transform;
 	vector<Texture*> textures;
 	vector<GeometryUniformUpload> uploads;
 	f32 texel = 1.f;
@@ -151,9 +152,6 @@ struct GeometryBatch
 	void attach_uniform(u32 gid,const char* name,vec3* var);
 	void attach_uniform(u32 gid,const char* name,vec4* var);
 	void attach_uniform(u32 gid,const char* name,mat4* var);
-
-	// settings
-	void set_texel(u32 gid,f32 texel);
 
 	// data
 	VertexArray vao;
@@ -185,11 +183,16 @@ struct ParticleBatch
 // ----------------------------------------------------------------------------------------------------
 // Lighting
 
+struct SunLight
+{
+	vec3 position;
+	vec3 colour;
+};
+
 struct PointLight
 {
 	vec3 position;
 	vec3 colour;
-	f32 intensity;
 	f32 constant;
 	f32 linear;
 	f32 quadratic;
@@ -197,7 +200,9 @@ struct PointLight
 
 struct Lighting
 {
+	SunLight sunlights[8];
 	PointLight pointlights[64];
+	u8 sunlights_active = 0;
 	u8 pointlights_active = 0;
 };
 
@@ -236,7 +241,8 @@ public:
 	lptr<ParticleBatch> register_particle_batch(lptr<ShaderPipeline> pipeline);
 
 	// lighting
-	void add_pointlight(vec3 position,vec3 colour,f32 intensity,f32 constant,f32 linear,f32 quadratic);
+	SunLight* add_sunlight(vec3 position,vec3 colour,f32 intensity);
+	PointLight* add_pointlight(vec3 position,vec3 colour,f32 intensity,f32 constant,f32 linear,f32 quadratic);
 	void upload_lighting();
 	void reset_lighting();
 

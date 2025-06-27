@@ -17,8 +17,8 @@ public:
 private:
 
 	// sun information
-	vec3 m_SunPosition0 = vec3(2,2,0);
-	vec3 m_SunPosition1 = vec3(-3,-4,0);
+	vec3 m_SunPosition0 = vec3(2,2,-.5f);
+	vec3 m_SunPosition1 = vec3(-3,-4,-.5f);
 	vec3 m_SunPosition2 = vec3(-4.5,7,-1);
 
 	// object positions

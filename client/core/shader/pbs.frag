@@ -1,12 +1,18 @@
 #version 330 core
 
 
+// direction lights
+struct light_sun
+{
+	vec3 position;
+	vec3 colour;
+};
+
 // point lights
 struct light_point
 {
 	vec3 position;
 	vec3 colour;
-	float intensity;
 	float constant;
 	float linear;
 	float quadratic;
@@ -29,15 +35,20 @@ uniform sampler2D gbuffer_depth;
 uniform vec3 camera_position;
 uniform float exposure = 1.;
 uniform float gamma = 2.2;
+// TODO switch to inverted gamma to optimize out the division every pixel!
 
 // simulated lights
+uniform light_sun sunlights[8];
 uniform light_point pointlights[64];
+uniform int sunlights_active = 0;
 uniform int pointlights_active = 0;
 
+// constants
 const float PI = 3.141592653;
 
 
 // utility
+vec3 lumen_sun(vec3 position,vec3 colour,vec3 normal,float metallic,float roughness,light_sun light);
 vec3 lumen_point(vec3 position,vec3 colour,vec3 normal,float metallic,float roughness,light_point light);
 vec3 pbs(vec3 colour,vec3 direction,vec3 influence,vec3 normal,vec3 halfway,float metallic,float roughness);
 float schlick_beckmann_approx(float rel,float roughness);
@@ -78,6 +89,8 @@ void main()
 
 	// processing simulated light sources
 	vec3 final = vec3(0);
+	for (int i=0;i<sunlights_active;i++)
+		final += lumen_sun(position,colour,normal,metalness,roughness,sunlights[i]);
 	for (int i=0;i<pointlights_active;i++)
 		final += lumen_point(position,colour,normal,metalness,roughness,pointlights[i]);
 
@@ -88,6 +101,14 @@ void main()
 	// calculate final pixel colour
 	final = mix(final,cmp_forward.rgb,cmp_forward.a*int(cmp_fdepth<cmp_gdepth));
 	pixelColour = vec4(final,1.);
+}
+
+// sun light simulation processing
+vec3 lumen_sun(vec3 position,vec3 colour,vec3 normal,float metallic,float roughness,light_sun light)
+{
+	vec3 direction = normalize(light.position-position);
+	vec3 halfway = normalize(CameraDir+direction);
+	return pbs(colour,direction,light.colour,normal,halfway,metallic,roughness);
 }
 
 // point light simulation processing
@@ -101,7 +122,7 @@ vec3 lumen_point(vec3 position,vec3 colour,vec3 normal,float metallic,float roug
 	// calculate influence
 	float dist = length(relation);
 	float attenuation = 1./(light.constant+light.linear*dist+light.quadratic*pow(dist,2.));
-	vec3 influence = light.colour*attenuation*light.intensity;
+	vec3 influence = light.colour*attenuation;
 
 	// shade & return
 	return pbs(colour,direction,influence,normal,halfway,metallic,roughness);
