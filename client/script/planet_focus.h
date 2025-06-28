@@ -39,8 +39,10 @@ private:
 
 	// graphics
 	lptr<GeometryBatch> m_PFBatch;
+	lptr<GeometryBatch> m_CloudBatch;
 	u32 m_Earth;
 	u32 m_Reference;
+	u32 m_Clouds;
 
 	// camera
 	Camera3D m_PlanetCamera = g_Camera;

@@ -26,6 +26,7 @@ PlanetFocus::PlanetFocus(Font* font)
 		g_Renderer.register_texture("./res/physical/gold_normal.png"),
 		g_Renderer.register_texture("./res/physical/gold_material.png"),
 	};
+	vector<Texture*> __CloudTexture = { g_Renderer.register_texture("./res/planets/earth_atm.png") };
 
 	// setup geometry
 	m_PFBatch = g_Renderer.register_deferred_geometry_batch();
@@ -35,6 +36,19 @@ PlanetFocus::PlanetFocus(Font* font)
 
 	// link uniform
 	m_PFBatch->attach_uniform(m_Earth,"proj",&m_PlanetCamera.proj);
+
+	// setup cloud layer
+	VertexShader __CloudVertexShader = VertexShader("core/shader/clouds.vert");
+	FragmentShader __CloudFragmentShader = FragmentShader("core/shader/clouds.frag");
+	lptr<ShaderPipeline> __CloudPipeline
+			= g_Renderer.register_pipeline(__CloudVertexShader,__CloudFragmentShader);
+	m_CloudBatch = g_Renderer.register_geometry_batch(__CloudPipeline);
+	m_Clouds = m_CloudBatch->add_geometry(__SphereMesh,__CloudTexture);
+	m_CloudBatch->load();
+
+	// cloud transform
+	m_CloudBatch->attach_uniform(m_Clouds,"proj",&m_PlanetCamera.proj);
+	m_CloudBatch->object[m_Clouds].transform.scale(1.01f);
 
 	// lighting
 	g_Renderer.add_sunlight(vec3(2000,2000,-2000),vec3(1.f),4.f);
@@ -63,6 +77,8 @@ void PlanetFocus::update()
 
 	// earth animation
 	m_PFBatch->object[m_Earth].transform.rotate_z(FOCUS_PLANET_ROTATION);
+	m_CloudBatch->object[m_Clouds].transform.rotate_z(FOCUS_PLANET_ROTATION*.9f);
+	// TODO make cloud delta constant please
 
 	// zoom input
 	m_SurfaceDistance += (g_Input.keyboard.keys[SDL_SCANCODE_R]-g_Input.keyboard.keys[SDL_SCANCODE_F])
