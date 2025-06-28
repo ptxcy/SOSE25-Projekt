@@ -4,7 +4,7 @@ use bytes::Bytes;
 use calculation_unit::logger::log_with_time;
 use futures::{lock::{Mutex, MutexGuard}, stream::SplitSink, SinkExt, StreamExt};
 use macroquad::prelude::*;
-use pong::{client_message::ClientMessage, server_message::{GameObjects, ServerMessage}};
+use pong::{client_message::ClientMessage, server_message::{Ball, GameObjects, ServerMessage}};
 use tokio::net::TcpStream;
 use tokio_tungstenite::{connect_async, tungstenite::Message, MaybeTlsStream, WebSocketStream};
 
@@ -83,25 +83,37 @@ fn tungstenite(sender: std::sync::mpsc::Sender<GameObjects>) -> std::thread::Joi
 
 #[macroquad::main("MyGame")]
 async fn main() {
-	let (sender, receiver) = std::sync::mpsc::channel::<GameObjects>();
-
-	let _ = tungstenite(sender);
-
+    let (sender, receiver) = std::sync::mpsc::channel::<GameObjects>();
+    let _ = tungstenite(sender);
+    
+    // Store current game state
+    let mut current_game_state: Option<GameObjects> = None;
+    
     loop {
-
-        clear_background(RED);
-
-        draw_line(40.0, 40.0, 100.0, 200.0, 15.0, BLUE);
-        draw_rectangle(screen_width() / 2.0 - 60.0, 100.0, 120.0, 60.0, GREEN);
-
-        draw_text("Hello, Macroquad!", 20.0, 20.0, 30.0, DARKGRAY);
-
-    	while let Ok(go) = receiver.try_recv() {
-    		for ball in go.balls.iter() {
-    			ball.draw();
-    		}
-    	}
-
-        next_frame().await
+        clear_background(BLACK);
+        
+        // Draw static elements
+        // draw_line(40.0, 40.0, 100.0, 200.0, 15.0, BLUE);
+        // draw_rectangle(screen_width() / 2.0 - 60.0, 100.0, 120.0, 60.0, GREEN);
+        // draw_text("Hello, Macroquad!", 20.0, 20.0, 30.0, DARKGRAY);
+        
+        // Update game state - only process latest message
+        if let Ok(go) = receiver.try_recv() {
+        	current_game_state = Some(go);
+        }
+        
+        // Draw current balls
+        if let Some(go) = &current_game_state {
+	        for ball in go.balls.iter() {
+	            draw_circle(
+	                ball.position.x as f32 + screen_width() / 2.0,
+	                ball.position.y as f32 + screen_height() / 2.0,
+	                2.0,
+	                Color::new(0.0, 1.0, 1.0, 1.0)
+	            );
+	        }
+        }
+        
+        next_frame().await;
     }
 }

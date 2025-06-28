@@ -21,22 +21,12 @@ impl Ball {
         let y: f64 = rand::gen_range(-1., 1.);
         // let z: f64 = rand::gen_range(-1., 1.);
         let mut c = Coordinate::new(x, y, 0.);
-        c.normalize(1.);
+        c.normalize(10.);
         self.velocity = c;
         self
     }
     pub fn update(&mut self, delta_seconds: f64) {
         self.position.addd(&self.velocity, delta_seconds);
-    }
-    pub fn draw(&self) {
-        log_with_time("trying to draw ball");
-        
-        draw_circle(
-            self.position.x as f32 + screen_width() / 2.,
-            self.position.y as f32 + screen_height() / 2.,
-            5.,
-            Color::new(0.,1.,1.,1.)
-        );
     }
 }
 
@@ -48,7 +38,7 @@ pub struct GameObjects {
 impl GameObjects {
     pub fn new(count: usize) -> Self {
 
-        let dist = 20.;
+        let dist = 5.;
         let offset = (count as f64 * dist) / 2.;
 
         let mut balls = Vec::<Ball>::new();
