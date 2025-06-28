@@ -13,6 +13,10 @@ pkgs.mkShell {
     cpr
     boost
     msgpack-cxx
+    clang-tools
+    libclang
+    # clangd
+    ccls
   ];
 }
 
