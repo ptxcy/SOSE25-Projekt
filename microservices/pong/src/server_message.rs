@@ -3,6 +3,8 @@ use macroquad::prelude::*;
 use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc::Sender;
 
+use crate::action::{ActionWrapper, AddValue, AsRaw};
+
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct Ball {
     pub position: Coordinate,
@@ -25,8 +27,13 @@ impl Ball {
         self.velocity = c;
         self
     }
-    pub fn update(&mut self, delta_seconds: f64) {
-        self.position.addd(&self.velocity, delta_seconds);
+    pub fn update(&self, delta_seconds: f64) -> Vec<ActionWrapper> {
+        let mut actions: Vec<ActionWrapper> = vec![];
+        // self.position.addd(&self.velocity, delta_seconds);
+        let mut add = self.velocity.c();
+        add.scale(delta_seconds);
+        actions.push(AddValue::new(self.position.raw_mut(), add));
+        actions
     }
 }
 

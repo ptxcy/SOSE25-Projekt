@@ -1,6 +1,6 @@
-use std::{collections::HashMap, time::Instant};
+use std::{collections::HashMap, thread::JoinHandle, time::Instant};
 
-use crate::{client_message::ClientMessage, server_message::{GameObjects, ObjectData, ServerMessage, ServerMessageSenderChannel}};
+use crate::{action::{ActionWrapper, AsRaw}, client_message::ClientMessage, server_message::{GameObjects, ObjectData, ServerMessage, ServerMessageSenderChannel}};
 use calculation_unit::logger::{log_with_time, Loggable};
 use tokio::sync::mpsc::*;
 
@@ -67,11 +67,34 @@ pub async fn start(
 			server_message_senders.insert(username, sender);
 		}
 
-		for ball in game_objects.balls.iter_mut() {
-			ball.update(delta_seconds);
+		let (action_sender, action_receiver) = std::sync::mpsc::channel::<ActionWrapper>();
+		let mut threads = Vec::<JoinHandle<()>>::new();
+
+		threads.push(update_balls(action_sender.clone(), game_objects.raw(), delta_seconds));
+
+		for thread in threads {
+			thread.join().unwrap();
+		}
+
+		while let Ok(action) = action_receiver.try_recv() {
+			action.execute(game_objects.raw_mut());
 		}
 
     	broadcast(&mut server_message_senders, &game_objects, delta_seconds).await;
         tokio::task::yield_now().await;
     }
+}
+
+pub fn update_balls(sender: std::sync::mpsc::Sender<ActionWrapper>, go: *const GameObjects, delta_seconds: f64) -> JoinHandle<()> {
+	std::thread::spawn({
+		let game_objects = unsafe {&(*go)};
+		move || {
+			for ball in game_objects.balls.iter() {
+				let actions = ball.update(delta_seconds);
+				for action in actions {
+					sender.send(action).unwrap();
+				}
+			}
+		}
+	})
 }
