@@ -96,6 +96,18 @@ impl Coordinate {
 		self
 	}
 
+	/// mutates itself by multiplying each component with other
+	pub fn mul(&mut self, other: &Self) -> &mut Self {
+		self.x *= other.x;
+		self.y *= other.y;
+		self.z *= other.z;
+		self
+	}
+
+	pub fn inner_sum(&self) -> f64 {
+		self.x + self.y + self.z
+	}
+
 	pub fn norm(&self) -> f64 {
 		(self.x.powi(2) + self.y.powi(2) + self.z.powi(2)).sqrt()
 	}

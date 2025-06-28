@@ -3,19 +3,35 @@ use macroquad::prelude::*;
 use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc::Sender;
 
-use crate::action::{ActionWrapper, AddValue, AsRaw};
+use crate::action::{ActionWrapper, AddValue, AsRaw, SubValue};
 
-#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Ball {
     pub position: Coordinate,
     pub velocity: Coordinate,
     pub radius: f64,
+    pub bounciness: f64,
+}
+
+impl Default for Ball {
+    fn default() -> Self {
+        Self {
+            position: Default::default(),
+            velocity: Default::default(),
+            radius: 2.,
+            bounciness: 1.,
+        }
+    }
 }
 
 impl Ball {
     pub fn set_position(mut self, x: f64, y: f64) -> Self {
         self.position.x = x;
         self.position.y = y;
+        self
+    }
+    pub fn set_radius(mut self, radius: f64) -> Self {
+        self.radius = radius;
         self
     }
     pub fn random_velocity(mut self) -> Self {
@@ -27,13 +43,56 @@ impl Ball {
         self.velocity = c;
         self
     }
-    pub fn update(&self, delta_seconds: f64) -> Vec<ActionWrapper> {
+    pub fn update(&self, game_objects: &GameObjects, delta_seconds: f64) -> Vec<ActionWrapper> {
         let mut actions: Vec<ActionWrapper> = vec![];
         // self.position.addd(&self.velocity, delta_seconds);
         let mut add = self.velocity.c();
         add.scale(delta_seconds);
         actions.push(AddValue::new(self.position.raw_mut(), add));
+
+        for ball in game_objects.balls.iter() {
+            if std::ptr::eq(self, ball) {
+                continue;
+            }
+            self.collide(ball, &mut actions);
+        }
+        
         actions
+    }
+    pub fn collide(&self, other: &Self, actions: &mut Vec<ActionWrapper>) {
+        let mut dist = self.position.c();
+        dist.to(&other.position);
+        let norm = dist.norm();
+        if norm < self.radius + other.radius {
+            let mut collision_normal = dist.c();
+            collision_normal.normalize(1.);
+
+            let overlap = self.radius + other.radius - norm;
+            let mut seperation = collision_normal.c();
+            seperation.scale(overlap * 0.5);
+
+            actions.push(SubValue::new(self.position.raw_mut(), seperation));
+            actions.push(AddValue::new(other.position.raw_mut(), seperation));
+
+            let mut relative_velocity = self.velocity.c();
+            relative_velocity.to(&other.velocity);
+
+            let mut prod = collision_normal.c();
+            prod.mul(&relative_velocity);
+            let dvn = prod.inner_sum();
+
+            if dvn > 0. {return;}
+
+            let combined_bounciness = self.bounciness.min(other.bounciness);
+            let impulse = dvn * combined_bounciness;
+
+            let mut velocity_change = collision_normal.c();
+            velocity_change.scale(impulse);
+
+
+            actions.push(AddValue::new(self.velocity.raw_mut(), velocity_change));
+            actions.push(SubValue::new(other.velocity.raw_mut(), velocity_change));
+        }
     }
 }
 

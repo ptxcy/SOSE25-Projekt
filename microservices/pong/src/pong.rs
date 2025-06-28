@@ -46,7 +46,7 @@ pub async fn start(
 		HashMap::<String, ServerMessageSenderChannel>::new();
 
 	// initialise game objects
-	let mut game_objects = GameObjects::new(100);
+	let mut game_objects = GameObjects::new(30);
 
 	// delta time init
 	let mut last_time = Instant::now();
@@ -90,7 +90,7 @@ pub fn update_balls(sender: std::sync::mpsc::Sender<ActionWrapper>, go: *const G
 		let game_objects = unsafe {&(*go)};
 		move || {
 			for ball in game_objects.balls.iter() {
-				let actions = ball.update(delta_seconds);
+				let actions = ball.update(game_objects, delta_seconds);
 				for action in actions {
 					sender.send(action).unwrap();
 				}

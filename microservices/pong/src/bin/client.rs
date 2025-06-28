@@ -114,7 +114,7 @@ async fn main() {
 	            draw_circle(
 	                ball.position.x as f32 + screen_width() / 2.0,
 	                ball.position.y as f32 + screen_height() / 2.0,
-	                2.0,
+	                ball.radius as f32,
 	                Color::new(0.0, 1.0, 1.0, 1.0)
 	            );
 	        }
