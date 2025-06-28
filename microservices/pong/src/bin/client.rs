@@ -18,59 +18,62 @@ async fn send(mut write: Write<'_>, message: ClientMessage) {
 		.expect("Failed to send message");
 }
 
-fn tungstenite() {
-    let rt = tokio::runtime::Runtime::new().unwrap();
-    rt.block_on(async {
-		// Define the WebSocket server URL
-		let url = "ws://127.0.0.1:9000/msgpack";
+fn tungstenite() -> std::thread::JoinHandle<()> {
+	std::thread::spawn(|| {
+	    let rt = tokio::runtime::Runtime::new().unwrap();
+	    rt.block_on(async {
+			// Define the WebSocket server URL
+			let url = "ws://127.0.0.1:9000/msgpack";
 
-		// Connect to the WebSocket server
-		let (ws_stream, _) = connect_async(url)
-			.await
-			.expect("Failed to connect to WebSocket server");
+			// Connect to the WebSocket server
+			let (ws_stream, _) = connect_async(url)
+				.await
+				.expect("Failed to connect to WebSocket server");
 
-		let (write, mut read) = ws_stream.split();
-		let write = Arc::new(Mutex::new(write));
+			let (write, mut read) = ws_stream.split();
+			let write = Arc::new(Mutex::new(write));
 
-		send(write.lock().await, ClientMessage::connect("dummy")).await;
+			send(write.lock().await, ClientMessage::connect("dummy")).await;
 
-		log_with_time(format!("Connected to WebSocket server!"));
+			log_with_time(format!("Connected to WebSocket server!"));
 
-		tokio::spawn(async move {
-			while let Some(msg) = read.next().await {
-				match msg {
-					Ok(Message::Binary(data)) => {
-						// Deserialize MessagePack to ClientMessage
-						match rmp_serde::from_slice::<ServerMessage>(&data) {
-							Ok(server_message) => {
-								log_with_time(format!(
-									"Received: {:?}",
-									server_message.request_data.game_objects
-								));
+			let handle = tokio::spawn(async move {
+				while let Some(msg) = read.next().await {
+					match msg {
+						Ok(Message::Binary(data)) => {
+							// Deserialize MessagePack to ClientMessage
+							match rmp_serde::from_slice::<ServerMessage>(&data) {
+								Ok(server_message) => {
+									log_with_time(format!(
+										"Received: {:?}",
+										server_message.request_data.game_objects
+									));
+								}
+								Err(e) => log_with_time(format!(
+									"Failed to deserialize message: {}",
+									e
+								)),
 							}
-							Err(e) => log_with_time(format!(
-								"Failed to deserialize message: {}",
-								e
-							)),
+						}
+						Ok(other) => log_with_time(format!(
+							"Received non-binary message: {:?}",
+							other
+						)),
+						Err(e) => {
+							log_with_time(format!("Error reading message: {}", e));
+							break;
 						}
 					}
-					Ok(other) => log_with_time(format!(
-						"Received non-binary message: {:?}",
-						other
-					)),
-					Err(e) => {
-						log_with_time(format!("Error reading message: {}", e));
-						break;
-					}
 				}
-			}
-		});
-    })
+			});
+			let _ = handle.await;
+	    })
+	})
 }
 
 #[macroquad::main("MyGame")]
 async fn main() {
-	tungstenite();
+	let _ = tungstenite();
 
 	let mut x = 20.0;
     loop {
