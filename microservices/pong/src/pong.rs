@@ -21,6 +21,7 @@ pub async fn broadcast(
 		if sender_channel.tick_counter >= sender_channel.update_threshold {
 			// send message to client
 			sender_channel.tick_counter = 0.;
+			log_with_time("sending to client");
 			let msgpack_bytes =
 				rmp_serde::to_vec(&server_message).log().unwrap();
 			if let Err(e) = sender_channel.sender.send(msgpack_bytes).await {
@@ -52,8 +53,6 @@ pub async fn start(
 
     // game loop
     loop {
-        log_with_time("game loop");
-
 		let now = Instant::now();
 		let delta_time = now.duration_since(last_time);
 		last_time = now;

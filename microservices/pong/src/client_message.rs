@@ -10,3 +10,12 @@ pub struct ClientMessage {
     pub request_data: RequestData,
     pub user_id: String,
 }
+
+impl ClientMessage {
+    pub fn connect(username: &str) -> Self {
+        ClientMessage {
+            request_data: RequestData { connect: true },
+            user_id: username.to_string(),
+        }
+    }
+}

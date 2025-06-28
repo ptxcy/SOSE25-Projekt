@@ -4,15 +4,16 @@ use bytes::Bytes;
 use calculation_unit::logger::log_with_time;
 use futures::{lock::{Mutex, MutexGuard}, stream::SplitSink, SinkExt, StreamExt};
 use macroquad::prelude::*;
-use pong::server_message::ServerMessage;
+use pong::{client_message::ClientMessage, server_message::ServerMessage};
 use tokio::net::TcpStream;
 use tokio_tungstenite::{connect_async, tungstenite::Message, MaybeTlsStream, WebSocketStream};
 
 pub type Write<'a> = MutexGuard<'a, SplitSink<WebSocketStream<MaybeTlsStream<TcpStream>>, Message>>;
 
-async fn send(mut write: Write<'_>, message: Vec<u8>) {
+async fn send(mut write: Write<'_>, message: ClientMessage) {
+	let serialized = rmp_serde::to_vec(&message).expect("failed to serialize");
 	write
-		.send(Message::Binary(Bytes::from(message)))
+		.send(Message::Binary(Bytes::from(serialized)))
 		.await
 		.expect("Failed to send message");
 }
@@ -30,6 +31,8 @@ fn tungstenite() {
 
 		let (write, mut read) = ws_stream.split();
 		let write = Arc::new(Mutex::new(write));
+
+		send(write.lock().await, ClientMessage::connect("dummy")).await;
 
 		log_with_time(format!("Connected to WebSocket server!"));
 
