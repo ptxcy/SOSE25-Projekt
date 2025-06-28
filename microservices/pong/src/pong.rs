@@ -46,7 +46,7 @@ pub async fn start(
 		HashMap::<String, ServerMessageSenderChannel>::new();
 
 	// initialise game objects
-	let mut game_objects = GameObjects::new();
+	let mut game_objects = GameObjects::new(10);
 
 	// delta time init
 	let mut last_time = Instant::now();
@@ -65,6 +65,10 @@ pub async fn start(
 			// let player = Player::new(username.clone());
 			// game_objects.players.insert(username.clone(), player);
 			server_message_senders.insert(username, sender);
+		}
+
+		for ball in game_objects.balls.iter_mut() {
+			ball.update(delta_seconds);
 		}
 
     	broadcast(&mut server_message_senders, &game_objects, delta_seconds).await;

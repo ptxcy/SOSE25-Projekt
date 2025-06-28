@@ -1424,6 +1424,7 @@ dependencies = [
  "calculation_unit",
  "futures",
  "macroquad",
+ "rand 0.9.1",
  "rmp-serde",
  "serde",
  "tokio",

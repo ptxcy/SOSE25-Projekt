@@ -18,7 +18,7 @@ async fn send(mut write: Write<'_>, message: ClientMessage) {
 		.expect("Failed to send message");
 }
 
-fn tungstenite() -> std::thread::JoinHandle<()> {
+fn tungstenite(sender: std::sync::mpsc::Sender<GameObjects>) -> std::thread::JoinHandle<()> {
 	std::thread::spawn(|| {
 	    let rt = tokio::runtime::Runtime::new().unwrap();
 	    rt.block_on(async {
@@ -47,10 +47,11 @@ fn tungstenite() -> std::thread::JoinHandle<()> {
 									let game_objects = rmp_serde::from_slice::<GameObjects>(&server_message.request_data.game_objects);
 									match game_objects {
 							            Ok(go) => {
-											log_with_time(format!(
-												"game objects: {:?}",
-												go
-											));
+											// log_with_time(format!(
+											// 	"game objects: {:?}",
+											// 	go
+											// ));
+											sender.send(go).unwrap();
 							            },
 										Err(e) => log_with_time(format!(
 											"Failed to deserialize inner message: {}",
@@ -82,19 +83,25 @@ fn tungstenite() -> std::thread::JoinHandle<()> {
 
 #[macroquad::main("MyGame")]
 async fn main() {
-	let _ = tungstenite();
+	let (sender, receiver) = std::sync::mpsc::channel::<GameObjects>();
 
-	let mut x = 20.0;
+	let _ = tungstenite(sender);
+
     loop {
+
         clear_background(RED);
 
         draw_line(40.0, 40.0, 100.0, 200.0, 15.0, BLUE);
         draw_rectangle(screen_width() / 2.0 - 60.0, 100.0, 120.0, 60.0, GREEN);
 
         draw_text("Hello, Macroquad!", 20.0, 20.0, 30.0, DARKGRAY);
-        draw_circle(x, 100., 50., Color::new(50.,50.,50.,1.));
 
-        x += 0.1;
+    	while let Ok(go) = receiver.try_recv() {
+    		for ball in go.balls.iter() {
+    			ball.draw();
+    		}
+    	}
+
         next_frame().await
     }
 }

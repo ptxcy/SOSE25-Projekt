@@ -1,15 +1,71 @@
+use calculation_unit::{game::coordinate::Coordinate, logger::log_with_time};
+use macroquad::prelude::*;
 use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc::Sender;
 
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+pub struct Ball {
+    pub position: Coordinate,
+    pub velocity: Coordinate,
+    pub radius: f64,
+}
+
+impl Ball {
+    pub fn set_position(mut self, x: f64, y: f64) -> Self {
+        self.position.x = x;
+        self.position.y = y;
+        self
+    }
+    pub fn random_velocity(mut self) -> Self {
+        let x: f64 = rand::gen_range(-1., 1.);
+        let y: f64 = rand::gen_range(-1., 1.);
+        // let z: f64 = rand::gen_range(-1., 1.);
+        let mut c = Coordinate::new(x, y, 0.);
+        c.normalize(1.);
+        self.velocity = c;
+        self
+    }
+    pub fn update(&mut self, delta_seconds: f64) {
+        self.position.addd(&self.velocity, delta_seconds);
+    }
+    pub fn draw(&self) {
+        log_with_time("trying to draw ball");
+        
+        draw_circle(
+            self.position.x as f32 + screen_width() / 2.,
+            self.position.y as f32 + screen_height() / 2.,
+            5.,
+            Color::new(0.,1.,1.,1.)
+        );
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct GameObjects {
-    
+    pub balls: Vec<Ball>,
 }
 
 impl GameObjects {
-    pub fn new() -> Self {
+    pub fn new(count: usize) -> Self {
+
+        let dist = 20.;
+        let offset = (count as f64 * dist) / 2.;
+
+        let mut balls = Vec::<Ball>::new();
+        for x in 0..count {
+            for y in 0..count {
+                let ball = Ball::default()
+                    .set_position(
+                        x as f64 * dist - offset,
+                        y as f64 * dist - offset
+                    )
+                    .random_velocity()
+                ;
+                balls.push(ball);
+            }
+        }
         Self {
-            
+            balls,
         }
     }
 }
