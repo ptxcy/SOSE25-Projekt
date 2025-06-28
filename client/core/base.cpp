@@ -255,7 +255,7 @@ Camera3D::Camera3D(vec3 tgt,f32 dist,f32 p,f32 y,f32 width,f32 height,f32 ifov)
 void Camera3D::update()
 {
 	position = vec3(cos(pitch)*sin(yaw),cos(pitch)*cos(yaw),-sin(pitch))*distance+target;
-	view = glm::lookAt(position,target,vec3(0,0,-1));
+	view = glm::lookAt(position,target,up);
 }
 
 /**
@@ -264,4 +264,13 @@ void Camera3D::update()
 void Camera3D::project()
 {
 	proj = glm::perspective(glm::radians(fov),m_Ratio,near,far);
+}
+
+/**
+ *	set camera roll
+ *	\param r: camera roll in degrees
+ */
+void Camera3D::roll(f32 r)
+{
+	up = glm::rotate(glm::mat4(1.f),glm::radians(r),target-position)*vec4(vec3(0,0,-1),.0f);
 }

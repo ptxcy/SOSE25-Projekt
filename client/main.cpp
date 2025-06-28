@@ -27,7 +27,7 @@ s32 main(s32 argc,char** argv)
 	*/
 	CameraController __CamControl = CameraController();
 	//TestScene __TestScene = TestScene();
-	PlanetFocus __PlanetFocus = PlanetFocus();
+	PlanetFocus __PlanetFocus = PlanetFocus(__Ubuntu);
 
 	bool running = true;
 	while (running)

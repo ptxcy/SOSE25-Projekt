@@ -27,7 +27,9 @@ void main()
 	EdgeCoordinates = edge_coordinates*texel;
 
 	// gram-schmidt reorthogonalization
-	vec3 Tangent = normalize(tangent-dot(tangent,normals)*normals);
-	TBN = mat3(Tangent,cross(normals,Tangent),normals);
+	vec3 Tangent = normalize((model*vec4(tangent,0)).xyz);
+	vec3 Normals = normalize((model*vec4(normals,0)).xyz);
+	Tangent = normalize(Tangent-dot(Tangent,Normals)*Normals);
+	vec3 Bitangent = cross(Normals,Tangent);
+	TBN = mat3(Tangent,Bitangent,Normals);
 }
-// TODO adjust normals for world space now that we have a model matrix!

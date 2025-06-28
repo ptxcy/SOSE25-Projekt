@@ -352,6 +352,9 @@ public:
 	void update();
 	void project();
 
+	// camera action
+	void roll(f32 r);
+
 public:
 
 	// camera matrices
@@ -361,6 +364,7 @@ public:
 	// attributes
 	vec3 position;
 	vec3 target;
+	vec3 up = vec3(0,0,-1);
 	f32 distance;
 	f32 pitch;
 	f32 yaw;
@@ -372,6 +376,8 @@ private:
 
 	f32 m_Ratio;
 };
+// FIXME what the hell? negative z up
+// TODO also reusing standard up for roll without constant is punishable by death
 
 inline Camera3D g_Camera = Camera3D(vec3(0,-.001,0),1,0,0,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y,60);
 
