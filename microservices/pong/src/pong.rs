@@ -52,6 +52,8 @@ pub async fn start(
 
     // game loop
     loop {
+        log_with_time("game loop");
+
 		let now = Instant::now();
 		let delta_time = now.duration_since(last_time);
 		last_time = now;
