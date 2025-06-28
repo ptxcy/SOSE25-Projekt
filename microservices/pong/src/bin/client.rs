@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{env, sync::Arc};
 
 use bytes::Bytes;
 use calculation_unit::logger::log_with_time;
@@ -18,8 +18,8 @@ async fn send(mut write: Write<'_>, message: ClientMessage) {
 		.expect("Failed to send message");
 }
 
-fn tungstenite(sender: std::sync::mpsc::Sender<GameObjects>) -> std::thread::JoinHandle<()> {
-	std::thread::spawn(|| {
+fn tungstenite(sender: std::sync::mpsc::Sender<GameObjects>, username: String) -> std::thread::JoinHandle<()> {
+	std::thread::spawn(move || {
 	    let rt = tokio::runtime::Runtime::new().unwrap();
 	    rt.block_on(async {
 			// Define the WebSocket server URL
@@ -33,7 +33,7 @@ fn tungstenite(sender: std::sync::mpsc::Sender<GameObjects>) -> std::thread::Joi
 			let (write, mut read) = ws_stream.split();
 			let write = Arc::new(Mutex::new(write));
 
-			send(write.lock().await, ClientMessage::connect("dummy")).await;
+			send(write.lock().await, ClientMessage::connect(&username)).await;
 
 			log_with_time(format!("Connected to WebSocket server!"));
 
@@ -83,8 +83,14 @@ fn tungstenite(sender: std::sync::mpsc::Sender<GameObjects>) -> std::thread::Joi
 
 #[macroquad::main("MyGame")]
 async fn main() {
+	let args = std::env::args().collect::<Vec<String>>();
+
+	if args.len() != 2 {
+		log_with_time("wrong start arguments! cargo run -r --bin client <username>");
+	}
+
     let (sender, receiver) = std::sync::mpsc::channel::<GameObjects>();
-    let _ = tungstenite(sender);
+    let _ = tungstenite(sender, args[1].clone());
     
     // Store current game state
     let mut current_game_state: Option<GameObjects> = None;
