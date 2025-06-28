@@ -4,7 +4,7 @@ use bytes::Bytes;
 use calculation_unit::logger::log_with_time;
 use futures::{lock::{Mutex, MutexGuard}, stream::SplitSink, SinkExt, StreamExt};
 use macroquad::prelude::*;
-use pong::{client_message::ClientMessage, server_message::ServerMessage};
+use pong::{client_message::ClientMessage, server_message::{GameObjects, ServerMessage}};
 use tokio::net::TcpStream;
 use tokio_tungstenite::{connect_async, tungstenite::Message, MaybeTlsStream, WebSocketStream};
 
@@ -44,10 +44,19 @@ fn tungstenite() -> std::thread::JoinHandle<()> {
 							// Deserialize MessagePack to ClientMessage
 							match rmp_serde::from_slice::<ServerMessage>(&data) {
 								Ok(server_message) => {
-									log_with_time(format!(
-										"Received: {:?}",
-										server_message.request_data.game_objects
-									));
+									let game_objects = rmp_serde::from_slice::<GameObjects>(&server_message.request_data.game_objects);
+									match game_objects {
+							            Ok(go) => {
+											log_with_time(format!(
+												"game objects: {:?}",
+												go
+											));
+							            },
+										Err(e) => log_with_time(format!(
+											"Failed to deserialize inner message: {}",
+											e
+										)),
+							        }
 								}
 								Err(e) => log_with_time(format!(
 									"Failed to deserialize message: {}",
