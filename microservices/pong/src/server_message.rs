@@ -3,7 +3,7 @@ use macroquad::prelude::*;
 use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc::Sender;
 
-use crate::action::{ActionWrapper, AddValue, AsRaw, SubValue};
+use crate::action::{ActionWrapper, AddValue, AsRaw, SetValue, SubValue};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Ball {
@@ -34,12 +34,12 @@ impl Ball {
         self.radius = radius;
         self
     }
-    pub fn random_velocity(mut self) -> Self {
+    pub fn random_velocity(mut self, speed: f64) -> Self {
         let x: f64 = rand::gen_range(-1., 1.);
         let y: f64 = rand::gen_range(-1., 1.);
         // let z: f64 = rand::gen_range(-1., 1.);
         let mut c = Coordinate::new(x, y, 0.);
-        c.normalize(10.);
+        c.normalize(speed);
         self.velocity = c;
         self
     }
@@ -56,6 +56,7 @@ impl Ball {
             }
             self.collide(ball, &mut actions);
         }
+        self.handle_wall_collision(&mut actions);
         
         actions
     }
@@ -72,7 +73,7 @@ impl Ball {
             seperation.scale(overlap * 0.5);
 
             actions.push(SubValue::new(self.position.raw_mut(), seperation));
-            actions.push(AddValue::new(other.position.raw_mut(), seperation));
+            // actions.push(AddValue::new(other.position.raw_mut(), seperation));
 
             let mut relative_velocity = self.velocity.c();
             relative_velocity.to(&other.velocity);
@@ -89,9 +90,57 @@ impl Ball {
             let mut velocity_change = collision_normal.c();
             velocity_change.scale(impulse);
 
-
             actions.push(AddValue::new(self.velocity.raw_mut(), velocity_change));
-            actions.push(SubValue::new(other.velocity.raw_mut(), velocity_change));
+            // actions.push(SubValue::new(other.velocity.raw_mut(), velocity_change));
+        }
+    }
+    fn handle_wall_collision(&self, actions: &mut Vec<ActionWrapper>) {
+        let wall_bound = 500.0;
+        let wall_bounciness = self.bounciness;
+        
+        // Left wall (x = -100)
+        if self.position.x - self.radius < -wall_bound {
+            let mut new_velocity = self.velocity.c();
+            new_velocity.x = -new_velocity.x * wall_bounciness;
+            actions.push(SetValue::new(self.velocity.raw_mut(), new_velocity));
+            
+            // Keep ball in bounds
+            let mut new_pos = self.position.c();
+            new_pos.x = -wall_bound + self.radius;
+            actions.push(SetValue::new(self.position.raw_mut(), new_pos));
+        }
+        
+        // Right wall (x = +100)
+        if self.position.x + self.radius > wall_bound {
+            let mut new_velocity = self.velocity.c();
+            new_velocity.x = -new_velocity.x * wall_bounciness;
+            actions.push(SetValue::new(self.velocity.raw_mut(), new_velocity));
+            
+            let mut new_pos = self.position.c();
+            new_pos.x = wall_bound - self.radius;
+            actions.push(SetValue::new(self.position.raw_mut(), new_pos));
+        }
+        
+        // Bottom wall (y = -100)
+        if self.position.y - self.radius < -wall_bound {
+            let mut new_velocity = self.velocity.c();
+            new_velocity.y = -new_velocity.y * wall_bounciness;
+            actions.push(SetValue::new(self.velocity.raw_mut(), new_velocity));
+            
+            let mut new_pos = self.position.c();
+            new_pos.y = -wall_bound + self.radius;
+            actions.push(SetValue::new(self.position.raw_mut(), new_pos));
+        }
+        
+        // Top wall (y = +100)
+        if self.position.y + self.radius > wall_bound {
+            let mut new_velocity = self.velocity.c();
+            new_velocity.y = -new_velocity.y * wall_bounciness;
+            actions.push(SetValue::new(self.velocity.raw_mut(), new_velocity));
+            
+            let mut new_pos = self.position.c();
+            new_pos.y = wall_bound - self.radius;
+            actions.push(SetValue::new(self.position.raw_mut(), new_pos));
         }
     }
 }
@@ -115,7 +164,7 @@ impl GameObjects {
                         x as f64 * dist - offset,
                         y as f64 * dist - offset
                     )
-                    .random_velocity()
+                    .random_velocity(30.)
                 ;
                 balls.push(ball);
             }
