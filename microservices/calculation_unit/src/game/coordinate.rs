@@ -9,6 +9,16 @@ pub struct Coordinate {
 	pub z: f64,
 }
 
+impl std::hash::Hash for Coordinate {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        (self.x as i32).hash(state);
+        (self.y as i32).hash(state);
+        (self.z as i32).hash(state);
+    }
+}
+
+impl Eq for Coordinate { }
+
 impl Default for Coordinate {
 	fn default() -> Self {
 		Coordinate {

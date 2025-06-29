@@ -4,7 +4,7 @@ use bytes::Bytes;
 use calculation_unit::logger::log_with_time;
 use futures::{lock::{Mutex, MutexGuard}, stream::SplitSink, SinkExt, StreamExt};
 use macroquad::prelude::*;
-use pong::{client_message::ClientMessage, server_message::{Ball, GameObjects, ServerMessage}};
+use pong::{client_message::ClientMessage, server_message::{GameObjects, ServerMessage}};
 use tokio::net::TcpStream;
 use tokio_tungstenite::{connect_async, tungstenite::Message, MaybeTlsStream, WebSocketStream};
 
