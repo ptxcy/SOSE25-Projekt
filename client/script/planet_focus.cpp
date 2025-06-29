@@ -52,7 +52,7 @@ PlanetFocus::PlanetFocus(Font* font)
 
 	// cloud transform
 	m_CloudBatch->attach_uniform(m_Clouds,"proj",&m_PlanetCamera.proj);
-	m_CloudBatch->object[m_Clouds].transform.scale(1.001f);
+	m_CloudBatch->object[m_Clouds].transform.scale(1.005f);
 
 	// setup atmosphere layer
 	VertexShader __AtmoVertexShader = VertexShader("core/shader/atmosphere.vert");
