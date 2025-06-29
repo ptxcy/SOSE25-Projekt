@@ -7,7 +7,7 @@
 #include "../core/wheel.h"
 
 
-constexpr f32 FOCUS_PLANET_ROTATION = .25f;
+constexpr f32 FOCUS_PLANET_ROTATION = -.25f;
 constexpr f32 FOCUS_CLOUD_LAG_ROTATION = .9f;
 constexpr f32 FOCUS_REFERENCE_ACC = .001f;
 constexpr f32 FOCUS_REFERENCE_POWER = .01f;
@@ -47,7 +47,7 @@ private:
 
 	// camera
 	Camera3D m_PlanetCamera = g_Camera;
-	vec3 m_RefPosition = vec3(0,1,0);
+	vec3 m_RefPosition = glm::normalize(vec3(0,1,0));
 	f32 m_SurfaceDistance = 2.f;
 };
 
