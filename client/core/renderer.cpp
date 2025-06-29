@@ -429,7 +429,7 @@ Renderer::Renderer()
 	m_DeferredFrameBuffer.define_colour_component(1,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y,true);
 	m_DeferredFrameBuffer.define_colour_component(2,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y,true);
 	m_DeferredFrameBuffer.define_colour_component(3,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y,true);
-	m_DeferredFrameBuffer.define_colour_component(4,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y);
+	//m_DeferredFrameBuffer.define_colour_component(4,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y);
 	m_DeferredFrameBuffer.define_depth_component(FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y);
 	m_DeferredFrameBuffer.finalize();
 	Framebuffer::stop();
@@ -861,7 +861,7 @@ void Renderer::_update_canvas()
 	m_DeferredFrameBuffer.bind_colour_component(RENDERER_TEXTURE_DEFERRED_POSITION,1);
 	m_DeferredFrameBuffer.bind_colour_component(RENDERER_TEXTURE_DEFERRED_NORMAL,2);
 	m_DeferredFrameBuffer.bind_colour_component(RENDERER_TEXTURE_DEFERRED_MATERIAL,3);
-	m_DeferredFrameBuffer.bind_colour_component(RENDERER_TEXTURE_DEFERRED_EMISSION,4);
+	//m_DeferredFrameBuffer.bind_colour_component(RENDERER_TEXTURE_DEFERRED_EMISSION,4);
 	m_ForwardFrameBuffer.bind_depth_component(RENDERER_TEXTURE_FORWARD_DEPTH);
 	m_DeferredFrameBuffer.bind_depth_component(RENDERER_TEXTURE_DEFERRED_DEPTH);
 	m_CanvasPipeline.upload("camera_position",g_Camera.position);

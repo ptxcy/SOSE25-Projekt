@@ -28,7 +28,7 @@ uniform sampler2D gbuffer_colour;
 uniform sampler2D gbuffer_position;
 uniform sampler2D gbuffer_normal;
 uniform sampler2D gbuffer_material;
-uniform sampler2D gbuffer_emission;
+//uniform sampler2D gbuffer_emission;
 uniform sampler2D forward_depth;
 uniform sampler2D gbuffer_depth;
 
@@ -70,7 +70,7 @@ void main()
 	vec4 cmp_position = texture(gbuffer_position,EdgeCoordinates);
 	vec4 cmp_normal = texture(gbuffer_normal,EdgeCoordinates);
 	vec4 cmp_material = texture(gbuffer_material,EdgeCoordinates);
-	vec4 cmp_emission = texture(gbuffer_emission,EdgeCoordinates);
+	//vec4 cmp_emission = texture(gbuffer_emission,EdgeCoordinates);
 	float cmp_fdepth = texture(forward_depth,EdgeCoordinates).r;
 	float cmp_gdepth = texture(gbuffer_depth,EdgeCoordinates).r;
 

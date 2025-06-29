@@ -6,9 +6,6 @@ layout(location = 0) out vec4 pixelColour;
 
 uniform vec3 camera_position;
 
-// atmosphere radius
-const float Scale = 1.05f;  // maybee more??
-
 // scattering constants
 const float PI = 3.141592653;
 const vec3 rB = vec3(5.8e-6,13.5e-6,33.1e-6);
@@ -19,8 +16,11 @@ const float mGSq = mG_air*mG_air;
 const vec3 mB = vec3(.002);
 const float mPIi = 3./(8.*PI);
 const float mScl = 1e1;
-const float exposure = 1.f;
+const float exposure = 4.f;
 
+const float Scale = 1.1;
+const float PScale = .98725;
+const float GrazeDistanceInv = 1./(2*sqrt(Scale*Scale-PScale*PScale));
 const vec3 LightPosition = normalize(vec3(2000,2000,-2000));
 // FIXME see clouds.frag, this should not be hardcoded, its dangerous and clumsy
 
@@ -30,7 +30,6 @@ void main()
 	// precalculation
 	vec3 camera_direction = normalize(Position-camera_position);
 	vec3 norm_position = normalize(Position);
-	float geom_factor = clamp(dot(norm_position,LightPosition),.2,1.);
 
 	// pseudo path-tracing through atmosphere utilizing linear algebra
 	// intersection with atmosphere
@@ -43,7 +42,7 @@ void main()
 	float t1 = (-b+sq_discr)*.5;
 
 	// intersection with planet
-	float c_planet = dot(camera_position,camera_position)-1.;
+	float c_planet = dot(camera_position,camera_position)-PScale*PScale;
 	float inner_discr = b*b-4.*a*c_planet;
 	if (inner_discr>.0)
 	{
@@ -51,11 +50,10 @@ void main()
 		float t0i = (-b-sq_discr)*.5;
 		float t1i = (-b+sq_discr)*.5;
 		float tsurface = min(t0i,t1i);
+		t0 = max(t0,.0);
 		t1 = (tsurface>t0&&tsurface<t1) ? tsurface : t1;
 	}
 	float ray_distance = t1-t0;
-	pixelColour = vec4(vec3(ray_distance),1.);
-	return;
 
 	// phase calculations
 	float cos_theta = dot(camera_direction,LightPosition);
@@ -63,14 +61,19 @@ void main()
 	float rayleigh = rPIi*(1.+ctsq);
 	float mie = mPIi*((1.-mGSq)*(1.+ctsq))/pow(1.+mGSq-2.*mG_air*cos_theta,1.5);
 
+	// optical depth
+	vec3 rTau = rB*rayleigh*ray_distance;
+	vec3 mTau = mB*mie*ray_distance;
+	vec3 tau = rTau*rScl+mTau*mScl;
+
 	// light scattering
-	vec3 scatter = rB*rayleigh*rScl+mB*mie*mScl;
-	scatter = vec3(1.)-exp(-scatter*exposure);
+	vec3 beer_lambert = vec3(1.)-exp(-tau*exposure);
 
 	// atmosphere fade
-	float fade = (1-clamp(dot(norm_position,normalize(camera_position)),.0,1.))*geom_factor;
-	fade = max(pow(fade,1),.1f);
+	float geom_factor = clamp(pow(dot(norm_position,LightPosition),.25),.2,1.);
+	float fade = pow(clamp(ray_distance*GrazeDistanceInv,.4,1.),2.)*geom_factor;
+	fade = max(pow(fade,1),.25);
 
 	// combine scattering & fade
-	pixelColour = vec4(scatter,fade);
+	pixelColour = vec4(beer_lambert,fade);
 }

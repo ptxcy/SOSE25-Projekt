@@ -45,14 +45,14 @@ PlanetFocus::PlanetFocus(Font* font)
 	VertexShader __CloudVertexShader = VertexShader("core/shader/clouds.vert");
 	FragmentShader __CloudFragmentShader = FragmentShader("core/shader/clouds.frag");
 	lptr<ShaderPipeline> __CloudPipeline
-			= g_Renderer.register_pipeline(__CloudVertexShader,__CloudFragmentShader);
+		= g_Renderer.register_pipeline(__CloudVertexShader,__CloudFragmentShader);
 	m_CloudBatch = g_Renderer.register_geometry_batch(__CloudPipeline);
 	m_Clouds = m_CloudBatch->add_geometry(__SphereMesh,__CloudTexture);
 	m_CloudBatch->load();
 
 	// cloud transform
 	m_CloudBatch->attach_uniform(m_Clouds,"proj",&m_PlanetCamera.proj);
-	m_CloudBatch->object[m_Clouds].transform.scale(1.01f);
+	m_CloudBatch->object[m_Clouds].transform.scale(1.001f);
 
 	// setup atmosphere layer
 	VertexShader __AtmoVertexShader = VertexShader("core/shader/atmosphere.vert");
@@ -74,7 +74,6 @@ PlanetFocus::PlanetFocus(Font* font)
 
 	// view focus setup
 	g_Camera.distance = 2.f;
-	//g_Camera.roll(-75.f);
 
 	g_Wheel.call(UpdateRoutine{ &PlanetFocus::_update,(void*)this });
 }

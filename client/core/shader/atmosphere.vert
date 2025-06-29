@@ -11,7 +11,7 @@ out vec3 Position;
 uniform mat4 view;
 uniform mat4 proj;
 
-const float Scale = 1.05f;  // maybee more??
+const float Scale = 1.1;  // maybee more??
 
 
 void main()

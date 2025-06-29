@@ -14,13 +14,13 @@ layout(location = 4) out vec4 gbuffer_emission;
 uniform sampler2D colour_map;
 uniform sampler2D normal_map;
 uniform sampler2D material_map;
-uniform sampler2D emission_map;
+//uniform sampler2D emission_map;
 
 
 void main()
 {
 	// quickfix split up emission values
-	vec4 emission = texture(emission_map,EdgeCoordinates);
+	//vec4 emission = texture(emission_map,EdgeCoordinates);
 
 	// extract colour & position
 	gbuffer_colour = vec4(texture(colour_map,EdgeCoordinates).rgb,1.);
