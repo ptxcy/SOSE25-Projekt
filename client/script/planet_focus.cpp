@@ -20,6 +20,7 @@ PlanetFocus::PlanetFocus(Font* font)
 		g_Renderer.register_texture("./res/planets/earth.jpg",TEXTURE_FORMAT_SRGB),
 		g_Renderer.register_texture("./res/planets/earth_normal.png"),
 		g_Renderer.register_texture("./res/planets/earth_material.png"),
+		//g_Renderer.register_texture("./res/planets/earth_emission.jpg",TEXTURE_FORMAT_SRGB),
 	};
 	vector<Texture*> __MonkeyTextures = {
 		g_Renderer.register_texture("./res/physical/gold_colour.png",TEXTURE_FORMAT_SRGB),
