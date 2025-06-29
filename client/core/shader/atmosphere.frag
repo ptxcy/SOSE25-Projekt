@@ -19,7 +19,7 @@ const float mScl = 1e1;
 const float exposure = 4.f;
 
 const float Scale = 1.1;
-const float PScale = .98725;
+const float PScale = .98725;  // FIXME floating point bullshit in .obj file parser
 const float GrazeDistanceInv = 1./(2*sqrt(Scale*Scale-PScale*PScale));
 const vec3 LightPosition = normalize(vec3(2000,2000,-2000));
 // FIXME see clouds.frag, this should not be hardcoded, its dangerous and clumsy

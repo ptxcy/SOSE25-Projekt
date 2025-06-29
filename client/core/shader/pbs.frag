@@ -98,6 +98,7 @@ void main()
 		final += lumen_point(position,colour,normal,metalness,roughness,pointlights[i]);
 
 	// process emission
+	final = final*occlusion;
 	//final = max(emission,final);
 	// TODO make it happen, even without quickfix hack solution
 

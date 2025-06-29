@@ -87,7 +87,7 @@ void PlanetFocus::update()
 	f32 __ActualDistance = m_SurfaceDistance-1.f;
 
 	// height display
-	m_TxHeightDisplay->data = "distance to surface = "
+	m_TxHeightDisplay->data = "distance to cloud layer = "
 			+std::to_string((u64)(__ActualDistance*FOCUS_UNIT_TO_METERS))+'m';
 	m_TxHeightDisplay->align();
 	m_TxHeightDisplay->load_buffer();
