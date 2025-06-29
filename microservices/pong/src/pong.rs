@@ -46,7 +46,7 @@ pub async fn start(
 		HashMap::<String, ServerMessageSenderChannel>::new();
 
 	// initialise game objects
-	let mut game_objects = GameObjects::new(30);
+	let mut game_objects = GameObjects::new(50);
 
 	// delta time init
 	let mut last_time = Instant::now();
@@ -80,6 +80,8 @@ pub async fn start(
 			action.execute(game_objects.raw_mut());
 		}
 
+		game_objects.chunks = GameObjects::chunky(&game_objects.balls);
+
     	broadcast(&mut server_message_senders, &game_objects, delta_seconds).await;
         tokio::task::yield_now().await;
     }
@@ -89,12 +91,10 @@ pub fn update_balls(sender: std::sync::mpsc::Sender<ActionWrapper>, go: *const G
 	std::thread::spawn({
 		let game_objects = unsafe {&(*go)};
 		move || {
-			for (chunk, balls) in game_objects.balls.iter() {
-				for ball in balls.iter() {
-					let actions = ball.update(game_objects, delta_seconds);
-					for action in actions {
-						sender.send(action).unwrap();
-					}
+			for ball in game_objects.balls.iter() {
+				let actions = ball.update(game_objects, delta_seconds);
+				for action in actions {
+					sender.send(action).unwrap();
 				}
 			}
 		}

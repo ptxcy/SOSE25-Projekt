@@ -9,6 +9,30 @@ pub struct Coordinate {
 	pub z: f64,
 }
 
+impl std::ops::Add for Coordinate {
+    type Output = Coordinate;
+
+    fn add(self, rhs: Self) -> Self::Output {
+    	Self::Output {
+	        x: self.x + rhs.x,
+	        y: self.y + rhs.y,
+	        z: self.z + rhs.z,
+	    }
+    }
+}
+
+impl std::ops::Sub for Coordinate {
+    type Output = Coordinate;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+    	Self::Output {
+	        x: self.x - rhs.x,
+	        y: self.y - rhs.y,
+	        z: self.z - rhs.z,
+	    }
+    }
+}
+
 impl std::hash::Hash for Coordinate {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         (self.x as i32).hash(state);

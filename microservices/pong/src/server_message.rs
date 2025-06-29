@@ -5,14 +5,20 @@ use macroquad::prelude::*;
 use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc::Sender;
 
-use crate::ball::Ball;
+use crate::{action::AsRaw, ball::Ball};
 
-pub const CHUNK_SIZE: u64 = 200;
+pub const CHUNK_SIZE: u64 = 20;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct GameObjects {
-    pub balls: HashMap<Coordinate, Vec<Ball>>,
+    pub balls: Vec<Ball>,
+
+    #[serde(skip)]
+    pub chunks: HashMap<Coordinate, Vec<*const Ball>>,
 }
+
+unsafe impl Sync for GameObjects {}
+unsafe impl Send for GameObjects {}
 
 impl GameObjects {
     pub fn new(count: usize) -> Self {
@@ -20,7 +26,7 @@ impl GameObjects {
         let dist = 5.;
         let offset = (count as f64 * dist) / 2.;
 
-        let mut balls = HashMap::<Coordinate, Vec::<Ball>>::new();
+        let mut balls = Vec::<Ball>::new();
         for x in 0..count {
             for y in 0..count {
                 let ball = Ball::default()
@@ -30,16 +36,29 @@ impl GameObjects {
                     )
                     .random_velocity(30.)
                 ;
-                // TODO chunk position
-                match balls.get_mut(&ball.position.chunk(CHUNK_SIZE)) {
-                    // Some(_) => todo!(),
-                    // None => balls.insert(ball.position.chunk(CHUNK_SIZE), vec![ball]),
-                };
+                balls.push(ball);
             }
         }
+        let chunks = Self::chunky(&balls);
         Self {
             balls,
+            chunks,
         }
+    }
+
+    pub fn chunky(balls: &Vec<Ball>) -> HashMap<Coordinate, Vec<*const Ball>> {
+        let mut chunks: HashMap<Coordinate, Vec<*const Ball>> = HashMap::new();
+
+        for ball in balls.iter() {
+            match chunks.get_mut(&ball.position.chunk(CHUNK_SIZE)) {
+                Some(chunk) => chunk.push(ball.raw()),
+                None => {
+                    chunks.insert(ball.position.chunk(CHUNK_SIZE), vec![ball.raw()]);
+                },
+            };
+        }
+
+        chunks
     }
 }
 

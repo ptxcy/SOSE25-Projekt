@@ -53,16 +53,26 @@ impl Ball {
 
         let chunks: Vec<Coordinate> = vec![
             my_chunk,
-            // my_chunk + Coordinate::new(CHUNK_SIZE as f64, 0., 0.),
+            my_chunk + Coordinate::new(CHUNK_SIZE as f64, 0., 0.),
+            my_chunk - Coordinate::new(CHUNK_SIZE as f64, 0., 0.),
+            my_chunk + Coordinate::new(0., CHUNK_SIZE as f64, 0.),
+            my_chunk - Coordinate::new(0., CHUNK_SIZE as f64, 0.),
+            my_chunk + Coordinate::new(CHUNK_SIZE as f64, CHUNK_SIZE as f64, 0.),
+            my_chunk - Coordinate::new(CHUNK_SIZE as f64, CHUNK_SIZE as f64, 0.),
+            my_chunk + Coordinate::new(CHUNK_SIZE as f64, -(CHUNK_SIZE as f64), 0.),
+            my_chunk - Coordinate::new(CHUNK_SIZE as f64, -(CHUNK_SIZE as f64), 0.),
         ];
 
-        for chunk in chunks {
-            let balls = game_objects.balls.get(&chunk).unwrap();
-            for ball in balls.iter() {
-                if std::ptr::eq(self, ball) {
-                    continue;
+        // TODO chunks
+        for chunk in chunks.iter() {
+            let balls = game_objects.chunks.get(chunk);
+            if let Some(balls) = balls {
+                for ball in balls.iter() {
+                    if std::ptr::eq(self, *ball) {
+                        continue;
+                    }
+                    self.collide(unsafe {&(**ball)}, &mut actions);
                 }
-                self.collide(ball, &mut actions);
             }
         }
 
