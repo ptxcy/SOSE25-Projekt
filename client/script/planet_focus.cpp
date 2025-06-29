@@ -27,6 +27,9 @@ PlanetFocus::PlanetFocus(Font* font)
 		g_Renderer.register_texture("./res/physical/gold_material.png"),
 	};
 	vector<Texture*> __CloudTexture = { g_Renderer.register_texture("./res/planets/earth_atm.png") };
+	vector<Texture*> __EmptyTexture = {  };
+	// TODO remove this empty texture, when geometry definition has been improved
+	//		actually, why not receive a pointer instead of a vector, the texture count is given by shader
 
 	// setup geometry
 	m_PFBatch = g_Renderer.register_deferred_geometry_batch();
@@ -49,6 +52,20 @@ PlanetFocus::PlanetFocus(Font* font)
 	// cloud transform
 	m_CloudBatch->attach_uniform(m_Clouds,"proj",&m_PlanetCamera.proj);
 	m_CloudBatch->object[m_Clouds].transform.scale(1.01f);
+
+	// setup atmosphere layer
+	VertexShader __AtmoVertexShader = VertexShader("core/shader/atmosphere.vert");
+	FragmentShader __AtmoFragmentShader = FragmentShader("core/shader/atmosphere.frag");
+	lptr<ShaderPipeline> __AtmoPipeline
+			= g_Renderer.register_pipeline(__AtmoVertexShader,__AtmoFragmentShader);
+	lptr<GeometryBatch> __AtmoBatch = g_Renderer.register_geometry_batch(__AtmoPipeline);
+	u32 __Atmosphere = __AtmoBatch->add_geometry(__SphereMesh,__EmptyTexture);
+	__AtmoBatch->load();
+	// TODO allow for geometry upload without texture list definition please
+
+	// atmosphere transform
+	__AtmoBatch->attach_uniform(__Atmosphere,"camera_position",&g_Camera.position);
+	__AtmoBatch->attach_uniform(__Atmosphere,"proj",&m_PlanetCamera.proj);
 
 	// lighting
 	g_Renderer.add_sunlight(vec3(2000,2000,-2000),vec3(1.f),4.f);
@@ -77,8 +94,7 @@ void PlanetFocus::update()
 
 	// earth animation
 	m_PFBatch->object[m_Earth].transform.rotate_z(FOCUS_PLANET_ROTATION);
-	m_CloudBatch->object[m_Clouds].transform.rotate_z(FOCUS_PLANET_ROTATION*.9f);
-	// TODO make cloud delta constant please
+	m_CloudBatch->object[m_Clouds].transform.rotate_z(FOCUS_PLANET_ROTATION*FOCUS_CLOUD_LAG_ROTATION);
 
 	// zoom input
 	m_SurfaceDistance += (g_Input.keyboard.keys[SDL_SCANCODE_R]-g_Input.keyboard.keys[SDL_SCANCODE_F])

@@ -8,6 +8,7 @@
 
 
 constexpr f32 FOCUS_PLANET_ROTATION = .25f;
+constexpr f32 FOCUS_CLOUD_LAG_ROTATION = .9f;
 constexpr f32 FOCUS_REFERENCE_ACC = .001f;
 constexpr f32 FOCUS_REFERENCE_POWER = .01f;
 
