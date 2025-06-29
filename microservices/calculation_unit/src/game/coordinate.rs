@@ -129,4 +129,12 @@ impl Coordinate {
 		let div = 1. / self.norm() * value;
 		self.scale(div)
 	}
+
+	pub fn chunk(&self, chunk_size: u64) -> Self {
+		Self {
+		    x: ((self.x as u64 / chunk_size) * chunk_size) as f64,
+		    y: ((self.y as u64 / chunk_size) * chunk_size) as f64,
+		    z: ((self.z as u64 / chunk_size) * chunk_size) as f64,
+		}
+	}
 }

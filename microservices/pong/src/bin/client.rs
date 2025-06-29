@@ -110,13 +110,15 @@ async fn main() {
         
         // Draw current balls
         if let Some(go) = &current_game_state {
-	        for ball in go.balls.iter() {
-	            draw_circle(
-	                ball.position.x as f32 + screen_width() / 2.0,
-	                ball.position.y as f32 + screen_height() / 2.0,
-	                ball.radius as f32,
-	                Color::new(0.0, 1.0, 1.0, 1.0)
-	            );
+	        for (chunk, balls) in go.balls.iter() {
+	        	for ball in balls.iter() {
+		            draw_circle(
+		                ball.position.x as f32 + screen_width() / 2.0,
+		                ball.position.y as f32 + screen_height() / 2.0,
+		                ball.radius as f32,
+		                Color::new(0.0, 1.0, 1.0, 1.0)
+		            );
+	        	}
 	        }
         }
         

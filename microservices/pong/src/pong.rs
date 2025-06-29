@@ -89,10 +89,12 @@ pub fn update_balls(sender: std::sync::mpsc::Sender<ActionWrapper>, go: *const G
 	std::thread::spawn({
 		let game_objects = unsafe {&(*go)};
 		move || {
-			for ball in game_objects.balls.iter() {
-				let actions = ball.update(game_objects, delta_seconds);
-				for action in actions {
-					sender.send(action).unwrap();
+			for (chunk, balls) in game_objects.balls.iter() {
+				for ball in balls.iter() {
+					let actions = ball.update(game_objects, delta_seconds);
+					for action in actions {
+						sender.send(action).unwrap();
+					}
 				}
 			}
 		}

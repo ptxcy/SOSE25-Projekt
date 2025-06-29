@@ -7,6 +7,8 @@ use tokio::sync::mpsc::Sender;
 
 use crate::ball::Ball;
 
+pub const CHUNK_SIZE: u64 = 200;
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct GameObjects {
     pub balls: HashMap<Coordinate, Vec<Ball>>,
@@ -29,7 +31,10 @@ impl GameObjects {
                     .random_velocity(30.)
                 ;
                 // TODO chunk position
-                balls.get_mut(&ball.position).unwrap().push(ball);
+                match balls.get_mut(&ball.position.chunk(CHUNK_SIZE)) {
+                    // Some(_) => todo!(),
+                    // None => balls.insert(ball.position.chunk(CHUNK_SIZE), vec![ball]),
+                };
             }
         }
         Self {

@@ -2,7 +2,7 @@ use calculation_unit::game::coordinate::Coordinate;
 use macroquad::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use crate::{action::{ActionWrapper, AddValue, AsRaw, SetValue, SubValue}, server_message::GameObjects};
+use crate::{action::{ActionWrapper, AddValue, AsRaw, SetValue, SubValue}, server_message::{GameObjects, CHUNK_SIZE}};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Ball {
@@ -49,12 +49,23 @@ impl Ball {
         add.scale(delta_seconds);
         actions.push(AddValue::new(self.position.raw_mut(), add));
 
-        for ball in game_objects.balls.iter() {
-            if std::ptr::eq(self, ball) {
-                continue;
+        let my_chunk = self.position.chunk(CHUNK_SIZE);
+
+        let chunks: Vec<Coordinate> = vec![
+            my_chunk,
+            // my_chunk + Coordinate::new(CHUNK_SIZE as f64, 0., 0.),
+        ];
+
+        for chunk in chunks {
+            let balls = game_objects.balls.get(&chunk).unwrap();
+            for ball in balls.iter() {
+                if std::ptr::eq(self, ball) {
+                    continue;
+                }
+                self.collide(ball, &mut actions);
             }
-            self.collide(ball, &mut actions);
         }
+
         self.handle_wall_collision(&mut actions);
         
         actions
