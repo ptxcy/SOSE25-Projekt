@@ -63,7 +63,7 @@ impl Ball {
             my_chunk - Coordinate::new(CHUNK_SIZE as f64, -(CHUNK_SIZE as f64), 0.),
         ];
 
-        // TODO chunks
+        // TODO more efficient pair wise check
         for chunk in chunks.iter() {
             let balls = game_objects.chunks.get(chunk);
             if let Some(balls) = balls {
@@ -115,7 +115,7 @@ impl Ball {
         }
     }
     fn handle_wall_collision(&self, actions: &mut Vec<ActionWrapper>) {
-        let wall_bound = 500.0;
+        let wall_bound = 700.0;
         let wall_bounciness = self.bounciness;
         
         // Left wall (x = -100)

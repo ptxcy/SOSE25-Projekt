@@ -7,7 +7,7 @@ use tokio::sync::mpsc::Sender;
 
 use crate::{action::AsRaw, ball::Ball};
 
-pub const CHUNK_SIZE: u64 = 20;
+pub const CHUNK_SIZE: u64 = 4;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct GameObjects {
@@ -23,7 +23,7 @@ unsafe impl Send for GameObjects {}
 impl GameObjects {
     pub fn new(count: usize) -> Self {
 
-        let dist = 5.;
+        let dist = 8.;
         let offset = (count as f64 * dist) / 2.;
 
         let mut balls = Vec::<Ball>::new();
@@ -34,31 +34,34 @@ impl GameObjects {
                         x as f64 * dist - offset,
                         y as f64 * dist - offset
                     )
-                    .random_velocity(30.)
+                    .random_velocity(10.)
                 ;
                 balls.push(ball);
             }
         }
-        let chunks = Self::chunky(&balls);
+        let mut chunks: HashMap<Coordinate, Vec<*const Ball>> = HashMap::new();
+        Self::chunky(&balls, &mut chunks);
+
         Self {
             balls,
             chunks,
         }
     }
 
-    pub fn chunky(balls: &Vec<Ball>) -> HashMap<Coordinate, Vec<*const Ball>> {
-        let mut chunks: HashMap<Coordinate, Vec<*const Ball>> = HashMap::new();
+    pub fn chunky(balls: &Vec<Ball>, chunks: &mut HashMap<Coordinate, Vec<*const Ball>>) {
+        for vec in chunks.values_mut() {
+            vec.clear();
+        }
 
         for ball in balls.iter() {
-            match chunks.get_mut(&ball.position.chunk(CHUNK_SIZE)) {
+            let chunk = ball.position.chunk(CHUNK_SIZE);
+            match chunks.get_mut(&chunk) {
                 Some(chunk) => chunk.push(ball.raw()),
                 None => {
-                    chunks.insert(ball.position.chunk(CHUNK_SIZE), vec![ball.raw()]);
+                    chunks.insert(chunk, vec![ball.raw()]);
                 },
             };
         }
-
-        chunks
     }
 }
 

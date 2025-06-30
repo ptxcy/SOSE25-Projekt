@@ -104,10 +104,12 @@ async fn main() {
         // draw_text("Hello, Macroquad!", 20.0, 20.0, 30.0, DARKGRAY);
         
         // Update game state - only process latest message
-        if let Ok(go) = receiver.try_recv() {
+        while let Ok(go) = receiver.try_recv() {
         	current_game_state = Some(go);
         }
         
+
+        // log_with_time("draw");
         // Draw current balls
         if let Some(go) = &current_game_state {
         	for ball in go.balls.iter() {

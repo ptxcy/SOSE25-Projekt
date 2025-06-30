@@ -46,7 +46,7 @@ pub async fn start(
 		HashMap::<String, ServerMessageSenderChannel>::new();
 
 	// initialise game objects
-	let mut game_objects = GameObjects::new(50);
+	let mut game_objects = GameObjects::new(80);
 
 	// delta time init
 	let mut last_time = Instant::now();
@@ -56,7 +56,8 @@ pub async fn start(
 		let now = Instant::now();
 		let delta_time = now.duration_since(last_time);
 		last_time = now;
-		let delta_seconds = delta_time.as_secs_f64();
+		let mut delta_seconds = delta_time.as_secs_f64();
+		if delta_seconds > 0.1 {delta_seconds = 0.1;}
 
 		// receive new players / sender for server messages
 		while let Ok(sender) = server_message_sender_receiver.try_recv() {
@@ -80,7 +81,7 @@ pub async fn start(
 			action.execute(game_objects.raw_mut());
 		}
 
-		game_objects.chunks = GameObjects::chunky(&game_objects.balls);
+		GameObjects::chunky(&game_objects.balls, &mut game_objects.chunks);
 
     	broadcast(&mut server_message_senders, &game_objects, delta_seconds).await;
         tokio::task::yield_now().await;
