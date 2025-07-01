@@ -1,0 +1,7 @@
+<map id="Renderer::register_sprite" name="Renderer::register_sprite">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,27,131,68"/>
+<area shape="rect" id="Node000002" href="$class_renderer.html#a4013e69296ab27fd392a8a0809afa721" title=" " alt="" coords="204,5,313,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="131,35,188,26,189,31,132,40"/>
+<area shape="rect" id="Node000003" href="$class_renderer.html#a71eb0110656d9b93d29aa609f33bf237" title=" " alt="" coords="179,55,338,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="132,54,163,59,163,64,131,59"/>
+</map>

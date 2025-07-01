@@ -1,0 +1,5 @@
+<map id="Flotilla" name="Flotilla">
+<area shape="rect" id="Node000001" title=" " alt="" coords="52,102,111,128"/>
+<area shape="rect" id="Node000002" href="$struct_pixel_buffer_component.html" title=" " alt="" coords="5,5,158,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="84,46,84,101,79,101,79,46"/>
+</map>

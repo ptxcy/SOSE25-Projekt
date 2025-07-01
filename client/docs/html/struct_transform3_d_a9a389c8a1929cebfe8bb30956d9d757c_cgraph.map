@@ -1,0 +1,9 @@
+<map id="Transform3D::rotate" name="Transform3D::rotate">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,55,144,80"/>
+<area shape="rect" id="Node000002" href="$struct_transform3_d.html#a3487fc4335198aa5a33bbdeddd99b444" title=" " alt="" coords="192,5,344,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="127,51,199,33,200,38,129,57"/>
+<area shape="rect" id="Node000003" href="$struct_transform3_d.html#a184942483cb518e12711bdc7c0d1cdd2" title=" " alt="" coords="192,55,344,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="144,65,176,65,176,70,144,70"/>
+<area shape="rect" id="Node000004" href="$struct_transform3_d.html#aa06a3276559c34f19feb4af62e640558" title=" " alt="" coords="192,104,344,130"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="129,78,200,97,199,102,127,84"/>
+</map>

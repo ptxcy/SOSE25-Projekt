@@ -1,0 +1,77 @@
+\doxysection{command\+\_\+center.\+h}
+\hypertarget{command__center_8h_source}{}\label{command__center_8h_source}\index{script/command\_center.h@{script/command\_center.h}}
+\mbox{\hyperlink{command__center_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#ifndef\ SCRIPT\_COMMANDCENTER\_HEADER}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#define\ SCRIPT\_COMMANDCENTER\_HEADER}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{input_8h}{../core/input.h}}"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{ui_8h}{../core/ui.h}}"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{wheel_8h}{../core/wheel.h}}"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{webcomm_8h}{webcomm.h}}"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{starsystem_8h}{starsystem.h}}"{}}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{flotilla_8h}{flotilla.h}}"{}}}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ }
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ movement}}
+\DoxyCodeLine{00014\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}}\ \mbox{\hyperlink{command__center_8h_a731c21f837bdd93b0b1a7b5e5b560e7a}{CMDSYS\_MVMT\_ACCELLERATION}}\ =\ .15f;}
+\DoxyCodeLine{00015\ \textcolor{keyword}{constexpr}\ \mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}}\ \mbox{\hyperlink{command__center_8h_a778b45490f14c415435d3a68ff04aff8}{CMDSYS\_MVMT\_FLOATFACTOR}}\ =\ .8f;}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{keyword}{enum}\ \mbox{\hyperlink{command__center_8h_abb8cc74d1e81bc5d24e0a6d5ec462524}{ControlState}}}
+\DoxyCodeLine{00019\ \{}
+\DoxyCodeLine{00020\ \ \ \ \ \mbox{\hyperlink{command__center_8h_abb8cc74d1e81bc5d24e0a6d5ec462524a1486009e124ea8ee36c6849ce52a587e}{CSTATE\_LOCKED}},}
+\DoxyCodeLine{00021\ \ \ \ \ \mbox{\hyperlink{command__center_8h_abb8cc74d1e81bc5d24e0a6d5ec462524a84f9e7677a1494fa85367444ef5e2f31}{CSTATE\_FLIGHT}},}
+\DoxyCodeLine{00022\ \ \ \ \ \mbox{\hyperlink{command__center_8h_abb8cc74d1e81bc5d24e0a6d5ec462524a6c87c89c9d80f05ce88c8c7ec04458e6}{CSTATE\_FREEFORM}}}
+\DoxyCodeLine{00023\ \};}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_command_center_afec64ffbaf1f510833884dbbfd57e895}{CommandCenter}}}
+\DoxyCodeLine{00027\ \{}
+\DoxyCodeLine{00028\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00029\ \ \ \ \ \mbox{\hyperlink{class_command_center_afec64ffbaf1f510833884dbbfd57e895}{CommandCenter}}(\mbox{\hyperlink{struct_font}{Font}}*\ font,\mbox{\hyperlink{class_star_system}{StarSystem}}*\ ssys,\mbox{\hyperlink{class_flotilla}{Flotilla}}*\ flt);}
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_command_center_a5d7cca5cde6b884b68ef2e8a432b05c6}{run}}();}
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_command_center_a3a142915399e982ef75d5cdd5c91e7a1}{\_update}}(\textcolor{keywordtype}{void}*\ cc)\ \{\ \mbox{\hyperlink{class_command_center_afec64ffbaf1f510833884dbbfd57e895}{CommandCenter}}*\ p\ =\ (\mbox{\hyperlink{class_command_center_afec64ffbaf1f510833884dbbfd57e895}{CommandCenter}}*)cc;\ p-\/>\mbox{\hyperlink{class_command_center_af2848a4f6d08db5e22737cec7d4673ce}{update}}();\ \}}
+\DoxyCodeLine{00032\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_command_center_af2848a4f6d08db5e22737cec7d4673ce}{update}}();}
+\DoxyCodeLine{00033\ \ \ \ \ \textcolor{comment}{//\ TODO\ better\ routine\ persistence\ through\ wheelcall\ also\ handling\ struct\ memory}}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \ \ \ \ \textcolor{comment}{//\ text\ updates}}
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_command_center_ac0e848420f1d0b7a39a02c6afeb68216}{\_set\_planet\_buttons}}(\textcolor{keywordtype}{string}\ instr);}
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_command_center_a81410d3a14891056cac201261f158b81}{\_set\_text\_locked}}();}
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_command_center_aac8b7512644313a48835136a9ce108c3}{\_set\_text\_flight}}();}
+\DoxyCodeLine{00041\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_command_center_a142cd44bda0c41743462dd5d9cb3e9d8}{\_set\_text\_freeform}}();}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{comment}{//\ components}}
+\DoxyCodeLine{00046\ \ \ \ \ \mbox{\hyperlink{struct_font}{Font}}*\ \mbox{\hyperlink{class_command_center_af89502a4035f6181570e42baaf459a8a}{m\_Font}};}
+\DoxyCodeLine{00047\ \ \ \ \ \mbox{\hyperlink{class_star_system}{StarSystem}}*\ \mbox{\hyperlink{class_command_center_a7ca5109d7d96c317aa6681a728ca6dfd}{m\_StarSystem}};}
+\DoxyCodeLine{00048\ \ \ \ \ \mbox{\hyperlink{class_flotilla}{Flotilla}}*\ \mbox{\hyperlink{class_command_center_a4c292499f0c0c73ca6a5f622d0251303}{m\_Flotilla}};}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{comment}{//\ camera\ movement}}
+\DoxyCodeLine{00051\ \ \ \ \ \mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}}\ \mbox{\hyperlink{class_command_center_ac56de1ea52c4dced2201c98b91634400}{m\_CameraMomentum}}\ =\ \mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}}(0);}
+\DoxyCodeLine{00052\ \ \ \ \ \mbox{\hyperlink{command__center_8h_abb8cc74d1e81bc5d24e0a6d5ec462524}{ControlState}}\ \mbox{\hyperlink{class_command_center_a1b6ee8f20c77bce7d007681af404e702}{m\_CState}}\ =\ \mbox{\hyperlink{command__center_8h_abb8cc74d1e81bc5d24e0a6d5ec462524a1486009e124ea8ee36c6849ce52a587e}{CSTATE\_LOCKED}};}
+\DoxyCodeLine{00053\ \ \ \ \ \mbox{\hyperlink{group___base_types_ga92c50087ca0e64fa93fc59402c55f8ca}{u8}}\ \mbox{\hyperlink{class_command_center_a281afc1544eac8d113571de03c332c30}{m\_PlanetLock}}\ =\ 2;}
+\DoxyCodeLine{00054\ \ \ \ \ \mbox{\hyperlink{group___base_types_ga92c50087ca0e64fa93fc59402c55f8ca}{u8}}\ \mbox{\hyperlink{class_command_center_a5c1d1dd96a3763b0255c4da6cb10b5b7}{m\_ShipLock}}\ =\ 0;}
+\DoxyCodeLine{00055\ \ \ \ \ \mbox{\hyperlink{group___base_types_ga3f7e2bcbb0b4c338f3c4f6c937cd4234}{u64}}\ \mbox{\hyperlink{class_command_center_a35e0933f2fbd1f6607456344f013b30f}{m\_ShipChosen}}\ =\ 0;}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{comment}{//\ ui}}
+\DoxyCodeLine{00058\ \ \ \ \ \mbox{\hyperlink{struct_pixel_buffer_component}{PixelBufferComponent}}*\ \mbox{\hyperlink{class_command_center_a6cfe88486197788abe121b0732dfc4d2}{m\_ButtonIdle}};}
+\DoxyCodeLine{00059\ \ \ \ \ \mbox{\hyperlink{struct_pixel_buffer_component}{PixelBufferComponent}}*\ \mbox{\hyperlink{class_command_center_a444309258bdc2c870d96385acb521189}{m\_ButtonHover}};}
+\DoxyCodeLine{00060\ \ \ \ \ \mbox{\hyperlink{struct_pixel_buffer_component}{PixelBufferComponent}}*\ \mbox{\hyperlink{class_command_center_af25148fab82afe02fe171e798ac1a0ef}{m\_ButtonSelect}};}
+\DoxyCodeLine{00061\ \ \ \ \ \mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr<Text>}}\ \mbox{\hyperlink{class_command_center_ac6da0b948fd0327738e495becce80fd0}{m\_TxControlMode}};}
+\DoxyCodeLine{00062\ \ \ \ \ \mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr<Button>}}\ \mbox{\hyperlink{class_command_center_a57fd72a3c4eb6c93b7ac9f086cad4cb7}{m\_BtnJumpers}}[8];}
+\DoxyCodeLine{00063\ \ \ \ \ \mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr<Button>}}\ \mbox{\hyperlink{class_command_center_a704c36b25b8a5196868450db971569c6}{m\_BtnFleet}}[10];}
+\DoxyCodeLine{00064\ \ \ \ \ \mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr<Button>}}\ \mbox{\hyperlink{class_command_center_ac6ba3b191d9ba302f1de282d256e234a}{m\_BtnBuild}};}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{comment}{//\ data}}
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{keywordtype}{string}\ \mbox{\hyperlink{class_command_center_ac3cf0e045795b1b1939903f4f598e43c}{m\_PlanetNames}}[8]\ =\ \{\ \textcolor{stringliteral}{"{}Mercury"{}},\textcolor{stringliteral}{"{}Venus"{}},\textcolor{stringliteral}{"{}Earth"{}},\textcolor{stringliteral}{"{}Mars"{}},\textcolor{stringliteral}{"{}Jupiter"{}},\textcolor{stringliteral}{"{}Saturn"{}},\textcolor{stringliteral}{"{}Uranus"{}},\textcolor{stringliteral}{"{}Neptune"{}}\ \};}
+\DoxyCodeLine{00068\ \};}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

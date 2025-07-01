@@ -1,0 +1,185 @@
+\doxysection{Star\+System Class Reference}
+\hypertarget{class_star_system}{}\label{class_star_system}\index{StarSystem@{StarSystem}}
+
+
+{\ttfamily \#include $<$starsystem.\+h$>$}
+
+
+
+Collaboration diagram for Star\+System\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=318pt]{class_star_system__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_star_system_ac725dd1dfdb4474127ca1ae36885196b}{Star\+System}} ()
+\item 
+void \mbox{\hyperlink{class_star_system_ad0a300aaedc3aa3c08f9039a9e079a15}{update}} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static void \mbox{\hyperlink{class_star_system_a9716ef482dc1161757e95c7e1af7cf23}{\+\_\+update}} (void \texorpdfstring{$\ast$}{*}starsystem)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{struct_planetary_attribute}{Planetary\+Attribute}} \mbox{\hyperlink{class_star_system_ad48f4ca4651450a239f1ebe404a2259c}{planets}} \mbox{[}\mbox{\hyperlink{starsystem_8h_a9cd09ec613af8c8bf3bf1fefb4c56385}{STARSYS\+\_\+\+PLANET\+\_\+\+COUNT}}\mbox{]}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{class_shader_pipeline}{Shader\+Pipeline}} $>$ \mbox{\hyperlink{class_star_system_ad7c3f569726fc91f50d526a4a47f4ed7}{m\+\_\+\+Planet\+Shader}}
+\item 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{class_shader_pipeline}{Shader\+Pipeline}} $>$ \mbox{\hyperlink{class_star_system_a022393847229eeff589c407a71d3d1b8}{m\+\_\+\+Sun\+Shader}}
+\item 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{class_shader_pipeline}{Shader\+Pipeline}} $>$ \mbox{\hyperlink{class_star_system_a6ad09a579cea507063f3a8170c50cda2}{m\+\_\+\+Halo\+Shader}}
+\item 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{struct_particle_batch}{Particle\+Batch}} $>$ \mbox{\hyperlink{class_star_system_a28524d1b3ac85bdfd7ab268a3af58298}{m\+\_\+\+Planet\+Batch}}
+\item 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{struct_particle_batch}{Particle\+Batch}} $>$ \mbox{\hyperlink{class_star_system_a4d50aad936c79a3c0506af86da3357ab}{m\+\_\+\+Halo\+Batch}}
+\item 
+\mbox{\hyperlink{struct_pixel_buffer_component}{Pixel\+Buffer\+Component}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{class_star_system_a837d1a5fbade5a1a887f9c33b6063fbe}{m\+\_\+\+Planet\+Textures}} \mbox{[}\mbox{\hyperlink{starsystem_8h_a9cd09ec613af8c8bf3bf1fefb4c56385}{STARSYS\+\_\+\+PLANET\+\_\+\+COUNT}}\mbox{]}
+\item 
+\mbox{\hyperlink{struct_pixel_buffer_component}{Pixel\+Buffer\+Component}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{class_star_system_a62e0babf885f87ea6482779261cf79c0}{m\+\_\+\+Halo\+Texture}}
+\item 
+\mbox{\hyperlink{struct_planetary_attribute}{Planetary\+Attribute}} \mbox{\hyperlink{class_star_system_a8e6b21bc6ccffbca8f90d295d41614d2}{m\+\_\+\+Halos}} \mbox{[}1\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\label{doc-constructors}
+\Hypertarget{class_star_system_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{class_star_system_ac725dd1dfdb4474127ca1ae36885196b}\index{StarSystem@{StarSystem}!StarSystem@{StarSystem}}
+\index{StarSystem@{StarSystem}!StarSystem@{StarSystem}}
+\doxysubsubsection{\texorpdfstring{StarSystem()}{StarSystem()}}
+{\footnotesize\ttfamily \label{class_star_system_ac725dd1dfdb4474127ca1ae36885196b} 
+Star\+System\+::\+Star\+System (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+starsystem setup routine Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_star_system_ac725dd1dfdb4474127ca1ae36885196b_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_star_system_ac725dd1dfdb4474127ca1ae36885196b_icgraph}
+\end{center}
+\end{figure}
+
+
+\label{doc-func-members}
+\Hypertarget{class_star_system_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_star_system_a9716ef482dc1161757e95c7e1af7cf23}\index{StarSystem@{StarSystem}!\_update@{\_update}}
+\index{\_update@{\_update}!StarSystem@{StarSystem}}
+\doxysubsubsection{\texorpdfstring{\_update()}{\_update()}}
+{\footnotesize\ttfamily \label{class_star_system_a9716ef482dc1161757e95c7e1af7cf23} 
+void Star\+System\+::\+\_\+update (\begin{DoxyParamCaption}\item[{void \texorpdfstring{$\ast$}{*}}]{starsystem}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_star_system_a9716ef482dc1161757e95c7e1af7cf23_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_star_system_a9716ef482dc1161757e95c7e1af7cf23_icgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_star_system_ad0a300aaedc3aa3c08f9039a9e079a15}\index{StarSystem@{StarSystem}!update@{update}}
+\index{update@{update}!StarSystem@{StarSystem}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily \label{class_star_system_ad0a300aaedc3aa3c08f9039a9e079a15} 
+void Star\+System\+::update (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+starsystem update routine Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_star_system_ad0a300aaedc3aa3c08f9039a9e079a15_icgraph}
+\end{center}
+\end{figure}
+
+
+\label{doc-variable-members}
+\Hypertarget{class_star_system_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{class_star_system_a4d50aad936c79a3c0506af86da3357ab}\index{StarSystem@{StarSystem}!m\_HaloBatch@{m\_HaloBatch}}
+\index{m\_HaloBatch@{m\_HaloBatch}!StarSystem@{StarSystem}}
+\doxysubsubsection{\texorpdfstring{m\_HaloBatch}{m\_HaloBatch}}
+{\footnotesize\ttfamily \label{class_star_system_a4d50aad936c79a3c0506af86da3357ab} 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$\mbox{\hyperlink{struct_particle_batch}{Particle\+Batch}}$>$ Star\+System\+::m\+\_\+\+Halo\+Batch\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_star_system_a8e6b21bc6ccffbca8f90d295d41614d2}\index{StarSystem@{StarSystem}!m\_Halos@{m\_Halos}}
+\index{m\_Halos@{m\_Halos}!StarSystem@{StarSystem}}
+\doxysubsubsection{\texorpdfstring{m\_Halos}{m\_Halos}}
+{\footnotesize\ttfamily \label{class_star_system_a8e6b21bc6ccffbca8f90d295d41614d2} 
+\mbox{\hyperlink{struct_planetary_attribute}{Planetary\+Attribute}} Star\+System\+::m\+\_\+\+Halos\mbox{[}1\mbox{]}\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_star_system_a6ad09a579cea507063f3a8170c50cda2}\index{StarSystem@{StarSystem}!m\_HaloShader@{m\_HaloShader}}
+\index{m\_HaloShader@{m\_HaloShader}!StarSystem@{StarSystem}}
+\doxysubsubsection{\texorpdfstring{m\_HaloShader}{m\_HaloShader}}
+{\footnotesize\ttfamily \label{class_star_system_a6ad09a579cea507063f3a8170c50cda2} 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$\mbox{\hyperlink{class_shader_pipeline}{Shader\+Pipeline}}$>$ Star\+System\+::m\+\_\+\+Halo\+Shader\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_star_system_a62e0babf885f87ea6482779261cf79c0}\index{StarSystem@{StarSystem}!m\_HaloTexture@{m\_HaloTexture}}
+\index{m\_HaloTexture@{m\_HaloTexture}!StarSystem@{StarSystem}}
+\doxysubsubsection{\texorpdfstring{m\_HaloTexture}{m\_HaloTexture}}
+{\footnotesize\ttfamily \label{class_star_system_a62e0babf885f87ea6482779261cf79c0} 
+\mbox{\hyperlink{struct_pixel_buffer_component}{Pixel\+Buffer\+Component}}\texorpdfstring{$\ast$}{*} Star\+System\+::m\+\_\+\+Halo\+Texture\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_star_system_a28524d1b3ac85bdfd7ab268a3af58298}\index{StarSystem@{StarSystem}!m\_PlanetBatch@{m\_PlanetBatch}}
+\index{m\_PlanetBatch@{m\_PlanetBatch}!StarSystem@{StarSystem}}
+\doxysubsubsection{\texorpdfstring{m\_PlanetBatch}{m\_PlanetBatch}}
+{\footnotesize\ttfamily \label{class_star_system_a28524d1b3ac85bdfd7ab268a3af58298} 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$\mbox{\hyperlink{struct_particle_batch}{Particle\+Batch}}$>$ Star\+System\+::m\+\_\+\+Planet\+Batch\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_star_system_ad7c3f569726fc91f50d526a4a47f4ed7}\index{StarSystem@{StarSystem}!m\_PlanetShader@{m\_PlanetShader}}
+\index{m\_PlanetShader@{m\_PlanetShader}!StarSystem@{StarSystem}}
+\doxysubsubsection{\texorpdfstring{m\_PlanetShader}{m\_PlanetShader}}
+{\footnotesize\ttfamily \label{class_star_system_ad7c3f569726fc91f50d526a4a47f4ed7} 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$\mbox{\hyperlink{class_shader_pipeline}{Shader\+Pipeline}}$>$ Star\+System\+::m\+\_\+\+Planet\+Shader\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_star_system_a837d1a5fbade5a1a887f9c33b6063fbe}\index{StarSystem@{StarSystem}!m\_PlanetTextures@{m\_PlanetTextures}}
+\index{m\_PlanetTextures@{m\_PlanetTextures}!StarSystem@{StarSystem}}
+\doxysubsubsection{\texorpdfstring{m\_PlanetTextures}{m\_PlanetTextures}}
+{\footnotesize\ttfamily \label{class_star_system_a837d1a5fbade5a1a887f9c33b6063fbe} 
+\mbox{\hyperlink{struct_pixel_buffer_component}{Pixel\+Buffer\+Component}}\texorpdfstring{$\ast$}{*} Star\+System\+::m\+\_\+\+Planet\+Textures\mbox{[}\mbox{\hyperlink{starsystem_8h_a9cd09ec613af8c8bf3bf1fefb4c56385}{STARSYS\+\_\+\+PLANET\+\_\+\+COUNT}}\mbox{]}\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_star_system_a022393847229eeff589c407a71d3d1b8}\index{StarSystem@{StarSystem}!m\_SunShader@{m\_SunShader}}
+\index{m\_SunShader@{m\_SunShader}!StarSystem@{StarSystem}}
+\doxysubsubsection{\texorpdfstring{m\_SunShader}{m\_SunShader}}
+{\footnotesize\ttfamily \label{class_star_system_a022393847229eeff589c407a71d3d1b8} 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$\mbox{\hyperlink{class_shader_pipeline}{Shader\+Pipeline}}$>$ Star\+System\+::m\+\_\+\+Sun\+Shader\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_star_system_ad48f4ca4651450a239f1ebe404a2259c}\index{StarSystem@{StarSystem}!planets@{planets}}
+\index{planets@{planets}!StarSystem@{StarSystem}}
+\doxysubsubsection{\texorpdfstring{planets}{planets}}
+{\footnotesize\ttfamily \label{class_star_system_ad48f4ca4651450a239f1ebe404a2259c} 
+\mbox{\hyperlink{struct_planetary_attribute}{Planetary\+Attribute}} Star\+System\+::planets\mbox{[}\mbox{\hyperlink{starsystem_8h_a9cd09ec613af8c8bf3bf1fefb4c56385}{STARSYS\+\_\+\+PLANET\+\_\+\+COUNT}}\mbox{]}}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+script/\mbox{\hyperlink{starsystem_8h}{starsystem.\+h}}\item 
+script/\mbox{\hyperlink{starsystem_8cpp}{starsystem.\+cpp}}\end{DoxyCompactItemize}

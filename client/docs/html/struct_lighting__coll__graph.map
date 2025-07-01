@@ -1,0 +1,7 @@
+<map id="Lighting" name="Lighting">
+<area shape="rect" id="Node000001" title=" " alt="" coords="58,102,124,128"/>
+<area shape="rect" id="Node000002" href="$struct_sun_light.html" title=" " alt="" coords="5,5,78,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="45,46,54,77,75,100,71,103,50,79,40,47"/>
+<area shape="rect" id="Node000003" href="$struct_point_light.html" title=" " alt="" coords="102,5,181,31"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="132,46,115,79,100,103,96,100,110,77,127,44"/>
+</map>
