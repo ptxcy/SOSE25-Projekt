@@ -115,51 +115,52 @@ impl Ball {
         }
     }
     fn handle_wall_collision(&self, actions: &mut Vec<ActionWrapper>) {
-        let wall_bound = 700.0;
+        let wall_bound_y = 1080. / 2.2;
+        let wall_bound_x = 1920. / 2.2;
         let wall_bounciness = self.bounciness;
         
         // Left wall (x = -100)
-        if self.position.x - self.radius < -wall_bound {
+        if self.position.x - self.radius < -wall_bound_x {
             let mut new_velocity = self.velocity.c();
             new_velocity.x = -new_velocity.x * wall_bounciness;
             actions.push(SetValue::new(self.velocity.raw_mut(), new_velocity));
             
             // Keep ball in bounds
             let mut new_pos = self.position.c();
-            new_pos.x = -wall_bound + self.radius;
+            new_pos.x = -wall_bound_x + self.radius;
             actions.push(SetValue::new(self.position.raw_mut(), new_pos));
         }
         
         // Right wall (x = +100)
-        if self.position.x + self.radius > wall_bound {
+        if self.position.x + self.radius > wall_bound_x {
             let mut new_velocity = self.velocity.c();
             new_velocity.x = -new_velocity.x * wall_bounciness;
             actions.push(SetValue::new(self.velocity.raw_mut(), new_velocity));
             
             let mut new_pos = self.position.c();
-            new_pos.x = wall_bound - self.radius;
+            new_pos.x = wall_bound_x - self.radius;
             actions.push(SetValue::new(self.position.raw_mut(), new_pos));
         }
         
         // Bottom wall (y = -100)
-        if self.position.y - self.radius < -wall_bound {
+        if self.position.y - self.radius < -wall_bound_y {
             let mut new_velocity = self.velocity.c();
             new_velocity.y = -new_velocity.y * wall_bounciness;
             actions.push(SetValue::new(self.velocity.raw_mut(), new_velocity));
             
             let mut new_pos = self.position.c();
-            new_pos.y = -wall_bound + self.radius;
+            new_pos.y = -wall_bound_y + self.radius;
             actions.push(SetValue::new(self.position.raw_mut(), new_pos));
         }
         
         // Top wall (y = +100)
-        if self.position.y + self.radius > wall_bound {
+        if self.position.y + self.radius > wall_bound_y {
             let mut new_velocity = self.velocity.c();
             new_velocity.y = -new_velocity.y * wall_bounciness;
             actions.push(SetValue::new(self.velocity.raw_mut(), new_velocity));
             
             let mut new_pos = self.position.c();
-            new_pos.y = wall_bound - self.radius;
+            new_pos.y = wall_bound_y - self.radius;
             actions.push(SetValue::new(self.position.raw_mut(), new_pos));
         }
     }
