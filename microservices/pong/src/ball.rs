@@ -68,7 +68,7 @@ impl Ball {
             let balls = game_objects.chunks.get(chunk);
             if let Some(balls) = balls {
                 for ball in balls.iter() {
-                    if std::ptr::eq(self, *ball) {
+                    if self as *const Ball >= *ball {
                         continue;
                     }
                     self.collide(unsafe {&(**ball)}, &mut actions);
@@ -93,7 +93,7 @@ impl Ball {
             seperation.scale(overlap * 0.5);
 
             actions.push(SubValue::new(self.position.raw_mut(), seperation));
-            // actions.push(AddValue::new(other.position.raw_mut(), seperation));
+            actions.push(AddValue::new(other.position.raw_mut(), seperation));
 
             let mut relative_velocity = self.velocity.c();
             relative_velocity.to(&other.velocity);
@@ -111,7 +111,7 @@ impl Ball {
             velocity_change.scale(impulse);
 
             actions.push(AddValue::new(self.velocity.raw_mut(), velocity_change));
-            // actions.push(SubValue::new(other.velocity.raw_mut(), velocity_change));
+            actions.push(SubValue::new(other.velocity.raw_mut(), velocity_change));
         }
     }
     fn handle_wall_collision(&self, actions: &mut Vec<ActionWrapper>) {
