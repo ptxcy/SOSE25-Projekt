@@ -14,14 +14,11 @@ layout(location = 4) out vec4 gbuffer_emission;
 uniform sampler2D colour_map;
 uniform sampler2D normal_map;
 uniform sampler2D material_map;
-//uniform sampler2D emission_map;
+uniform sampler2D emission_map;
 
 
 void main()
 {
-	// quickfix split up emission values
-	//vec4 emission = texture(emission_map,EdgeCoordinates);
-
 	// extract colour & position
 	gbuffer_colour = vec4(texture(colour_map,EdgeCoordinates).rgb,1.);
 	gbuffer_position = vec4(Position,1.f);
@@ -32,6 +29,6 @@ void main()
 
 	// extract surface materials
 	gbuffer_materials = vec4(texture(material_map,EdgeCoordinates).rgb,1.);
-	//gbuffer_emission = vec4(texture(emission_map,EdgeCoordinates).rgb,1.);
+	gbuffer_emission = vec4(texture(emission_map,EdgeCoordinates).rgb,1.);
 }
 // FIXME alpha values are completely unused here, this should be abused!

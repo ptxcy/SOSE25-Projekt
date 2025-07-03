@@ -17,7 +17,7 @@ enum TextureChannelMap : u16
 	RENDERER_TEXTURE_DEFERRED_POSITION,
 	RENDERER_TEXTURE_DEFERRED_NORMAL,
 	RENDERER_TEXTURE_DEFERRED_MATERIAL,
-	//RENDERER_TEXTURE_DEFERRED_EMISSION,
+	RENDERER_TEXTURE_DEFERRED_EMISSION,
 	RENDERER_TEXTURE_FORWARD_DEPTH,
 	RENDERER_TEXTURE_DEFERRED_DEPTH,
 	RENDERER_TEXTURE_UNMAPPED
@@ -294,7 +294,7 @@ private:
 	ShaderPipeline m_CanvasPipeline;
 
 	Framebuffer m_ForwardFrameBuffer = Framebuffer(1);
-	Framebuffer m_DeferredFrameBuffer = Framebuffer(4);
+	Framebuffer m_DeferredFrameBuffer = Framebuffer(5);
 
 	// ----------------------------------------------------------------------------------------------------
 	// Render Object Information
