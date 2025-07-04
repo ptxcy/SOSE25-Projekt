@@ -1,4 +1,4 @@
-use calculation_unit::game::coordinate::Coordinate;
+use calculation_unit::game::{action::AsRaw, coordinate::Coordinate};
 use macroquad::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -71,7 +71,7 @@ impl Ball {
                     if self as *const Ball >= *ball {
                         continue;
                     }
-                    self.collide(unsafe {&(**ball)}, &mut actions);
+                    self.collide_ball(unsafe {&(**ball)}, &mut actions);
                 }
             }
         }
@@ -80,7 +80,31 @@ impl Ball {
         
         actions
     }
-    pub fn collide(&self, other: &Self, actions: &mut Vec<ActionWrapper>) {
+    pub fn closest_point_on_segment(&self, a: Coordinate, b: Coordinate) -> Coordinate {
+        let ab = b - a;
+        let t = ((self.position - a).dot(&ab) / ab.norm_squared()).clamp(0., 1.);
+        let mut abc = ab.c();
+        abc.scale(t);
+        a + abc
+    }
+    pub fn collide_line(&self, a: Coordinate, b: Coordinate, v: Coordinate, actions: &mut Vec<ActionWrapper>) {
+        let relative_velocity = self.velocity - v;
+
+        let closest = self.closest_point_on_segment(a, b);
+        let to_closest = self.position - closest;
+        let dist_sq = to_closest.norm_squared();
+
+        if dist_sq >= self.radius.powi(2) {
+            return
+        }
+
+        let mut normal = to_closest.c();
+        normal.normalize(1.);
+
+        let reflected = relative_velocity - normal * 2. * relative_velocity.dot(&normal);
+        actions.push(SetValue::new(self.velocity.raw_mut(), reflected + v));
+    }
+    pub fn collide_ball(&self, other: &Self, actions: &mut Vec<ActionWrapper>) {
         let mut dist = self.position.c();
         dist.to(&other.position);
         let norm = dist.norm();

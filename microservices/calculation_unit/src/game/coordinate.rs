@@ -9,6 +9,19 @@ pub struct Coordinate {
 	pub z: f64,
 }
 
+impl std::ops::Mul<f64> for Coordinate {
+    type Output = Coordinate;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+    	Self::Output {
+	        x: self.x * rhs,
+	        y: self.y * rhs,
+	        z: self.z * rhs,
+	    }
+    }
+
+}
+
 impl std::ops::Add for Coordinate {
     type Output = Coordinate;
 
@@ -142,8 +155,15 @@ impl Coordinate {
 		self.x + self.y + self.z
 	}
 
+	pub fn dot(&self, other: &Self) -> f64 {
+        self.x * other.x + self.y * other.y + self.z * other.z
+    }
+
 	pub fn norm(&self) -> f64 {
 		(self.x.powi(2) + self.y.powi(2) + self.z.powi(2)).sqrt()
+	}
+	pub fn norm_squared(&self) -> f64 {
+		(self.x.powi(2) + self.y.powi(2) + self.z.powi(2))
 	}
 
 	pub fn normalize(&mut self, value: f64) -> &mut Self {
