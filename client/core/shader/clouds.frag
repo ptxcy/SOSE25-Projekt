@@ -9,7 +9,7 @@ layout(location = 0) out vec4 pixelColour;
 
 uniform sampler2D tex;
 
-const vec3 LightPosition = vec3(2000,2000,-2000);
+const vec3 LightPosition = vec3(2000,2000,2000);
 // FIXME assumes a static light. make light system also uploadable to other shader besides deferred light pass.
 //		also can be interpolated through vertex shader inputs
 

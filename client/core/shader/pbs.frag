@@ -95,9 +95,9 @@ void main()
 		final += lumen_sun(position,colour,normal,metalness,roughness,sunlights[i]);
 	for (int i=0;i<pointlights_active;i++)
 		final += lumen_point(position,colour,normal,metalness,roughness,pointlights[i]);
-	final = final*occlusion;
 
-	// process emission
+	// process sub-geometric occlusion & emission
+	final = final*occlusion;
 	final = max(final,emission);
 
 	// colour corrections

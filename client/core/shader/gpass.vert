@@ -26,7 +26,7 @@ void main()
 	// calculate texture coordinates
 	EdgeCoordinates = edge_coordinates*texel;
 
-	// gram-schmidt reorthogonalization
+	// gram-schmidt orthogonalization
 	vec3 Tangent = normalize((model*vec4(tangent,0)).xyz);
 	vec3 Normals = normalize((model*vec4(normals,0)).xyz);
 	Tangent = normalize(Tangent-dot(Tangent,Normals)*Normals);

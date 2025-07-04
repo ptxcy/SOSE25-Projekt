@@ -6,11 +6,6 @@
  */
 CameraController::CameraController()
 {
-	/*
-	g_Camera.distance = 7.f;
-	g_Camera.pitch = glm::radians(10.f);
-	*/
-
 	g_Wheel.call(UpdateRoutine{ &CameraController::_update,(void*)this });
 }
 
@@ -34,8 +29,6 @@ void CameraController::update()
 
 	// update camera position
 	g_Camera.distance += m_ZoomMomentum;
-	g_Camera.update();
-	// TODO actually also automate this camera update. it might be appropriate to always keep cam dynamic
 
 	// haptic attenuation
 	m_ZoomMomentum *= CMDSYS_ZOOM_FLOATFACTOR;

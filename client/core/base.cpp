@@ -170,6 +170,7 @@ void Transform3D::scale(f32 s,vec3 a)
 void Transform3D::rotate_x(f32 x)
 {
 	model = glm::rotate(model,glm::radians(x),vec3(1,0,0));
+	rotation.x = fmod(x,360.f);
 }
 
 /**
@@ -179,6 +180,7 @@ void Transform3D::rotate_x(f32 x)
 void Transform3D::rotate_y(f32 y)
 {
 	model = glm::rotate(model,glm::radians(y),vec3(0,1,0));
+	rotation.y = fmod(y,360.f);
 }
 
 /**
@@ -188,6 +190,7 @@ void Transform3D::rotate_y(f32 y)
 void Transform3D::rotate_z(f32 z)
 {
 	model = glm::rotate(model,glm::radians(z),vec3(0,0,1));
+	rotation.z = fmod(z,360.f);
 }
 
 /**
@@ -199,7 +202,6 @@ void Transform3D::rotate(vec3 r)
 	rotate_x(r.x);
 	rotate_y(r.y);
 	rotate_z(r.z);
-	rotation = r;
 }
 
 /**
@@ -209,9 +211,10 @@ void Transform3D::rotate(vec3 r)
  */
 void Transform3D::rotate(vec3 r,vec3 a)
 {
-	f32 __ScaleFactor = model[0][0];
+	f32 __ScaleFactor = model[0][0];  // NOTE !!this is only true for simple transformation
 	model = mat4(1.f);
 	translate(a-position);
+	rotate(r);
 	transform(position-a,__ScaleFactor,r);
 }
 
@@ -272,5 +275,5 @@ void Camera3D::project()
  */
 void Camera3D::roll(f32 r)
 {
-	up = glm::rotate(glm::mat4(1.f),glm::radians(r),target-position)*vec4(vec3(0,0,-1),.0f);
+	up = glm::rotate(glm::mat4(1.f),glm::radians(r),target-position)*vec4(COORDINATE_SYSTEM_ORIENTATION,.0f);
 }

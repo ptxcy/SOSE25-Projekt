@@ -345,6 +345,8 @@ public:
 inline CoordinateSystem2D g_CoordinateSystem = CoordinateSystem2D(MATH_CARTESIAN_XRANGE,MATH_CARTESIAN_YRANGE);
 
 
+constexpr vec3 COORDINATE_SYSTEM_ORIENTATION = vec3(0,0,1);
+
 class Camera3D
 {
 public:
@@ -364,7 +366,7 @@ public:
 	// attributes
 	vec3 position;
 	vec3 target;
-	vec3 up = vec3(0,0,-1);
+	vec3 up = COORDINATE_SYSTEM_ORIENTATION;
 	f32 distance;
 	f32 pitch;
 	f32 yaw;

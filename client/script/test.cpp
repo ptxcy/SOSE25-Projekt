@@ -6,6 +6,10 @@
  */
 TestScene::TestScene()
 {
+	// camera setup
+	g_Camera.distance = 7.f;
+	g_Camera.pitch = glm::radians(10.f);
+
 	// shaders
 	VertexShader __SunVertexShader = VertexShader("core/shader/sun.vert");
 	FragmentShader __SunFragmentShader = FragmentShader("core/shader/sun.frag");

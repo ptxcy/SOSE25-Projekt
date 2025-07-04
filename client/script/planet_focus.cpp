@@ -69,7 +69,7 @@ PlanetFocus::PlanetFocus(Font* font)
 	__AtmoBatch->attach_uniform(__Atmosphere,"proj",&m_PlanetCamera.proj);
 
 	// lighting
-	g_Renderer.add_sunlight(vec3(2000,2000,-2000),vec3(1.f),4.f);
+	g_Renderer.add_sunlight(vec3(2000,2000,2000),vec3(1.f),4.f);
 	g_Renderer.upload_lighting();
 
 	// view focus setup
@@ -114,7 +114,5 @@ void PlanetFocus::update()
 
 	// camera update
 	g_Camera.target = __TargetPosition;
-	g_Camera.update();
 	m_PlanetCamera.project();
 }
-// TODO breakdown transform rotation into an interval: [0,360]
