@@ -27,7 +27,7 @@ PlanetFocus::PlanetFocus(Font* font)
 		g_Renderer.register_texture("./res/physical/gold_normal.png"),
 		g_Renderer.register_texture("./res/physical/gold_material.png"),
 	};
-	vector<Texture*> __CloudTexture = { g_Renderer.register_texture("./res/planets/earth_atm.png") };
+	vector<Texture*> __CloudTexture = { g_Renderer.register_texture("./res/planets/earth_cloud.jpg") };
 	vector<Texture*> __EmptyTexture = {  };
 	// TODO remove this empty texture, when geometry definition has been improved
 	//		actually, why not receive a pointer instead of a vector, the texture count is given by shader

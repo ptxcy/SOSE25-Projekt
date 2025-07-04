@@ -20,5 +20,5 @@ void main()
 	its = pow(its,.4f);
 	// FIXME now it looks awful. more correct but awful!
 	vec4 density = texture(tex,UV);
-	pixelColour = vec4(density.rgb*its,density.a);
+	pixelColour = vec4(density.rgb*its,length(density.rgb));
 }
