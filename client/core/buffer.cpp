@@ -106,6 +106,7 @@ TextureData::TextureData(TextureFormat format)
 void TextureData::load(const char* path)
 {
 	COMM_ERR_COND(!check_file_exists(path),"texture %s could not be found",path);
+	stbi_set_flip_vertically_on_load(true);
 	data = stbi_load(path,&width,&height,0,STBI_rgb_alpha);
 	m_TextureFlag = true;
 }
