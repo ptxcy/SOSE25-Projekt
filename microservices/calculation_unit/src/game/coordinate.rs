@@ -9,6 +9,18 @@ pub struct Coordinate {
 	pub z: f64,
 }
 
+impl std::ops::Neg for Coordinate {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+    	Self {
+	        x: -self.x,
+	        y: -self.y,
+	        z: -self.z,
+	    }
+    }
+}
+
 impl std::ops::Mul<f64> for Coordinate {
     type Output = Coordinate;
 
@@ -19,7 +31,18 @@ impl std::ops::Mul<f64> for Coordinate {
 	        z: self.z * rhs,
 	    }
     }
+}
 
+impl std::ops::Div<f64> for Coordinate {
+    type Output = Coordinate;
+
+    fn div(self, rhs: f64) -> Self::Output {
+    	Self::Output {
+	        x: self.x / rhs,
+	        y: self.y / rhs,
+	        z: self.z / rhs,
+	    }
+    }
 }
 
 impl std::ops::Add for Coordinate {
