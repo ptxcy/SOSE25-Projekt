@@ -75,7 +75,12 @@ impl Ball {
         }
 
         for line in game_objects.lines.iter() {
-            self.collide_line(line.0, line.1, Coordinate::default(), actions);
+            self.collide_line(*line, Coordinate::default(), actions);
+        }
+        for (id, player) in game_objects.players.iter() {
+            for line in player.relative_lines.iter() {
+                self.collide_line((line.0 + player.position, line.1 + player.position), Coordinate::default(), actions);
+            }
         }
 
         self.handle_wall_collision(actions);
@@ -87,9 +92,9 @@ impl Ball {
         abc.scale(t);
         a + abc
     }
-    pub fn collide_line(&self, a: Coordinate, b: Coordinate, v: Coordinate, actions: &mut Vec<ActionWrapper>) {
+    pub fn collide_line(&self, line: (Coordinate, Coordinate), v: Coordinate, actions: &mut Vec<ActionWrapper>) {
         let relative_velocity = self.velocity - v;
-        let closest = self.closest_point_on_segment(a, b);
+        let closest = self.closest_point_on_segment(line.0, line.1);
         let to_closest = self.position - closest;
         let dist_sq = to_closest.norm_squared();
 

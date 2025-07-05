@@ -116,10 +116,28 @@ async fn main() {
         	current_game_state = Some(go);
         }
 
-        if is_key_down(KeyCode::W) {
+        if is_key_pressed(KeyCode::W) {
         	cm_sender.send(ClientMessage { request_data: RequestData {
         		connect: false,
         		move_to: 1,
+        	}, user_id: user_id.clone() }).expect("couldnt send to tungstenite");
+        }
+        if is_key_released(KeyCode::W) {
+        	cm_sender.send(ClientMessage { request_data: RequestData {
+        		connect: false,
+        		move_to: 0,
+        	}, user_id: user_id.clone() }).expect("couldnt send to tungstenite");
+        }
+        if is_key_pressed(KeyCode::S) {
+        	cm_sender.send(ClientMessage { request_data: RequestData {
+        		connect: false,
+        		move_to: -1,
+        	}, user_id: user_id.clone() }).expect("couldnt send to tungstenite");
+        }
+        if is_key_released(KeyCode::S) {
+        	cm_sender.send(ClientMessage { request_data: RequestData {
+        		connect: false,
+        		move_to: 0,
         	}, user_id: user_id.clone() }).expect("couldnt send to tungstenite");
         }
         

@@ -71,11 +71,14 @@ pub async fn start(
 		while let Ok(client_message) = client_message_receiver.try_recv() {
 			let username = client_message.user_id;
 			let player = game_objects.players.get_mut(&username).expect("player with username not found");
-			if client_message.request_data.move_to == 1 {
-				player.velocity = Coordinate::new(0., 10., 0.);
+			if client_message.request_data.move_to == -1 {
+				player.velocity = Coordinate::new(0., player.speed, 0.);
 			}
-			else if client_message.request_data.move_to == -1 {
-				player.velocity = Coordinate::new(0., -10., 0.);
+			else if client_message.request_data.move_to == 1 {
+				player.velocity = Coordinate::new(0., -player.speed, 0.);
+			}
+			else if client_message.request_data.move_to == 0 {
+				player.velocity = Coordinate::new(0., 0., 0.);
 			}
 		}
 

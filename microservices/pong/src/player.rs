@@ -6,6 +6,7 @@ use crate::{action::{ActionWrapper, AddValue, AsRaw}, server_message::GameObject
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Player {
+	pub speed: f64,
 	pub team: bool,
 	pub velocity: Coordinate,
 	pub position: Coordinate,
@@ -29,6 +30,7 @@ impl Player {
 		    velocity: Default::default(),
 		    position: Coordinate::new(if team {-700.} else {700.}, 0., 0.),
 		    relative_lines: rl,
+			speed: 200.,
 		}
 	}
 	pub fn update(&self, go: &GameObjects, delta_seconds: f64, actions: &mut Vec<ActionWrapper>) {
