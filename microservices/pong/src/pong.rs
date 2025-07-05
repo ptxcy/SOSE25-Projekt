@@ -85,7 +85,7 @@ pub async fn start(
 		let (action_sender, action_receiver) = std::sync::mpsc::channel::<ActionWrapper>();
 		let mut threads = Vec::<JoinHandle<()>>::new();
 
-		if game_objects.players.len() == 1 {
+		if game_objects.players.len() == 2 {
 			threads.push(update_balls(action_sender.clone(), game_objects.raw(), delta_seconds));
 		}
 		threads.push(update_players(action_sender.clone(), game_objects.raw(), delta_seconds));
