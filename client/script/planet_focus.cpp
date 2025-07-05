@@ -7,6 +7,9 @@
  */
 PlanetFocus::PlanetFocus(Font* font)
 {
+	// precalculations
+	vec3 __SunDirection = glm::normalize(FOCUS_SUNLIGHT_ORIGIN);
+
 	// height display
 	m_TxHeightDisplay = g_Renderer.write_text(font,"",vec3(-15,-15,0),15,
 											  vec4(1),Alignment{ .align=SCREEN_ALIGN_TOPRIGHT });
@@ -51,6 +54,7 @@ PlanetFocus::PlanetFocus(Font* font)
 	m_CloudBatch->load();
 
 	// cloud transform
+	m_CloudBatch->shader->upload("light_position",FOCUS_SUNLIGHT_ORIGIN);
 	m_CloudBatch->attach_uniform(m_Clouds,"proj",&m_PlanetCamera.proj);
 	m_CloudBatch->object[m_Clouds].transform.scale(1.005f);
 
@@ -65,11 +69,12 @@ PlanetFocus::PlanetFocus(Font* font)
 	// TODO allow for geometry upload without texture list definition please
 
 	// atmosphere transform
+	__AtmoBatch->shader->upload("light_position",__SunDirection);
 	__AtmoBatch->attach_uniform(__Atmosphere,"camera_position",&g_Camera.position);
 	__AtmoBatch->attach_uniform(__Atmosphere,"proj",&m_PlanetCamera.proj);
 
 	// lighting
-	g_Renderer.add_sunlight(vec3(2000,2000,2000),vec3(1.f),4.f);
+	g_Renderer.add_sunlight(FOCUS_SUNLIGHT_ORIGIN,vec3(1.f),4.f);
 	g_Renderer.upload_lighting();
 
 	// view focus setup

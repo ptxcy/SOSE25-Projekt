@@ -25,6 +25,8 @@ constexpr f32 FOCUS_REFSCALE_MAX = 1.f;
 constexpr f32 FOCUS_UNIT_TO_METERS = 6371000.f;
 constexpr f32 FOCUS_METERS_TO_UNITS = 1.f/FOCUS_UNIT_TO_METERS;
 
+constexpr vec3 FOCUS_SUNLIGHT_ORIGIN = vec3(2000,-2000,2000);
+
 
 class PlanetFocus
 {
@@ -47,7 +49,7 @@ private:
 
 	// camera
 	Camera3D m_PlanetCamera = g_Camera;
-	vec3 m_RefPosition = glm::normalize(vec3(0,1,0));
+	vec3 m_RefPosition = glm::normalize(vec3(0,-1,0));
 	f32 m_SurfaceDistance = 2.f;
 };
 

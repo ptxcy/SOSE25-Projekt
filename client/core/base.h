@@ -217,7 +217,6 @@ static inline f64 profiler_average(RuntimeProfilerData* data)
 
 #endif
 
-
 bool check_file_exists(const char* path);
 void split_words(vector<string>& words,string& line);
 inline f64 calculate_delta_time(std::chrono::steady_clock::time_point& t)
@@ -378,8 +377,6 @@ private:
 
 	f32 m_Ratio;
 };
-// FIXME what the hell? negative z up
-// TODO also reusing standard up for roll without constant is punishable by death
 
 inline Camera3D g_Camera = Camera3D(vec3(0),1,0,0,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y,60);
 

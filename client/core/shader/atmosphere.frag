@@ -5,6 +5,7 @@ in vec3 Position;
 layout(location = 0) out vec4 pixelColour;
 
 uniform vec3 camera_position;
+uniform vec3 light_position;
 
 // scattering constants
 const float PI = 3.141592653;
@@ -21,7 +22,6 @@ const float exposure = 4.f;
 const float Scale = 1.1;
 const float PScale = .98725;  // FIXME floating point bullshit in .obj file parser
 const float GrazeDistanceInv = 1./(2*sqrt(Scale*Scale-PScale*PScale));
-const vec3 LightPosition = normalize(vec3(2000,2000,2000));
 // FIXME see clouds.frag, this should not be hardcoded, its dangerous and clumsy
 
 
@@ -56,7 +56,7 @@ void main()
 	float ray_distance = t1-t0;
 
 	// phase calculations
-	float cos_theta = dot(camera_direction,LightPosition);
+	float cos_theta = dot(camera_direction,light_position);
 	float ctsq = cos_theta*cos_theta;
 	float rayleigh = rPIi*(1.+ctsq);
 	float mie = mPIi*((1.-mGSq)*(1.+ctsq))/pow(1.+mGSq-2.*mG_air*cos_theta,1.5);
@@ -70,10 +70,11 @@ void main()
 	vec3 beer_lambert = vec3(1.)-exp(-tau*exposure);
 
 	// atmosphere fade
-	float geom_factor = clamp(pow(dot(norm_position,LightPosition),.25),.2,1.);
+	float geom_factor = clamp(pow(dot(norm_position,light_position),.25),.2,1.);
 	float fade = pow(clamp(ray_distance*GrazeDistanceInv,.4,1.),2.)*geom_factor;
 	fade = max(pow(fade,1),.25);
 
 	// combine scattering & fade
 	pixelColour = vec4(beer_lambert,fade);
 }
+// FIXME this fade actually overwrites the alpha of the lower hull layers! how do i fix this?!??
