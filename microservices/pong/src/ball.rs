@@ -42,28 +42,25 @@ impl Ball {
         self.velocity = c;
         self
     }
-    pub fn update(&self, game_objects: &GameObjects, delta_seconds: f64, actions: &mut Vec<ActionWrapper>) {
+    pub fn update(&self, my_chunk: (usize, usize), game_objects: &GameObjects, delta_seconds: f64, actions: &mut Vec<ActionWrapper>) {
         let mut add = self.velocity.c();
         add.scale(delta_seconds);
         actions.push(AddValue::new(self.position.raw_mut(), add));
 
-        let my_chunk = self.position.chunk(CHUNK_SIZE);
-
-        let chunks: Vec<Coordinate> = vec![
-            my_chunk,
-            my_chunk + Coordinate::new(CHUNK_SIZE as f64, 0., 0.),
-            my_chunk - Coordinate::new(CHUNK_SIZE as f64, 0., 0.),
-            my_chunk + Coordinate::new(0., CHUNK_SIZE as f64, 0.),
-            my_chunk - Coordinate::new(0., CHUNK_SIZE as f64, 0.),
-            my_chunk + Coordinate::new(CHUNK_SIZE as f64, CHUNK_SIZE as f64, 0.),
-            my_chunk - Coordinate::new(CHUNK_SIZE as f64, CHUNK_SIZE as f64, 0.),
-            my_chunk + Coordinate::new(CHUNK_SIZE as f64, -(CHUNK_SIZE as f64), 0.),
-            my_chunk - Coordinate::new(CHUNK_SIZE as f64, -(CHUNK_SIZE as f64), 0.),
+        let chunks: Vec<(i64, i64)> = vec![
+            (0, 0),
+            (-1, 0),
+            (1, 0),
+            (0, 1),
+            (0, -1),
+            (-1, 1),
+            (1, 1),
+            (-1, -1),
+            (1, -1),
         ];
 
-        // TODO more efficient pair wise check
         for chunk in chunks.iter() {
-            let balls = game_objects.chunks.get(chunk);
+            let balls = game_objects.chunks.get((my_chunk.0 as i64) + chunk.0, (my_chunk.1 as i64) + chunk.1);
             if let Some(balls) = balls {
                 for ball in balls.iter() {
                     if self as *const Ball >= *ball {

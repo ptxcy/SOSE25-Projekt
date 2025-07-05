@@ -46,7 +46,7 @@ pub async fn start(
 		HashMap::<String, ServerMessageSenderChannel>::new();
 
 	// initialise game objects
-	let mut game_objects = GameObjects::new(40);
+	let mut game_objects = GameObjects::new(100);
 
 	// delta time init
 	let mut last_time = Instant::now();
@@ -85,7 +85,7 @@ pub async fn start(
 		let (action_sender, action_receiver) = std::sync::mpsc::channel::<ActionWrapper>();
 		let mut threads = Vec::<JoinHandle<()>>::new();
 
-		if game_objects.players.len() == 2 {
+		if game_objects.players.len() == 1 {
 			threads.push(update_balls(action_sender.clone(), game_objects.raw(), delta_seconds));
 		}
 		threads.push(update_players(action_sender.clone(), game_objects.raw(), delta_seconds));
@@ -98,7 +98,7 @@ pub async fn start(
 			action.execute(game_objects.raw_mut());
 		}
 
-		GameObjects::chunky(&game_objects.balls, &mut game_objects.chunks);
+		game_objects.chunks.update(&game_objects.balls);
 
     	broadcast(&mut server_message_senders, &game_objects, delta_seconds).await;
         tokio::task::yield_now().await;
@@ -110,8 +110,12 @@ pub fn update_balls(sender: std::sync::mpsc::Sender<ActionWrapper>, go: *const G
 		let game_objects = unsafe {&(*go)};
 		move || {
 			let mut actions = Vec::<ActionWrapper>::with_capacity(game_objects.balls.len() * 2);
-			for ball in game_objects.balls.iter() {
-				ball.update(game_objects, delta_seconds, &mut actions);
+			for (i, balls) in game_objects.chunks.array.iter().enumerate() {
+				let chunk = game_objects.chunks.get_chunk(i);
+				for ball in balls.iter() {
+					let ball = unsafe {&**ball};
+					ball.update(chunk, game_objects, delta_seconds, &mut actions);
+				}
 			}
 			for action in actions {
 				sender.send(action).unwrap();

@@ -7,7 +7,52 @@ use tokio::sync::mpsc::Sender;
 
 use crate::{action::AsRaw, ball::Ball, player::Player};
 
-pub const CHUNK_SIZE: u64 = 4;
+pub const CHUNK_SIZE: u64 = 10;
+
+#[derive(Debug, Clone, Default)]
+pub struct Chunks {
+    size: (usize, usize),
+    pub array: Vec<Vec<*const Ball>>,
+}
+
+impl Chunks {
+    pub fn new(x: usize, y: usize) -> Self {
+        let mut array = Vec::with_capacity(x * y);
+        for _ in 0..(x*y) {
+            array.push(Vec::with_capacity(50));
+        }
+        Self {
+            size: (x, y),
+            array,
+        }
+    }
+    pub fn get(&self, x: i64, y: i64) -> Option<&Vec<*const Ball>> {
+        if x < 0 || x as usize >= self.size.0 {
+            return None;
+        }
+        self.array.get((x as usize) + (y as usize) * self.size.1)
+    }
+    pub fn get_chunk(&self, index: usize) -> (usize, usize) {
+        let x = index % self.size.0;
+        let y = index / self.size.1;
+        (x, y)
+    }
+    pub fn estimate_chunk(&self, x: f64, y: f64) -> usize {
+        let xi = (x / CHUNK_SIZE as f64 + self.size.0 as f64 / 2.) as usize;
+        let yi = (y / CHUNK_SIZE as f64 + self.size.1 as f64 / 2.) as usize;
+        let index = xi + yi * self.size.0;
+        index
+    }
+    pub fn update(&mut self, balls: &Vec<Ball>) {
+        for balls_chunk in &mut self.array {
+            balls_chunk.clear();
+        }
+        for ball in balls.iter() {
+            let chunk = self.estimate_chunk(ball.position.x, ball.position.y);
+            self.array[chunk].push(ball.raw_mut());
+        }
+    }
+}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct GameObjects {
@@ -17,7 +62,7 @@ pub struct GameObjects {
     pub score: (u16, u16),
 
     #[serde(skip)]
-    pub chunks: HashMap<Coordinate, Vec<*const Ball>>,
+    pub chunks: Chunks,
 }
 
 unsafe impl Sync for GameObjects {}
@@ -42,8 +87,8 @@ impl GameObjects {
                 balls.push(ball);
             }
         }
-        let mut chunks: HashMap<Coordinate, Vec<*const Ball>> = HashMap::new();
-        Self::chunky(&balls, &mut chunks);
+        let mut chunks = Chunks::new(2000 / CHUNK_SIZE as usize, 1200 / CHUNK_SIZE as usize);
+        chunks.update(&balls);
 
         let lines = vec![
             (Coordinate::new(-700., -100., 0.), Coordinate::new(-500., 300., 0.))
