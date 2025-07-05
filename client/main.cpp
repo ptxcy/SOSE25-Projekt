@@ -25,6 +25,7 @@ s32 main(s32 argc,char** argv)
 #endif
 	Menu __Menu = Menu(__Ubuntu,&__CCenter);
 	*/
+
 	CameraController __CamControl = CameraController();
 	//TestScene __TestScene = TestScene();
 	PlanetFocus __PlanetFocus = PlanetFocus(__Ubuntu);

@@ -381,7 +381,7 @@ private:
 // FIXME what the hell? negative z up
 // TODO also reusing standard up for roll without constant is punishable by death
 
-inline Camera3D g_Camera = Camera3D(vec3(0,-.001,0),1,0,0,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y,60);
+inline Camera3D g_Camera = Camera3D(vec3(0),1,0,0,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y,60);
 
 
 // ----------------------------------------------------------------------------------------------------
