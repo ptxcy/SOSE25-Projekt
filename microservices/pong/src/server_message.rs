@@ -12,6 +12,7 @@ pub const CHUNK_SIZE: u64 = 4;
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct GameObjects {
     pub balls: Vec<Ball>,
+    pub lines: Vec<(Coordinate, Coordinate)>,
 
     #[serde(skip)]
     pub chunks: HashMap<Coordinate, Vec<*const Ball>>,
@@ -42,9 +43,14 @@ impl GameObjects {
         let mut chunks: HashMap<Coordinate, Vec<*const Ball>> = HashMap::new();
         Self::chunky(&balls, &mut chunks);
 
+        let lines = vec![
+            (Coordinate::new(-700., -100., 0.), Coordinate::new(-500., 300., 0.))
+        ];
+
         Self {
             balls,
             chunks,
+            lines,
         }
     }
 

@@ -109,8 +109,7 @@ async fn main() {
         }
         
 
-        // log_with_time("draw");
-        // Draw current balls
+        // Draw current gamestate
         if let Some(go) = &current_game_state {
         	for ball in go.balls.iter() {
 	            draw_circle(
@@ -119,6 +118,17 @@ async fn main() {
 	                ball.radius as f32,
 	                Color::new(0.0, 1.0, 1.0, 1.0)
 	            );
+        	}
+        	for line in go.lines.iter() {
+        		draw_line(
+		            line.0.x as f32 + screen_width() / 2.0,
+		            line.0.y as f32 + screen_height() / 2.0,
+		            line.1.x as f32 + screen_width() / 2.0,
+		            line.1.y as f32 + screen_height() / 2.0,
+		            2.,
+		            Color::new(1., 0., 0., 1.)
+		        );
+
         	}
         }
         

@@ -1,4 +1,4 @@
-use calculation_unit::game::{action::AsRaw, coordinate::Coordinate};
+use calculation_unit::game::{coordinate::Coordinate};
 use macroquad::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -76,6 +76,10 @@ impl Ball {
             }
         }
 
+        for line in game_objects.lines.iter() {
+            self.collide_line(line.0, line.1, Coordinate::default(), &mut actions);
+        }
+
         self.handle_wall_collision(&mut actions);
         
         actions
@@ -89,18 +93,29 @@ impl Ball {
     }
     pub fn collide_line(&self, a: Coordinate, b: Coordinate, v: Coordinate, actions: &mut Vec<ActionWrapper>) {
         let relative_velocity = self.velocity - v;
-
         let closest = self.closest_point_on_segment(a, b);
         let to_closest = self.position - closest;
         let dist_sq = to_closest.norm_squared();
 
         if dist_sq >= self.radius.powi(2) {
-            return
+            return;
         }
 
+        let dist = dist_sq.sqrt();
         let mut normal = to_closest.c();
         normal.normalize(1.);
 
+        // Only collide if moving towards the line
+        if relative_velocity.dot(&normal) >= 0. {
+            return;
+        }
+    
+        // Position correction - move ball out of line
+        let penetration = self.radius - dist;
+        let corrected_pos = self.position + normal * penetration;
+        actions.push(SetValue::new(self.position.raw_mut(), corrected_pos));
+    
+        // Velocity reflection
         let reflected = relative_velocity - normal * 2. * relative_velocity.dot(&normal);
         actions.push(SetValue::new(self.velocity.raw_mut(), reflected + v));
     }
