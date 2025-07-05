@@ -42,9 +42,7 @@ impl Ball {
         self.velocity = c;
         self
     }
-    pub fn update(&self, game_objects: &GameObjects, delta_seconds: f64) -> Vec<ActionWrapper> {
-        let mut actions: Vec<ActionWrapper> = vec![];
-        // self.position.addd(&self.velocity, delta_seconds);
+    pub fn update(&self, game_objects: &GameObjects, delta_seconds: f64, actions: &mut Vec<ActionWrapper>) {
         let mut add = self.velocity.c();
         add.scale(delta_seconds);
         actions.push(AddValue::new(self.position.raw_mut(), add));
@@ -71,18 +69,16 @@ impl Ball {
                     if self as *const Ball >= *ball {
                         continue;
                     }
-                    self.collide_ball(unsafe {&(**ball)}, &mut actions);
+                    self.collide_ball(unsafe {&(**ball)}, actions);
                 }
             }
         }
 
         for line in game_objects.lines.iter() {
-            self.collide_line(line.0, line.1, Coordinate::default(), &mut actions);
+            self.collide_line(line.0, line.1, Coordinate::default(), actions);
         }
 
-        self.handle_wall_collision(&mut actions);
-        
-        actions
+        self.handle_wall_collision(actions);
     }
     pub fn closest_point_on_segment(&self, a: Coordinate, b: Coordinate) -> Coordinate {
         let ab = b - a;

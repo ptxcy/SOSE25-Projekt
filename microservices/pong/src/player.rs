@@ -1,6 +1,8 @@
 use calculation_unit::game::coordinate::Coordinate;
 use serde::{Deserialize, Serialize};
 
+use crate::{action::{ActionWrapper, AddValue, AsRaw}, server_message::GameObjects};
+
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Player {
@@ -28,5 +30,10 @@ impl Player {
 		    position: Coordinate::new(if team {-700.} else {700.}, 0., 0.),
 		    relative_lines: rl,
 		}
+	}
+	pub fn update(&self, go: &GameObjects, delta_seconds: f64, actions: &mut Vec<ActionWrapper>) {
+        let mut add = self.velocity.c();
+        add.scale(delta_seconds);
+        actions.push(AddValue::new(self.position.raw_mut(), add));
 	}
 }
