@@ -27,14 +27,14 @@ impl Chunks {
         }
     }
     pub fn get(&self, x: i64, y: i64) -> Option<&Vec<*const Ball>> {
-        if x < 0 || x as usize >= self.size.0 {
+        if x < 0 || x as usize >= self.size.0 || y < 0 || y as usize >= self.size.1 {
             return None;
         }
-        self.array.get((x as usize) + (y as usize) * self.size.1)
+        self.array.get((x as usize) + (y as usize) * self.size.0)
     }
     pub fn get_chunk(&self, index: usize) -> (usize, usize) {
         let x = index % self.size.0;
-        let y = index / self.size.1;
+        let y = index / self.size.0;
         (x, y)
     }
     pub fn estimate_chunk(&self, x: f64, y: f64) -> usize {

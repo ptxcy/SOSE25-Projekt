@@ -48,15 +48,15 @@ impl Ball {
         actions.push(AddValue::new(self.position.raw_mut(), add));
 
         let chunks: Vec<(i64, i64)> = vec![
-            (0, 0),
-            (-1, 0),
-            (1, 0),
-            (0, 1),
             (0, -1),
-            (-1, 1),
-            (1, 1),
+            (0, 0),
+            (0, 1),
             (-1, -1),
+            (-1, 0),
+            (-1, 1),
             (1, -1),
+            (1, 0),
+            (1, 1),
         ];
 
         for chunk in chunks.iter() {
