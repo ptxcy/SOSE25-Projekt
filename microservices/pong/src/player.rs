@@ -17,12 +17,16 @@ impl Player {
 	pub fn new(team: bool) -> Self {
 		let rl = if team {
 			vec![
-				(Coordinate::new(0., 100., 0.), Coordinate::new(0., -100., 0.))
+				(Coordinate::new(0., 100., 0.), Coordinate::new(0., -100., 0.)),
+				(Coordinate::new(0., 100., 0.), Coordinate::new(50., 0., 0.)),
+				(Coordinate::new(0., -100., 0.), Coordinate::new(50., 0., 0.)),
 			]
 		}
 		else {
 			vec![
-				(Coordinate::new(0., 100., 0.), Coordinate::new(0., -100., 0.))
+				(Coordinate::new(0., 100., 0.), Coordinate::new(0., -100., 0.)),
+				(Coordinate::new(0., 100., 0.), Coordinate::new(-50., 0., 0.)),
+				(Coordinate::new(0., -100., 0.), Coordinate::new(-50., 0., 0.)),
 			]
 		};
 		Self {

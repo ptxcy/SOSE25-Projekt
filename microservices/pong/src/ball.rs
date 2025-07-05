@@ -79,7 +79,7 @@ impl Ball {
         }
         for (id, player) in game_objects.players.iter() {
             for line in player.relative_lines.iter() {
-                self.collide_line((line.0 + player.position, line.1 + player.position), Coordinate::default(), actions);
+                self.collide_line((line.0 + player.position, line.1 + player.position), player.velocity, actions);
             }
         }
 
