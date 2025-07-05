@@ -14,6 +14,7 @@ pub struct GameObjects {
     pub balls: Vec<Ball>,
     pub lines: Vec<(Coordinate, Coordinate)>,
     pub players: HashMap<String, Player>,
+    pub score: (u16, u16),
 
     #[serde(skip)]
     pub chunks: HashMap<Coordinate, Vec<*const Ball>>,
@@ -53,6 +54,7 @@ impl GameObjects {
             chunks,
             lines,
             players: HashMap::with_capacity(2),
+            score: (0, 0),
         }
     }
 

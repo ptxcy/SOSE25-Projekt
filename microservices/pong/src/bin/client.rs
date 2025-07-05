@@ -109,7 +109,7 @@ async fn main() {
         // Draw static elements
         // draw_line(40.0, 40.0, 100.0, 200.0, 15.0, BLUE);
         // draw_rectangle(screen_width() / 2.0 - 60.0, 100.0, 120.0, 60.0, GREEN);
-        // draw_text("Hello, Macroquad!", 20.0, 20.0, 30.0, DARKGRAY);
+
         
         // Update game state - only process latest message
         while let Ok(go) = go_receiver.try_recv() {
@@ -144,6 +144,8 @@ async fn main() {
 
         // Draw current gamestate
         if let Some(go) = &current_game_state {
+	        draw_text(&format!("score: {:?}", go.score), 20.0, 20.0, 30.0, DARKGRAY);
+
         	for ball in go.balls.iter() {
 	            draw_circle(
 	                ball.position.x as f32 + screen_width() / 2.0,

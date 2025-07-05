@@ -83,7 +83,7 @@ impl Ball {
             }
         }
 
-        self.handle_wall_collision(actions);
+        self.handle_wall_collision(game_objects, actions);
     }
     pub fn closest_point_on_segment(&self, a: Coordinate, b: Coordinate) -> Coordinate {
         let ab = b - a;
@@ -154,7 +154,7 @@ impl Ball {
             actions.push(SubValue::new(other.velocity.raw_mut(), velocity_change));
         }
     }
-    fn handle_wall_collision(&self, actions: &mut Vec<ActionWrapper>) {
+    fn handle_wall_collision(&self, game_objects: &GameObjects, actions: &mut Vec<ActionWrapper>) {
         let wall_bound_y = 1080. / 2.2;
         let wall_bound_x = 1920. / 2.2;
         let wall_bounciness = self.bounciness;
@@ -169,6 +169,8 @@ impl Ball {
             let mut new_pos = self.position.c();
             new_pos.x = -wall_bound_x + self.radius;
             actions.push(SetValue::new(self.position.raw_mut(), new_pos));
+
+            actions.push(AddValue::new(game_objects.score.0.raw_mut(), 1));
         }
         
         // Right wall (x = +100)
@@ -180,6 +182,8 @@ impl Ball {
             let mut new_pos = self.position.c();
             new_pos.x = wall_bound_x - self.radius;
             actions.push(SetValue::new(self.position.raw_mut(), new_pos));
+
+            actions.push(AddValue::new(game_objects.score.1.raw_mut(), 1));
         }
         
         // Bottom wall (y = -100)
