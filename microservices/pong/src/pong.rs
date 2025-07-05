@@ -1,6 +1,6 @@
 use std::{collections::HashMap, thread::JoinHandle, time::Instant};
 
-use crate::{action::{ActionWrapper, AsRaw}, client_message::ClientMessage, server_message::{GameObjects, ObjectData, ServerMessage, ServerMessageSenderChannel}};
+use crate::{action::{ActionWrapper, AsRaw}, client_message::ClientMessage, player::Player, server_message::{GameObjects, ObjectData, ServerMessage, ServerMessageSenderChannel}};
 use calculation_unit::logger::{log_with_time, Loggable};
 use tokio::sync::mpsc::*;
 
@@ -39,7 +39,7 @@ pub async fn broadcast(
 
 pub async fn start(
     mut server_message_sender_receiver: Receiver<ServerMessageSenderChannel>,
-    client_message_receiver: Receiver<ClientMessage>,
+    mut client_message_receiver: Receiver<ClientMessage>,
 ) {
 	// client channels
 	let mut server_message_senders =
@@ -63,9 +63,13 @@ pub async fn start(
 		while let Ok(sender) = server_message_sender_receiver.try_recv() {
 			let username = sender.user_id.clone();
 			log_with_time(format!("getting sender {}", username));
-			// let player = Player::new(username.clone());
-			// game_objects.players.insert(username.clone(), player);
+			let player = Player::new(game_objects.players.len() % 2 == 0);
+			game_objects.players.insert(username.clone(), player);
 			server_message_senders.insert(username, sender);
+		}
+
+		while let Ok(client_message) = client_message_receiver.try_recv() {
+			log_with_time(client_message.request_data.move_to);
 		}
 
 		let (action_sender, action_receiver) = std::sync::mpsc::channel::<ActionWrapper>();

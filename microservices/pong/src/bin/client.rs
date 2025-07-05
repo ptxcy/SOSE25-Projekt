@@ -4,7 +4,7 @@ use bytes::Bytes;
 use calculation_unit::logger::log_with_time;
 use futures::{lock::{Mutex, MutexGuard}, stream::SplitSink, SinkExt, StreamExt};
 use macroquad::prelude::*;
-use pong::{client_message::ClientMessage, server_message::{GameObjects, ServerMessage}};
+use pong::{client_message::{ClientMessage, RequestData}, server_message::{GameObjects, ServerMessage}};
 use tokio::net::TcpStream;
 use tokio_tungstenite::{connect_async, tungstenite::Message, MaybeTlsStream, WebSocketStream};
 
@@ -18,7 +18,7 @@ async fn send(mut write: Write<'_>, message: ClientMessage) {
 		.expect("Failed to send message");
 }
 
-fn tungstenite(sender: std::sync::mpsc::Sender<GameObjects>, username: String) -> std::thread::JoinHandle<()> {
+fn tungstenite(sender: std::sync::mpsc::Sender<GameObjects>, cm_receiver: std::sync::mpsc::Receiver<ClientMessage>, username: String) -> std::thread::JoinHandle<()> {
 	std::thread::spawn(move || {
 	    let rt = tokio::runtime::Runtime::new().unwrap();
 	    rt.block_on(async {
@@ -76,6 +76,11 @@ fn tungstenite(sender: std::sync::mpsc::Sender<GameObjects>, username: String) -
 					}
 				}
 			});
+
+			while let Ok(cm) = cm_receiver.recv() {
+				send(write.lock().await, cm).await;
+			}
+
 			let _ = handle.await;
 	    })
 	})
@@ -89,8 +94,11 @@ async fn main() {
 		log_with_time("wrong start arguments! cargo run -r --bin client <username>");
 	}
 
-    let (sender, receiver) = std::sync::mpsc::channel::<GameObjects>();
-    let _ = tungstenite(sender, args[1].clone());
+	let user_id = args[1].clone();
+
+    let (go_sender, go_receiver) = std::sync::mpsc::channel::<GameObjects>();
+    let (cm_sender, cm_receiver) = std::sync::mpsc::channel::<ClientMessage>();
+    let _ = tungstenite(go_sender, cm_receiver, user_id.clone());
     
     // Store current game state
     let mut current_game_state: Option<GameObjects> = None;
@@ -104,8 +112,15 @@ async fn main() {
         // draw_text("Hello, Macroquad!", 20.0, 20.0, 30.0, DARKGRAY);
         
         // Update game state - only process latest message
-        while let Ok(go) = receiver.try_recv() {
+        while let Ok(go) = go_receiver.try_recv() {
         	current_game_state = Some(go);
+        }
+
+        if is_key_down(KeyCode::W) {
+        	cm_sender.send(ClientMessage { request_data: RequestData {
+        		connect: false,
+        		move_to: 1,
+        	}, user_id: user_id.clone() }).expect("couldnt send to tungstenite");
         }
         
 
@@ -128,7 +143,18 @@ async fn main() {
 		            2.,
 		            Color::new(1., 0., 0., 1.)
 		        );
-
+        	}
+        	for (id, player) in go.players.iter() {
+        		for line in player.relative_lines.iter() {
+	        		draw_line(
+			            (player.position + line.0).x as f32 + screen_width() / 2.0,
+			            (player.position + line.0).y as f32 + screen_height() / 2.0,
+			            (player.position + line.1).x as f32 + screen_width() / 2.0,
+			            (player.position + line.1).y as f32 + screen_height() / 2.0,
+			            2.,
+			            Color::new(1., 0.5, 1., 1.)
+			        );
+        		}
         	}
         }
         

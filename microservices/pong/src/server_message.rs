@@ -5,7 +5,7 @@ use macroquad::prelude::*;
 use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc::Sender;
 
-use crate::{action::AsRaw, ball::Ball};
+use crate::{action::AsRaw, ball::Ball, player::Player};
 
 pub const CHUNK_SIZE: u64 = 4;
 
@@ -13,6 +13,7 @@ pub const CHUNK_SIZE: u64 = 4;
 pub struct GameObjects {
     pub balls: Vec<Ball>,
     pub lines: Vec<(Coordinate, Coordinate)>,
+    pub players: HashMap<String, Player>,
 
     #[serde(skip)]
     pub chunks: HashMap<Coordinate, Vec<*const Ball>>,
@@ -51,6 +52,7 @@ impl GameObjects {
             balls,
             chunks,
             lines,
+            players: HashMap::with_capacity(2),
         }
     }
 
