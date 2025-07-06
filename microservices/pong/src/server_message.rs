@@ -49,7 +49,14 @@ impl Chunks {
         }
         for ball in balls.iter() {
             let chunk = self.estimate_chunk(ball.position.x, ball.position.y);
-            self.array[chunk].push(ball.raw_mut());
+            match self.array.get_mut(chunk) {
+                Some(c) => {
+                    c.push(ball.raw_mut());
+                },
+                None => {
+                    
+                },
+            };
         }
     }
 }
@@ -71,7 +78,7 @@ unsafe impl Send for GameObjects {}
 impl GameObjects {
     pub fn new(count: usize) -> Self {
 
-        let dist = 8.;
+        let dist = 6.;
         let offset = (count as f64 * dist) / 2.;
 
         let mut balls = Vec::<Ball>::new();
@@ -82,7 +89,7 @@ impl GameObjects {
                         x as f64 * dist - offset,
                         y as f64 * dist - offset
                     )
-                    .random_velocity(20.)
+                    .random_velocity(5.)
                 ;
                 balls.push(ball);
             }
