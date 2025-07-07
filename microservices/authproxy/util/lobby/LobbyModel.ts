@@ -1,5 +1,4 @@
 import Mongoose, {Document} from 'mongoose';
-import bcrypt from 'bcrypt';
 
 export interface ILobby extends Document {
     lobbyName: string;

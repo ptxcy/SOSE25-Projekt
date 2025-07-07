@@ -3,13 +3,16 @@ import {WebSocket, RawData} from "ws";
 import {ILobby} from "./LobbyModel";
 import {deleteLobby, searchLobbyOfMember} from "./LobbyService";
 import {
-    ClientMessage,
     decodeToClientMessage,
     decodeToServerMessage, encodeClientMessage,
-    encodeServerMessage,
-    ServerMessage
+    encodeServerMessage
 } from "../datatypes/MessagePackDataTypes";
-import {CONTAINER_PREFIX, startCalculationUnit, stopContainer} from "../../docker-management/DockerManager";
+import {
+    CONTAINER_PREFIX,
+    startCalculationUnit,
+    startPongCalculationUnit,
+    stopContainer
+} from "../../docker-management/DockerManager";
 
 export interface LobbyRegistryEntry {
     lobbyName: string;
@@ -75,6 +78,29 @@ function findLowestPossibleContainerNumber(): number {
     return num;
 }
 
+function isWebsocketAlreadyUsedInAnotherLobby(newlyConnectedSocket: WebSocket): boolean {
+    for (const lobby of registeredLobbys) {
+        for (const socket of lobby.memberSockets) {
+            if (socket === newlyConnectedSocket) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function findRegisteredLobbyOfWebsocket(messageSocket: WebSocket): LobbyRegistryEntry | null {
+    for (const lobby of registeredLobbys) {
+        for (const socket of lobby.memberSockets) {
+            if (socket === messageSocket) {
+                return lobby;
+            }
+        }
+    }
+    return null
+}
+
+
 export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userData: IUser) {
     if (userData === undefined || userData.username === undefined) {
         console.error("User data could not be read properly! Please Check ducking tocking!");
@@ -82,45 +108,58 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
         return;
     }
 
-    const userLobby: ILobby | null = await searchLobbyOfMember(userData.username);
-    if (!userLobby) {
-        console.error("User is not in a lobby!");
-        ws.close();
-        return;
-    }
-
-    let registerLobby: LobbyRegistryEntry | null = isRegistered(userLobby.lobbyName);
-    if (registerLobby) {
-        if (!registerLobby.memberSockets.includes(ws)) {
-            registerLobby.memberSockets.push(ws);
-            registerLobby.members.push(userData);
-        }
-    } else {
-        const lowestContainerNumber = findLowestPossibleContainerNumber();
-        registerLobby = {
-            lobbyName: userLobby.lobbyName,
-            members: [userData],
-            memberSockets: [ws],
-            calculationSocket: null,
-            containerInstanceNumber: lowestContainerNumber
-        };
-        addToRegister(registerLobby);
-        registerLobby.calculationSocket = await connectToCalculationServer(lowestContainerNumber, registerLobby);
-    }
-
     const uint8Array = data instanceof Buffer
         ? new Uint8Array(data)
         : new Uint8Array(data as ArrayBuffer);
 
     console.log("Received ClientMessage: ", uint8Array);
-    const clientRequest: ClientMessage = await decodeToClientMessage(uint8Array);
+    const clientRequest: any = await decodeToClientMessage(uint8Array);
     if (!clientRequest) {
         console.error("Could not decode message");
         ws.close();
         return;
     }
 
-    clientRequest[0][1][0] = Date.now();
+    if (!isWebsocketAlreadyUsedInAnotherLobby(ws)) {
+        // First Time Connection check if a new lobby needs to be registered
+        const lobbyName: string = clientRequest[1][7];
+        if (!lobbyName) {
+            console.error("Asserted lobby connect message but did not found lobbyname: ", lobbyName);
+            ws.close();
+        }
+
+        const userLobby: ILobby | null = await searchLobbyOfMember(lobbyName, userData.username);
+        if (!userLobby) {
+            console.error("User is not in a lobby!");
+            ws.close();
+            return;
+        }
+
+        let registerLobby: LobbyRegistryEntry | null = isRegistered(userLobby.lobbyName);
+        if (registerLobby && !registerLobby.memberSockets.includes(ws)) {
+            registerLobby.memberSockets.push(ws);
+            registerLobby.members.push(userData);
+        } else {
+            const lowestContainerNumber = findLowestPossibleContainerNumber();
+            registerLobby = {
+                lobbyName: userLobby.lobbyName,
+                members: [userData],
+                memberSockets: [ws],
+                calculationSocket: null,
+                containerInstanceNumber: lowestContainerNumber
+            };
+            addToRegister(registerLobby);
+            registerLobby.calculationSocket = await connectToCalculationServer(lowestContainerNumber, registerLobby);
+        }
+    }
+
+    const registerLobby: LobbyRegistryEntry | null = findRegisteredLobbyOfWebsocket(ws);
+    if(registerLobby === null) {
+        console.error("Could not find register lobby!");
+        ws.close();
+        return;
+    }
+
     const encoded = await encodeClientMessage(clientRequest);
     if (encoded === null) {
         console.error("Could not encode message");
@@ -137,7 +176,6 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
 
     console.log("Waiting for readyState before sending...");
     while (calc_unit_socket.readyState !== WebSocket.OPEN) {
-        console.log("⏳ Waiting for WebSocket to open...");
         await new Promise(resolve => setTimeout(resolve, 500));
     }
     console.log("Calculation socket is open, sending data...");
@@ -146,9 +184,15 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
 }
 
 async function connectToCalculationServer(containerNumber: number, lcomp: LobbyRegistryEntry): Promise<WebSocket> {
-    //TODO Close Socket If all user connections are closed
     console.log("Connecting to calculation server...");
-    await startCalculationUnit(containerNumber, 9000 + containerNumber);
+    if (lcomp.lobbyName.startsWith("3d-")) {
+        await startCalculationUnit(containerNumber, 9000 + containerNumber);
+    }else if (lcomp.lobbyName.startsWith("pong-")) {
+        await startPongCalculationUnit(containerNumber, 9000 + containerNumber);
+    }else {
+        await startCalculationUnit(containerNumber, 9000 + containerNumber);
+    }
+
     let socket;
     const lobbyPort = 9000 + containerNumber;
     await new Promise(resolve => setTimeout(resolve, 5000));
@@ -163,15 +207,21 @@ async function connectToCalculationServer(containerNumber: number, lcomp: LobbyR
             ? new Uint8Array(msg)
             : new Uint8Array(msg as ArrayBuffer);
 
-        const serverMessage: ServerMessage = await decodeToServerMessage(uint8Array);
-        const targetUsername: string | undefined = serverMessage[1][0];
+        const serverMessage: any = await decodeToServerMessage(uint8Array);
+        let targetUsername: string | undefined = undefined;
+        if (lcomp.lobbyName.startsWith("3d-")) {
+            targetUsername = serverMessage[1][0];
+        }else if (lcomp.lobbyName.startsWith("pong-")) {
+            targetUsername = serverMessage[1];
+        }else {
+            targetUsername = serverMessage[1][0];
+        }
+
         if (!targetUsername) {
             console.error("No target username found!");
             return;
         }
 
-        //Update Time Stamp
-        serverMessage[0][1][0] = Date.now();
         if (targetUsername === "all") {
             const sendMessage = await encodeServerMessage(serverMessage);
             if (!sendMessage) {
@@ -203,7 +253,6 @@ async function connectToCalculationServer(containerNumber: number, lcomp: LobbyR
             return;
         }
 
-        //console.log("sending: ", String(sendMessage));
         userSocket.send(sendMessage);
     })
 

@@ -9,7 +9,26 @@ export async function startCalculationUnit(instanceNumber: number, exposedPort: 
     const internalPort = exposedPort;
 
     const containerConfig: ContainerCreateOptions = {
-        Image: 'sose25-projekt-calculation_unit',
+        Image: '3d-calculation_unit',
+        Env: [`SERVICE_PORT=${internalPort}`],
+        ExposedPorts: {[`${internalPort}/tcp`]: {}},
+        HostConfig: {
+            PortBindings: {[`${internalPort}/tcp`]: [{HostPort: `${exposedPort}`}]},
+            NetworkMode: 'sose25-projekt_default'
+        },
+        name: CONTAINER_PREFIX + instanceNumber,
+    };
+
+    const container = await docker.createContainer(containerConfig);
+    await container.start();
+    console.log(`Container gestartet: Intern auf Port ${internalPort}, Extern auf Port ${exposedPort}!`);
+}
+
+export async function startPongCalculationUnit(instanceNumber: number, exposedPort: number): Promise<void> {
+    const internalPort = exposedPort;
+
+    const containerConfig: ContainerCreateOptions = {
+        Image: '3d-calculation_unit',
         Env: [`SERVICE_PORT=${internalPort}`],
         ExposedPorts: {[`${internalPort}/tcp`]: {}},
         HostConfig: {

@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@types/config": "^3.3.5",
     "@types/cors": "^2.8.18",
     "@types/express": "^5.0.1",
     "@types/jsonwebtoken": "^9.0.9",
@@ -26,6 +27,7 @@
     "@types/dockerode": "^3.3.40",
     "@types/mongoose": "^5.11.97",
     "bcrypt": "^5.1.1",
+    "config": "^4.0.0",
     "cors": "^2.8.5",
     "dockerode": "^4.0.7",
     "express": "^5.1.0",

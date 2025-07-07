@@ -16,5 +16,6 @@ if [ "$1" == "--clean-build" ]; then
 fi
 
 echo "Starting Dev Environment..."
-docker compose build calculation_unit
+docker compose build 3d-calculation_unit
+docker compose build pong-calculation_unit
 docker compose up -d --build mongodb authproxy
