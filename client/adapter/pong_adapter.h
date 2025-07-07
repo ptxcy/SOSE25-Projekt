@@ -64,7 +64,7 @@ struct GameObject
 struct ObjectData
 {
 	string target_user_id;
-	vector<u8> game_objects;
+	vector<u64> game_objects;
 	MSGPACK_DEFINE(target_user_id,game_objects);
 };
 
