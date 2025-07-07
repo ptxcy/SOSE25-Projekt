@@ -25,6 +25,12 @@ pkgs.mkShell {
     # Build tools
     pkg-config
     gcc
+    fontconfig
+    fontconfig.dev
+    freetype
+    freetype.dev
+    openssl
+    openssl.dev
   ];
   
   shellHook = ''

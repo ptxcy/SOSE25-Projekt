@@ -144,10 +144,10 @@ async fn main() {
         	}
         	for line in go.lines.iter() {
         		draw_line(
-		            line.0.x as f32 + screen_width() / 2.0,
-		            line.0.y as f32 + screen_height() / 2.0,
-		            line.1.x as f32 + screen_width() / 2.0,
-		            line.1.y as f32 + screen_height() / 2.0,
+		            line.a.x as f32 + screen_width() / 2.0,
+		            line.a.y as f32 + screen_height() / 2.0,
+		            line.b.x as f32 + screen_width() / 2.0,
+		            line.b.y as f32 + screen_height() / 2.0,
 		            2.,
 		            Color::new(1., 0., 0., 1.)
 		        );
