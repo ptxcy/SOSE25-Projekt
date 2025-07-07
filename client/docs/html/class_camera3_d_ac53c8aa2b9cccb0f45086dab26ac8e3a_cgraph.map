@@ -1,0 +1,7 @@
+<map id="Camera3D::Camera3D" name="Camera3D::Camera3D">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,161,56"/>
+<area shape="rect" id="Node000002" href="$class_camera3_d.html#a1ae9f24b23a03551b8e59b75c2d7b522" title=" " alt="" coords="209,5,340,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="161,31,193,26,194,31,161,36"/>
+<area shape="rect" id="Node000003" href="$class_camera3_d.html#ae965c8566248d1102c5eb839ba8fa7ad" title=" " alt="" coords="209,55,340,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="161,51,194,55,193,60,161,56"/>
+</map>

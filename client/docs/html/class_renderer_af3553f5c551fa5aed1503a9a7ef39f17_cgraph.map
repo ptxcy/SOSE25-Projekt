@@ -1,0 +1,15 @@
+<map id="Renderer::register_sprite_texture" name="Renderer::register_sprite_texture">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,131,88"/>
+<area shape="rect" id="Node000002" href="$struct_g_p_u_pixel_buffer.html#a06ab4485fde8b67875dacabd65348965" title=" " alt="" coords="179,47,325,88"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="131,65,163,65,163,70,131,70"/>
+<area shape="rect" id="Node000003" href="$struct_g_p_u_pixel_buffer.html#a3f1274d200d9a7be4035b73c5d3e44ff" title=" " alt="" coords="373,5,526,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="325,47,380,33,381,38,326,52"/>
+<area shape="rect" id="Node000004" href="$struct_texture_data.html#a46cec6a1ae37a25e8c6b1dfb2a96da1f" title=" " alt="" coords="388,55,512,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="325,65,372,65,372,70,325,70"/>
+<area shape="rect" id="Node000007" href="$struct_thread_signal.html#a552a3b40b261cc0f267f93d54c4fcef7" title=" " alt="" coords="374,104,525,130"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="326,83,381,97,380,102,325,88"/>
+<area shape="rect" id="Node000005" href="$base_8cpp.html#a233b02fb2ce89e834c1ca72f8b452f09" title=" " alt="" coords="574,31,697,56"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="512,57,559,51,560,56,512,62"/>
+<area shape="rect" id="Node000006" href="$stb__image_8h.html#ad3fc296ba0778df0a8094e20da82deab" title=" " alt="" coords="599,80,672,106"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="512,73,584,83,584,89,512,79"/>
+</map>

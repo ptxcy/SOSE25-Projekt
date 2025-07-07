@@ -1,0 +1,9 @@
+<map id="Button" name="Button">
+<area shape="rect" id="Node000001" title=" " alt="" coords="131,143,191,168"/>
+<area shape="rect" id="Node000002" href="$struct_sprite.html" title=" " alt="" coords="5,5,61,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="50,43,75,80,107,117,140,140,137,144,104,121,71,83,46,46"/>
+<area shape="rect" id="Node000003" href="$struct_pixel_buffer_component.html" title=" " alt="" coords="85,5,237,31"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="164,46,164,142,158,142,158,46"/>
+<area shape="rect" id="Node000004" href="$struct_rect.html" title=" " alt="" coords="262,5,311,31"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="272,45,245,82,211,121,181,144,178,140,207,117,241,79,268,42"/>
+</map>

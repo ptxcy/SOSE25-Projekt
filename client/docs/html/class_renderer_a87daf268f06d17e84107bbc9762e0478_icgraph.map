@@ -1,0 +1,10 @@
+<map id="Renderer::delete_sprite" name="Renderer::delete_sprite">
+<area shape="rect" id="Node000001" title=" " alt="" coords="352,31,508,56"/>
+<area shape="rect" id="Node000002" href="$struct_button.html#a3f09786bb29c48257de3c7c775a86365" title=" " alt="" coords="186,5,296,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="336,34,296,28,297,23,337,28"/>
+<area shape="rect" id="Node000004" href="$struct_text_field.html#a954f36e702ee942c5c397fe7e8439a54" title=" " alt="" coords="179,55,304,80"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="337,58,305,62,304,57,336,53"/>
+<area shape="rect" id="Node000003" href="$class_u_i.html#a4b46baef8d0dd09ad370a3014b8d6e9a" title=" " alt="" coords="5,31,131,56"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="171,31,131,37,131,32,170,26"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="163,59,130,55,131,50,164,54"/>
+</map>

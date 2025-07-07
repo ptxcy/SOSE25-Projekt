@@ -1,0 +1,7 @@
+<map id="Renderer::_collector" name="Renderer::_collector">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,144,56"/>
+<area shape="rect" id="Node000002" href="$struct_thread_signal.html#a0b2745c3c7a7ee95dfb0a22c7a1155fc" title=" " alt="" coords="192,5,321,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="144,31,176,27,177,32,144,36"/>
+<area shape="rect" id="Node000003" href="$struct_thread_signal.html#ad17b81f05f66ea3e98c4b04ef2882de0" title=" " alt="" coords="192,55,321,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="144,50,177,54,176,60,144,55"/>
+</map>

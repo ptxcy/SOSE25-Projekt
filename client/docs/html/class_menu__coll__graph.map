@@ -1,0 +1,22 @@
+<map id="Menu" name="Menu">
+<area shape="rect" id="Node000001" title=" " alt="" coords="448,549,501,575"/>
+<area shape="rect" id="Node000002" href="$class_command_center.html" title=" " alt="" coords="264,453,384,478"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="357,484,456,546,454,551,354,489"/>
+<area shape="rect" id="Node000003" href="$struct_font.html" title=" " alt="" coords="44,111,91,136"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="66,152,62,198,61,256,69,320,77,351,89,380,102,402,120,419,141,433,165,443,215,457,263,462,263,467,214,462,163,448,139,437,117,423,98,405,84,383,72,353,63,321,56,256,56,197,61,152"/>
+<area shape="rect" id="Node000004" href="$struct_pixel_buffer_component.html" title=" " alt="" coords="204,5,356,31"/>
+<area shape="poly" id="edge12_Node000001_Node000004" title=" " alt="" coords="371,20,505,30,565,39,607,53,633,65,653,78,667,96,672,122,672,467,666,493,652,514,631,530,606,542,551,557,502,563,501,557,550,552,604,537,629,525,648,510,662,491,666,467,666,123,662,98,650,82,630,70,605,57,564,45,504,35,371,25"/>
+<area shape="poly" id="edge11_Node000002_Node000004" title=" " alt="" coords="250,43,234,57,192,99,162,138,153,158,148,180,149,204,156,232,170,268,189,303,233,366,278,417,312,450,309,454,274,420,229,369,184,305,165,270,151,234,144,205,143,179,148,156,158,135,188,96,230,53,246,39"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="189,28,150,39,114,57,100,69,89,83,75,112,70,109,85,81,97,65,111,53,148,34,188,23"/>
+<area shape="rect" id="Node000006" href="$class_star_system.html" title=" " alt="" coords="278,306,369,332"/>
+<area shape="poly" id="edge8_Node000006_Node000004" title=" " alt="" coords="261,45,246,67,234,92,228,118,233,144,239,152,246,156,262,168,285,205,303,244,323,305,318,307,298,246,280,207,258,171,243,160,235,156,228,146,223,118,229,90,241,64,257,42"/>
+<area shape="rect" id="Node000007" href="$struct_planetary_attribute.html" title=" " alt="" coords="356,111,481,136"/>
+<area shape="poly" id="edge7_Node000007_Node000004" title=" " alt="" coords="309,38,404,108,401,112,306,43"/>
+<area shape="rect" id="Node000008" href="$class_flotilla.html" title=" " alt="" coords="463,188,523,214"/>
+<area shape="poly" id="edge10_Node000008_Node000004" title=" " alt="" coords="372,26,407,36,441,51,472,72,495,101,504,124,505,148,499,188,494,188,500,148,498,125,491,103,468,76,439,55,405,41,370,31"/>
+<area shape="rect" id="Node000005" href="$struct_glyph.html" title=" " alt="" coords="5,5,61,31"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="33,46,38,77,46,94,58,109,54,112,42,97,32,79,28,47"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="326,348,326,452,321,452,321,348"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="405,151,394,171,357,248,331,307,326,305,352,246,389,168,401,148"/>
+<area shape="poly" id="edge9_Node000002_Node000008" title=" " alt="" coords="495,230,491,273,480,326,459,382,444,407,426,431,407,445,386,455,383,450,404,441,422,427,440,404,454,379,474,325,485,272,490,229"/>
+</map>

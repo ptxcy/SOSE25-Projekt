@@ -1,0 +1,7 @@
+<map id="BuildingRegion" name="BuildingRegion">
+<area shape="rect" id="Node000001" title=" " alt="" coords="60,102,168,128"/>
+<area shape="rect" id="Node000002" href="$struct_coordinate.html" title=" " alt="" coords="5,5,90,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="46,46,47,62,52,77,63,89,79,99,76,104,60,94,47,79,41,63,40,46"/>
+<area shape="rect" id="Node000003" href="$struct_crafting_material.html" title=" " alt="" coords="124,5,238,31"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="173,47,154,80,131,103,127,100,149,76,168,44"/>
+</map>

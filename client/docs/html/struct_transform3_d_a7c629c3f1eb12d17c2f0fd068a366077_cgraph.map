@@ -1,0 +1,18 @@
+<map id="Transform3D::rotate" name="Transform3D::rotate">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,128,144,154"/>
+<area shape="rect" id="Node000002" href="$struct_transform3_d.html#ad9c7df91021352bf46d17a4dc2b75253" title=" " alt="" coords="192,103,352,128"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="144,129,176,125,176,130,144,135"/>
+<area shape="rect" id="Node000008" href="$struct_transform3_d.html#aa3b8e2120796549c650f3926b7681e82" title=" " alt="" coords="400,153,555,179"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="144,142,385,158,384,163,144,148"/>
+<area shape="rect" id="Node000003" href="$struct_transform3_d.html#a9a389c8a1929cebfe8bb30956d9d757c" title=" " alt="" coords="408,55,547,80"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="330,99,404,82,405,87,331,105"/>
+<area shape="rect" id="Node000007" href="$struct_transform3_d.html#a2e022edbc0bfd1c66dfbe803a8757c2a" title=" " alt="" coords="410,104,546,130"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="352,113,394,114,394,119,352,119"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="328,126,409,147,407,152,326,132"/>
+<area shape="rect" id="Node000004" href="$struct_transform3_d.html#a3487fc4335198aa5a33bbdeddd99b444" title=" " alt="" coords="603,5,756,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="533,51,609,33,610,38,534,57"/>
+<area shape="rect" id="Node000005" href="$struct_transform3_d.html#a184942483cb518e12711bdc7c0d1cdd2" title=" " alt="" coords="603,55,756,80"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="547,65,588,65,588,70,547,70"/>
+<area shape="rect" id="Node000006" href="$struct_transform3_d.html#aa06a3276559c34f19feb4af62e640558" title=" " alt="" coords="603,104,756,130"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="534,78,610,97,609,102,533,84"/>
+</map>

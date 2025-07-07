@@ -1,0 +1,13 @@
+<map id="GPUPixelBuffer::gpu_upload" name="GPUPixelBuffer::gpu_upload">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,149,88"/>
+<area shape="rect" id="Node000002" href="$base_8h.html#a147406f07ab842b44b2dfa9275dc376a" title=" " alt="" coords="214,5,354,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,48,212,33,213,38,149,53"/>
+<area shape="rect" id="Node000003" href="$class_texture.html#a1337298a06f2d6471789ca2f72544ffc" title=" " alt="" coords="197,55,372,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="149,65,181,65,181,70,149,70"/>
+<area shape="rect" id="Node000004" href="$struct_texture_data.html#acb44be303ca126a79ea5974cc6de9328" title=" " alt="" coords="201,104,368,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="149,85,195,97,193,102,148,90"/>
+<area shape="rect" id="Node000005" href="$struct_texture_data.html#ace8a5079623c17b86873978852127772" title=" " alt="" coords="420,112,549,138"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="368,122,405,122,405,128,368,128"/>
+<area shape="rect" id="Node000006" href="$stb__image_8h.html#ad3e11bb44412a7ba348acfbad09caacb" title=" " alt="" coords="597,112,711,138"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="550,122,582,122,582,128,550,128"/>
+</map>

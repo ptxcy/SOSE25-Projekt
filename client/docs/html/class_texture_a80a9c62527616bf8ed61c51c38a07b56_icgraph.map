@@ -1,0 +1,13 @@
+<map id="Texture::set_channel" name="Texture::set_channel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="591,63,734,88"/>
+<area shape="rect" id="Node000002" href="$class_texture.html#ae37682e193e607d6ad149a46d924b28e" title=" " alt="" coords="412,5,509,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="599,60,508,34,509,29,601,55"/>
+<area shape="rect" id="Node000005" href="$class_framebuffer.html#ad08cc13f658bb07ad9ca11e8c8bfd039" title=" " alt="" coords="378,55,543,96"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="576,78,544,78,544,73,576,73"/>
+<area shape="rect" id="Node000006" href="$class_framebuffer.html#ac13c935d31ce87abeffb4fc0156da0d5" title=" " alt="" coords="380,120,542,161"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="607,96,527,122,525,117,605,91"/>
+<area shape="rect" id="Node000003" href="$class_renderer.html#a430cba8ed92086fe7d42cded6070339a" title=" " alt="" coords="175,5,330,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="397,21,330,21,330,16,397,16"/>
+<area shape="rect" id="Node000004" href="$class_renderer.html#af39230ac153ec5e1b0e5f078ebe351e1" title=" " alt="" coords="5,5,127,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="159,21,127,21,127,16,159,16"/>
+</map>
