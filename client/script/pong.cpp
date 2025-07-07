@@ -84,7 +84,11 @@ Pong::Pong()
 	g_Renderer.upload_lighting();
 
 	// fucking msgpack fuck my ass
-	//g_Websocket
+#ifdef FEAT_MULTIPLAYER
+	g_Websocket.connect(NETWORK_HOST,NETWORK_PORT_ADAPTER,NETWORK_PORT_WEBSOCKET,
+						"owen","wilson","pong-anaconda","movie",false);
+	Request::connect();
+#endif
 
 	g_Wheel.call(UpdateRoutine{ &Pong::_update,(void*)this });
 }

@@ -46,7 +46,7 @@ pub async fn start(
 		HashMap::<String, ServerMessageSenderChannel>::new();
 
 	// initialise game objects
-	let mut game_objects = GameObjects::new(50);
+	let mut game_objects = GameObjects::new(2);
 
 	// delta time init
 	let mut last_time = Instant::now();

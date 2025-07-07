@@ -82,7 +82,8 @@ struct RequestData
 {
 	bool connect;
 	s8 move_to;
-	MSGPACK_DEFINE(connect,move_to);
+	std::optional<string> lobby;
+	MSGPACK_DEFINE(connect,move_to,lobby);
 };
 
 struct ClientMessage

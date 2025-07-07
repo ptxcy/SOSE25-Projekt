@@ -5,7 +5,9 @@
 #include "../core/renderer.h"
 #include "../core/input.h"
 #include "../core/wheel.h"
+#include "../core/websocket.h"
 #include "../adapter/pong_adapter.h"
+#include "webcomm.h"
 
 
 constexpr vec2 PONG_FIELD_SIZE = vec2(20,10);
