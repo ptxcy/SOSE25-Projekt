@@ -1,8 +1,11 @@
 # libs
+apt install cmake
+apt install libcurl4-openssl-dev
 apt install libglew-dev
 apt install libsdl2-dev
 apt install libglm-dev
 apt install libfreetype-dev
+apt install libmsgpack-dev
 
 # gain excluded include files
 mkdir -p core/include
@@ -15,7 +18,7 @@ git clone --recursive https://github.com/libcpr/cpr.git
 cd cpr
 cmake -B build -S . \
 	  -DCPR_BUILD_TESTS=OFF \
-	  -DCPR_USE_SYSTEM_CURL=OFF \
+	  -DCPR_USE_SYSTEM_CURL=ON \
 	  -DBUILD_SHARED_LIBS=OFF \
 	  -DCMAKE_BUILD_TYPE=Release
 cd build

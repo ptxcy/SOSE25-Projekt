@@ -9,11 +9,12 @@ layout(location = 0) out vec4 gbuffer_colour;
 layout(location = 1) out vec4 gbuffer_position;
 layout(location = 2) out vec4 gbuffer_normals;
 layout(location = 3) out vec4 gbuffer_materials;
+layout(location = 4) out vec4 gbuffer_emission;
 
 uniform sampler2D colour_map;
 uniform sampler2D normal_map;
 uniform sampler2D material_map;
-// TODO emission
+uniform sampler2D emission_map;
 
 
 void main()
@@ -28,5 +29,6 @@ void main()
 
 	// extract surface materials
 	gbuffer_materials = vec4(texture(material_map,EdgeCoordinates).rgb,1.);
+	gbuffer_emission = vec4(texture(emission_map,EdgeCoordinates).rgb,1.);
 }
 // FIXME alpha values are completely unused here, this should be abused!

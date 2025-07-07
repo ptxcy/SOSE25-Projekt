@@ -28,14 +28,14 @@ uniform sampler2D gbuffer_colour;
 uniform sampler2D gbuffer_position;
 uniform sampler2D gbuffer_normal;
 uniform sampler2D gbuffer_material;
+uniform sampler2D gbuffer_emission;
 uniform sampler2D forward_depth;
 uniform sampler2D gbuffer_depth;
 
 // camera parameters
 uniform vec3 camera_position;
 uniform float exposure = 1.;
-uniform float gamma = 2.2;
-// TODO switch to inverted gamma to optimize out the division every pixel!
+uniform float gamma = 1./2.2;
 
 // simulated lights
 uniform light_sun sunlights[8];
@@ -69,6 +69,7 @@ void main()
 	vec4 cmp_position = texture(gbuffer_position,EdgeCoordinates);
 	vec4 cmp_normal = texture(gbuffer_normal,EdgeCoordinates);
 	vec4 cmp_material = texture(gbuffer_material,EdgeCoordinates);
+	vec4 cmp_emission = texture(gbuffer_emission,EdgeCoordinates);
 	float cmp_fdepth = texture(forward_depth,EdgeCoordinates).r;
 	float cmp_gdepth = texture(gbuffer_depth,EdgeCoordinates).r;
 
@@ -79,6 +80,7 @@ void main()
 	float metalness = cmp_material.r;
 	float roughness = cmp_material.g;
 	float occlusion = cmp_material.b;
+	vec3 emission = cmp_emission.rgb;
 
 	// precalculate pixel parameters
 	CameraDir = normalize(camera_position-position);
@@ -94,9 +96,13 @@ void main()
 	for (int i=0;i<pointlights_active;i++)
 		final += lumen_point(position,colour,normal,metalness,roughness,pointlights[i]);
 
+	// process sub-geometric occlusion & emission
+	final = final*occlusion;
+	final = max(final,emission);
+
 	// colour corrections
 	final = vec3(1.)-exp(-final*exposure);
-	final = pow(final,vec3(1./gamma));
+	final = pow(final,vec3(gamma));
 
 	// calculate final pixel colour
 	final = mix(final,cmp_forward.rgb,cmp_forward.a*int(cmp_fdepth<cmp_gdepth));

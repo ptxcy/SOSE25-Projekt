@@ -116,6 +116,19 @@ void Transform3D::transform(vec3 p,f32 s,vec3 r)
 }
 
 /**
+ *	transform object
+ *	\param p: object position
+ *	\param s: object scale
+ *	\param r: object rotation
+ */
+void Transform3D::transform(vec3 p,vec3 s,vec3 r)
+{
+	translate(p);
+	scale(s);
+	rotate(r);
+}
+
+/**
  *	transform object around arbitrary origin
  *	\param p: object position
  *	\param s: object scale
@@ -123,6 +136,20 @@ void Transform3D::transform(vec3 p,f32 s,vec3 r)
  *	\param a: arbitrary point of origin
  */
 void Transform3D::transform(vec3 p,f32 s,vec3 r,vec3 a)
+{
+	model = mat4(1.f);
+	translate(a-position);
+	transform(position+p-a,s,r);
+}
+
+/**
+ *	transform object around arbitrary origin
+ *	\param p: object position
+ *	\param s: object scale
+ *	\param r: object rotation
+ *	\param a: arbitrary point of origin
+ */
+void Transform3D::transform(vec3 p,vec3 s,vec3 r,vec3 a)
 {
 	model = mat4(1.f);
 	translate(a-position);
@@ -152,11 +179,34 @@ void Transform3D::scale(f32 s)
 }
 
 /**
+ *	set model scaling by axis
+ *	\param s: scaling by axis
+ */
+void Transform3D::scale(vec3 s)
+{
+	model[0][0] = s.x;
+	model[1][1] = s.y;
+	model[2][2] = s.z;
+}
+
+/**
  *	scale object around arbitrary origin
  *	\param s: scaling, 1.f is default size
  *	\param a: arbitrary point of origin
  */
 void Transform3D::scale(f32 s,vec3 a)
+{
+	model = glm::mat4(1.f);
+	translate(a-position);
+	transform(position-a,s,rotation);
+}
+
+/**
+ *	scale object by axis around arbitrary origin
+ *	\param s: scaling, 1.f is default size
+ *	\param a: arbitrary point of origin
+ */
+void Transform3D::scale(vec3 s,vec3 a)
 {
 	model = glm::mat4(1.f);
 	translate(a-position);
@@ -170,6 +220,7 @@ void Transform3D::scale(f32 s,vec3 a)
 void Transform3D::rotate_x(f32 x)
 {
 	model = glm::rotate(model,glm::radians(x),vec3(1,0,0));
+	rotation.x = (abs(x)>360.f) ? fmodf(x,360.f) : x;
 }
 
 /**
@@ -179,6 +230,7 @@ void Transform3D::rotate_x(f32 x)
 void Transform3D::rotate_y(f32 y)
 {
 	model = glm::rotate(model,glm::radians(y),vec3(0,1,0));
+	rotation.y = (abs(y)>360.f) ? fmodf(y,360.f) : y;
 }
 
 /**
@@ -188,6 +240,7 @@ void Transform3D::rotate_y(f32 y)
 void Transform3D::rotate_z(f32 z)
 {
 	model = glm::rotate(model,glm::radians(z),vec3(0,0,1));
+	rotation.z = (abs(z)>360.f) ? fmodf(z,360.f) : z;
 }
 
 /**
@@ -199,7 +252,6 @@ void Transform3D::rotate(vec3 r)
 	rotate_x(r.x);
 	rotate_y(r.y);
 	rotate_z(r.z);
-	rotation = r;
 }
 
 /**
@@ -209,9 +261,10 @@ void Transform3D::rotate(vec3 r)
  */
 void Transform3D::rotate(vec3 r,vec3 a)
 {
-	f32 __ScaleFactor = model[0][0];
+	f32 __ScaleFactor = model[0][0];  // FIXME !!this is only true for simple transformation
 	model = mat4(1.f);
 	translate(a-position);
+	rotate(r);
 	transform(position-a,__ScaleFactor,r);
 }
 
@@ -254,8 +307,8 @@ Camera3D::Camera3D(vec3 tgt,f32 dist,f32 p,f32 y,f32 width,f32 height,f32 ifov)
  */
 void Camera3D::update()
 {
-	position = vec3(cos(pitch)*sin(yaw),cos(pitch)*cos(yaw),-sin(pitch))*distance+target;
-	view = glm::lookAt(position,target,vec3(0,0,-1));
+	position = vec3(-cos(pitch)*sin(yaw),-cos(pitch)*cos(yaw),sin(pitch))*distance+target;
+	view = glm::lookAt(position,target,up);
 }
 
 /**
@@ -264,4 +317,13 @@ void Camera3D::update()
 void Camera3D::project()
 {
 	proj = glm::perspective(glm::radians(fov),m_Ratio,near,far);
+}
+
+/**
+ *	set camera roll
+ *	\param r: camera roll in degrees
+ */
+void Camera3D::roll(f32 r)
+{
+	up = glm::rotate(glm::mat4(1.f),glm::radians(r),target-position)*vec4(COORDINATE_SYSTEM_ORIENTATION,.0f);
 }

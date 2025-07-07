@@ -7,16 +7,16 @@
 
 
 // zoom
-constexpr f32 CMDSYS_ZOOM_ACCELLERATION = -.15f;
-constexpr f32 CMDSYS_ZOOM_FLOATFACTOR = .9f;
-constexpr f32 CMDSYS_ZOOM_MINDIST = 2.f;
-constexpr f32 CMDSYS_ZOOM_MAXDIST = 50.f;
-constexpr f32 CMDSYS_ZOOM_EASE = .25f;
+constexpr f32 CAMCNTR_ZOOM_ACCELLERATION = -.15f;
+constexpr f32 CAMCNTR_ZOOM_FLOATFACTOR = .9f;
+constexpr f32 CAMCNTR_ZOOM_MINDIST = 2.f;
+constexpr f32 CAMCNTR_ZOOM_MAXDIST = 50.f;
+constexpr f32 CAMCNTR_ZOOM_EASE = .25f;
 
 // yaw
-constexpr f32 CMDSYS_ROT_MOUSEACC = -.05f;
-constexpr f32 CMDSYS_ROT_KEYACC = .5f;
-constexpr f32 CMDSYS_ROT_FLOATFACTOR = .8f;
+constexpr f32 CAMCNTR_ROT_MOUSEACC = -.05f;
+constexpr f32 CAMCNTR_ROT_KEYACC = .5f;
+constexpr f32 CAMCNTR_ROT_FLOATFACTOR = .8f;
 
 
 class CameraController

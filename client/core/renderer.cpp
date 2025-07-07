@@ -429,6 +429,7 @@ Renderer::Renderer()
 	m_DeferredFrameBuffer.define_colour_component(1,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y,true);
 	m_DeferredFrameBuffer.define_colour_component(2,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y,true);
 	m_DeferredFrameBuffer.define_colour_component(3,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y,true);
+	m_DeferredFrameBuffer.define_colour_component(4,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y);
 	m_DeferredFrameBuffer.define_depth_component(FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y);
 	m_DeferredFrameBuffer.finalize();
 	Framebuffer::stop();
@@ -860,6 +861,7 @@ void Renderer::_update_canvas()
 	m_DeferredFrameBuffer.bind_colour_component(RENDERER_TEXTURE_DEFERRED_POSITION,1);
 	m_DeferredFrameBuffer.bind_colour_component(RENDERER_TEXTURE_DEFERRED_NORMAL,2);
 	m_DeferredFrameBuffer.bind_colour_component(RENDERER_TEXTURE_DEFERRED_MATERIAL,3);
+	m_DeferredFrameBuffer.bind_colour_component(RENDERER_TEXTURE_DEFERRED_EMISSION,4);
 	m_ForwardFrameBuffer.bind_depth_component(RENDERER_TEXTURE_FORWARD_DEPTH);
 	m_DeferredFrameBuffer.bind_depth_component(RENDERER_TEXTURE_DEFERRED_DEPTH);
 	m_CanvasPipeline.upload("camera_position",g_Camera.position);
@@ -877,7 +879,6 @@ void Renderer::_update_mesh(list<GeometryBatch>& gb,list<ParticleBatch>& pb)
 	for (GeometryBatch& p_Batch : gb)
 	{
 		p_Batch.shader->enable();
-		p_Batch.shader->upload_camera();
 		p_Batch.vao.bind();
 		for (GeometryTuple& p_Tuple : p_Batch.object)
 		{
@@ -885,6 +886,7 @@ void Renderer::_update_mesh(list<GeometryBatch>& gb,list<ParticleBatch>& pb)
 			for (u8 i=0;i<p_Tuple.textures.size();i++) p_Tuple.textures[i]->bind(RENDERER_TEXTURE_UNMAPPED+i);
 
 			// upload attached uniform value pointers
+			p_Batch.shader->upload_camera();
 			for (GeometryUniformUpload& p_Upload : p_Tuple.uploads)
 				p_Batch.shader->upload(p_Upload.uloc,p_Upload.udim,p_Upload.data);
 
@@ -894,6 +896,7 @@ void Renderer::_update_mesh(list<GeometryBatch>& gb,list<ParticleBatch>& pb)
 			glDrawArrays(GL_TRIANGLES,p_Tuple.offset,p_Tuple.vertex_count);
 		}
 	}
+	// FIXME uploading camera and then afterwards maybe overwrite it is working but it is shite
 
 	// iterate particle geometry
 	for (ParticleBatch& p_Batch : pb)

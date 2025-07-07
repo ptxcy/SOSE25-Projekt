@@ -6,10 +6,14 @@
 #include "core/websocket.h"
 
 #include "script/camera_control.h"
+/*
 #include "script/menu.h"
 #include "script/starsystem.h"
 #include "script/server_update.h"
-#include "script/test.h"
+#include "script/planet_focus.h"
+//#include "script/test.h"
+*/
+#include "script/pong.h"
 
 
 s32 main(s32 argc,char** argv)
@@ -24,8 +28,11 @@ s32 main(s32 argc,char** argv)
 #endif
 	Menu __Menu = Menu(__Ubuntu,&__CCenter);
 	*/
+
 	CameraController __CamControl = CameraController();
-	TestScene __TestScene = TestScene();
+	Pong __Pong = Pong();
+	//TestScene __TestScene = TestScene();
+	//PlanetFocus __PlanetFocus = PlanetFocus(__Ubuntu);
 
 	bool running = true;
 	while (running)
@@ -33,6 +40,7 @@ s32 main(s32 argc,char** argv)
 		g_Frame.clear();
 		g_Input.update(running);
 		g_Wheel.update();
+		g_Camera.update();
 		g_UI.update();
 		g_Renderer.update();
 		g_Frame.update();
