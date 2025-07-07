@@ -7,7 +7,8 @@
 
 #ifdef FEAT_MULTIPLAYER
 #include <cpr/cpr.h>
-#include "../adapter/definition.h"
+//#include "../adapter/definition.h"
+#include "../adapter/pong_adapter.h"
 
 
 typedef boost::beast::websocket::stream<boost::asio::ip::tcp::socket> socket_stream;

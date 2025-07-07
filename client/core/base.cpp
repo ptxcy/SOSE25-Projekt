@@ -116,6 +116,19 @@ void Transform3D::transform(vec3 p,f32 s,vec3 r)
 }
 
 /**
+ *	transform object
+ *	\param p: object position
+ *	\param s: object scale
+ *	\param r: object rotation
+ */
+void Transform3D::transform(vec3 p,vec3 s,vec3 r)
+{
+	translate(p);
+	scale(s);
+	rotate(r);
+}
+
+/**
  *	transform object around arbitrary origin
  *	\param p: object position
  *	\param s: object scale
@@ -123,6 +136,20 @@ void Transform3D::transform(vec3 p,f32 s,vec3 r)
  *	\param a: arbitrary point of origin
  */
 void Transform3D::transform(vec3 p,f32 s,vec3 r,vec3 a)
+{
+	model = mat4(1.f);
+	translate(a-position);
+	transform(position+p-a,s,r);
+}
+
+/**
+ *	transform object around arbitrary origin
+ *	\param p: object position
+ *	\param s: object scale
+ *	\param r: object rotation
+ *	\param a: arbitrary point of origin
+ */
+void Transform3D::transform(vec3 p,vec3 s,vec3 r,vec3 a)
 {
 	model = mat4(1.f);
 	translate(a-position);
@@ -152,11 +179,34 @@ void Transform3D::scale(f32 s)
 }
 
 /**
+ *	set model scaling by axis
+ *	\param s: scaling by axis
+ */
+void Transform3D::scale(vec3 s)
+{
+	model[0][0] = s.x;
+	model[1][1] = s.y;
+	model[2][2] = s.z;
+}
+
+/**
  *	scale object around arbitrary origin
  *	\param s: scaling, 1.f is default size
  *	\param a: arbitrary point of origin
  */
 void Transform3D::scale(f32 s,vec3 a)
+{
+	model = glm::mat4(1.f);
+	translate(a-position);
+	transform(position-a,s,rotation);
+}
+
+/**
+ *	scale object by axis around arbitrary origin
+ *	\param s: scaling, 1.f is default size
+ *	\param a: arbitrary point of origin
+ */
+void Transform3D::scale(vec3 s,vec3 a)
 {
 	model = glm::mat4(1.f);
 	translate(a-position);

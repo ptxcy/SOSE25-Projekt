@@ -314,10 +314,14 @@ struct Transform3D
 {
 	// utility
 	void transform(vec3 p,f32 s,vec3 r);
+	void transform(vec3 p,vec3 s,vec3 r);
 	void transform(vec3 p,f32 s,vec3 r,vec3 a);
+	void transform(vec3 p,vec3 s,vec3 r,vec3 a);
 	void translate(vec3 p);
 	void scale(f32 s);
+	void scale(vec3 s);
 	void scale(f32 s,vec3 a);
+	void scale(vec3 s,vec3 a);
 	void rotate_x(f32 x);
 	void rotate_y(f32 y);
 	void rotate_z(f32 z);

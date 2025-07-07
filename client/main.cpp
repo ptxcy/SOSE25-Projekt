@@ -6,11 +6,14 @@
 #include "core/websocket.h"
 
 #include "script/camera_control.h"
+/*
 #include "script/menu.h"
 #include "script/starsystem.h"
 #include "script/server_update.h"
 #include "script/planet_focus.h"
-#include "script/test.h"
+//#include "script/test.h"
+*/
+#include "script/pong.h"
 
 
 s32 main(s32 argc,char** argv)
@@ -27,8 +30,9 @@ s32 main(s32 argc,char** argv)
 	*/
 
 	CameraController __CamControl = CameraController();
+	Pong __Pong = Pong();
 	//TestScene __TestScene = TestScene();
-	PlanetFocus __PlanetFocus = PlanetFocus(__Ubuntu);
+	//PlanetFocus __PlanetFocus = PlanetFocus(__Ubuntu);
 
 	bool running = true;
 	while (running)
