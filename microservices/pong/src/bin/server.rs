@@ -104,7 +104,7 @@ async fn handle_ws_msgpack(
                 Ok(m) => m,
                 Err(_) => continue,
             };
-            let user_id = client_message.user_id.clone();
+            let user_id = client_message.username.clone();
 
             if client_message.request_data.connect {
                 // send the server_message_tx to the calculation task
