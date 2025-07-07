@@ -7,11 +7,15 @@ layout(location = 0) out vec4 pixelColour;
 uniform vec3 camera_position;
 uniform vec3 light_position;
 
-// scattering constants
+// math constants
 const float PI = 3.141592653;
+
+// rayleigh
 const vec3 rB = vec3(5.8e-6,13.5e-6,33.1e-6);
 const float rPIi = 3./(16.*PI);
 const float rScl = 2e5;
+
+// mie
 const float mG_air = .76f;
 const float mGSq = mG_air*mG_air;
 const vec3 mB = vec3(.002);
@@ -19,10 +23,10 @@ const float mPIi = 3./(8.*PI);
 const float mScl = 1e1;
 const float exposure = 4.f;
 
+// geometric constants
 const float Scale = 1.1;
 const float PScale = .98725;  // FIXME floating point bullshit in .obj file parser
 const float GrazeDistanceInv = 1./(2*sqrt(Scale*Scale-PScale*PScale));
-// FIXME see clouds.frag, this should not be hardcoded, its dangerous and clumsy
 
 
 void main()

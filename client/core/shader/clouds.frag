@@ -12,11 +12,16 @@ uniform sampler2D tex;
 uniform vec3 light_position;
 
 
+// lighting constants
+const float TerminatorSharpness = .4;
+
+
 void main()
 {
-	float light_intensity = dot(Normal,normalize(light_position-Position));
-	light_intensity = pow(light_intensity,.4f);
+	float light_intensity = max(dot(Normal,normalize(light_position-Position)),.0);
+	light_intensity = pow(light_intensity,TerminatorSharpness);
 	vec4 density = texture(tex,UV);
-	pixelColour = vec4(density.rgb*light_intensity,length(density.rgb));
+	float dc = min(length(density.rgb),1.);
+	pixelColour = vec4(density.rgb*light_intensity,dc);
 }
 // FIXME now it looks awful. more correct but awful!
