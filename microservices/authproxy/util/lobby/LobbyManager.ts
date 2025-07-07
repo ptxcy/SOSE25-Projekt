@@ -122,7 +122,12 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
 
     if (!isWebsocketAlreadyUsedInAnotherLobby(ws)) {
         // First Time Connection check if a new lobby needs to be registered
-        const lobbyName: string = clientRequest[1][7];
+        let lobbyName: string = clientRequest[1][7];
+        if(!lobbyName) {
+            //Try 3d- version
+            lobbyName = clientRequest[0][2];
+        }
+
         if (!lobbyName) {
             console.error("Asserted lobby connect message but did not found lobbyname: ", lobbyName);
             ws.close();
