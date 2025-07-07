@@ -2,7 +2,7 @@ use calculation_unit::game::{coordinate::Coordinate};
 use macroquad::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use crate::{action::{ActionWrapper, AddValue, AsRaw, SetValue, SubValue}, server_message::{GameObjects, CHUNK_SIZE}};
+use crate::{action::{ActionWrapper, AddValue, AsRaw, SetValue, SubValue}, line::Line, server_message::{GameObjects, CHUNK_SIZE}};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Ball {
@@ -72,11 +72,11 @@ impl Ball {
         }
 
         for line in game_objects.lines.iter() {
-            self.collide_line(*line, Coordinate::default(), actions);
+            self.collide_line(line.clone(), Coordinate::default(), actions);
         }
         for (id, player) in game_objects.players.iter() {
             for line in player.relative_lines.iter() {
-                self.collide_line((line.0 + player.position, line.1 + player.position), player.velocity, actions);
+                self.collide_line(Line::new(line.0 + player.position, line.1 + player.position), player.velocity, actions);
             }
         }
 
@@ -89,9 +89,9 @@ impl Ball {
         abc.scale(t);
         a + abc
     }
-    pub fn collide_line(&self, line: (Coordinate, Coordinate), v: Coordinate, actions: &mut Vec<ActionWrapper>) {
+    pub fn collide_line(&self, line: Line, v: Coordinate, actions: &mut Vec<ActionWrapper>) {
         let relative_velocity = self.velocity - v;
-        let closest = self.closest_point_on_segment(line.0, line.1);
+        let closest = self.closest_point_on_segment(line.a, line.b);
         let to_closest = self.position - closest;
         let dist_sq = to_closest.norm_squared();
 
@@ -167,7 +167,7 @@ impl Ball {
             new_pos.x = -wall_bound_x + self.radius;
             actions.push(SetValue::new(self.position.raw_mut(), new_pos));
 
-            actions.push(AddValue::new(game_objects.score.0.raw_mut(), 1));
+            actions.push(AddValue::new(game_objects.score.player1.raw_mut(), 1));
         }
         
         // Right wall (x = +100)
@@ -180,7 +180,7 @@ impl Ball {
             new_pos.x = wall_bound_x - self.radius;
             actions.push(SetValue::new(self.position.raw_mut(), new_pos));
 
-            actions.push(AddValue::new(game_objects.score.1.raw_mut(), 1));
+            actions.push(AddValue::new(game_objects.score.player2.raw_mut(), 1));
         }
         
         // Bottom wall (y = -100)
