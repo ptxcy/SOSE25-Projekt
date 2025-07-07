@@ -26,6 +26,7 @@ pub struct ClientRequest {
 	pub spawn_spaceship: Option<Coordinate>,
 	// TEMP later not possible to delete like this
 	pub delete_spaceship: Option<usize>,
+	pub lobby: Option<String>,
 }
 
 /// message that the client sends to the calculation unit containing a request to do something

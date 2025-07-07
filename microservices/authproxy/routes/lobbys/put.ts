@@ -2,6 +2,7 @@ import {Request, Response} from "express";
 import {validateAuthorization} from "../../middleware/is-jwt-token-valid";
 import {ILobby} from "../../util/lobby/LobbyModel";
 import {loadLobby, updateLobby} from "../../util/lobby/LobbyService";
+import config from "config";
 
 /**
  * @swagger
@@ -63,6 +64,13 @@ async function put(request: Request, response: Response) {
         return;
     }
 
+    const lobbyPraefix: string = lobbyData.lobbyName.split("-")[0];
+    let numberOfAllowedUser: number = config.get(lobbyPraefix) as number;
+    if(!numberOfAllowedUser) {
+        numberOfAllowedUser = config.get(lobbyPraefix) as number;
+        console.info("Lobby name had no known prefix using default for now");
+    }
+
     const userNameFromCreator = (request as any).userObject.username;
     if (!userNameFromCreator) {
         response.status(400).json({message: "Malformed JWT Token"});
@@ -82,6 +90,11 @@ async function put(request: Request, response: Response) {
 
     if(alreadyExistendLobby.members.includes(userNameFromCreator)) {
         response.status(409).json({message: "User Has Already Joined Lobby!"});
+        return
+    }
+
+    if(alreadyExistendLobby.members.length >= numberOfAllowedUser) {
+        response.status(409).json({message: `Lobby is already full`});
         return
     }
 

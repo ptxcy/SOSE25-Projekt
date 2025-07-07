@@ -1,6 +1,7 @@
 import {decode, encode} from "@msgpack/msgpack";
 import {RawData} from "ws";
 
+/*
 export type ServerMessage = [
     RequestInfo,
     ServerMessageObjects
@@ -119,20 +120,21 @@ export type ClientMessage = [
     ClientData,
     string,
 ]
+*/
 
 export async function decodeToServerMessage(msg: RawData) {
     const uint8Array = msg instanceof Buffer
         ? new Uint8Array(msg)
         : new Uint8Array(msg as ArrayBuffer);
 
-    return decode(uint8Array) as ServerMessage;
+    return decode(uint8Array);
 }
 
-export async function encodeServerMessage(msg: ServerMessage) {
+export async function encodeServerMessage(msg: any) {
     return encode(msg);
 }
 
-export async function encodeClientMessage(msg: ClientMessage){
+export async function encodeClientMessage(msg: any){
     return encode(msg);
 }
 
@@ -141,6 +143,6 @@ export async function decodeToClientMessage(msg: RawData) {
         ? new Uint8Array(msg)
         : new Uint8Array(msg as ArrayBuffer);
 
-    return decode(uint8Array) as ClientMessage;
+    return decode(uint8Array);
 }
 
