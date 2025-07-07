@@ -1,0 +1,26 @@
+var searchData=
+[
+  ['valid_20colours_0',['Valid Colours',['../md_doc_2logger.html#autotoc_md53',1,'']]],
+  ['vao_1',['vao',['../struct_geometry_batch.html#a4017ced417a88aa5d3ee2ebe764fd4a2',1,'GeometryBatch::vao'],['../struct_particle_batch.html#ac01c22c4fbfecfb8b6ac0f0fd744e141',1,'ParticleBatch::vao']]],
+  ['variable_20naming_20style_2',['Variable Naming Style',['../md_doc_2writing__style.html#autotoc_md79',1,'']]],
+  ['vbo_3',['vbo',['../struct_geometry_batch.html#a942d8a5b44100919fed69c25933a5b1b',1,'GeometryBatch::vbo'],['../struct_particle_batch.html#a8288106a48a97e845766de87ebcededb',1,'ParticleBatch::vbo']]],
+  ['vbo_5fattribs_4',['vbo_attribs',['../class_vertex_shader.html#adbb782bd0d09f221fb3c8b5c3d09618a',1,'VertexShader']]],
+  ['vbo_5fwidth_5',['vbo_width',['../class_vertex_shader.html#ad057b6dd11858ffca28b2f7b5617a60f',1,'VertexShader']]],
+  ['vec2_6',['vec2',['../group___base_types.html#ga43182e59794291f6ab00e51b160706c2',1,'base.h']]],
+  ['vec3_7',['vec3',['../group___base_types.html#ga3d0ce73e3199de81565fb01632415288',1,'base.h']]],
+  ['vec4_8',['vec4',['../group___base_types.html#gac54e849f8b2339f592307eaf6cdbba77',1,'base.h']]],
+  ['vector_9',['Vector',['../md_doc_2datatypes.html#autotoc_md28',1,'']]],
+  ['vector_10',['vector',['../base_8h.html#ae04d1c68c250f6c36de3f0dce87363cd',1,'base.h']]],
+  ['velocity_11',['velocity',['../struct_mouse.html#a96a7bcdade33fd0e6b7f6253e1492c36',1,'Mouse::velocity'],['../struct_dummy_object.html#ae26c770a0aea82e157a1b36cf0406d71',1,'DummyObject::velocity'],['../struct_spaceship.html#af0753683b062f9c225c59eb686f6a394',1,'Spaceship::velocity']]],
+  ['vertex_12',['Vertex',['../struct_vertex.html',1,'']]],
+  ['vertex_5fcount_13',['vertex_count',['../struct_geometry_tuple.html#a1fb476713805cf6debafcff078b6b7ae',1,'GeometryTuple::vertex_count'],['../struct_particle_batch.html#a9668892153e7c75012ffccb622484f4b',1,'ParticleBatch::vertex_count']]],
+  ['vertexarray_14',['VertexArray',['../class_vertex_array.html',1,'VertexArray'],['../class_vertex_array.html#ab8a2dcce9698f96dac5f9a19c6979d03',1,'VertexArray::VertexArray()']]],
+  ['vertexbuffer_15',['VertexBuffer',['../class_vertex_buffer.html',1,'VertexBuffer'],['../class_vertex_buffer.html#adb25d82a47ad82d5b69a75ac111401b8',1,'VertexBuffer::VertexBuffer()']]],
+  ['vertexshader_16',['VertexShader',['../class_vertex_shader.html',1,'VertexShader'],['../class_vertex_shader.html#a1d32236e19fb9cbbab9ba50ab63d90ee',1,'VertexShader::VertexShader()'],['../class_vertex_shader.html#a896a084a8ea4eea5bfbf9463b68b91fe',1,'VertexShader::VertexShader(const char *path)']]],
+  ['vertices_17',['vertices',['../class_mesh.html#abe5c05c224e47ba1e8b6393759798a9b',1,'Mesh']]],
+  ['verwendung_20von_20crow_20im_20code_18',['Verwendung von Crow im Code',['../md_doc_2crow.html#autotoc_md23',1,'']]],
+  ['view_19',['view',['../class_coordinate_system2_d.html#a44067cfcccb2718ec29f3b1a379794f9',1,'CoordinateSystem2D::view'],['../class_camera3_d.html#a0dfcfcfb244b90694e2d520767070bb5',1,'Camera3D::view']]],
+  ['von_20crow_20im_20code_20',['Verwendung von Crow im Code',['../md_doc_2crow.html#autotoc_md23',1,'']]],
+  ['voraussetzungen_21',['Voraussetzungen',['../md_doc_2crow.html#autotoc_md14',1,'']]],
+  ['vs_20code_22',['VS Code',['../md_doc_2crow.html#autotoc_md21',1,'']]]
+];

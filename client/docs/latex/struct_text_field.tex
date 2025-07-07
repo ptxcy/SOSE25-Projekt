@@ -1,0 +1,195 @@
+\doxysection{Text\+Field Struct Reference}
+\hypertarget{struct_text_field}{}\label{struct_text_field}\index{TextField@{TextField}}
+
+
+{\ttfamily \#include $<$ui.\+h$>$}
+
+
+
+Collaboration diagram for Text\+Field\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=309pt]{struct_text_field__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{struct_text_field_a84e15d4e1ec13d0b0d79ce3d5cbe9cf7}{update}} (\mbox{\hyperlink{struct_font}{Font}} \texorpdfstring{$\ast$}{*}font, \mbox{\hyperlink{struct_sprite}{Sprite}} \texorpdfstring{$\ast$}{*}cursor, bool \&field\+\_\+switch, bool \&tynext, bool \&cnf\+\_\+input)
+\item 
+void \mbox{\hyperlink{struct_text_field_a954f36e702ee942c5c397fe7e8439a54}{remove}} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{struct_sprite}{Sprite}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{struct_text_field_ab3ec0b59d004a32c2b54ca98ce25cd32}{canvas}}
+\item 
+\mbox{\hyperlink{struct_pixel_buffer_component}{Pixel\+Buffer\+Component}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{struct_text_field_ae2591ccf9ad7ac81ac090b52098d2cf8}{idle}}
+\item 
+\mbox{\hyperlink{struct_pixel_buffer_component}{Pixel\+Buffer\+Component}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{struct_text_field_a1628ca0a8ab5d02df776a729d62e9c75}{hover}}
+\item 
+\mbox{\hyperlink{struct_pixel_buffer_component}{Pixel\+Buffer\+Component}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{struct_text_field_a5c71bbd072ac1ad9d5a7ec5be2b9107f}{select}}
+\item 
+\mbox{\hyperlink{group___base_types_gad453f9f71ce1f9153fb748d6bb25e454}{string}} \mbox{\hyperlink{struct_text_field_ac39ca7f20dd48648c74c22959566bb78}{buffer}}
+\item 
+\mbox{\hyperlink{group___base_types_gad453f9f71ce1f9153fb748d6bb25e454}{string}} \mbox{\hyperlink{struct_text_field_a98d0a403ffc1cf70861e27379e4c78a9}{buffer\+\_\+head}} = "{}"{}
+\item 
+\mbox{\hyperlink{group___base_types_gad453f9f71ce1f9153fb748d6bb25e454}{string}} \mbox{\hyperlink{struct_text_field_a0dda53298362577360117f124d0a1ced}{buffer\+\_\+tail}} = "{}"{}
+\item 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{struct_text}{Text}} $>$ \mbox{\hyperlink{struct_text_field_a55b69ca860972bc7c33c6acb4df1e181}{content}}
+\item 
+\mbox{\hyperlink{struct_rect}{Rect}} \mbox{\hyperlink{struct_text_field_a60c3ad4183f3a4b5a160c10d97bf4055}{bounds}}
+\item 
+\mbox{\hyperlink{group___base_types_gae9b1af5c037e57a98884758875d3a7c4}{s32}} \mbox{\hyperlink{struct_text_field_ad7d11a33f19a3f609e6b82ad75bc8c01}{cursor\+\_\+rev}} = 0
+\item 
+bool \mbox{\hyperlink{struct_text_field_a3b565377a0ea46879de4bd233476d138}{active}} = false
+\item 
+bool \mbox{\hyperlink{struct_text_field_a2e62a9cdf65cdacb2ed710ccbca15156}{hidden}} = false
+\end{DoxyCompactItemize}
+
+
+\label{doc-func-members}
+\Hypertarget{struct_text_field_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{struct_text_field_a954f36e702ee942c5c397fe7e8439a54}\index{TextField@{TextField}!remove@{remove}}
+\index{remove@{remove}!TextField@{TextField}}
+\doxysubsubsection{\texorpdfstring{remove()}{remove()}}
+{\footnotesize\ttfamily \label{struct_text_field_a954f36e702ee942c5c397fe7e8439a54} 
+void Text\+Field\+::remove (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+delete text field Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=327pt]{struct_text_field_a954f36e702ee942c5c397fe7e8439a54_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=304pt]{struct_text_field_a954f36e702ee942c5c397fe7e8439a54_icgraph}
+\end{center}
+\end{figure}
+\Hypertarget{struct_text_field_a84e15d4e1ec13d0b0d79ce3d5cbe9cf7}\index{TextField@{TextField}!update@{update}}
+\index{update@{update}!TextField@{TextField}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily \label{struct_text_field_a84e15d4e1ec13d0b0d79ce3d5cbe9cf7} 
+void Text\+Field\+::update (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_font}{Font}} \texorpdfstring{$\ast$}{*}}]{font}{, }\item[{\mbox{\hyperlink{struct_sprite}{Sprite}} \texorpdfstring{$\ast$}{*}}]{cursor}{, }\item[{bool \&}]{field\+\_\+switch}{, }\item[{bool \&}]{tynext}{, }\item[{bool \&}]{cnf\+\_\+input}{}\end{DoxyParamCaption})}
+
+update textfield intersection \& status 
+\begin{DoxyParams}{Parameters}
+{\em font} & pointer to batch font \\
+\hline
+{\em cursor} & cursor entity to place by selected text field \\
+\hline
+{\em field\+\_\+switch} & true when text fields have been switched without in-\/between deselect \\
+\hline
+{\em tynext} & set to true when next text field is supposed to be active \\
+\hline
+{\em cnf\+\_\+input} & true when batch input is confirmed, force-\/activates first button this frame \\
+\hline
+\end{DoxyParams}
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=339pt]{struct_text_field_a84e15d4e1ec13d0b0d79ce3d5cbe9cf7_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=269pt]{struct_text_field_a84e15d4e1ec13d0b0d79ce3d5cbe9cf7_icgraph}
+\end{center}
+\end{figure}
+
+
+\label{doc-variable-members}
+\Hypertarget{struct_text_field_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{struct_text_field_a3b565377a0ea46879de4bd233476d138}\index{TextField@{TextField}!active@{active}}
+\index{active@{active}!TextField@{TextField}}
+\doxysubsubsection{\texorpdfstring{active}{active}}
+{\footnotesize\ttfamily \label{struct_text_field_a3b565377a0ea46879de4bd233476d138} 
+bool Text\+Field\+::active = false}
+
+\Hypertarget{struct_text_field_a60c3ad4183f3a4b5a160c10d97bf4055}\index{TextField@{TextField}!bounds@{bounds}}
+\index{bounds@{bounds}!TextField@{TextField}}
+\doxysubsubsection{\texorpdfstring{bounds}{bounds}}
+{\footnotesize\ttfamily \label{struct_text_field_a60c3ad4183f3a4b5a160c10d97bf4055} 
+\mbox{\hyperlink{struct_rect}{Rect}} Text\+Field\+::bounds}
+
+\Hypertarget{struct_text_field_ac39ca7f20dd48648c74c22959566bb78}\index{TextField@{TextField}!buffer@{buffer}}
+\index{buffer@{buffer}!TextField@{TextField}}
+\doxysubsubsection{\texorpdfstring{buffer}{buffer}}
+{\footnotesize\ttfamily \label{struct_text_field_ac39ca7f20dd48648c74c22959566bb78} 
+\mbox{\hyperlink{group___base_types_gad453f9f71ce1f9153fb748d6bb25e454}{string}} Text\+Field\+::buffer}
+
+\Hypertarget{struct_text_field_a98d0a403ffc1cf70861e27379e4c78a9}\index{TextField@{TextField}!buffer\_head@{buffer\_head}}
+\index{buffer\_head@{buffer\_head}!TextField@{TextField}}
+\doxysubsubsection{\texorpdfstring{buffer\_head}{buffer\_head}}
+{\footnotesize\ttfamily \label{struct_text_field_a98d0a403ffc1cf70861e27379e4c78a9} 
+\mbox{\hyperlink{group___base_types_gad453f9f71ce1f9153fb748d6bb25e454}{string}} Text\+Field\+::buffer\+\_\+head = "{}"{}}
+
+\Hypertarget{struct_text_field_a0dda53298362577360117f124d0a1ced}\index{TextField@{TextField}!buffer\_tail@{buffer\_tail}}
+\index{buffer\_tail@{buffer\_tail}!TextField@{TextField}}
+\doxysubsubsection{\texorpdfstring{buffer\_tail}{buffer\_tail}}
+{\footnotesize\ttfamily \label{struct_text_field_a0dda53298362577360117f124d0a1ced} 
+\mbox{\hyperlink{group___base_types_gad453f9f71ce1f9153fb748d6bb25e454}{string}} Text\+Field\+::buffer\+\_\+tail = "{}"{}}
+
+\Hypertarget{struct_text_field_ab3ec0b59d004a32c2b54ca98ce25cd32}\index{TextField@{TextField}!canvas@{canvas}}
+\index{canvas@{canvas}!TextField@{TextField}}
+\doxysubsubsection{\texorpdfstring{canvas}{canvas}}
+{\footnotesize\ttfamily \label{struct_text_field_ab3ec0b59d004a32c2b54ca98ce25cd32} 
+\mbox{\hyperlink{struct_sprite}{Sprite}}\texorpdfstring{$\ast$}{*} Text\+Field\+::canvas}
+
+\Hypertarget{struct_text_field_a55b69ca860972bc7c33c6acb4df1e181}\index{TextField@{TextField}!content@{content}}
+\index{content@{content}!TextField@{TextField}}
+\doxysubsubsection{\texorpdfstring{content}{content}}
+{\footnotesize\ttfamily \label{struct_text_field_a55b69ca860972bc7c33c6acb4df1e181} 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$\mbox{\hyperlink{struct_text}{Text}}$>$ Text\+Field\+::content}
+
+\Hypertarget{struct_text_field_ad7d11a33f19a3f609e6b82ad75bc8c01}\index{TextField@{TextField}!cursor\_rev@{cursor\_rev}}
+\index{cursor\_rev@{cursor\_rev}!TextField@{TextField}}
+\doxysubsubsection{\texorpdfstring{cursor\_rev}{cursor\_rev}}
+{\footnotesize\ttfamily \label{struct_text_field_ad7d11a33f19a3f609e6b82ad75bc8c01} 
+\mbox{\hyperlink{group___base_types_gae9b1af5c037e57a98884758875d3a7c4}{s32}} Text\+Field\+::cursor\+\_\+rev = 0}
+
+\Hypertarget{struct_text_field_a2e62a9cdf65cdacb2ed710ccbca15156}\index{TextField@{TextField}!hidden@{hidden}}
+\index{hidden@{hidden}!TextField@{TextField}}
+\doxysubsubsection{\texorpdfstring{hidden}{hidden}}
+{\footnotesize\ttfamily \label{struct_text_field_a2e62a9cdf65cdacb2ed710ccbca15156} 
+bool Text\+Field\+::hidden = false}
+
+\Hypertarget{struct_text_field_a1628ca0a8ab5d02df776a729d62e9c75}\index{TextField@{TextField}!hover@{hover}}
+\index{hover@{hover}!TextField@{TextField}}
+\doxysubsubsection{\texorpdfstring{hover}{hover}}
+{\footnotesize\ttfamily \label{struct_text_field_a1628ca0a8ab5d02df776a729d62e9c75} 
+\mbox{\hyperlink{struct_pixel_buffer_component}{Pixel\+Buffer\+Component}}\texorpdfstring{$\ast$}{*} Text\+Field\+::hover}
+
+\Hypertarget{struct_text_field_ae2591ccf9ad7ac81ac090b52098d2cf8}\index{TextField@{TextField}!idle@{idle}}
+\index{idle@{idle}!TextField@{TextField}}
+\doxysubsubsection{\texorpdfstring{idle}{idle}}
+{\footnotesize\ttfamily \label{struct_text_field_ae2591ccf9ad7ac81ac090b52098d2cf8} 
+\mbox{\hyperlink{struct_pixel_buffer_component}{Pixel\+Buffer\+Component}}\texorpdfstring{$\ast$}{*} Text\+Field\+::idle}
+
+\Hypertarget{struct_text_field_a5c71bbd072ac1ad9d5a7ec5be2b9107f}\index{TextField@{TextField}!select@{select}}
+\index{select@{select}!TextField@{TextField}}
+\doxysubsubsection{\texorpdfstring{select}{select}}
+{\footnotesize\ttfamily \label{struct_text_field_a5c71bbd072ac1ad9d5a7ec5be2b9107f} 
+\mbox{\hyperlink{struct_pixel_buffer_component}{Pixel\+Buffer\+Component}}\texorpdfstring{$\ast$}{*} Text\+Field\+::select}
+
+
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+core/\mbox{\hyperlink{ui_8h}{ui.\+h}}\item 
+core/\mbox{\hyperlink{ui_8cpp}{ui.\+cpp}}\end{DoxyCompactItemize}

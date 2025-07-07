@@ -1,0 +1,141 @@
+\doxysection{Frame Class Reference}
+\hypertarget{class_frame}{}\label{class_frame}\index{Frame@{Frame}}
+
+
+{\ttfamily \#include $<$blitter.\+h$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_frame_a7653acc5b7b30cbdb6a4e8694105e9bb}{Frame}} (const char \texorpdfstring{$\ast$}{*}title, \mbox{\hyperlink{group___base_types_gace9d960e74685e2cd84b36132dbbf8aa}{u16}} width, \mbox{\hyperlink{group___base_types_gace9d960e74685e2cd84b36132dbbf8aa}{u16}} height, bool vsync=true)
+\item 
+void \mbox{\hyperlink{class_frame_a31aee47f16abb8322dd96860a4363fda}{update}} ()
+\item 
+void \mbox{\hyperlink{class_frame_a80e4f7d76ca2abd4bc706196700a890f}{close}} ()
+\item 
+void \mbox{\hyperlink{class_frame_a3bcaec01cbc9994ec9cf379b1eab424f}{gpu\+\_\+vsync\+\_\+on}} ()
+\item 
+void \mbox{\hyperlink{class_frame_a2033d79bd3b233ea69f9d04747e01797}{gpu\+\_\+vsync\+\_\+off}} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static void \mbox{\hyperlink{class_frame_a5262e9b3dab1dd34777b19cfe7db6196}{clear}} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+SDL\+\_\+\+Window \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{class_frame_a73f0e9f47df9e6a2776b930fd8400e0f}{m\+\_\+\+Frame}}
+\item 
+SDL\+\_\+\+GLContext \mbox{\hyperlink{class_frame_ab67359eef9f40458fc9057e0fbcd0962}{m\+\_\+\+Context}}
+\end{DoxyCompactItemize}
+
+
+\label{doc-constructors}
+\Hypertarget{class_frame_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{class_frame_a7653acc5b7b30cbdb6a4e8694105e9bb}\index{Frame@{Frame}!Frame@{Frame}}
+\index{Frame@{Frame}!Frame@{Frame}}
+\doxysubsubsection{\texorpdfstring{Frame()}{Frame()}}
+{\footnotesize\ttfamily \label{class_frame_a7653acc5b7b30cbdb6a4e8694105e9bb} 
+Frame\+::\+Frame (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{title}{, }\item[{\mbox{\hyperlink{group___base_types_gace9d960e74685e2cd84b36132dbbf8aa}{u16}}}]{width}{, }\item[{\mbox{\hyperlink{group___base_types_gace9d960e74685e2cd84b36132dbbf8aa}{u16}}}]{height}{, }\item[{bool}]{vsync}{ = {\ttfamily true}}\end{DoxyParamCaption})}
+
+open a graphical window 
+\begin{DoxyParams}{Parameters}
+{\em title} & window title displayed in decoration and program listing \\
+\hline
+{\em width} & window dimension width \\
+\hline
+{\em height} & window dimension height \\
+\hline
+\end{DoxyParams}
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=307pt]{class_frame_a7653acc5b7b30cbdb6a4e8694105e9bb_cgraph}
+\end{center}
+\end{figure}
+
+
+\label{doc-func-members}
+\Hypertarget{class_frame_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_frame_a5262e9b3dab1dd34777b19cfe7db6196}\index{Frame@{Frame}!clear@{clear}}
+\index{clear@{clear}!Frame@{Frame}}
+\doxysubsubsection{\texorpdfstring{clear()}{clear()}}
+{\footnotesize\ttfamily \label{class_frame_a5262e9b3dab1dd34777b19cfe7db6196} 
+void Frame\+::clear (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+clear framebuffer, should be done ideally before drawing to the framebuffer Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=281pt]{class_frame_a5262e9b3dab1dd34777b19cfe7db6196_icgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_frame_a80e4f7d76ca2abd4bc706196700a890f}\index{Frame@{Frame}!close@{close}}
+\index{close@{close}!Frame@{Frame}}
+\doxysubsubsection{\texorpdfstring{close()}{close()}}
+{\footnotesize\ttfamily \label{class_frame_a80e4f7d76ca2abd4bc706196700a890f} 
+void Frame\+::close (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+close the window \Hypertarget{class_frame_a2033d79bd3b233ea69f9d04747e01797}\index{Frame@{Frame}!gpu\_vsync\_off@{gpu\_vsync\_off}}
+\index{gpu\_vsync\_off@{gpu\_vsync\_off}!Frame@{Frame}}
+\doxysubsubsection{\texorpdfstring{gpu\_vsync\_off()}{gpu\_vsync\_off()}}
+{\footnotesize\ttfamily \label{class_frame_a2033d79bd3b233ea69f9d04747e01797} 
+void Frame\+::gpu\+\_\+vsync\+\_\+off (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+disable gpu based vsync Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=307pt]{class_frame_a2033d79bd3b233ea69f9d04747e01797_icgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_frame_a3bcaec01cbc9994ec9cf379b1eab424f}\index{Frame@{Frame}!gpu\_vsync\_on@{gpu\_vsync\_on}}
+\index{gpu\_vsync\_on@{gpu\_vsync\_on}!Frame@{Frame}}
+\doxysubsubsection{\texorpdfstring{gpu\_vsync\_on()}{gpu\_vsync\_on()}}
+{\footnotesize\ttfamily \label{class_frame_a3bcaec01cbc9994ec9cf379b1eab424f} 
+void Frame\+::gpu\+\_\+vsync\+\_\+on (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+enable gpu based vsync, adaptive if possible\+: fallback regular vsync Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=306pt]{class_frame_a3bcaec01cbc9994ec9cf379b1eab424f_icgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_frame_a31aee47f16abb8322dd96860a4363fda}\index{Frame@{Frame}!update@{update}}
+\index{update@{update}!Frame@{Frame}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily \label{class_frame_a31aee47f16abb8322dd96860a4363fda} 
+void Frame\+::update (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+flip buffer 
+
+\label{doc-variable-members}
+\Hypertarget{class_frame_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{class_frame_ab67359eef9f40458fc9057e0fbcd0962}\index{Frame@{Frame}!m\_Context@{m\_Context}}
+\index{m\_Context@{m\_Context}!Frame@{Frame}}
+\doxysubsubsection{\texorpdfstring{m\_Context}{m\_Context}}
+{\footnotesize\ttfamily \label{class_frame_ab67359eef9f40458fc9057e0fbcd0962} 
+SDL\+\_\+\+GLContext Frame\+::m\+\_\+\+Context\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_frame_a73f0e9f47df9e6a2776b930fd8400e0f}\index{Frame@{Frame}!m\_Frame@{m\_Frame}}
+\index{m\_Frame@{m\_Frame}!Frame@{Frame}}
+\doxysubsubsection{\texorpdfstring{m\_Frame}{m\_Frame}}
+{\footnotesize\ttfamily \label{class_frame_a73f0e9f47df9e6a2776b930fd8400e0f} 
+SDL\+\_\+\+Window\texorpdfstring{$\ast$}{*} Frame\+::m\+\_\+\+Frame\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+core/\mbox{\hyperlink{blitter_8h}{blitter.\+h}}\item 
+core/\mbox{\hyperlink{blitter_8cpp}{blitter.\+cpp}}\end{DoxyCompactItemize}

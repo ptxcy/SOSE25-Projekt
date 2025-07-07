@@ -1,0 +1,15 @@
+<map id="adapter/definition.h" name="adapter/definition.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="196,5,327,31"/>
+<area shape="rect" id="Node000002" href="$flotilla_8h.html" title=" " alt="" coords="210,79,312,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="264,46,264,79,259,79,259,46"/>
+<area shape="rect" id="Node000003" href="$command__center_8h.html" title=" " alt="" coords="95,153,262,178"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="237,117,194,154,191,150,234,113"/>
+<area shape="rect" id="Node000007" href="$flotilla_8cpp.html" title=" " alt="" coords="286,153,402,178"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="289,113,332,150,328,154,285,117"/>
+<area shape="rect" id="Node000004" href="$command__center_8cpp.html" title=" " alt="" coords="5,226,187,252"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="155,191,112,228,108,224,151,187"/>
+<area shape="rect" id="Node000005" href="$menu_8h.html" title=" " alt="" coords="211,226,312,252"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="206,187,249,224,246,228,203,191"/>
+<area shape="rect" id="Node000006" href="$menu_8cpp.html" title=" " alt="" coords="204,300,318,326"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="264,267,264,300,259,300,259,267"/>
+</map>

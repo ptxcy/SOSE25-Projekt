@@ -1,0 +1,13 @@
+<map id="Text" name="Text">
+<area shape="rect" id="Node000001" title=" " alt="" coords="225,199,271,224"/>
+<area shape="rect" id="Node000002" href="$struct_font.html" title=" " alt="" coords="180,102,228,128"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,142,229,173,242,197,238,199,224,176,210,144"/>
+<area shape="rect" id="Node000003" href="$struct_pixel_buffer_component.html" title=" " alt="" coords="5,5,158,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="111,39,190,99,187,104,107,43"/>
+<area shape="rect" id="Node000004" href="$struct_glyph.html" title=" " alt="" coords="182,5,237,31"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="211,46,208,102,202,101,205,46"/>
+<area shape="rect" id="Node000005" href="$struct_alignment.html" title=" " alt="" coords="252,102,332,128"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="283,143,256,199,251,197,278,141"/>
+<area shape="rect" id="Node000006" href="$struct_rect.html" title=" " alt="" coords="268,5,317,31"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="295,46,295,101,290,101,290,46"/>
+</map>

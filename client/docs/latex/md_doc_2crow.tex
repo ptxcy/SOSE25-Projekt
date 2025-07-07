@@ -1,0 +1,110 @@
+\chapter{Client Setup mit Crow }
+\hypertarget{md_doc_2crow}{}\label{md_doc_2crow}\index{Client Setup mit Crow@{Client Setup mit Crow}}
+\label{md_doc_2crow_autotoc_md13}%
+\Hypertarget{md_doc_2crow_autotoc_md13}%
+
+
+Diese Anleitung erklärt, wie du die Entwicklungsumgebung für den C++ Client mit Crow einrichtest.\hypertarget{md_doc_2crow_autotoc_md14}{}\doxysection{\texorpdfstring{Voraussetzungen}{Voraussetzungen}}\label{md_doc_2crow_autotoc_md14}
+
+\begin{DoxyEnumerate}
+\item {\bfseries{C++ Compiler\+:}} Ein C++17-\/kompatibler Compiler wird benötigt. Das Build-\/\+Skript verwendet {\ttfamily clang++}. Unter mac\+OS ist dieser normalerweise mit den Xcode Command Line Tools enthalten.
+\item {\bfseries{Open\+SSL\+:}} Wird für HTTPS-\/\+Verbindungen benötigt.
+\begin{DoxyItemize}
+\item {\bfseries{mac\+OS\+:}} {\ttfamily brew install openssl}
+\item {\bfseries{Ubuntu/\+Debian\+:}} {\ttfamily sudo apt-\/get install libssl-\/dev}
+\end{DoxyItemize}
+\item {\bfseries{Bear\+:}} Wird für die Generierung von {\ttfamily compile\+\_\+commands.\+json} verwendet (für bessere IDE-\/\+Integration).
+\begin{DoxyItemize}
+\item {\bfseries{mac\+OS\+:}} {\ttfamily brew install bear}
+\item {\bfseries{Ubuntu/\+Debian\+:}} {\ttfamily sudo apt-\/get install bear}
+\end{DoxyItemize}
+\item {\bfseries{Unzip\+:}} Wird für die Installation von Crow benötigt.
+\begin{DoxyItemize}
+\item {\bfseries{mac\+OS\+:}} Normalerweise bereits installiert
+\item {\bfseries{Ubuntu/\+Debian\+:}} {\ttfamily sudo apt-\/get install unzip}
+\end{DoxyItemize}
+\end{DoxyEnumerate}\hypertarget{md_doc_2crow_autotoc_md15}{}\doxysection{\texorpdfstring{Installation und Ausführung}{Installation und Ausführung}}\label{md_doc_2crow_autotoc_md15}
+\hypertarget{md_doc_2crow_autotoc_md16}{}\doxysubsection{\texorpdfstring{Automatische Installation}{Automatische Installation}}\label{md_doc_2crow_autotoc_md16}
+
+\begin{DoxyEnumerate}
+\item {\bfseries{Ausführen des Build-\/\+Skripts\+:}} 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{./compile\_and\_run.sh}
+
+\end{DoxyCode}
+
+
+Das Skript führt automatisch folgende Schritte aus\+:
+\begin{DoxyItemize}
+\item Prüft, ob Crow bereits installiert ist, und installiert es bei Bedarf
+\item Kompiliert den Client mit den richtigen Include-\/\+Pfaden
+\item Führt die Anwendung aus
+\end{DoxyItemize}
+\end{DoxyEnumerate}\hypertarget{md_doc_2crow_autotoc_md17}{}\doxysubsection{\texorpdfstring{Manuelle Installation (falls nötig)}{Manuelle Installation (falls nötig)}}\label{md_doc_2crow_autotoc_md17}
+
+\begin{DoxyEnumerate}
+\item {\bfseries{Crow installieren\+:}} 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{./install\_crow.sh}
+
+\end{DoxyCode}
+
+\item {\bfseries{Anwendung kompilieren\+:}} 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{clang++\ main.cpp\ -\/o\ client\_app\ -\/std=c++17\ -\/pthread\ -\/I./external/include\ -\/lssl\ -\/lcrypto}
+
+\end{DoxyCode}
+
+\item {\bfseries{Anwendung ausführen\+:}} 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{./client\_app}
+
+\end{DoxyCode}
+
+\end{DoxyEnumerate}\hypertarget{md_doc_2crow_autotoc_md18}{}\doxysection{\texorpdfstring{Problembehebung}{Problembehebung}}\label{md_doc_2crow_autotoc_md18}
+\hypertarget{md_doc_2crow_autotoc_md19}{}\doxysubsection{\texorpdfstring{Fehler beim Kompilieren}{Fehler beim Kompilieren}}\label{md_doc_2crow_autotoc_md19}
+
+\begin{DoxyEnumerate}
+\item {\bfseries{Crow-\/\+Header nicht gefunden\+:}}
+\begin{DoxyItemize}
+\item Stelle sicher, dass {\ttfamily install\+\_\+crow.\+sh} ausgeführt wurde
+\item Überprüfe, ob die Dateien in {\ttfamily ./external/include/crow} existieren
+\end{DoxyItemize}
+\item {\bfseries{Open\+SSL-\/\+Fehler\+:}}
+\begin{DoxyItemize}
+\item Stelle sicher, dass Open\+SSL installiert ist
+\item Bei mac\+OS mit Homebrew\+: {\ttfamily brew link -\/-\/force openssl}
+\end{DoxyItemize}
+\item {\bfseries{Linker-\/\+Fehler\+:}}
+\begin{DoxyItemize}
+\item Überprüfe die Open\+SSL-\/\+Pfade in {\ttfamily compile\+\_\+and\+\_\+run.\+sh}
+\end{DoxyItemize}
+\end{DoxyEnumerate}\hypertarget{md_doc_2crow_autotoc_md20}{}\doxysection{\texorpdfstring{IDE-\/\+Integration}{IDE-\/\+Integration}}\label{md_doc_2crow_autotoc_md20}
+\hypertarget{md_doc_2crow_autotoc_md21}{}\doxysubsection{\texorpdfstring{VS Code}{VS Code}}\label{md_doc_2crow_autotoc_md21}
+
+\begin{DoxyEnumerate}
+\item Wenn du VS Code verwendest, wird {\ttfamily compile\+\_\+commands.\+json} durch das Build-\/\+Skript generiert, was die Autovervollständigung und Fehleranzeige verbessert.
+\item Empfohlene Extensions\+:
+\begin{DoxyItemize}
+\item C/\+C++ Extension (Microsoft)
+\item clangd (für verbesserte C++-\/\+Unterstützung)
+\end{DoxyItemize}
+\end{DoxyEnumerate}\hypertarget{md_doc_2crow_autotoc_md22}{}\doxysubsection{\texorpdfstring{CLion}{CLion}}\label{md_doc_2crow_autotoc_md22}
+Für CLion-\/\+Benutzer\+:
+
+
+\begin{DoxyEnumerate}
+\item Öffne das Projekt in CLion
+\item Importiere das {\ttfamily compile\+\_\+commands.\+json} File über die Projekteinstellungen
+\end{DoxyEnumerate}\hypertarget{md_doc_2crow_autotoc_md23}{}\doxysection{\texorpdfstring{Verwendung von Crow im Code}{Verwendung von Crow im Code}}\label{md_doc_2crow_autotoc_md23}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{preprocessor}{\#include\ <crow.h>}}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{comment}{//\ Beispiel\ für\ einen\ einfachen\ HTTP-\/Request}}
+\DoxyCodeLine{crow::SimpleApp\ app;}
+\DoxyCodeLine{\textcolor{keyword}{auto}\ client\ =\ app.get\_client();}
+\DoxyCodeLine{\textcolor{keyword}{auto}\ response\ =\ client.request\_async(\textcolor{stringliteral}{"{}GET"{}},\ \textcolor{stringliteral}{"{}http://example.com"{}}).get();}
+
+\end{DoxyCode}
+ 

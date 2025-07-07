@@ -1,0 +1,9 @@
+<map id="Renderer::align" name="Renderer::align">
+<area shape="rect" id="Node000001" title=" " alt="" coords="193,63,302,88"/>
+<area shape="rect" id="Node000002" href="$struct_text.html#abed0fd65b6347f926aea7b87bbefa797" title=" " alt="" coords="34,5,116,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="191,60,115,34,117,29,193,55"/>
+<area shape="rect" id="Node000003" href="$class_renderer.html#ae0ad01e6affb695e7374615e9d4d0546" title=" " alt="" coords="12,55,138,96"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="177,78,138,78,138,73,177,73"/>
+<area shape="rect" id="Node000004" href="$class_renderer.html#ab3348c4de3101d9e0379f1e3ffee6a45" title=" " alt="" coords="5,120,145,146"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="193,96,117,122,115,117,191,91"/>
+</map>

@@ -1,0 +1,855 @@
+\doxysection{Renderer Class Reference}
+\hypertarget{class_renderer}{}\label{class_renderer}\index{Renderer@{Renderer}}
+
+
+{\ttfamily \#include $<$renderer.\+h$>$}
+
+
+
+Collaboration diagram for Renderer\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_renderer__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_renderer_a7ebf46f54dab9905f79b80f7fddb76a6}{Renderer}} ()
+\item 
+void \mbox{\hyperlink{class_renderer_af39230ac153ec5e1b0e5f078ebe351e1}{update}} ()
+\item 
+void \mbox{\hyperlink{class_renderer_a4b323392c7630f72eb4adfc5ca027ff8}{exit}} ()
+\item 
+\mbox{\hyperlink{struct_pixel_buffer_component}{Pixel\+Buffer\+Component}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{class_renderer_af3553f5c551fa5aed1503a9a7ef39f17}{register\+\_\+sprite\+\_\+texture}} (const char \texorpdfstring{$\ast$}{*}path)
+\item 
+\mbox{\hyperlink{struct_sprite}{Sprite}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{class_renderer_ae0ad01e6affb695e7374615e9d4d0546}{register\+\_\+sprite}} (\mbox{\hyperlink{struct_pixel_buffer_component}{Pixel\+Buffer\+Component}} \texorpdfstring{$\ast$}{*}texture, \mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}} position, \mbox{\hyperlink{group___base_types_ga43182e59794291f6ab00e51b160706c2}{vec2}} size, \mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} rotation=.\+0f, \mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} alpha=1.f, \mbox{\hyperlink{struct_alignment}{Alignment}} alignment=\{\})
+\item 
+void \mbox{\hyperlink{class_renderer_a71eb0110656d9b93d29aa609f33bf237}{assign\+\_\+sprite\+\_\+texture}} (\mbox{\hyperlink{struct_sprite}{Sprite}} \texorpdfstring{$\ast$}{*}sprite, \mbox{\hyperlink{struct_pixel_buffer_component}{Pixel\+Buffer\+Component}} \texorpdfstring{$\ast$}{*}texture)
+\item 
+void \mbox{\hyperlink{class_renderer_a28c58c803aaf4c8f7ace532787afb7a6}{delete\+\_\+sprite\+\_\+texture}} (\mbox{\hyperlink{struct_pixel_buffer_component}{Pixel\+Buffer\+Component}} \texorpdfstring{$\ast$}{*}texture)
+\item 
+\mbox{\hyperlink{struct_font}{Font}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{class_renderer_a15a71fd52458fa3e2aa6bbcdc5eb0407}{register\+\_\+font}} (const char \texorpdfstring{$\ast$}{*}path, \mbox{\hyperlink{group___base_types_gace9d960e74685e2cd84b36132dbbf8aa}{u16}} size)
+\item 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{struct_text}{Text}} $>$ \mbox{\hyperlink{class_renderer_ab3348c4de3101d9e0379f1e3ffee6a45}{write\+\_\+text}} (\mbox{\hyperlink{struct_font}{Font}} \texorpdfstring{$\ast$}{*}font, \mbox{\hyperlink{group___base_types_gad453f9f71ce1f9153fb748d6bb25e454}{string}} data, \mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}} position, \mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} scale, \mbox{\hyperlink{group___base_types_gac54e849f8b2339f592307eaf6cdbba77}{vec4}} colour=\mbox{\hyperlink{group___base_types_gac54e849f8b2339f592307eaf6cdbba77}{vec4}}(1), \mbox{\hyperlink{struct_alignment}{Alignment}} \mbox{\hyperlink{class_renderer_a4013e69296ab27fd392a8a0809afa721}{align}}=\{\})
+\item 
+void \mbox{\hyperlink{class_renderer_a95c455d316b876b7692039bfb0f94c64}{delete\+\_\+text}} (\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{struct_text}{Text}} $>$ text)
+\item 
+\mbox{\hyperlink{class_texture}{Texture}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{class_renderer_a87901a6b111331286dd192417476277e}{register\+\_\+texture}} (const char \texorpdfstring{$\ast$}{*}path, \mbox{\hyperlink{buffer_8h_acbce0af680bcfc0a5b989bcfc6583e0f}{Texture\+Format}} format=\mbox{\hyperlink{buffer_8h_acbce0af680bcfc0a5b989bcfc6583e0fa9f5d930e05f556c7a3fbe88e2a0bba0f}{TEXTURE\+\_\+\+FORMAT\+\_\+\+RGBA}})
+\item 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{class_shader_pipeline}{Shader\+Pipeline}} $>$ \mbox{\hyperlink{class_renderer_a9dccc8fa6734777faaf28c3ff4ab7b34}{register\+\_\+pipeline}} (\mbox{\hyperlink{class_vertex_shader}{Vertex\+Shader}} \&vs, \mbox{\hyperlink{class_fragment_shader}{Fragment\+Shader}} \&fs)
+\item 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{struct_geometry_batch}{Geometry\+Batch}} $>$ \mbox{\hyperlink{class_renderer_a66dc8312d9eac88aa702d43bf40c7d85}{register\+\_\+geometry\+\_\+batch}} (\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{class_shader_pipeline}{Shader\+Pipeline}} $>$ pipeline)
+\item 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{struct_geometry_batch}{Geometry\+Batch}} $>$ \mbox{\hyperlink{class_renderer_a54cb7fb0c30148e904e85b679538b25d}{register\+\_\+deferred\+\_\+geometry\+\_\+batch}} ()
+\item 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{struct_geometry_batch}{Geometry\+Batch}} $>$ \mbox{\hyperlink{class_renderer_a61740c49e07adae3b39962ba53c43ef8}{register\+\_\+deferred\+\_\+geometry\+\_\+batch}} (\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{class_shader_pipeline}{Shader\+Pipeline}} $>$ pipeline)
+\item 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{struct_particle_batch}{Particle\+Batch}} $>$ \mbox{\hyperlink{class_renderer_a0b8d44542bcd69bdf9eb013056eba07d}{register\+\_\+particle\+\_\+batch}} (\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{class_shader_pipeline}{Shader\+Pipeline}} $>$ pipeline)
+\item 
+\mbox{\hyperlink{struct_sun_light}{Sun\+Light}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{class_renderer_ad6c29fbede45d670ffd70830c9177c3c}{add\+\_\+sunlight}} (\mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}} position, \mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}} colour, \mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} intensity)
+\item 
+\mbox{\hyperlink{struct_point_light}{Point\+Light}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{class_renderer_a55bc2369c51ce9bdaaa18ab94f4a3244}{add\+\_\+pointlight}} (\mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}} position, \mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}} colour, \mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} intensity, \mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} constant, \mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} linear, \mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}} quadratic)
+\item 
+void \mbox{\hyperlink{class_renderer_a7c4f301dadf7e5298217fae65b8ad08c}{upload\+\_\+lighting}} ()
+\item 
+void \mbox{\hyperlink{class_renderer_ae3c8e8a9b12d18864b5a3cefca61e48f}{reset\+\_\+lighting}} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static void \mbox{\hyperlink{class_renderer_a87daf268f06d17e84107bbc9762e0478}{delete\+\_\+sprite}} (\mbox{\hyperlink{struct_sprite}{Sprite}} \texorpdfstring{$\ast$}{*}sprite)
+\item 
+static \mbox{\hyperlink{group___base_types_ga43182e59794291f6ab00e51b160706c2}{vec2}} \mbox{\hyperlink{class_renderer_a4013e69296ab27fd392a8a0809afa721}{align}} (\mbox{\hyperlink{struct_rect}{Rect}} geom, \mbox{\hyperlink{struct_alignment}{Alignment}} alignment)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{class_renderer_a323a9be5929485c5cec2e507839a3b97}{\+\_\+update\+\_\+sprites}} ()
+\item 
+void \mbox{\hyperlink{class_renderer_a8e06e2bdeeebb78e7bc1da767e3e761e}{\+\_\+update\+\_\+text}} ()
+\item 
+void \mbox{\hyperlink{class_renderer_acbc6b5f35a098d4da00b20de4c3cd03a}{\+\_\+update\+\_\+canvas}} ()
+\item 
+void \mbox{\hyperlink{class_renderer_a430cba8ed92086fe7d42cded6070339a}{\+\_\+gpu\+\_\+upload}} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static void \mbox{\hyperlink{class_renderer_ad4763a74a4a0388ba7189a3bd3244141}{\+\_\+update\+\_\+mesh}} (\mbox{\hyperlink{base_8h_a50bd7d245d7870ed8c926b7f7df06328}{list}}$<$ \mbox{\hyperlink{struct_geometry_batch}{Geometry\+Batch}} $>$ \&gb, \mbox{\hyperlink{base_8h_a50bd7d245d7870ed8c926b7f7df06328}{list}}$<$ \mbox{\hyperlink{struct_particle_batch}{Particle\+Batch}} $>$ \&pb)
+\item 
+{\footnotesize template$<$typename T$>$ }\\static void \mbox{\hyperlink{class_renderer_a0f3460c4cb3fe6a4f44972d5c528bad1}{\+\_\+collector}} (\mbox{\hyperlink{class_in_place_array}{In\+Place\+Array}}$<$ T $>$ \texorpdfstring{$\ast$}{*}xs, \mbox{\hyperlink{struct_thread_signal}{Thread\+Signal}} \texorpdfstring{$\ast$}{*}signal)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::chrono\+::steady\+\_\+clock\+::time\+\_\+point \mbox{\hyperlink{class_renderer_aff4395f421d4d93607d42e319226bc41}{m\+\_\+\+Frame\+Start}}
+\item 
+\mbox{\hyperlink{group___base_types_ga8c196f710449389c08a7adf5391892ea}{thread}} \mbox{\hyperlink{class_renderer_a42e7f664c188e57d2f7256203e64b1e3}{m\+\_\+\+Sprite\+Collector}}
+\item 
+\mbox{\hyperlink{group___base_types_ga8c196f710449389c08a7adf5391892ea}{thread}} \mbox{\hyperlink{class_renderer_a789be4be23ed4b61892865ef0c9d9a66}{m\+\_\+\+Sprite\+Texture\+Collector}}
+\item 
+\mbox{\hyperlink{class_vertex_array}{Vertex\+Array}} \mbox{\hyperlink{class_renderer_aee9b244b884ed2624f5a19a81843566b}{m\+\_\+\+Sprite\+Vertex\+Array}}
+\item 
+\mbox{\hyperlink{class_vertex_array}{Vertex\+Array}} \mbox{\hyperlink{class_renderer_a1dac2724a0480d0f4ff0bf4460da2bbc}{m\+\_\+\+Text\+Vertex\+Array}}
+\item 
+\mbox{\hyperlink{class_vertex_array}{Vertex\+Array}} \mbox{\hyperlink{class_renderer_ab4bdc00f0f0192d3030c2b3290c3672f}{m\+\_\+\+Canvas\+Vertex\+Array}}
+\item 
+\mbox{\hyperlink{class_vertex_buffer}{Vertex\+Buffer}} \mbox{\hyperlink{class_renderer_a91d83d6a37491b3970a90fe805781d33}{m\+\_\+\+Sprite\+Vertex\+Buffer}}
+\item 
+\mbox{\hyperlink{class_vertex_buffer}{Vertex\+Buffer}} \mbox{\hyperlink{class_renderer_abeb05cc60d6a59b98cf122951dcb8574}{m\+\_\+\+Canvas\+Vertex\+Buffer}}
+\item 
+\mbox{\hyperlink{class_vertex_buffer}{Vertex\+Buffer}} \mbox{\hyperlink{class_renderer_afec968d8f598bb7d5c8abbb6d961f8f2}{m\+\_\+\+Sprite\+Instance\+Buffer}}
+\item 
+\mbox{\hyperlink{class_vertex_buffer}{Vertex\+Buffer}} \mbox{\hyperlink{class_renderer_a8e7487f93c3afb5b71ed4813d190da36}{m\+\_\+\+Text\+Instance\+Buffer}}
+\item 
+\mbox{\hyperlink{class_shader_pipeline}{Shader\+Pipeline}} \mbox{\hyperlink{class_renderer_ae59b8e60d0c7eee2c0d685b2f11f45d6}{m\+\_\+\+Sprite\+Pipeline}}
+\item 
+\mbox{\hyperlink{class_shader_pipeline}{Shader\+Pipeline}} \mbox{\hyperlink{class_renderer_a1c869d3ca99ffefd20711fd6f9570b90}{m\+\_\+\+Text\+Pipeline}}
+\item 
+\mbox{\hyperlink{class_shader_pipeline}{Shader\+Pipeline}} \mbox{\hyperlink{class_renderer_acd77b62b600c2ed94f81b883a4e2be05}{m\+\_\+\+Canvas\+Pipeline}}
+\item 
+\mbox{\hyperlink{class_framebuffer}{Framebuffer}} \mbox{\hyperlink{class_renderer_a0da7a40048f10d168b4391145f812334}{m\+\_\+\+Forward\+Frame\+Buffer}} = \mbox{\hyperlink{class_framebuffer}{Framebuffer}}(1)
+\item 
+\mbox{\hyperlink{class_framebuffer}{Framebuffer}} \mbox{\hyperlink{class_renderer_a388f8576f487d61648c8ff1d3df91390}{m\+\_\+\+Deferred\+Frame\+Buffer}} = \mbox{\hyperlink{class_framebuffer}{Framebuffer}}(4)
+\item 
+\mbox{\hyperlink{struct_g_p_u_pixel_buffer}{GPUPixel\+Buffer}} \mbox{\hyperlink{class_renderer_a82a4ba89e5d5c1090784f759fc757866}{m\+\_\+\+GPUSprite\+Textures}}
+\item 
+\mbox{\hyperlink{struct_g_p_u_pixel_buffer}{GPUPixel\+Buffer}} \mbox{\hyperlink{class_renderer_a0d0d8a173c744075d9a09dd872f10bb6}{m\+\_\+\+GPUFont\+Textures}}
+\item 
+\mbox{\hyperlink{class_in_place_array}{In\+Place\+Array}}$<$ \mbox{\hyperlink{class_texture}{Texture}} $>$ \mbox{\hyperlink{class_renderer_a39b0e166f6de3dc5606c0104b8546bf7}{m\+\_\+\+Mesh\+Textures}} = \mbox{\hyperlink{class_in_place_array}{In\+Place\+Array}}$<$\mbox{\hyperlink{class_texture}{Texture}}$>$(\mbox{\hyperlink{config_8h_a013513bbc6c2a2a2791767aa08811a55}{RENDERER\+\_\+\+MAXIMUM\+\_\+\+TEXTURE\+\_\+\+COUNT}})
+\item 
+\mbox{\hyperlink{base_8h_a69ef479f0bd0f6c28029a80ee67cfb1e}{queue}}$<$ \mbox{\hyperlink{struct_texture_data_tuple}{Texture\+Data\+Tuple}} $>$ \mbox{\hyperlink{class_renderer_a9ab6ec7fc7a8921362cc97eb7f4fd619}{m\+\_\+\+Mesh\+Texture\+Upload\+Queue}}
+\item 
+std\+::mutex \mbox{\hyperlink{class_renderer_a6011fb19244d2507deaf6b0d2ed9d322}{m\+\_\+\+Mutex\+Mesh\+Texture\+Upload}}
+\item 
+\mbox{\hyperlink{class_in_place_array}{In\+Place\+Array}}$<$ \mbox{\hyperlink{struct_sprite}{Sprite}} $>$ \mbox{\hyperlink{class_renderer_a5444d86b565cce6614654ab960b1684f}{m\+\_\+\+Sprites}} = \mbox{\hyperlink{class_in_place_array}{In\+Place\+Array}}$<$\mbox{\hyperlink{struct_sprite}{Sprite}}$>$(\mbox{\hyperlink{config_8h_a0e5d5c0e30ba6ca34824744768bbd9a6}{BUFFER\+\_\+\+MAXIMUM\+\_\+\+TEXTURE\+\_\+\+COUNT}})
+\item 
+\mbox{\hyperlink{class_in_place_array}{In\+Place\+Array}}$<$ \mbox{\hyperlink{struct_font}{Font}} $>$ \mbox{\hyperlink{class_renderer_a3b36eae5afc34355c56ab829e01ee51d}{m\+\_\+\+Fonts}} = \mbox{\hyperlink{class_in_place_array}{In\+Place\+Array}}$<$\mbox{\hyperlink{struct_font}{Font}}$>$(\mbox{\hyperlink{config_8h_aed089b76a3e5d364b16ba4f3a0b0fac0}{RENDERER\+\_\+\+MAXIMUM\+\_\+\+FONT\+\_\+\+COUNT}})
+\item 
+\mbox{\hyperlink{base_8h_a50bd7d245d7870ed8c926b7f7df06328}{list}}$<$ \mbox{\hyperlink{struct_text}{Text}} $>$ \mbox{\hyperlink{class_renderer_a151ae19089bc5406e66b90ac91193818}{m\+\_\+\+Texts}}
+\item 
+\mbox{\hyperlink{base_8h_a50bd7d245d7870ed8c926b7f7df06328}{list}}$<$ \mbox{\hyperlink{class_shader_pipeline}{Shader\+Pipeline}} $>$ \mbox{\hyperlink{class_renderer_a612dbfb9ef2ed6bb205afe564626ef38}{m\+\_\+\+Shader\+Pipelines}}
+\item 
+\mbox{\hyperlink{base_8h_a50bd7d245d7870ed8c926b7f7df06328}{list}}$<$ \mbox{\hyperlink{struct_geometry_batch}{Geometry\+Batch}} $>$ \mbox{\hyperlink{class_renderer_ad0678d15bde729ae8a91293032ce93d4}{m\+\_\+\+Geometry\+Batches}}
+\item 
+\mbox{\hyperlink{base_8h_a50bd7d245d7870ed8c926b7f7df06328}{list}}$<$ \mbox{\hyperlink{struct_particle_batch}{Particle\+Batch}} $>$ \mbox{\hyperlink{class_renderer_a42c323e6a7584b453909aef6ed89c22a}{m\+\_\+\+Particle\+Batches}}
+\item 
+\mbox{\hyperlink{base_8h_a50bd7d245d7870ed8c926b7f7df06328}{list}}$<$ \mbox{\hyperlink{struct_geometry_batch}{Geometry\+Batch}} $>$ \mbox{\hyperlink{class_renderer_ad9478e460637a0cf3c4196dd300fdc02}{m\+\_\+\+Deferred\+Geometry\+Batches}}
+\item 
+\mbox{\hyperlink{base_8h_a50bd7d245d7870ed8c926b7f7df06328}{list}}$<$ \mbox{\hyperlink{struct_particle_batch}{Particle\+Batch}} $>$ \mbox{\hyperlink{class_renderer_a621df04f33c29581c0d0adf956ee3e9f}{m\+\_\+\+Deferred\+Particle\+Batches}}
+\item 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{class_shader_pipeline}{Shader\+Pipeline}} $>$ \mbox{\hyperlink{class_renderer_adc2d095b74d5bb263a598b663ed03f64}{m\+\_\+\+Geometry\+Pass\+Pipeline}}
+\item 
+\mbox{\hyperlink{struct_lighting}{Lighting}} \mbox{\hyperlink{class_renderer_a44402ce6719bcf1f27e249908692fb1f}{m\+\_\+\+Lighting}}
+\end{DoxyCompactItemize}
+
+
+\label{doc-constructors}
+\Hypertarget{class_renderer_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{class_renderer_a7ebf46f54dab9905f79b80f7fddb76a6}\index{Renderer@{Renderer}!Renderer@{Renderer}}
+\index{Renderer@{Renderer}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{Renderer()}{Renderer()}}
+{\footnotesize\ttfamily \label{class_renderer_a7ebf46f54dab9905f79b80f7fddb76a6} 
+Renderer\+::\+Renderer (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+setup renderer Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_renderer_a7ebf46f54dab9905f79b80f7fddb76a6_cgraph}
+\end{center}
+\end{figure}
+
+
+\label{doc-func-members}
+\Hypertarget{class_renderer_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_renderer_a0f3460c4cb3fe6a4f44972d5c528bad1}\index{Renderer@{Renderer}!\_collector@{\_collector}}
+\index{\_collector@{\_collector}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{\_collector()}{\_collector()}}
+{\footnotesize\ttfamily \label{class_renderer_a0f3460c4cb3fe6a4f44972d5c528bad1} 
+template$<$typename T$>$ \\
+template void Renderer\+::\+\_\+collector$<$ \mbox{\hyperlink{struct_pixel_buffer_component}{Pixel\+Buffer\+Component}} $>$ (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_in_place_array}{In\+Place\+Array}}$<$ T $>$ \texorpdfstring{$\ast$}{*}}]{xs}{, }\item[{\mbox{\hyperlink{struct_thread_signal}{Thread\+Signal}} \texorpdfstring{$\ast$}{*}}]{signal}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}, {\ttfamily [private]}}
+
+automatically collecting deleted sprites and assign memory space for override 
+\begin{DoxyParams}{Parameters}
+{\em xs} & collectable array structure holding removable sprites conforming to the collection rules\+:
+\begin{DoxyItemize}
+\item remove coding is in offset.\+x as RENDERER\+\_\+\+POSITIONAL\+\_\+\+DELETION\+\_\+\+CODE
+\item has to be stored as an \doxylink{class_in_place_array}{In\+Place\+Array} to support overwrite and range system 
+\end{DoxyItemize}\\
+\hline
+{\em signal} & background collector needs an activation signal to know when it is sensible to collect \\
+\hline
+\end{DoxyParams}
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=317pt]{class_renderer_a0f3460c4cb3fe6a4f44972d5c528bad1_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=321pt]{class_renderer_a0f3460c4cb3fe6a4f44972d5c528bad1_icgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_renderer_a430cba8ed92086fe7d42cded6070339a}\index{Renderer@{Renderer}!\_gpu\_upload@{\_gpu\_upload}}
+\index{\_gpu\_upload@{\_gpu\_upload}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{\_gpu\_upload()}{\_gpu\_upload()}}
+{\footnotesize\ttfamily \label{class_renderer_a430cba8ed92086fe7d42cded6070339a} 
+void Renderer\+::\+\_\+gpu\+\_\+upload (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+helper to unclutter the automatic load callbacks for gpu data Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_renderer_a430cba8ed92086fe7d42cded6070339a_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=324pt]{class_renderer_a430cba8ed92086fe7d42cded6070339a_icgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_renderer_acbc6b5f35a098d4da00b20de4c3cd03a}\index{Renderer@{Renderer}!\_update\_canvas@{\_update\_canvas}}
+\index{\_update\_canvas@{\_update\_canvas}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{\_update\_canvas()}{\_update\_canvas()}}
+{\footnotesize\ttfamily \label{class_renderer_acbc6b5f35a098d4da00b20de4c3cd03a} 
+void Renderer\+::\+\_\+update\+\_\+canvas (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+update framebuffer representations Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=340pt]{class_renderer_acbc6b5f35a098d4da00b20de4c3cd03a_icgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_renderer_ad4763a74a4a0388ba7189a3bd3244141}\index{Renderer@{Renderer}!\_update\_mesh@{\_update\_mesh}}
+\index{\_update\_mesh@{\_update\_mesh}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{\_update\_mesh()}{\_update\_mesh()}}
+{\footnotesize\ttfamily \label{class_renderer_ad4763a74a4a0388ba7189a3bd3244141} 
+void Renderer\+::\+\_\+update\+\_\+mesh (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{base_8h_a50bd7d245d7870ed8c926b7f7df06328}{list}}$<$ \mbox{\hyperlink{struct_geometry_batch}{Geometry\+Batch}} $>$ \&}]{gb}{, }\item[{\mbox{\hyperlink{base_8h_a50bd7d245d7870ed8c926b7f7df06328}{list}}$<$ \mbox{\hyperlink{struct_particle_batch}{Particle\+Batch}} $>$ \&}]{pb}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}, {\ttfamily [private]}}
+
+update triangle meshes 
+\begin{DoxyParams}{Parameters}
+{\em gb} & geometry batch to draw contained geometry from \\
+\hline
+{\em pb} & particle batch to draw contained particles geometry from \\
+\hline
+\end{DoxyParams}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=333pt]{class_renderer_ad4763a74a4a0388ba7189a3bd3244141_icgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_renderer_a323a9be5929485c5cec2e507839a3b97}\index{Renderer@{Renderer}!\_update\_sprites@{\_update\_sprites}}
+\index{\_update\_sprites@{\_update\_sprites}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{\_update\_sprites()}{\_update\_sprites()}}
+{\footnotesize\ttfamily \label{class_renderer_a323a9be5929485c5cec2e507839a3b97} 
+void Renderer\+::\+\_\+update\+\_\+sprites (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+update all registered sprites Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=338pt]{class_renderer_a323a9be5929485c5cec2e507839a3b97_icgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_renderer_a8e06e2bdeeebb78e7bc1da767e3e761e}\index{Renderer@{Renderer}!\_update\_text@{\_update\_text}}
+\index{\_update\_text@{\_update\_text}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{\_update\_text()}{\_update\_text()}}
+{\footnotesize\ttfamily \label{class_renderer_a8e06e2bdeeebb78e7bc1da767e3e761e} 
+void Renderer\+::\+\_\+update\+\_\+text (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+update all registered text Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=325pt]{class_renderer_a8e06e2bdeeebb78e7bc1da767e3e761e_icgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_renderer_a55bc2369c51ce9bdaaa18ab94f4a3244}\index{Renderer@{Renderer}!add\_pointlight@{add\_pointlight}}
+\index{add\_pointlight@{add\_pointlight}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{add\_pointlight()}{add\_pointlight()}}
+{\footnotesize\ttfamily \label{class_renderer_a55bc2369c51ce9bdaaa18ab94f4a3244} 
+\mbox{\hyperlink{struct_point_light}{Point\+Light}} \texorpdfstring{$\ast$}{*} Renderer\+::add\+\_\+pointlight (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}}}]{position}{, }\item[{\mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}}}]{colour}{, }\item[{\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}}}]{intensity}{, }\item[{\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}}}]{constant}{, }\item[{\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}}}]{linear}{, }\item[{\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}}}]{quadratic}{}\end{DoxyParamCaption})}
+
+create pointlight 
+\begin{DoxyParams}{Parameters}
+{\em position} & position of the light emitter \\
+\hline
+{\em colour} & colour of the emission \\
+\hline
+{\em intensity} & emission intensity, multiplying the colour influence \\
+\hline
+{\em constant} & constant component in attenuation \\
+\hline
+{\em linear} & linear component in attenutation \\
+\hline
+{\em quadratic} & quadratic component in attenuation \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+pointer to pointlight 
+\end{DoxyReturn}
+\Hypertarget{class_renderer_ad6c29fbede45d670ffd70830c9177c3c}\index{Renderer@{Renderer}!add\_sunlight@{add\_sunlight}}
+\index{add\_sunlight@{add\_sunlight}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{add\_sunlight()}{add\_sunlight()}}
+{\footnotesize\ttfamily \label{class_renderer_ad6c29fbede45d670ffd70830c9177c3c} 
+\mbox{\hyperlink{struct_sun_light}{Sun\+Light}} \texorpdfstring{$\ast$}{*} Renderer\+::add\+\_\+sunlight (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}}}]{position}{, }\item[{\mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}}}]{colour}{, }\item[{\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}}}]{intensity}{}\end{DoxyParamCaption})}
+
+create directional sunlight 
+\begin{DoxyParams}{Parameters}
+{\em position} & direction to sunlight, inverted direction will be direction of emission \\
+\hline
+{\em colour} & colour of the emission \\
+\hline
+{\em intensity} & emission intensity, multiplying the colour influence \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_renderer_a4013e69296ab27fd392a8a0809afa721}\index{Renderer@{Renderer}!align@{align}}
+\index{align@{align}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{align()}{align()}}
+{\footnotesize\ttfamily \label{class_renderer_a4013e69296ab27fd392a8a0809afa721} 
+\mbox{\hyperlink{group___base_types_ga43182e59794291f6ab00e51b160706c2}{vec2}} Renderer\+::align (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_rect}{Rect}}}]{geom}{, }\item[{\mbox{\hyperlink{struct_alignment}{Alignment}}}]{alignment}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+geometry realignment based on position 
+\begin{DoxyParams}{Parameters}
+{\em geom} & intersection rectangle over aligning geometry \\
+\hline
+{\em alignment} & (default fullscreen neutral) target alignment within specified border \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+new position of geometry after alignment process 
+\end{DoxyReturn}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=303pt]{class_renderer_a4013e69296ab27fd392a8a0809afa721_icgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_renderer_a71eb0110656d9b93d29aa609f33bf237}\index{Renderer@{Renderer}!assign\_sprite\_texture@{assign\_sprite\_texture}}
+\index{assign\_sprite\_texture@{assign\_sprite\_texture}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{assign\_sprite\_texture()}{assign\_sprite\_texture()}}
+{\footnotesize\ttfamily \label{class_renderer_a71eb0110656d9b93d29aa609f33bf237} 
+void Renderer\+::assign\+\_\+sprite\+\_\+texture (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_sprite}{Sprite}} \texorpdfstring{$\ast$}{*}}]{sprite}{, }\item[{\mbox{\hyperlink{struct_pixel_buffer_component}{Pixel\+Buffer\+Component}} \texorpdfstring{$\ast$}{*}}]{texture}{}\end{DoxyParamCaption})}
+
+assign a sprite texture to a sprite canvas 
+\begin{DoxyParams}{Parameters}
+{\em sprite} & pointer to the sprite canvas received at creation \\
+\hline
+{\em texture} & pointer to texture component info received at load request \\
+\hline
+\end{DoxyParams}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=330pt]{class_renderer_a71eb0110656d9b93d29aa609f33bf237_icgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_renderer_a87daf268f06d17e84107bbc9762e0478}\index{Renderer@{Renderer}!delete\_sprite@{delete\_sprite}}
+\index{delete\_sprite@{delete\_sprite}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{delete\_sprite()}{delete\_sprite()}}
+{\footnotesize\ttfamily \label{class_renderer_a87daf268f06d17e84107bbc9762e0478} 
+void Renderer\+::delete\+\_\+sprite (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_sprite}{Sprite}} \texorpdfstring{$\ast$}{*}}]{sprite}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+remove sprite from render list. quickly scaled invisible in main thread, later collected automatically 
+\begin{DoxyParams}{Parameters}
+{\em sprite} & reference to sprite, being removed \\
+\hline
+\end{DoxyParams}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_renderer_a87daf268f06d17e84107bbc9762e0478_icgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_renderer_a28c58c803aaf4c8f7ace532787afb7a6}\index{Renderer@{Renderer}!delete\_sprite\_texture@{delete\_sprite\_texture}}
+\index{delete\_sprite\_texture@{delete\_sprite\_texture}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{delete\_sprite\_texture()}{delete\_sprite\_texture()}}
+{\footnotesize\ttfamily \label{class_renderer_a28c58c803aaf4c8f7ace532787afb7a6} 
+void Renderer\+::delete\+\_\+sprite\+\_\+texture (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_pixel_buffer_component}{Pixel\+Buffer\+Component}} \texorpdfstring{$\ast$}{*}}]{texture}{}\end{DoxyParamCaption})}
+
+remove given sprite texture and free memory in array as well as releasing memory space on atlas 
+\begin{DoxyParams}{Parameters}
+{\em texture} & pointer to texture, which shall be removed \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_renderer_a95c455d316b876b7692039bfb0f94c64}\index{Renderer@{Renderer}!delete\_text@{delete\_text}}
+\index{delete\_text@{delete\_text}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{delete\_text()}{delete\_text()}}
+{\footnotesize\ttfamily \label{class_renderer_a95c455d316b876b7692039bfb0f94c64} 
+void Renderer\+::delete\+\_\+text (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{struct_text}{Text}} $>$}]{text}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\Hypertarget{class_renderer_a4b323392c7630f72eb4adfc5ca027ff8}\index{Renderer@{Renderer}!exit@{exit}}
+\index{exit@{exit}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{exit()}{exit()}}
+{\footnotesize\ttfamily \label{class_renderer_a4b323392c7630f72eb4adfc5ca027ff8} 
+void Renderer\+::exit (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+exit renderer and end all it\textquotesingle{}s subprocesses \Hypertarget{class_renderer_a54cb7fb0c30148e904e85b679538b25d}\index{Renderer@{Renderer}!register\_deferred\_geometry\_batch@{register\_deferred\_geometry\_batch}}
+\index{register\_deferred\_geometry\_batch@{register\_deferred\_geometry\_batch}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{register\_deferred\_geometry\_batch()}{register\_deferred\_geometry\_batch()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily \label{class_renderer_a54cb7fb0c30148e904e85b679538b25d} 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{struct_geometry_batch}{Geometry\+Batch}} $>$ Renderer\+::register\+\_\+deferred\+\_\+geometry\+\_\+batch (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+register phyiscal mesh batch with standard geometry pass shader \begin{DoxyReturn}{Returns}
+pointer to created physical mesh batch 
+\end{DoxyReturn}
+\Hypertarget{class_renderer_a61740c49e07adae3b39962ba53c43ef8}\index{Renderer@{Renderer}!register\_deferred\_geometry\_batch@{register\_deferred\_geometry\_batch}}
+\index{register\_deferred\_geometry\_batch@{register\_deferred\_geometry\_batch}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{register\_deferred\_geometry\_batch()}{register\_deferred\_geometry\_batch()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily \label{class_renderer_a61740c49e07adae3b39962ba53c43ef8} 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{struct_geometry_batch}{Geometry\+Batch}} $>$ Renderer\+::register\+\_\+deferred\+\_\+geometry\+\_\+batch (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{class_shader_pipeline}{Shader\+Pipeline}} $>$}]{pipeline}{}\end{DoxyParamCaption})}
+
+register physical mesh batch 
+\begin{DoxyParams}{Parameters}
+{\em pipeline} & shader pipeline, handling physical pass for newly created batch \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+pointer to created physical mesh batch 
+\end{DoxyReturn}
+\Hypertarget{class_renderer_a15a71fd52458fa3e2aa6bbcdc5eb0407}\index{Renderer@{Renderer}!register\_font@{register\_font}}
+\index{register\_font@{register\_font}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{register\_font()}{register\_font()}}
+{\footnotesize\ttfamily \label{class_renderer_a15a71fd52458fa3e2aa6bbcdc5eb0407} 
+\mbox{\hyperlink{struct_font}{Font}} \texorpdfstring{$\ast$}{*} Renderer\+::register\+\_\+font (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{path}{, }\item[{\mbox{\hyperlink{group___base_types_gace9d960e74685e2cd84b36132dbbf8aa}{u16}}}]{size}{}\end{DoxyParamCaption})}
+
+rasterize a vector font and upload pixel buffer to gpu memory 
+\begin{DoxyParams}{Parameters}
+{\em path} & path to .ttf vector font file \\
+\hline
+{\em size} & rasterization size \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+font data memory, to use later when writing text with or in style of it 
+\end{DoxyReturn}
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_renderer_a15a71fd52458fa3e2aa6bbcdc5eb0407_cgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_renderer_a66dc8312d9eac88aa702d43bf40c7d85}\index{Renderer@{Renderer}!register\_geometry\_batch@{register\_geometry\_batch}}
+\index{register\_geometry\_batch@{register\_geometry\_batch}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{register\_geometry\_batch()}{register\_geometry\_batch()}}
+{\footnotesize\ttfamily \label{class_renderer_a66dc8312d9eac88aa702d43bf40c7d85} 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{struct_geometry_batch}{Geometry\+Batch}} $>$ Renderer\+::register\+\_\+geometry\+\_\+batch (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{class_shader_pipeline}{Shader\+Pipeline}} $>$}]{pipeline}{}\end{DoxyParamCaption})}
+
+register triangle mesh batch 
+\begin{DoxyParams}{Parameters}
+{\em pipeline} & shader pipeline, handling pixel output for newly created batch \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+pointer to created triangle mesh batch 
+\end{DoxyReturn}
+\Hypertarget{class_renderer_a0b8d44542bcd69bdf9eb013056eba07d}\index{Renderer@{Renderer}!register\_particle\_batch@{register\_particle\_batch}}
+\index{register\_particle\_batch@{register\_particle\_batch}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{register\_particle\_batch()}{register\_particle\_batch()}}
+{\footnotesize\ttfamily \label{class_renderer_a0b8d44542bcd69bdf9eb013056eba07d} 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{struct_particle_batch}{Particle\+Batch}} $>$ Renderer\+::register\+\_\+particle\+\_\+batch (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{class_shader_pipeline}{Shader\+Pipeline}} $>$}]{pipeline}{}\end{DoxyParamCaption})}
+
+register particle batch 
+\begin{DoxyParams}{Parameters}
+{\em pipeline} & shader pipeline, handling pixel output for newly created batch \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+pointer to created particle batch 
+\end{DoxyReturn}
+\Hypertarget{class_renderer_a9dccc8fa6734777faaf28c3ff4ab7b34}\index{Renderer@{Renderer}!register\_pipeline@{register\_pipeline}}
+\index{register\_pipeline@{register\_pipeline}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{register\_pipeline()}{register\_pipeline()}}
+{\footnotesize\ttfamily \label{class_renderer_a9dccc8fa6734777faaf28c3ff4ab7b34} 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{class_shader_pipeline}{Shader\+Pipeline}} $>$ Renderer\+::register\+\_\+pipeline (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_vertex_shader}{Vertex\+Shader}} \&}]{vs}{, }\item[{\mbox{\hyperlink{class_fragment_shader}{Fragment\+Shader}} \&}]{fs}{}\end{DoxyParamCaption})}
+
+register shader pipeline 
+\begin{DoxyParams}{Parameters}
+{\em vs} & vertex shader \\
+\hline
+{\em fs} & fragment shader returns pointer to registered shader pipeline \\
+\hline
+\end{DoxyParams}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=312pt]{class_renderer_a9dccc8fa6734777faaf28c3ff4ab7b34_icgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_renderer_ae0ad01e6affb695e7374615e9d4d0546}\index{Renderer@{Renderer}!register\_sprite@{register\_sprite}}
+\index{register\_sprite@{register\_sprite}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{register\_sprite()}{register\_sprite()}}
+{\footnotesize\ttfamily \label{class_renderer_ae0ad01e6affb695e7374615e9d4d0546} 
+\mbox{\hyperlink{struct_sprite}{Sprite}} \texorpdfstring{$\ast$}{*} Renderer\+::register\+\_\+sprite (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_pixel_buffer_component}{Pixel\+Buffer\+Component}} \texorpdfstring{$\ast$}{*}}]{texture}{, }\item[{\mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}}}]{position}{, }\item[{\mbox{\hyperlink{group___base_types_ga43182e59794291f6ab00e51b160706c2}{vec2}}}]{size}{, }\item[{\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}}}]{rotation}{ = {\ttfamily .0f}, }\item[{\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}}}]{alpha}{ = {\ttfamily 1.f}, }\item[{\mbox{\hyperlink{struct_alignment}{Alignment}}}]{alignment}{ = {\ttfamily \{\}}}\end{DoxyParamCaption})}
+
+register a new sprite instance for rendering 
+\begin{DoxyParams}{Parameters}
+{\em texture} & sprite texture to be assigned to the sprite canvas \\
+\hline
+{\em position} & 2-\/dimensional position of sprite on screen, bounds defined by coordinate system \\
+\hline
+{\em size} & width and height of the sprite \\
+\hline
+{\em rotation} & (default .0f) rotation of the sprite in degrees \\
+\hline
+{\em alpha} & (default 1.\+f) transparency of sprite clamped between 0 and 1. 0 = invisible -\/\texorpdfstring{$>$}{>} 1 = opaque \\
+\hline
+{\em alignment} & (default fullscreen neutral) sprite position alignment within borders \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+pointer to sprite data for modification purposes 
+\end{DoxyReturn}
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=330pt]{class_renderer_ae0ad01e6affb695e7374615e9d4d0546_cgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_renderer_af3553f5c551fa5aed1503a9a7ef39f17}\index{Renderer@{Renderer}!register\_sprite\_texture@{register\_sprite\_texture}}
+\index{register\_sprite\_texture@{register\_sprite\_texture}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{register\_sprite\_texture()}{register\_sprite\_texture()}}
+{\footnotesize\ttfamily \label{class_renderer_af3553f5c551fa5aed1503a9a7ef39f17} 
+\mbox{\hyperlink{struct_pixel_buffer_component}{Pixel\+Buffer\+Component}} \texorpdfstring{$\ast$}{*} Renderer\+::register\+\_\+sprite\+\_\+texture (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{path}{}\end{DoxyParamCaption})}
+
+register sprite texture to load and move to sprite pixel buffer 
+\begin{DoxyParams}{Parameters}
+{\em path} & path to texture file \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+pointer to texture component info to assign to a sprite later 
+\end{DoxyReturn}
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_renderer_af3553f5c551fa5aed1503a9a7ef39f17_cgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_renderer_a87901a6b111331286dd192417476277e}\index{Renderer@{Renderer}!register\_texture@{register\_texture}}
+\index{register\_texture@{register\_texture}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{register\_texture()}{register\_texture()}}
+{\footnotesize\ttfamily \label{class_renderer_a87901a6b111331286dd192417476277e} 
+\mbox{\hyperlink{class_texture}{Texture}} \texorpdfstring{$\ast$}{*} Renderer\+::register\+\_\+texture (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{path}{, }\item[{\mbox{\hyperlink{buffer_8h_acbce0af680bcfc0a5b989bcfc6583e0f}{Texture\+Format}}}]{format}{ = {\ttfamily \mbox{\hyperlink{buffer_8h_acbce0af680bcfc0a5b989bcfc6583e0fa9f5d930e05f556c7a3fbe88e2a0bba0f}{TEXTURE\+\_\+\+FORMAT\+\_\+\+RGBA}}}}\end{DoxyParamCaption})}
+
+load texture into memory 
+\begin{DoxyParams}{Parameters}
+{\em path} & path to texture file \\
+\hline
+{\em format} & (default TEXTURE\+\_\+\+FORMAT\+\_\+\+RGBA) texture colour channel format \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+pointer to texture in ram, referencing texture in vram 
+\end{DoxyReturn}
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_renderer_a87901a6b111331286dd192417476277e_cgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_renderer_ae3c8e8a9b12d18864b5a3cefca61e48f}\index{Renderer@{Renderer}!reset\_lighting@{reset\_lighting}}
+\index{reset\_lighting@{reset\_lighting}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{reset\_lighting()}{reset\_lighting()}}
+{\footnotesize\ttfamily \label{class_renderer_ae3c8e8a9b12d18864b5a3cefca61e48f} 
+void Renderer\+::reset\+\_\+lighting (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+deactivate all lights to fundamentally reset the lighting setup Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_renderer_ae3c8e8a9b12d18864b5a3cefca61e48f_cgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_renderer_af39230ac153ec5e1b0e5f078ebe351e1}\index{Renderer@{Renderer}!update@{update}}
+\index{update@{update}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily \label{class_renderer_af39230ac153ec5e1b0e5f078ebe351e1} 
+void Renderer\+::update (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+render visual result Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_renderer_af39230ac153ec5e1b0e5f078ebe351e1_cgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_renderer_a7c4f301dadf7e5298217fae65b8ad08c}\index{Renderer@{Renderer}!upload\_lighting@{upload\_lighting}}
+\index{upload\_lighting@{upload\_lighting}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{upload\_lighting()}{upload\_lighting()}}
+{\footnotesize\ttfamily \label{class_renderer_a7c4f301dadf7e5298217fae65b8ad08c} 
+void Renderer\+::upload\+\_\+lighting (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+upload all setup lights to gpu lighting simulation processing Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_renderer_a7c4f301dadf7e5298217fae65b8ad08c_icgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_renderer_ab3348c4de3101d9e0379f1e3ffee6a45}\index{Renderer@{Renderer}!write\_text@{write\_text}}
+\index{write\_text@{write\_text}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{write\_text()}{write\_text()}}
+{\footnotesize\ttfamily \label{class_renderer_ab3348c4de3101d9e0379f1e3ffee6a45} 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{struct_text}{Text}} $>$ Renderer\+::write\+\_\+text (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_font}{Font}} \texorpdfstring{$\ast$}{*}}]{font}{, }\item[{\mbox{\hyperlink{group___base_types_gad453f9f71ce1f9153fb748d6bb25e454}{string}}}]{data}{, }\item[{\mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}}}]{position}{, }\item[{\mbox{\hyperlink{group___base_types_ga5f6906312a689f27d70e9d086649d3fd}{f32}}}]{scale}{, }\item[{\mbox{\hyperlink{group___base_types_gac54e849f8b2339f592307eaf6cdbba77}{vec4}}}]{colour}{ = {\ttfamily \mbox{\hyperlink{group___base_types_gac54e849f8b2339f592307eaf6cdbba77}{vec4}}(1)}, }\item[{\mbox{\hyperlink{struct_alignment}{Alignment}}}]{align}{ = {\ttfamily \{\}}}\end{DoxyParamCaption})}
+
+write text on screen 
+\begin{DoxyParams}{Parameters}
+{\em font} & pointer to loaded font \\
+\hline
+{\em data} & text content to be displayed in given font \\
+\hline
+{\em position} & positional offset of the text based on screen alignment \\
+\hline
+{\em scale} & intuitive absolute text scaling in pixels, supported by automatic adaptive resolution \\
+\hline
+{\em colour} & (default \doxylink{group___base_types_gac54e849f8b2339f592307eaf6cdbba77}{vec4(1)}) text starting colour of all characters \\
+\hline
+{\em align} & (default SCREEN\+\_\+\+ALIGN\+\_\+\+BOTTOMLEFT) text alignment on screen, modified by positional offset \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+list container of created text 
+\end{DoxyReturn}
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=303pt]{class_renderer_ab3348c4de3101d9e0379f1e3ffee6a45_cgraph}
+\end{center}
+\end{figure}
+
+
+\label{doc-variable-members}
+\Hypertarget{class_renderer_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{class_renderer_acd77b62b600c2ed94f81b883a4e2be05}\index{Renderer@{Renderer}!m\_CanvasPipeline@{m\_CanvasPipeline}}
+\index{m\_CanvasPipeline@{m\_CanvasPipeline}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_CanvasPipeline}{m\_CanvasPipeline}}
+{\footnotesize\ttfamily \label{class_renderer_acd77b62b600c2ed94f81b883a4e2be05} 
+\mbox{\hyperlink{class_shader_pipeline}{Shader\+Pipeline}} Renderer\+::m\+\_\+\+Canvas\+Pipeline\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_ab4bdc00f0f0192d3030c2b3290c3672f}\index{Renderer@{Renderer}!m\_CanvasVertexArray@{m\_CanvasVertexArray}}
+\index{m\_CanvasVertexArray@{m\_CanvasVertexArray}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_CanvasVertexArray}{m\_CanvasVertexArray}}
+{\footnotesize\ttfamily \label{class_renderer_ab4bdc00f0f0192d3030c2b3290c3672f} 
+\mbox{\hyperlink{class_vertex_array}{Vertex\+Array}} Renderer\+::m\+\_\+\+Canvas\+Vertex\+Array\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_abeb05cc60d6a59b98cf122951dcb8574}\index{Renderer@{Renderer}!m\_CanvasVertexBuffer@{m\_CanvasVertexBuffer}}
+\index{m\_CanvasVertexBuffer@{m\_CanvasVertexBuffer}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_CanvasVertexBuffer}{m\_CanvasVertexBuffer}}
+{\footnotesize\ttfamily \label{class_renderer_abeb05cc60d6a59b98cf122951dcb8574} 
+\mbox{\hyperlink{class_vertex_buffer}{Vertex\+Buffer}} Renderer\+::m\+\_\+\+Canvas\+Vertex\+Buffer\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_a388f8576f487d61648c8ff1d3df91390}\index{Renderer@{Renderer}!m\_DeferredFrameBuffer@{m\_DeferredFrameBuffer}}
+\index{m\_DeferredFrameBuffer@{m\_DeferredFrameBuffer}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_DeferredFrameBuffer}{m\_DeferredFrameBuffer}}
+{\footnotesize\ttfamily \label{class_renderer_a388f8576f487d61648c8ff1d3df91390} 
+\mbox{\hyperlink{class_framebuffer}{Framebuffer}} Renderer\+::m\+\_\+\+Deferred\+Frame\+Buffer = \mbox{\hyperlink{class_framebuffer}{Framebuffer}}(4)\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_ad9478e460637a0cf3c4196dd300fdc02}\index{Renderer@{Renderer}!m\_DeferredGeometryBatches@{m\_DeferredGeometryBatches}}
+\index{m\_DeferredGeometryBatches@{m\_DeferredGeometryBatches}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_DeferredGeometryBatches}{m\_DeferredGeometryBatches}}
+{\footnotesize\ttfamily \label{class_renderer_ad9478e460637a0cf3c4196dd300fdc02} 
+\mbox{\hyperlink{base_8h_a50bd7d245d7870ed8c926b7f7df06328}{list}}$<$\mbox{\hyperlink{struct_geometry_batch}{Geometry\+Batch}}$>$ Renderer\+::m\+\_\+\+Deferred\+Geometry\+Batches\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_a621df04f33c29581c0d0adf956ee3e9f}\index{Renderer@{Renderer}!m\_DeferredParticleBatches@{m\_DeferredParticleBatches}}
+\index{m\_DeferredParticleBatches@{m\_DeferredParticleBatches}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_DeferredParticleBatches}{m\_DeferredParticleBatches}}
+{\footnotesize\ttfamily \label{class_renderer_a621df04f33c29581c0d0adf956ee3e9f} 
+\mbox{\hyperlink{base_8h_a50bd7d245d7870ed8c926b7f7df06328}{list}}$<$\mbox{\hyperlink{struct_particle_batch}{Particle\+Batch}}$>$ Renderer\+::m\+\_\+\+Deferred\+Particle\+Batches\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_a3b36eae5afc34355c56ab829e01ee51d}\index{Renderer@{Renderer}!m\_Fonts@{m\_Fonts}}
+\index{m\_Fonts@{m\_Fonts}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_Fonts}{m\_Fonts}}
+{\footnotesize\ttfamily \label{class_renderer_a3b36eae5afc34355c56ab829e01ee51d} 
+\mbox{\hyperlink{class_in_place_array}{In\+Place\+Array}}$<$\mbox{\hyperlink{struct_font}{Font}}$>$ Renderer\+::m\+\_\+\+Fonts = \mbox{\hyperlink{class_in_place_array}{In\+Place\+Array}}$<$\mbox{\hyperlink{struct_font}{Font}}$>$(\mbox{\hyperlink{config_8h_aed089b76a3e5d364b16ba4f3a0b0fac0}{RENDERER\+\_\+\+MAXIMUM\+\_\+\+FONT\+\_\+\+COUNT}})\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_a0da7a40048f10d168b4391145f812334}\index{Renderer@{Renderer}!m\_ForwardFrameBuffer@{m\_ForwardFrameBuffer}}
+\index{m\_ForwardFrameBuffer@{m\_ForwardFrameBuffer}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_ForwardFrameBuffer}{m\_ForwardFrameBuffer}}
+{\footnotesize\ttfamily \label{class_renderer_a0da7a40048f10d168b4391145f812334} 
+\mbox{\hyperlink{class_framebuffer}{Framebuffer}} Renderer\+::m\+\_\+\+Forward\+Frame\+Buffer = \mbox{\hyperlink{class_framebuffer}{Framebuffer}}(1)\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_aff4395f421d4d93607d42e319226bc41}\index{Renderer@{Renderer}!m\_FrameStart@{m\_FrameStart}}
+\index{m\_FrameStart@{m\_FrameStart}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_FrameStart}{m\_FrameStart}}
+{\footnotesize\ttfamily \label{class_renderer_aff4395f421d4d93607d42e319226bc41} 
+std\+::chrono\+::steady\+\_\+clock\+::time\+\_\+point Renderer\+::m\+\_\+\+Frame\+Start\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_ad0678d15bde729ae8a91293032ce93d4}\index{Renderer@{Renderer}!m\_GeometryBatches@{m\_GeometryBatches}}
+\index{m\_GeometryBatches@{m\_GeometryBatches}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_GeometryBatches}{m\_GeometryBatches}}
+{\footnotesize\ttfamily \label{class_renderer_ad0678d15bde729ae8a91293032ce93d4} 
+\mbox{\hyperlink{base_8h_a50bd7d245d7870ed8c926b7f7df06328}{list}}$<$\mbox{\hyperlink{struct_geometry_batch}{Geometry\+Batch}}$>$ Renderer\+::m\+\_\+\+Geometry\+Batches\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_adc2d095b74d5bb263a598b663ed03f64}\index{Renderer@{Renderer}!m\_GeometryPassPipeline@{m\_GeometryPassPipeline}}
+\index{m\_GeometryPassPipeline@{m\_GeometryPassPipeline}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_GeometryPassPipeline}{m\_GeometryPassPipeline}}
+{\footnotesize\ttfamily \label{class_renderer_adc2d095b74d5bb263a598b663ed03f64} 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$\mbox{\hyperlink{class_shader_pipeline}{Shader\+Pipeline}}$>$ Renderer\+::m\+\_\+\+Geometry\+Pass\+Pipeline\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_a0d0d8a173c744075d9a09dd872f10bb6}\index{Renderer@{Renderer}!m\_GPUFontTextures@{m\_GPUFontTextures}}
+\index{m\_GPUFontTextures@{m\_GPUFontTextures}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_GPUFontTextures}{m\_GPUFontTextures}}
+{\footnotesize\ttfamily \label{class_renderer_a0d0d8a173c744075d9a09dd872f10bb6} 
+\mbox{\hyperlink{struct_g_p_u_pixel_buffer}{GPUPixel\+Buffer}} Renderer\+::m\+\_\+\+GPUFont\+Textures\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_a82a4ba89e5d5c1090784f759fc757866}\index{Renderer@{Renderer}!m\_GPUSpriteTextures@{m\_GPUSpriteTextures}}
+\index{m\_GPUSpriteTextures@{m\_GPUSpriteTextures}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_GPUSpriteTextures}{m\_GPUSpriteTextures}}
+{\footnotesize\ttfamily \label{class_renderer_a82a4ba89e5d5c1090784f759fc757866} 
+\mbox{\hyperlink{struct_g_p_u_pixel_buffer}{GPUPixel\+Buffer}} Renderer\+::m\+\_\+\+GPUSprite\+Textures\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_a44402ce6719bcf1f27e249908692fb1f}\index{Renderer@{Renderer}!m\_Lighting@{m\_Lighting}}
+\index{m\_Lighting@{m\_Lighting}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_Lighting}{m\_Lighting}}
+{\footnotesize\ttfamily \label{class_renderer_a44402ce6719bcf1f27e249908692fb1f} 
+\mbox{\hyperlink{struct_lighting}{Lighting}} Renderer\+::m\+\_\+\+Lighting\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_a39b0e166f6de3dc5606c0104b8546bf7}\index{Renderer@{Renderer}!m\_MeshTextures@{m\_MeshTextures}}
+\index{m\_MeshTextures@{m\_MeshTextures}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_MeshTextures}{m\_MeshTextures}}
+{\footnotesize\ttfamily \label{class_renderer_a39b0e166f6de3dc5606c0104b8546bf7} 
+\mbox{\hyperlink{class_in_place_array}{In\+Place\+Array}}$<$\mbox{\hyperlink{class_texture}{Texture}}$>$ Renderer\+::m\+\_\+\+Mesh\+Textures = \mbox{\hyperlink{class_in_place_array}{In\+Place\+Array}}$<$\mbox{\hyperlink{class_texture}{Texture}}$>$(\mbox{\hyperlink{config_8h_a013513bbc6c2a2a2791767aa08811a55}{RENDERER\+\_\+\+MAXIMUM\+\_\+\+TEXTURE\+\_\+\+COUNT}})\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_a9ab6ec7fc7a8921362cc97eb7f4fd619}\index{Renderer@{Renderer}!m\_MeshTextureUploadQueue@{m\_MeshTextureUploadQueue}}
+\index{m\_MeshTextureUploadQueue@{m\_MeshTextureUploadQueue}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_MeshTextureUploadQueue}{m\_MeshTextureUploadQueue}}
+{\footnotesize\ttfamily \label{class_renderer_a9ab6ec7fc7a8921362cc97eb7f4fd619} 
+\mbox{\hyperlink{base_8h_a69ef479f0bd0f6c28029a80ee67cfb1e}{queue}}$<$\mbox{\hyperlink{struct_texture_data_tuple}{Texture\+Data\+Tuple}}$>$ Renderer\+::m\+\_\+\+Mesh\+Texture\+Upload\+Queue\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_a6011fb19244d2507deaf6b0d2ed9d322}\index{Renderer@{Renderer}!m\_MutexMeshTextureUpload@{m\_MutexMeshTextureUpload}}
+\index{m\_MutexMeshTextureUpload@{m\_MutexMeshTextureUpload}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_MutexMeshTextureUpload}{m\_MutexMeshTextureUpload}}
+{\footnotesize\ttfamily \label{class_renderer_a6011fb19244d2507deaf6b0d2ed9d322} 
+std\+::mutex Renderer\+::m\+\_\+\+Mutex\+Mesh\+Texture\+Upload\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_a42c323e6a7584b453909aef6ed89c22a}\index{Renderer@{Renderer}!m\_ParticleBatches@{m\_ParticleBatches}}
+\index{m\_ParticleBatches@{m\_ParticleBatches}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_ParticleBatches}{m\_ParticleBatches}}
+{\footnotesize\ttfamily \label{class_renderer_a42c323e6a7584b453909aef6ed89c22a} 
+\mbox{\hyperlink{base_8h_a50bd7d245d7870ed8c926b7f7df06328}{list}}$<$\mbox{\hyperlink{struct_particle_batch}{Particle\+Batch}}$>$ Renderer\+::m\+\_\+\+Particle\+Batches\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_a612dbfb9ef2ed6bb205afe564626ef38}\index{Renderer@{Renderer}!m\_ShaderPipelines@{m\_ShaderPipelines}}
+\index{m\_ShaderPipelines@{m\_ShaderPipelines}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_ShaderPipelines}{m\_ShaderPipelines}}
+{\footnotesize\ttfamily \label{class_renderer_a612dbfb9ef2ed6bb205afe564626ef38} 
+\mbox{\hyperlink{base_8h_a50bd7d245d7870ed8c926b7f7df06328}{list}}$<$\mbox{\hyperlink{class_shader_pipeline}{Shader\+Pipeline}}$>$ Renderer\+::m\+\_\+\+Shader\+Pipelines\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_a42e7f664c188e57d2f7256203e64b1e3}\index{Renderer@{Renderer}!m\_SpriteCollector@{m\_SpriteCollector}}
+\index{m\_SpriteCollector@{m\_SpriteCollector}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_SpriteCollector}{m\_SpriteCollector}}
+{\footnotesize\ttfamily \label{class_renderer_a42e7f664c188e57d2f7256203e64b1e3} 
+\mbox{\hyperlink{group___base_types_ga8c196f710449389c08a7adf5391892ea}{thread}} Renderer\+::m\+\_\+\+Sprite\+Collector\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_afec968d8f598bb7d5c8abbb6d961f8f2}\index{Renderer@{Renderer}!m\_SpriteInstanceBuffer@{m\_SpriteInstanceBuffer}}
+\index{m\_SpriteInstanceBuffer@{m\_SpriteInstanceBuffer}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_SpriteInstanceBuffer}{m\_SpriteInstanceBuffer}}
+{\footnotesize\ttfamily \label{class_renderer_afec968d8f598bb7d5c8abbb6d961f8f2} 
+\mbox{\hyperlink{class_vertex_buffer}{Vertex\+Buffer}} Renderer\+::m\+\_\+\+Sprite\+Instance\+Buffer\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_ae59b8e60d0c7eee2c0d685b2f11f45d6}\index{Renderer@{Renderer}!m\_SpritePipeline@{m\_SpritePipeline}}
+\index{m\_SpritePipeline@{m\_SpritePipeline}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_SpritePipeline}{m\_SpritePipeline}}
+{\footnotesize\ttfamily \label{class_renderer_ae59b8e60d0c7eee2c0d685b2f11f45d6} 
+\mbox{\hyperlink{class_shader_pipeline}{Shader\+Pipeline}} Renderer\+::m\+\_\+\+Sprite\+Pipeline\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_a5444d86b565cce6614654ab960b1684f}\index{Renderer@{Renderer}!m\_Sprites@{m\_Sprites}}
+\index{m\_Sprites@{m\_Sprites}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_Sprites}{m\_Sprites}}
+{\footnotesize\ttfamily \label{class_renderer_a5444d86b565cce6614654ab960b1684f} 
+\mbox{\hyperlink{class_in_place_array}{In\+Place\+Array}}$<$\mbox{\hyperlink{struct_sprite}{Sprite}}$>$ Renderer\+::m\+\_\+\+Sprites = \mbox{\hyperlink{class_in_place_array}{In\+Place\+Array}}$<$\mbox{\hyperlink{struct_sprite}{Sprite}}$>$(\mbox{\hyperlink{config_8h_a0e5d5c0e30ba6ca34824744768bbd9a6}{BUFFER\+\_\+\+MAXIMUM\+\_\+\+TEXTURE\+\_\+\+COUNT}})\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_a789be4be23ed4b61892865ef0c9d9a66}\index{Renderer@{Renderer}!m\_SpriteTextureCollector@{m\_SpriteTextureCollector}}
+\index{m\_SpriteTextureCollector@{m\_SpriteTextureCollector}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_SpriteTextureCollector}{m\_SpriteTextureCollector}}
+{\footnotesize\ttfamily \label{class_renderer_a789be4be23ed4b61892865ef0c9d9a66} 
+\mbox{\hyperlink{group___base_types_ga8c196f710449389c08a7adf5391892ea}{thread}} Renderer\+::m\+\_\+\+Sprite\+Texture\+Collector\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_aee9b244b884ed2624f5a19a81843566b}\index{Renderer@{Renderer}!m\_SpriteVertexArray@{m\_SpriteVertexArray}}
+\index{m\_SpriteVertexArray@{m\_SpriteVertexArray}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_SpriteVertexArray}{m\_SpriteVertexArray}}
+{\footnotesize\ttfamily \label{class_renderer_aee9b244b884ed2624f5a19a81843566b} 
+\mbox{\hyperlink{class_vertex_array}{Vertex\+Array}} Renderer\+::m\+\_\+\+Sprite\+Vertex\+Array\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_a91d83d6a37491b3970a90fe805781d33}\index{Renderer@{Renderer}!m\_SpriteVertexBuffer@{m\_SpriteVertexBuffer}}
+\index{m\_SpriteVertexBuffer@{m\_SpriteVertexBuffer}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_SpriteVertexBuffer}{m\_SpriteVertexBuffer}}
+{\footnotesize\ttfamily \label{class_renderer_a91d83d6a37491b3970a90fe805781d33} 
+\mbox{\hyperlink{class_vertex_buffer}{Vertex\+Buffer}} Renderer\+::m\+\_\+\+Sprite\+Vertex\+Buffer\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_a8e7487f93c3afb5b71ed4813d190da36}\index{Renderer@{Renderer}!m\_TextInstanceBuffer@{m\_TextInstanceBuffer}}
+\index{m\_TextInstanceBuffer@{m\_TextInstanceBuffer}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_TextInstanceBuffer}{m\_TextInstanceBuffer}}
+{\footnotesize\ttfamily \label{class_renderer_a8e7487f93c3afb5b71ed4813d190da36} 
+\mbox{\hyperlink{class_vertex_buffer}{Vertex\+Buffer}} Renderer\+::m\+\_\+\+Text\+Instance\+Buffer\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_a1c869d3ca99ffefd20711fd6f9570b90}\index{Renderer@{Renderer}!m\_TextPipeline@{m\_TextPipeline}}
+\index{m\_TextPipeline@{m\_TextPipeline}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_TextPipeline}{m\_TextPipeline}}
+{\footnotesize\ttfamily \label{class_renderer_a1c869d3ca99ffefd20711fd6f9570b90} 
+\mbox{\hyperlink{class_shader_pipeline}{Shader\+Pipeline}} Renderer\+::m\+\_\+\+Text\+Pipeline\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_a151ae19089bc5406e66b90ac91193818}\index{Renderer@{Renderer}!m\_Texts@{m\_Texts}}
+\index{m\_Texts@{m\_Texts}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_Texts}{m\_Texts}}
+{\footnotesize\ttfamily \label{class_renderer_a151ae19089bc5406e66b90ac91193818} 
+\mbox{\hyperlink{base_8h_a50bd7d245d7870ed8c926b7f7df06328}{list}}$<$\mbox{\hyperlink{struct_text}{Text}}$>$ Renderer\+::m\+\_\+\+Texts\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_renderer_a1dac2724a0480d0f4ff0bf4460da2bbc}\index{Renderer@{Renderer}!m\_TextVertexArray@{m\_TextVertexArray}}
+\index{m\_TextVertexArray@{m\_TextVertexArray}!Renderer@{Renderer}}
+\doxysubsubsection{\texorpdfstring{m\_TextVertexArray}{m\_TextVertexArray}}
+{\footnotesize\ttfamily \label{class_renderer_a1dac2724a0480d0f4ff0bf4460da2bbc} 
+\mbox{\hyperlink{class_vertex_array}{Vertex\+Array}} Renderer\+::m\+\_\+\+Text\+Vertex\+Array\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+core/\mbox{\hyperlink{renderer_8h}{renderer.\+h}}\item 
+core/\mbox{\hyperlink{renderer_8cpp}{renderer.\+cpp}}\end{DoxyCompactItemize}

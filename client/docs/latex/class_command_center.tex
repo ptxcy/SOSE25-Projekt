@@ -1,0 +1,321 @@
+\doxysection{Command\+Center Class Reference}
+\hypertarget{class_command_center}{}\label{class_command_center}\index{CommandCenter@{CommandCenter}}
+
+
+{\ttfamily \#include $<$command\+\_\+center.\+h$>$}
+
+
+
+Collaboration diagram for Command\+Center\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_command_center__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_command_center_afec64ffbaf1f510833884dbbfd57e895}{Command\+Center}} (\mbox{\hyperlink{struct_font}{Font}} \texorpdfstring{$\ast$}{*}font, \mbox{\hyperlink{class_star_system}{Star\+System}} \texorpdfstring{$\ast$}{*}ssys, \mbox{\hyperlink{class_flotilla}{Flotilla}} \texorpdfstring{$\ast$}{*}flt)
+\item 
+void \mbox{\hyperlink{class_command_center_a5d7cca5cde6b884b68ef2e8a432b05c6}{run}} ()
+\item 
+void \mbox{\hyperlink{class_command_center_af2848a4f6d08db5e22737cec7d4673ce}{update}} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static void \mbox{\hyperlink{class_command_center_a3a142915399e982ef75d5cdd5c91e7a1}{\+\_\+update}} (void \texorpdfstring{$\ast$}{*}cc)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{class_command_center_ac0e848420f1d0b7a39a02c6afeb68216}{\+\_\+set\+\_\+planet\+\_\+buttons}} (\mbox{\hyperlink{group___base_types_gad453f9f71ce1f9153fb748d6bb25e454}{string}} instr)
+\item 
+void \mbox{\hyperlink{class_command_center_a81410d3a14891056cac201261f158b81}{\+\_\+set\+\_\+text\+\_\+locked}} ()
+\item 
+void \mbox{\hyperlink{class_command_center_aac8b7512644313a48835136a9ce108c3}{\+\_\+set\+\_\+text\+\_\+flight}} ()
+\item 
+void \mbox{\hyperlink{class_command_center_a142cd44bda0c41743462dd5d9cb3e9d8}{\+\_\+set\+\_\+text\+\_\+freeform}} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{struct_font}{Font}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{class_command_center_af89502a4035f6181570e42baaf459a8a}{m\+\_\+\+Font}}
+\item 
+\mbox{\hyperlink{class_star_system}{Star\+System}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{class_command_center_a7ca5109d7d96c317aa6681a728ca6dfd}{m\+\_\+\+Star\+System}}
+\item 
+\mbox{\hyperlink{class_flotilla}{Flotilla}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{class_command_center_a4c292499f0c0c73ca6a5f622d0251303}{m\+\_\+\+Flotilla}}
+\item 
+\mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}} \mbox{\hyperlink{class_command_center_ac56de1ea52c4dced2201c98b91634400}{m\+\_\+\+Camera\+Momentum}} = \mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}}(0)
+\item 
+\mbox{\hyperlink{command__center_8h_abb8cc74d1e81bc5d24e0a6d5ec462524}{Control\+State}} \mbox{\hyperlink{class_command_center_a1b6ee8f20c77bce7d007681af404e702}{m\+\_\+\+CState}} = \mbox{\hyperlink{command__center_8h_abb8cc74d1e81bc5d24e0a6d5ec462524a1486009e124ea8ee36c6849ce52a587e}{CSTATE\+\_\+\+LOCKED}}
+\item 
+\mbox{\hyperlink{group___base_types_ga92c50087ca0e64fa93fc59402c55f8ca}{u8}} \mbox{\hyperlink{class_command_center_a281afc1544eac8d113571de03c332c30}{m\+\_\+\+Planet\+Lock}} = 2
+\item 
+\mbox{\hyperlink{group___base_types_ga92c50087ca0e64fa93fc59402c55f8ca}{u8}} \mbox{\hyperlink{class_command_center_a5c1d1dd96a3763b0255c4da6cb10b5b7}{m\+\_\+\+Ship\+Lock}} = 0
+\item 
+\mbox{\hyperlink{group___base_types_ga3f7e2bcbb0b4c338f3c4f6c937cd4234}{u64}} \mbox{\hyperlink{class_command_center_a35e0933f2fbd1f6607456344f013b30f}{m\+\_\+\+Ship\+Chosen}} = 0
+\item 
+\mbox{\hyperlink{struct_pixel_buffer_component}{Pixel\+Buffer\+Component}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{class_command_center_a6cfe88486197788abe121b0732dfc4d2}{m\+\_\+\+Button\+Idle}}
+\item 
+\mbox{\hyperlink{struct_pixel_buffer_component}{Pixel\+Buffer\+Component}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{class_command_center_a444309258bdc2c870d96385acb521189}{m\+\_\+\+Button\+Hover}}
+\item 
+\mbox{\hyperlink{struct_pixel_buffer_component}{Pixel\+Buffer\+Component}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{class_command_center_af25148fab82afe02fe171e798ac1a0ef}{m\+\_\+\+Button\+Select}}
+\item 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{struct_text}{Text}} $>$ \mbox{\hyperlink{class_command_center_ac6da0b948fd0327738e495becce80fd0}{m\+\_\+\+Tx\+Control\+Mode}}
+\item 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{struct_button}{Button}} $>$ \mbox{\hyperlink{class_command_center_a57fd72a3c4eb6c93b7ac9f086cad4cb7}{m\+\_\+\+Btn\+Jumpers}} \mbox{[}8\mbox{]}
+\item 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{struct_button}{Button}} $>$ \mbox{\hyperlink{class_command_center_a704c36b25b8a5196868450db971569c6}{m\+\_\+\+Btn\+Fleet}} \mbox{[}10\mbox{]}
+\item 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$ \mbox{\hyperlink{struct_button}{Button}} $>$ \mbox{\hyperlink{class_command_center_ac6ba3b191d9ba302f1de282d256e234a}{m\+\_\+\+Btn\+Build}}
+\item 
+\mbox{\hyperlink{group___base_types_gad453f9f71ce1f9153fb748d6bb25e454}{string}} \mbox{\hyperlink{class_command_center_ac3cf0e045795b1b1939903f4f598e43c}{m\+\_\+\+Planet\+Names}} \mbox{[}8\mbox{]} = \{ "{}Mercury"{},"{}Venus"{},"{}Earth"{},"{}Mars"{},"{}Jupiter"{},"{}Saturn"{},"{}Uranus"{},"{}Neptune"{} \}
+\end{DoxyCompactItemize}
+
+
+\label{doc-constructors}
+\Hypertarget{class_command_center_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{class_command_center_afec64ffbaf1f510833884dbbfd57e895}\index{CommandCenter@{CommandCenter}!CommandCenter@{CommandCenter}}
+\index{CommandCenter@{CommandCenter}!CommandCenter@{CommandCenter}}
+\doxysubsubsection{\texorpdfstring{CommandCenter()}{CommandCenter()}}
+{\footnotesize\ttfamily \label{class_command_center_afec64ffbaf1f510833884dbbfd57e895} 
+Command\+Center\+::\+Command\+Center (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_font}{Font}} \texorpdfstring{$\ast$}{*}}]{font}{, }\item[{\mbox{\hyperlink{class_star_system}{Star\+System}} \texorpdfstring{$\ast$}{*}}]{ssys}{, }\item[{\mbox{\hyperlink{class_flotilla}{Flotilla}} \texorpdfstring{$\ast$}{*}}]{flt}{}\end{DoxyParamCaption})}
+
+command center setup Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_command_center_afec64ffbaf1f510833884dbbfd57e895_icgraph}
+\end{center}
+\end{figure}
+
+
+\label{doc-func-members}
+\Hypertarget{class_command_center_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_command_center_ac0e848420f1d0b7a39a02c6afeb68216}\index{CommandCenter@{CommandCenter}!\_set\_planet\_buttons@{\_set\_planet\_buttons}}
+\index{\_set\_planet\_buttons@{\_set\_planet\_buttons}!CommandCenter@{CommandCenter}}
+\doxysubsubsection{\texorpdfstring{\_set\_planet\_buttons()}{\_set\_planet\_buttons()}}
+{\footnotesize\ttfamily \label{class_command_center_ac0e848420f1d0b7a39a02c6afeb68216} 
+void Command\+Center\+::\+\_\+set\+\_\+planet\+\_\+buttons (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{group___base_types_gad453f9f71ce1f9153fb748d6bb25e454}{string}}}]{instr}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+TODO Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_command_center_ac0e848420f1d0b7a39a02c6afeb68216_icgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_command_center_aac8b7512644313a48835136a9ce108c3}\index{CommandCenter@{CommandCenter}!\_set\_text\_flight@{\_set\_text\_flight}}
+\index{\_set\_text\_flight@{\_set\_text\_flight}!CommandCenter@{CommandCenter}}
+\doxysubsubsection{\texorpdfstring{\_set\_text\_flight()}{\_set\_text\_flight()}}
+{\footnotesize\ttfamily \label{class_command_center_aac8b7512644313a48835136a9ce108c3} 
+void Command\+Center\+::\+\_\+set\+\_\+text\+\_\+flight (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+TODO Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_command_center_aac8b7512644313a48835136a9ce108c3_icgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_command_center_a142cd44bda0c41743462dd5d9cb3e9d8}\index{CommandCenter@{CommandCenter}!\_set\_text\_freeform@{\_set\_text\_freeform}}
+\index{\_set\_text\_freeform@{\_set\_text\_freeform}!CommandCenter@{CommandCenter}}
+\doxysubsubsection{\texorpdfstring{\_set\_text\_freeform()}{\_set\_text\_freeform()}}
+{\footnotesize\ttfamily \label{class_command_center_a142cd44bda0c41743462dd5d9cb3e9d8} 
+void Command\+Center\+::\+\_\+set\+\_\+text\+\_\+freeform (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+TODO Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_command_center_a142cd44bda0c41743462dd5d9cb3e9d8_icgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_command_center_a81410d3a14891056cac201261f158b81}\index{CommandCenter@{CommandCenter}!\_set\_text\_locked@{\_set\_text\_locked}}
+\index{\_set\_text\_locked@{\_set\_text\_locked}!CommandCenter@{CommandCenter}}
+\doxysubsubsection{\texorpdfstring{\_set\_text\_locked()}{\_set\_text\_locked()}}
+{\footnotesize\ttfamily \label{class_command_center_a81410d3a14891056cac201261f158b81} 
+void Command\+Center\+::\+\_\+set\+\_\+text\+\_\+locked (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+TODO Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_command_center_a81410d3a14891056cac201261f158b81_icgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_command_center_a3a142915399e982ef75d5cdd5c91e7a1}\index{CommandCenter@{CommandCenter}!\_update@{\_update}}
+\index{\_update@{\_update}!CommandCenter@{CommandCenter}}
+\doxysubsubsection{\texorpdfstring{\_update()}{\_update()}}
+{\footnotesize\ttfamily \label{class_command_center_a3a142915399e982ef75d5cdd5c91e7a1} 
+void Command\+Center\+::\+\_\+update (\begin{DoxyParamCaption}\item[{void \texorpdfstring{$\ast$}{*}}]{cc}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_command_center_a3a142915399e982ef75d5cdd5c91e7a1_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_command_center_a3a142915399e982ef75d5cdd5c91e7a1_icgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_command_center_a5d7cca5cde6b884b68ef2e8a432b05c6}\index{CommandCenter@{CommandCenter}!run@{run}}
+\index{run@{run}!CommandCenter@{CommandCenter}}
+\doxysubsubsection{\texorpdfstring{run()}{run()}}
+{\footnotesize\ttfamily \label{class_command_center_a5d7cca5cde6b884b68ef2e8a432b05c6} 
+void Command\+Center\+::run (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+TODO placeholder until memory management fixed and this is finally on heap Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_command_center_a5d7cca5cde6b884b68ef2e8a432b05c6_cgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_command_center_af2848a4f6d08db5e22737cec7d4673ce}\index{CommandCenter@{CommandCenter}!update@{update}}
+\index{update@{update}!CommandCenter@{CommandCenter}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily \label{class_command_center_af2848a4f6d08db5e22737cec7d4673ce} 
+void Command\+Center\+::update (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+command center handling Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_command_center_af2848a4f6d08db5e22737cec7d4673ce_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_command_center_af2848a4f6d08db5e22737cec7d4673ce_icgraph}
+\end{center}
+\end{figure}
+
+
+\label{doc-variable-members}
+\Hypertarget{class_command_center_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{class_command_center_ac6ba3b191d9ba302f1de282d256e234a}\index{CommandCenter@{CommandCenter}!m\_BtnBuild@{m\_BtnBuild}}
+\index{m\_BtnBuild@{m\_BtnBuild}!CommandCenter@{CommandCenter}}
+\doxysubsubsection{\texorpdfstring{m\_BtnBuild}{m\_BtnBuild}}
+{\footnotesize\ttfamily \label{class_command_center_ac6ba3b191d9ba302f1de282d256e234a} 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$\mbox{\hyperlink{struct_button}{Button}}$>$ Command\+Center\+::m\+\_\+\+Btn\+Build\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_command_center_a704c36b25b8a5196868450db971569c6}\index{CommandCenter@{CommandCenter}!m\_BtnFleet@{m\_BtnFleet}}
+\index{m\_BtnFleet@{m\_BtnFleet}!CommandCenter@{CommandCenter}}
+\doxysubsubsection{\texorpdfstring{m\_BtnFleet}{m\_BtnFleet}}
+{\footnotesize\ttfamily \label{class_command_center_a704c36b25b8a5196868450db971569c6} 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$\mbox{\hyperlink{struct_button}{Button}}$>$ Command\+Center\+::m\+\_\+\+Btn\+Fleet\mbox{[}10\mbox{]}\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_command_center_a57fd72a3c4eb6c93b7ac9f086cad4cb7}\index{CommandCenter@{CommandCenter}!m\_BtnJumpers@{m\_BtnJumpers}}
+\index{m\_BtnJumpers@{m\_BtnJumpers}!CommandCenter@{CommandCenter}}
+\doxysubsubsection{\texorpdfstring{m\_BtnJumpers}{m\_BtnJumpers}}
+{\footnotesize\ttfamily \label{class_command_center_a57fd72a3c4eb6c93b7ac9f086cad4cb7} 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$\mbox{\hyperlink{struct_button}{Button}}$>$ Command\+Center\+::m\+\_\+\+Btn\+Jumpers\mbox{[}8\mbox{]}\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_command_center_a444309258bdc2c870d96385acb521189}\index{CommandCenter@{CommandCenter}!m\_ButtonHover@{m\_ButtonHover}}
+\index{m\_ButtonHover@{m\_ButtonHover}!CommandCenter@{CommandCenter}}
+\doxysubsubsection{\texorpdfstring{m\_ButtonHover}{m\_ButtonHover}}
+{\footnotesize\ttfamily \label{class_command_center_a444309258bdc2c870d96385acb521189} 
+\mbox{\hyperlink{struct_pixel_buffer_component}{Pixel\+Buffer\+Component}}\texorpdfstring{$\ast$}{*} Command\+Center\+::m\+\_\+\+Button\+Hover\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_command_center_a6cfe88486197788abe121b0732dfc4d2}\index{CommandCenter@{CommandCenter}!m\_ButtonIdle@{m\_ButtonIdle}}
+\index{m\_ButtonIdle@{m\_ButtonIdle}!CommandCenter@{CommandCenter}}
+\doxysubsubsection{\texorpdfstring{m\_ButtonIdle}{m\_ButtonIdle}}
+{\footnotesize\ttfamily \label{class_command_center_a6cfe88486197788abe121b0732dfc4d2} 
+\mbox{\hyperlink{struct_pixel_buffer_component}{Pixel\+Buffer\+Component}}\texorpdfstring{$\ast$}{*} Command\+Center\+::m\+\_\+\+Button\+Idle\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_command_center_af25148fab82afe02fe171e798ac1a0ef}\index{CommandCenter@{CommandCenter}!m\_ButtonSelect@{m\_ButtonSelect}}
+\index{m\_ButtonSelect@{m\_ButtonSelect}!CommandCenter@{CommandCenter}}
+\doxysubsubsection{\texorpdfstring{m\_ButtonSelect}{m\_ButtonSelect}}
+{\footnotesize\ttfamily \label{class_command_center_af25148fab82afe02fe171e798ac1a0ef} 
+\mbox{\hyperlink{struct_pixel_buffer_component}{Pixel\+Buffer\+Component}}\texorpdfstring{$\ast$}{*} Command\+Center\+::m\+\_\+\+Button\+Select\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_command_center_ac56de1ea52c4dced2201c98b91634400}\index{CommandCenter@{CommandCenter}!m\_CameraMomentum@{m\_CameraMomentum}}
+\index{m\_CameraMomentum@{m\_CameraMomentum}!CommandCenter@{CommandCenter}}
+\doxysubsubsection{\texorpdfstring{m\_CameraMomentum}{m\_CameraMomentum}}
+{\footnotesize\ttfamily \label{class_command_center_ac56de1ea52c4dced2201c98b91634400} 
+\mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}} Command\+Center\+::m\+\_\+\+Camera\+Momentum = \mbox{\hyperlink{group___base_types_ga3d0ce73e3199de81565fb01632415288}{vec3}}(0)\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_command_center_a1b6ee8f20c77bce7d007681af404e702}\index{CommandCenter@{CommandCenter}!m\_CState@{m\_CState}}
+\index{m\_CState@{m\_CState}!CommandCenter@{CommandCenter}}
+\doxysubsubsection{\texorpdfstring{m\_CState}{m\_CState}}
+{\footnotesize\ttfamily \label{class_command_center_a1b6ee8f20c77bce7d007681af404e702} 
+\mbox{\hyperlink{command__center_8h_abb8cc74d1e81bc5d24e0a6d5ec462524}{Control\+State}} Command\+Center\+::m\+\_\+\+CState = \mbox{\hyperlink{command__center_8h_abb8cc74d1e81bc5d24e0a6d5ec462524a1486009e124ea8ee36c6849ce52a587e}{CSTATE\+\_\+\+LOCKED}}\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_command_center_a4c292499f0c0c73ca6a5f622d0251303}\index{CommandCenter@{CommandCenter}!m\_Flotilla@{m\_Flotilla}}
+\index{m\_Flotilla@{m\_Flotilla}!CommandCenter@{CommandCenter}}
+\doxysubsubsection{\texorpdfstring{m\_Flotilla}{m\_Flotilla}}
+{\footnotesize\ttfamily \label{class_command_center_a4c292499f0c0c73ca6a5f622d0251303} 
+\mbox{\hyperlink{class_flotilla}{Flotilla}}\texorpdfstring{$\ast$}{*} Command\+Center\+::m\+\_\+\+Flotilla\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_command_center_af89502a4035f6181570e42baaf459a8a}\index{CommandCenter@{CommandCenter}!m\_Font@{m\_Font}}
+\index{m\_Font@{m\_Font}!CommandCenter@{CommandCenter}}
+\doxysubsubsection{\texorpdfstring{m\_Font}{m\_Font}}
+{\footnotesize\ttfamily \label{class_command_center_af89502a4035f6181570e42baaf459a8a} 
+\mbox{\hyperlink{struct_font}{Font}}\texorpdfstring{$\ast$}{*} Command\+Center\+::m\+\_\+\+Font\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_command_center_a281afc1544eac8d113571de03c332c30}\index{CommandCenter@{CommandCenter}!m\_PlanetLock@{m\_PlanetLock}}
+\index{m\_PlanetLock@{m\_PlanetLock}!CommandCenter@{CommandCenter}}
+\doxysubsubsection{\texorpdfstring{m\_PlanetLock}{m\_PlanetLock}}
+{\footnotesize\ttfamily \label{class_command_center_a281afc1544eac8d113571de03c332c30} 
+\mbox{\hyperlink{group___base_types_ga92c50087ca0e64fa93fc59402c55f8ca}{u8}} Command\+Center\+::m\+\_\+\+Planet\+Lock = 2\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_command_center_ac3cf0e045795b1b1939903f4f598e43c}\index{CommandCenter@{CommandCenter}!m\_PlanetNames@{m\_PlanetNames}}
+\index{m\_PlanetNames@{m\_PlanetNames}!CommandCenter@{CommandCenter}}
+\doxysubsubsection{\texorpdfstring{m\_PlanetNames}{m\_PlanetNames}}
+{\footnotesize\ttfamily \label{class_command_center_ac3cf0e045795b1b1939903f4f598e43c} 
+\mbox{\hyperlink{group___base_types_gad453f9f71ce1f9153fb748d6bb25e454}{string}} Command\+Center\+::m\+\_\+\+Planet\+Names\mbox{[}8\mbox{]} = \{ "{}Mercury"{},"{}Venus"{},"{}Earth"{},"{}Mars"{},"{}Jupiter"{},"{}Saturn"{},"{}Uranus"{},"{}Neptune"{} \}\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_command_center_a35e0933f2fbd1f6607456344f013b30f}\index{CommandCenter@{CommandCenter}!m\_ShipChosen@{m\_ShipChosen}}
+\index{m\_ShipChosen@{m\_ShipChosen}!CommandCenter@{CommandCenter}}
+\doxysubsubsection{\texorpdfstring{m\_ShipChosen}{m\_ShipChosen}}
+{\footnotesize\ttfamily \label{class_command_center_a35e0933f2fbd1f6607456344f013b30f} 
+\mbox{\hyperlink{group___base_types_ga3f7e2bcbb0b4c338f3c4f6c937cd4234}{u64}} Command\+Center\+::m\+\_\+\+Ship\+Chosen = 0\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_command_center_a5c1d1dd96a3763b0255c4da6cb10b5b7}\index{CommandCenter@{CommandCenter}!m\_ShipLock@{m\_ShipLock}}
+\index{m\_ShipLock@{m\_ShipLock}!CommandCenter@{CommandCenter}}
+\doxysubsubsection{\texorpdfstring{m\_ShipLock}{m\_ShipLock}}
+{\footnotesize\ttfamily \label{class_command_center_a5c1d1dd96a3763b0255c4da6cb10b5b7} 
+\mbox{\hyperlink{group___base_types_ga92c50087ca0e64fa93fc59402c55f8ca}{u8}} Command\+Center\+::m\+\_\+\+Ship\+Lock = 0\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_command_center_a7ca5109d7d96c317aa6681a728ca6dfd}\index{CommandCenter@{CommandCenter}!m\_StarSystem@{m\_StarSystem}}
+\index{m\_StarSystem@{m\_StarSystem}!CommandCenter@{CommandCenter}}
+\doxysubsubsection{\texorpdfstring{m\_StarSystem}{m\_StarSystem}}
+{\footnotesize\ttfamily \label{class_command_center_a7ca5109d7d96c317aa6681a728ca6dfd} 
+\mbox{\hyperlink{class_star_system}{Star\+System}}\texorpdfstring{$\ast$}{*} Command\+Center\+::m\+\_\+\+Star\+System\hspace{0.3cm}{\ttfamily [private]}}
+
+\Hypertarget{class_command_center_ac6da0b948fd0327738e495becce80fd0}\index{CommandCenter@{CommandCenter}!m\_TxControlMode@{m\_TxControlMode}}
+\index{m\_TxControlMode@{m\_TxControlMode}!CommandCenter@{CommandCenter}}
+\doxysubsubsection{\texorpdfstring{m\_TxControlMode}{m\_TxControlMode}}
+{\footnotesize\ttfamily \label{class_command_center_ac6da0b948fd0327738e495becce80fd0} 
+\mbox{\hyperlink{base_8h_a22ea6bf9f03798e556c7ff26b1589d58}{lptr}}$<$\mbox{\hyperlink{struct_text}{Text}}$>$ Command\+Center\+::m\+\_\+\+Tx\+Control\+Mode\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+script/\mbox{\hyperlink{command__center_8h}{command\+\_\+center.\+h}}\item 
+script/\mbox{\hyperlink{command__center_8cpp}{command\+\_\+center.\+cpp}}\end{DoxyCompactItemize}
