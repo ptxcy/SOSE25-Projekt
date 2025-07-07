@@ -31,3 +31,17 @@ jobs:
 
       - name: Restart or Start the server
         run: ./infrastructure/main/start-server.sh "${{ secrets.AWS_SSH_KEY }}"
+
+      - name: Install Doxygen
+        run: sudo apt-get update && sudo apt-get install -y doxygen graphviz
+
+      - name: Generate Documentation with Doxygen
+        run: |
+          cd client
+          doxygen Doxyfile
+
+      - name: Upload Documentation Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: doxygen-documentation
+          path: client/html/
