@@ -382,16 +382,28 @@ void _handle_websocket_download(Websocket *c)
 			msgpack::zone zone;
 			msgpack::unpack(oh,raw_data,data_size,nullptr,&zone);
 			msgpack::object obj = oh.get();
-			COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<obj).str().c_str());
+			//COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<obj).str().c_str());
 
 			// try to convert to our ServerMessage structure
 			ServerMessage message;
 			//debugConvertServerMessage(obj);
 			obj.convert(message);
 
+			// §subparsing game data
+			vector<u8> gob = vector<u8>(message.request_data.game_objects.size());
+			for (u32 i=0;i<message.request_data.game_objects.size();i++)
+				gob[i] = (u8)message.request_data.game_objects[i];
+			const char* bgob = reinterpret_cast<const char*>(&gob[0]);
+			msgpack::unpack(oh,bgob,gob.size(),nullptr,&zone);
+			msgpack::object kek = oh.get();
+			//COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<kek).str().c_str());
+			GameObject go;
+			kek.convert(go);
+
 			// mutual exclusion
 			c->mutex_server_state.lock();
 			c->server_state = message;
+			c->game_objects = go;
 			c->state_update = true;
 			c->mutex_server_state.unlock();
 		}
@@ -514,10 +526,11 @@ void Websocket::connect(string host, string port_ad, string port_ws, string name
  *	receive the next server message if possible
  *	\returns next server message
  */
-ServerMessage Websocket::receive_message()
+/*ServerMessage*/GameObject Websocket::receive_message()
 {
 	mutex_server_state.lock();
-	ServerMessage msg = std::move(server_state);
+	//ServerMessage msg = std::move(server_state);
+	GameObject msg = std::move(game_objects);
 	state_update = false;
 	mutex_server_state.unlock();
 	return std::move(msg);

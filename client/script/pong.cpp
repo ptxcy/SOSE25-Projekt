@@ -4,7 +4,7 @@
 /**
  *	pong setup
  */
-Pong::Pong()
+Pong::Pong(string name)
 {
 	// camera setup
 	// TODO
@@ -34,16 +34,16 @@ Pong::Pong()
 	};
 
 	// freeform buffer
-	lptr<GeometryBatch> __FreeformBatch = g_Renderer.register_geometry_batch(__BallShader);
-	u32 s0 = __FreeformBatch->add_geometry(__Sphere,__BallTexture0);
-	u32 s1 = __FreeformBatch->add_geometry(__Sphere,__BallTexture1);
-	u32 s2 = __FreeformBatch->add_geometry(__Sphere,__BallTexture2);
-	__FreeformBatch->load();
+	m_FreeformBatch = g_Renderer.register_geometry_batch(__BallShader);
+	m_Ball0 = m_FreeformBatch->add_geometry(__Sphere,__BallTexture0);
+	m_Ball1 = m_FreeformBatch->add_geometry(__Sphere,__BallTexture1);
+	m_Ball2 = m_FreeformBatch->add_geometry(__Sphere,__BallTexture2);
+	m_FreeformBatch->load();
 
 	// attach lightsource transforms
-	__FreeformBatch->attach_uniform(s0,"offset",&m_BallPosition0);
-	__FreeformBatch->attach_uniform(s1,"offset",&m_BallPosition1);
-	__FreeformBatch->attach_uniform(s2,"offset",&m_BallPosition2);
+	m_FreeformBatch->attach_uniform(m_Ball0,"offset",&m_BallPosition0);
+	m_FreeformBatch->attach_uniform(m_Ball1,"offset",&m_BallPosition1);
+	m_FreeformBatch->attach_uniform(m_Ball2,"offset",&m_BallPosition2);
 
 	m_PhysicalBatch = g_Renderer.register_deferred_geometry_batch();
 	u32 __Floor = m_PhysicalBatch->add_geometry(__Cube,__ParquetTextures);
@@ -86,7 +86,7 @@ Pong::Pong()
 	// fucking msgpack fuck my ass
 #ifdef FEAT_MULTIPLAYER
 	g_Websocket.connect(NETWORK_HOST,NETWORK_PORT_ADAPTER,NETWORK_PORT_WEBSOCKET,
-						"owen","wilson","pong-anaconda","movie",false);
+						name,"wilson","pong-anaconda","movie",false);
 	Request::connect();
 #endif
 
@@ -98,6 +98,9 @@ Pong::Pong()
  */
 void Pong::update()
 {
+	// get server updates
+	GameObject gobj = g_Websocket.receive_message();
+
 	// player input
 	m_PlayerPosition0.y += (g_Input.keyboard.keys[SDL_SCANCODE_W]-g_Input.keyboard.keys[SDL_SCANCODE_S])
 			*PONG_PEDAL_ACCELERATION;
@@ -106,6 +109,12 @@ void Pong::update()
 	// player position
 	m_PhysicalBatch->object[m_Player0].transform.translate(m_PlayerPosition0);
 	m_PhysicalBatch->object[m_Player1].transform.translate(m_PlayerPosition1);
+
+	// ball positions
+	if (gobj.balls.size()<3) return;
+	m_BallPosition0 = vec3(gobj.balls[0].position.x,gobj.balls[0].position.y,gobj.balls[0].position.z);
+	m_BallPosition1 = vec3(gobj.balls[1].position.x,gobj.balls[1].position.y,gobj.balls[1].position.z);
+	m_BallPosition2 = vec3(gobj.balls[2].position.x,gobj.balls[2].position.y,gobj.balls[2].position.z);
 
 	// lighting update
 	// TODO

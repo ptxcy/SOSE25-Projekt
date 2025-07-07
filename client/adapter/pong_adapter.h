@@ -41,14 +41,14 @@ struct Player
 	bool team;
 	Coordinate velocity;
 	Coordinate position;
-	Line relative_lines;
+	vector<Line> relative_lines;
 	MSGPACK_DEFINE(speed,team,velocity,position,relative_lines);
 };
 
 struct Score
 {
-	u16 player1;
-	u16 player2;
+	u64 player1;
+	u64 player2;
 	MSGPACK_DEFINE(player1,player2);
 };
 
@@ -56,7 +56,7 @@ struct GameObject
 {
 	vector<Ball> balls;
 	vector<Line> lines;
-	map<string,Player> players;
+	std::unordered_map<string,Player> players;
 	Score score;
 	MSGPACK_DEFINE(balls,lines,players,score);
 };

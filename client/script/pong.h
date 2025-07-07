@@ -18,13 +18,14 @@ constexpr f32 PONG_PEDAL_ACCELERATION = .4f;
 class Pong
 {
 public:
-	Pong();
+	Pong(string name);
 	static inline void _update(void* rp) { Pong* p = (Pong*)rp; p->update(); }
 	void update();
 
 private:
 
 	// renderer
+	lptr<GeometryBatch> m_FreeformBatch;
 	lptr<GeometryBatch> m_PhysicalBatch;
 
 	// players
@@ -34,6 +35,9 @@ private:
 	vec3 m_PlayerPosition1 = vec3(17,0,0);
 
 	// ball information
+	u32 m_Ball0;
+	u32 m_Ball1;
+	u32 m_Ball2;
 	vec3 m_BallPosition0 = vec3(2,-2,0);
 	vec3 m_BallPosition1 = vec3(-3,4,0);
 	vec3 m_BallPosition2 = vec3(-4.5f,-7,0);

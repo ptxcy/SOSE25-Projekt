@@ -42,7 +42,8 @@ public:
 	Websocket() {  }
 	void connect(string host,string port_ad,string port_ws,string name,string pass,string lnom,
 				 string lpass,bool create);
-	ServerMessage receive_message();
+	//ServerMessage receive_message();
+	GameObject receive_message();
 	void send_message(ClientMessage msg);
 	void exit();
 
@@ -59,6 +60,7 @@ public:
 
 	// messages
 	ServerMessage server_state;
+	GameObject game_objects;
 	bool state_update = false;
 	std::queue<ClientMessage> client_messages;
 	std::mutex mutex_server_state;

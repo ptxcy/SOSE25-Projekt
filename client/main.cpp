@@ -30,7 +30,7 @@ s32 main(s32 argc,char** argv)
 	*/
 
 	CameraController __CamControl = CameraController();
-	Pong __Pong = Pong();
+	Pong __Pong = Pong(argv[1]);
 	//TestScene __TestScene = TestScene();
 	//PlanetFocus __PlanetFocus = PlanetFocus(__Ubuntu);
 
