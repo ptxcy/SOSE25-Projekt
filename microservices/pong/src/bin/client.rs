@@ -117,28 +117,16 @@ async fn main() {
         }
 
         if is_key_pressed(KeyCode::W) {
-        	cm_sender.send(ClientMessage { request_data: RequestData {
-        		connect: false,
-        		move_to: 1,
-        	}, user_id: user_id.clone() }).expect("couldnt send to tungstenite");
+        	cm_sender.send(ClientMessage::move_to(1, &user_id)).expect("couldnt send to tungstenite");
         }
         if is_key_released(KeyCode::W) {
-        	cm_sender.send(ClientMessage { request_data: RequestData {
-        		connect: false,
-        		move_to: 0,
-        	}, user_id: user_id.clone() }).expect("couldnt send to tungstenite");
+        	cm_sender.send(ClientMessage::move_to(0, &user_id)).expect("couldnt send to tungstenite");
         }
         if is_key_pressed(KeyCode::S) {
-        	cm_sender.send(ClientMessage { request_data: RequestData {
-        		connect: false,
-        		move_to: -1,
-        	}, user_id: user_id.clone() }).expect("couldnt send to tungstenite");
+        	cm_sender.send(ClientMessage::move_to(-1, &user_id)).expect("couldnt send to tungstenite");
         }
         if is_key_released(KeyCode::S) {
-        	cm_sender.send(ClientMessage { request_data: RequestData {
-        		connect: false,
-        		move_to: 0,
-        	}, user_id: user_id.clone() }).expect("couldnt send to tungstenite");
+        	cm_sender.send(ClientMessage::move_to(0, &user_id)).expect("couldnt send to tungstenite");
         }
         
 
