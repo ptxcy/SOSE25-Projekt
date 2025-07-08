@@ -58,13 +58,13 @@ Pong::Pong(string name)
 	// setup positions
 	m_PhysicalBatch->object[__Floor].transform.scale(vec3(PONG_FIELD_SIZE.x,PONG_FIELD_SIZE.y,PONG_FIELD_WIDTH));
 	m_PhysicalBatch->object[__Wall0].transform
-		.scale(vec3(PONG_FIELD_SIZE.x+PONG_FIELD_WIDTH,PONG_FIELD_WIDTH,.65f));
+			.scale(vec3(PONG_FIELD_WIDTH,PONG_FIELD_SIZE.y+PONG_FIELD_WIDTH,.65f));
 	m_PhysicalBatch->object[__Wall1].transform
-		.scale(vec3(PONG_FIELD_SIZE.x+PONG_FIELD_WIDTH,PONG_FIELD_WIDTH,.65f));
+			.scale(vec3(PONG_FIELD_WIDTH,PONG_FIELD_SIZE.y+PONG_FIELD_WIDTH,.65f));
 	m_PhysicalBatch->object[__Wall2].transform
-		.scale(vec3(PONG_FIELD_WIDTH,PONG_FIELD_SIZE.y+PONG_FIELD_WIDTH,.65f));
+			.scale(vec3(PONG_FIELD_SIZE.x+PONG_FIELD_WIDTH,PONG_FIELD_WIDTH,.65f));
 	m_PhysicalBatch->object[__Wall3].transform
-		.scale(vec3(PONG_FIELD_WIDTH,PONG_FIELD_SIZE.y+PONG_FIELD_WIDTH,.65f));
+			.scale(vec3(PONG_FIELD_SIZE.x+PONG_FIELD_WIDTH,PONG_FIELD_WIDTH,.65f));
 	m_PhysicalBatch->object[m_Player0].transform.scale(vec3(.25f,2,1));
 	m_PhysicalBatch->object[m_Player1].transform.scale(vec3(.25f,2,1));
 	m_PhysicalBatch->object[__Floor].transform.translate(vec3(0,0,-1.15f));
