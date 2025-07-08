@@ -78,9 +78,9 @@ Pong::Pong(string name)
 
 	// lighting
 	g_Renderer.add_sunlight(vec3(75,-50,100),vec3(1,1,1),.2f);
-	g_Renderer.add_pointlight(m_BallPosition0,vec3(.8f,.4f,.1f),10.f,1.f,.8f,.24f);
-	g_Renderer.add_pointlight(m_BallPosition1,vec3(.1f,.1f,.8f),10.f,1.f,.8f,.24f);
-	g_Renderer.add_pointlight(m_BallPosition2,vec3(.9f,.2f,.1f),10.f,1.f,.8f,.24f);
+	m_Light0 = g_Renderer.add_pointlight(m_BallPosition0,vec3(.8f,.4f,.1f),10.f,1.f,.8f,.24f);
+	m_Light1 = g_Renderer.add_pointlight(m_BallPosition1,vec3(.1f,.1f,.8f),10.f,1.f,.8f,.24f);
+	m_Light2 = g_Renderer.add_pointlight(m_BallPosition2,vec3(.9f,.2f,.1f),10.f,1.f,.8f,.24f);
 	g_Renderer.upload_lighting();
 
 	// fucking msgpack fuck my ass
@@ -117,5 +117,8 @@ void Pong::update()
 	m_BallPosition2 = vec3(gobj.balls[2].position.x,gobj.balls[2].position.y,gobj.balls[2].position.z);
 
 	// lighting update
-	// TODO
+	m_Light0->position = m_BallPosition0;
+	m_Light1->position = m_BallPosition1;
+	m_Light2->position = m_BallPosition2;
+	g_Renderer.upload_lighting();
 }

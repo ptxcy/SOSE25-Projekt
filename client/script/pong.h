@@ -28,6 +28,11 @@ private:
 	lptr<GeometryBatch> m_FreeformBatch;
 	lptr<GeometryBatch> m_PhysicalBatch;
 
+	// lighting
+	PointLight* m_Light0;
+	PointLight* m_Light1;
+	PointLight* m_Light2;
+
 	// players
 	u32 m_Player0;
 	u32 m_Player1;
