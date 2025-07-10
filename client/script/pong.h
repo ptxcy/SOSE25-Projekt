@@ -11,9 +11,17 @@
 #include "webcomm.h"
 
 
-constexpr vec2 PONG_FIELD_SIZE = vec2(20,10);
+// field constants
+constexpr vec2 PONG_FIELD_SIZE = vec2(192,108);
+constexpr f32 PONG_FIELD_TEXEL = PONG_FIELD_SIZE.x/4.f;
 constexpr f32 PONG_FIELD_WIDTH = .15f;
+
+// ball constants
+constexpr u32 PONG_BALL_COUNT = 50*50;
+
+// pedal constants
 constexpr f32 PONG_PEDAL_ACCELERATION = .4f;
+// FIXME do this through input upload and sync with server
 
 
 class Pong
@@ -41,6 +49,7 @@ private:
 	vec3 m_PlayerPosition1 = vec3(17,0,0);
 
 	// ball information
+	vec3 m_BallPositions[PONG_BALL_COUNT];
 	u32 m_Ball0;
 	u32 m_Ball1;
 	u32 m_Ball2;

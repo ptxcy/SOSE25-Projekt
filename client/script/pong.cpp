@@ -8,7 +8,8 @@
 Pong::Pong(string name)
 {
 	// camera setup
-	// TODO
+	g_Camera.distance = 100.f;
+	g_Camera.pitch = glm::radians(45.f);
 
 	// shaders
 	VertexShader __BallVertexShader = VertexShader("core/shader/sun.vert");
@@ -75,7 +76,7 @@ Pong::Pong(string name)
 	m_PhysicalBatch->object[__Wall3].transform.translate(vec3(0,-PONG_FIELD_SIZE.y,-.5f));
 
 	// set texel density
-	m_PhysicalBatch->object[__Floor].texel = 5;
+	m_PhysicalBatch->object[__Floor].texel = PONG_FIELD_TEXEL;
 
 	// lighting
 	g_Renderer.add_sunlight(vec3(75,-50,100),vec3(1,1,1),.2f);
@@ -113,9 +114,9 @@ void Pong::update()
 
 	// ball positions
 	if (gobj.balls.size()<3) return;
-	m_BallPosition0 = vec3(gobj.balls[0].position.x,gobj.balls[0].position.y,gobj.balls[0].position.z);
-	m_BallPosition1 = vec3(gobj.balls[1].position.x,gobj.balls[1].position.y,gobj.balls[1].position.z);
-	m_BallPosition2 = vec3(gobj.balls[2].position.x,gobj.balls[2].position.y,gobj.balls[2].position.z);
+	m_BallPosition0 = vec3(gobj.balls[0].position.x,gobj.balls[0].position.y,gobj.balls[0].position.z)*.1f;
+	m_BallPosition1 = vec3(gobj.balls[1].position.x,gobj.balls[1].position.y,gobj.balls[1].position.z)*.1f;
+	m_BallPosition2 = vec3(gobj.balls[2].position.x,gobj.balls[2].position.y,gobj.balls[2].position.z)*.1f;
 
 	// lighting update
 	m_Light0->position = m_BallPosition0;

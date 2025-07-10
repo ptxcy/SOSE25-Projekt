@@ -23,7 +23,7 @@ void CameraController::update()
 	// camera rotational orbit
 	m_RotMomentum.x += (g_Input.keyboard.keys[SDL_SCANCODE_E]-g_Input.keyboard.keys[SDL_SCANCODE_Q])
 			*CAMCNTR_ROT_KEYACC;
-	m_RotMomentum += vec2(g_Input.mouse.buttons[2]*CAMCNTR_ROT_MOUSEACC)*g_Input.mouse.velocity;
+	m_RotMomentum += vec2(g_Input.mouse.buttons[1]*CAMCNTR_ROT_MOUSEACC)*g_Input.mouse.velocity;
 	g_Camera.yaw += glm::radians(-m_RotMomentum.x);
 	g_Camera.pitch += glm::radians(m_RotMomentum.y);
 
