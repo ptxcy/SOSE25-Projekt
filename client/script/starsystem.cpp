@@ -1,3 +1,4 @@
+#ifdef PROJECT_SPACER
 #include "starsystem.h"
 
 
@@ -87,3 +88,6 @@ void StarSystem::update()
 	m_HaloBatch->ibo.upload_vertices(m_Halos,1,GL_DYNAMIC_DRAW);
 	// TODO add an option to automate this process when per-frame update is actually needed
 }
+
+
+#endif

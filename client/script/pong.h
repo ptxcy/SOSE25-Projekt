@@ -1,12 +1,13 @@
 #ifndef SCRIPT_PONG_HEADER
 #define SCRIPT_PONG_HEADER
+#ifdef PROJECT_PONG
 
 
 #include "../core/renderer.h"
 #include "../core/input.h"
 #include "../core/wheel.h"
 #include "../core/websocket.h"
-#include "../adapter/pong_adapter.h"
+#include "../adapter/definition.h"
 #include "webcomm.h"
 
 
@@ -50,4 +51,5 @@ private:
 };
 
 
+#endif
 #endif

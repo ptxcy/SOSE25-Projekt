@@ -20,6 +20,10 @@ struct Coordinate
 };
 // TODO make single precision coordinates and transition to vector library
 
+
+#ifdef PROJECT_SPACER
+
+
 struct ClientInfo
 {
 	f64 sent_time = 0.0;
@@ -198,4 +202,85 @@ struct ClientMessage
 };
 
 
+#endif
+#ifdef PROJECT_PONG
+
+
+
+struct Ball
+{
+	Coordinate position;
+	Coordinate velocity;
+	f64 radius;
+	f64 bounciness;
+	MSGPACK_DEFINE(position,velocity,radius,bounciness);
+};
+
+struct Line
+{
+	Coordinate a;
+	Coordinate b;
+	MSGPACK_DEFINE(a,b);
+};
+
+struct Player
+{
+	f64 speed;
+	bool team;
+	Coordinate velocity;
+	Coordinate position;
+	vector<Line> relative_lines;
+	MSGPACK_DEFINE(speed,team,velocity,position,relative_lines);
+};
+
+struct Score
+{
+	u64 player1;
+	u64 player2;
+	MSGPACK_DEFINE(player1,player2);
+};
+
+struct GameObject
+{
+	vector<Ball> balls;
+	vector<Line> lines;
+	std::unordered_map<string,Player> players;
+	Score score;
+	MSGPACK_DEFINE(balls,lines,players,score);
+};
+
+struct ObjectData
+{
+	string target_user_id;
+	vector<u64> game_objects;
+	MSGPACK_DEFINE(target_user_id,game_objects);
+};
+
+struct ServerMessage
+{
+	ObjectData request_data;
+	MSGPACK_DEFINE(request_data);
+};
+
+
+// ----------------------------------------------------------------------------------------------------
+// Client Communication
+
+struct RequestData
+{
+	bool connect;
+	s8 move_to;
+	std::optional<string> lobby;
+	MSGPACK_DEFINE(connect,move_to,lobby);
+};
+
+struct ClientMessage
+{
+	RequestData request_data;
+	string username;
+	MSGPACK_DEFINE(request_data,username);
+};
+
+
+#endif
 #endif

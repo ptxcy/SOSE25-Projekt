@@ -1,5 +1,6 @@
 #ifndef SCRIPT_STARSYSTEM_HEADER
 #define SCRIPT_STARSYSTEM_HEADER
+#ifdef PROJECT_SPACER
 
 
 #include "../core/renderer.h"
@@ -50,4 +51,5 @@ private:
 };
 
 
+#endif
 #endif

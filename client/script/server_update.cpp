@@ -1,3 +1,4 @@
+#ifdef PROJECT_SPACER
 #include "server_update.h"
 
 #ifdef FEAT_MULTIPLAYER
@@ -47,4 +48,5 @@ void ServerUpdate::update()
 }
 
 
+#endif
 #endif

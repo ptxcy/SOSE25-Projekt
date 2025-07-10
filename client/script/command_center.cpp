@@ -1,3 +1,4 @@
+#ifdef PROJECT_SPACER
 #include "command_center.h"
 
 
@@ -202,3 +203,6 @@ void CommandCenter::_set_text_freeform()
 	m_TxControlMode->align();
 	m_TxControlMode->load_buffer();
 }
+
+
+#endif

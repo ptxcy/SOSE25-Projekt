@@ -389,6 +389,7 @@ void _handle_websocket_download(Websocket *c)
 			//debugConvertServerMessage(obj);
 			obj.convert(message);
 
+#ifdef PROJECT_PONG
 			// §subparsing game data
 			vector<u8> gob = vector<u8>(message.request_data.game_objects.size());
 			for (u32 i=0;i<message.request_data.game_objects.size();i++)
@@ -399,6 +400,7 @@ void _handle_websocket_download(Websocket *c)
 			//COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<kek).str().c_str());
 			GameObject go;
 			kek.convert(go);
+#endif
 
 			// mutual exclusion
 			c->mutex_server_state.lock();
@@ -526,11 +528,19 @@ void Websocket::connect(string host, string port_ad, string port_ws, string name
  *	receive the next server message if possible
  *	\returns next server message
  */
-/*ServerMessage*/GameObject Websocket::receive_message()
+#ifdef PROJECT_PONG
+GameObject
+#elif
+ServerMessage
+#endif
+	Websocket::receive_message()
 {
 	mutex_server_state.lock();
-	//ServerMessage msg = std::move(server_state);
+#ifdef PROJECT_PONG
 	GameObject msg = std::move(game_objects);
+#elif
+	ServerMessage msg = std::move(server_state);
+#endif
 	state_update = false;
 	mutex_server_state.unlock();
 	return std::move(msg);

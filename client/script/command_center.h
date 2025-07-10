@@ -1,5 +1,6 @@
 #ifndef SCRIPT_COMMANDCENTER_HEADER
 #define SCRIPT_COMMANDCENTER_HEADER
+ifdef PROJECT_SPACER
 
 
 #include "../core/input.h"
@@ -68,4 +69,5 @@ private:
 };
 
 
+#endif
 #endif

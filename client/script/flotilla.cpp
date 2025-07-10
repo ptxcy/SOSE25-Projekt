@@ -1,3 +1,4 @@
+#ifdef PROJECT_SPACER
 #include "flotilla.h"
 
 
@@ -42,3 +43,6 @@ void Flotilla::update()
 	m_SpaceshipBatch->ibo.bind();
 	m_SpaceshipBatch->ibo.upload_vertices(spaceships,GL_DYNAMIC_DRAW);
 }
+
+
+#endif

@@ -1,3 +1,4 @@
+#ifdef PROJECT_SPACER
 #include "menu.h"
 
 
@@ -100,3 +101,6 @@ void Menu::close()
 	// kill menu update routine
 	g_Wheel.routines.erase(ref);
 }
+
+
+#endif

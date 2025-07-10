@@ -1,5 +1,6 @@
 #ifndef SCRIPT_FLOTILLA_HEADER
 #define SCRIPT_FLOTILLA_HEADER
+#ifdef PROJECT_SPACER
 
 
 #include "../core/renderer.h"
@@ -33,4 +34,5 @@ private:
 };
 
 
+#endif
 #endif

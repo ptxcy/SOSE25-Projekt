@@ -7,8 +7,7 @@
 
 #ifdef FEAT_MULTIPLAYER
 #include <cpr/cpr.h>
-//#include "../adapter/definition.h"
-#include "../adapter/pong_adapter.h"
+#include "../adapter/definition.h"
 
 
 typedef boost::beast::websocket::stream<boost::asio::ip::tcp::socket> socket_stream;
@@ -42,10 +41,15 @@ public:
 	Websocket() {  }
 	void connect(string host,string port_ad,string port_ws,string name,string pass,string lnom,
 				 string lpass,bool create);
-	//ServerMessage receive_message();
+
+#ifdef PROJECT_PONG
 	GameObject receive_message();
+#elif
+	ServerMessage receive_message();
+#endif
 	void send_message(ClientMessage msg);
 	void exit();
+	// FIXME project specifics do NOT belong inside engine code! add features accordingly
 
 public:
 
@@ -60,7 +64,9 @@ public:
 
 	// messages
 	ServerMessage server_state;
+#ifdef PROJECT_PONG
 	GameObject game_objects;
+#endif
 	bool state_update = false;
 	std::queue<ClientMessage> client_messages;
 	std::mutex mutex_server_state;

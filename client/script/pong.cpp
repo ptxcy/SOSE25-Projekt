@@ -1,3 +1,4 @@
+#ifdef PROJECT_PONG
 #include "pong.h"
 
 
@@ -122,3 +123,6 @@ void Pong::update()
 	m_Light2->position = m_BallPosition2;
 	g_Renderer.upload_lighting();
 }
+
+
+#endif

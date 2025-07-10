@@ -1,5 +1,6 @@
 #ifndef SCRIPT_MENU_HEADER
 #define SCRIPT_MENU_HEADER
+#ifdef PROJECT_SPACER
 
 
 #include "../core/wheel.h"
@@ -48,4 +49,5 @@ private:
 };
 
 
+#endif
 #endif

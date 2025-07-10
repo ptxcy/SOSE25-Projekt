@@ -1,5 +1,7 @@
+#ifdef PROJECT_SPACER
 #ifndef SCRIPT_SERVERUPDATE_HEADER
 #define SCRIPT_SERVERUPDATE_HEADER
+
 
 #include "../core/config.h"
 
@@ -23,5 +25,6 @@ private:
 };
 
 
+#endif
 #endif
 #endif
