@@ -9,14 +9,21 @@ use crate::{action::AsRaw, ball::Ball, line::Line, player::Player, score::Score}
 
 pub const CHUNK_SIZE: u64 = 10;
 
+#[derive(Debug, Clone)]
+pub struct BallPointer(pub *const Ball);
+
+unsafe impl Send for BallPointer {}
+unsafe impl Sync for BallPointer {}
+
+
 #[derive(Debug, Clone, Default)]
 pub struct Chunks {
     size: (usize, usize),
-    pub array: Vec<Vec<*const Ball>>,
+    pub array: Vec<Vec<BallPointer>>,
 }
 
-unsafe impl Send for Chunks {}
-unsafe impl Sync for Chunks {}
+// unsafe impl Send for Chunks {}
+// unsafe impl Sync for Chunks {}
 
 impl Chunks {
     pub fn new(x: usize, y: usize) -> Self {
@@ -29,7 +36,7 @@ impl Chunks {
             array,
         }
     }
-    pub fn get(&self, x: i64, y: i64) -> Option<&Vec<*const Ball>> {
+    pub fn get(&self, x: i64, y: i64) -> Option<&Vec<BallPointer>> {
         if x < 0 || x as usize >= self.size.0 || y < 0 || y as usize >= self.size.1 {
             return None;
         }
@@ -46,6 +53,12 @@ impl Chunks {
         let index = xi + yi * self.size.0;
         index
     }
+    pub fn get_chunk_for_ball(&self, ball: &Ball) -> (usize, usize) {
+        let xi = (ball.position.x / CHUNK_SIZE as f64 + self.size.0 as f64 / 2.) as usize;
+        let yi = (ball.position.y / CHUNK_SIZE as f64 + self.size.1 as f64 / 2.) as usize;
+        let index = xi + yi * self.size.0;
+        self.get_chunk(index)
+    }
     pub fn update(&mut self, balls: &Vec<Ball>) {
         for balls_chunk in &mut self.array {
             balls_chunk.clear();
@@ -54,7 +67,7 @@ impl Chunks {
             let chunk = self.estimate_chunk(ball.position.x, ball.position.y);
             match self.array.get_mut(chunk) {
                 Some(c) => {
-                    c.push(ball.raw_mut());
+                    c.push(BallPointer(ball.raw_mut()));
                 },
                 None => {
                     
