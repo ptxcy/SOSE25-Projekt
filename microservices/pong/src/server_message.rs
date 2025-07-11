@@ -15,6 +15,9 @@ pub struct Chunks {
     pub array: Vec<Vec<*const Ball>>,
 }
 
+unsafe impl Send for Chunks {}
+unsafe impl Sync for Chunks {}
+
 impl Chunks {
     pub fn new(x: usize, y: usize) -> Self {
         let mut array = Vec::with_capacity(x * y);

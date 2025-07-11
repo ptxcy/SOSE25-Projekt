@@ -110,7 +110,7 @@ pub fn update_balls(sender: std::sync::mpsc::Sender<ActionWrapper>, go: *const G
 		let game_objects = unsafe {&(*go)};
 		move || {
 			let mut actions = Vec::<ActionWrapper>::with_capacity(game_objects.balls.len() * 2);
-			for (i, balls) in game_objects.chunks.array.iter().enumerate() {
+			for (i, balls) in game_objects.chunks.array.par_iter().enumerate() {
 				let chunk = game_objects.chunks.get_chunk(i);
 				for ball in balls.iter() {
 					let ball = unsafe {&**ball};
