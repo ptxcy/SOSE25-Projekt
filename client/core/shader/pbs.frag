@@ -39,7 +39,7 @@ uniform float gamma = 1./2.2;
 
 // simulated lights
 uniform light_sun sunlights[8];
-uniform light_point pointlights[64];
+uniform light_point pointlights[512];
 uniform int sunlights_active = 0;
 uniform int pointlights_active = 0;
 

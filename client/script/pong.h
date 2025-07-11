@@ -23,6 +23,9 @@ constexpr u32 PONG_BALL_COUNT = 50*50;
 constexpr f32 PONG_PEDAL_ACCELERATION = .4f;
 // FIXME do this through input upload and sync with server
 
+// lightting constants
+constexpr u32 PONG_LIGHTING_POINTLIGHTS = 16;
+
 
 struct BallIndex
 {
@@ -33,7 +36,7 @@ struct BallIndex
 class Pong
 {
 public:
-	Pong(string name);
+	Pong(Font* font,string name);
 	static inline void _update(void* rp) { Pong* p = (Pong*)rp; p->update(); }
 	void update();
 
@@ -44,6 +47,7 @@ private:
 	lptr<ParticleBatch> m_BallBatch;
 
 	// lighting
+	PointLight* m_Lights[PONG_LIGHTING_POINTLIGHTS];
 	/*
 	PointLight* m_Light0;
 	PointLight* m_Light1;
@@ -59,7 +63,7 @@ private:
 	*/
 
 	// ball information
-	BallIndex m_BallPositions[PONG_BALL_COUNT];
+	BallIndex m_BallIndices[PONG_BALL_COUNT];
 	/*
 	u32 m_Ball0;
 	u32 m_Ball1;
@@ -68,8 +72,12 @@ private:
 	vec3 m_BallPosition1 = vec3(-3,4,0);
 	vec3 m_BallPosition2 = vec3(-4.5f,-7,0);
 	*/
+
+	// scoreboard
+	lptr<Text> m_Score0;
+	lptr<Text> m_Score1;
 };
 
 
 #endif
-#endif
+p#endif

@@ -5,7 +5,7 @@
 /**
  *	pong setup
  */
-Pong::Pong(string name)
+Pong::Pong(Font* font,string name)
 {
 	// camera setup
 	g_Camera.distance = 100.f;
@@ -91,14 +91,15 @@ Pong::Pong(string name)
 
 	// lighting
 	g_Renderer.add_sunlight(vec3(75,-50,100),vec3(1,1,1),.2f);
+	for (u32 i=0;i<PONG_LIGHTING_POINTLIGHTS;i++)
+		m_Lights[i] = g_Renderer.add_pointlight(m_BallIndices[i].position,vec3(.8f,.4f,.1f),10.f,1.f,.8f,.24f);
 	/*
-	m_Light0 = g_Renderer.add_pointlight(m_BallPosition0,vec3(.8f,.4f,.1f),10.f,1.f,.8f,.24f);
 	m_Light1 = g_Renderer.add_pointlight(m_BallPosition1,vec3(.1f,.1f,.8f),10.f,1.f,.8f,.24f);
 	m_Light2 = g_Renderer.add_pointlight(m_BallPosition2,vec3(.9f,.2f,.1f),10.f,1.f,.8f,.24f);
 	*/
 	g_Renderer.upload_lighting();
 
-	// fucking msgpack fuck my ass
+	// connection to server
 #ifdef FEAT_MULTIPLAYER
 	g_Websocket.connect(NETWORK_HOST,NETWORK_PORT_ADAPTER,NETWORK_PORT_WEBSOCKET,
 						name,"wilson","pong-anaconda","movie",false);
@@ -107,7 +108,7 @@ Pong::Pong(string name)
 
 	// setup index buffer object for ball batch
 	m_BallBatch->ibo.bind();
-	m_BallBatch->ibo.upload_vertices(m_BallPositions,PONG_BALL_COUNT,GL_DYNAMIC_DRAW);
+	m_BallBatch->ibo.upload_vertices(m_BallIndices,PONG_BALL_COUNT,GL_DYNAMIC_DRAW);
 
 	g_Wheel.call(UpdateRoutine{ &Pong::_update,(void*)this });
 }
@@ -135,19 +136,18 @@ void Pong::update()
 	GameObject gobj = g_Websocket.receive_message();
 	if (!gobj.balls.size()) return;
 
+	// player positions
+	// TODO scaling of premade triangle mesh
+
 	// ball positions
 	for (u32 i=0;i<gobj.balls.size();i++)
-		m_BallPositions[i].position
+		m_BallIndices[i].position
 				= vec3(gobj.balls[i].position.x,gobj.balls[i].position.y,gobj.balls[i].position.z)*.1f;
 	m_BallBatch->ibo.bind();
-	m_BallBatch->ibo.upload_vertices(m_BallPositions,PONG_BALL_COUNT,GL_DYNAMIC_DRAW);
+	m_BallBatch->ibo.upload_vertices(m_BallIndices,PONG_BALL_COUNT,GL_DYNAMIC_DRAW);
 
-	/*
 	// lighting update
-	m_Light0->position = m_BallPosition0;
-	m_Light1->position = m_BallPosition1;
-	m_Light2->position = m_BallPosition2;
-	*/
+	for (u32 i=0;i<PONG_LIGHTING_POINTLIGHTS;i++) m_Lights[i]->position = m_BallIndices[i].position;
 	g_Renderer.upload_lighting();
 }
 
