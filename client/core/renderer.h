@@ -239,6 +239,8 @@ public:
 	lptr<GeometryBatch> register_deferred_geometry_batch();
 	lptr<GeometryBatch> register_deferred_geometry_batch(lptr<ShaderPipeline> pipeline);
 	lptr<ParticleBatch> register_particle_batch(lptr<ShaderPipeline> pipeline);
+	lptr<ParticleBatch> register_deferred_particle_batch();
+	lptr<ParticleBatch> register_deferred_particle_batch(lptr<ShaderPipeline> pipeline);
 
 	// lighting
 	SunLight* add_sunlight(vec3 position,vec3 colour,f32 intensity);
@@ -325,6 +327,7 @@ private:
 
 	// lighting
 	lptr<ShaderPipeline> m_GeometryPassPipeline;
+	lptr<ShaderPipeline> m_ParticlePassPipeline;
 	Lighting m_Lighting;
 };
 

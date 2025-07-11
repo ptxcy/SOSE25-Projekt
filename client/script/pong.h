@@ -24,6 +24,12 @@ constexpr f32 PONG_PEDAL_ACCELERATION = .4f;
 // FIXME do this through input upload and sync with server
 
 
+struct BallIndex
+{
+	vec3 position = vec3(0);
+	f32 scale = 1.f;
+};
+
 class Pong
 {
 public:
@@ -34,29 +40,34 @@ public:
 private:
 
 	// renderer
-	lptr<GeometryBatch> m_FreeformBatch;
 	lptr<GeometryBatch> m_PhysicalBatch;
+	lptr<ParticleBatch> m_BallBatch;
 
 	// lighting
+	/*
 	PointLight* m_Light0;
 	PointLight* m_Light1;
 	PointLight* m_Light2;
+	*/
 
 	// players
+	/*
 	u32 m_Player0;
 	u32 m_Player1;
 	vec3 m_PlayerPosition0 = vec3(-17,0,0);
 	vec3 m_PlayerPosition1 = vec3(17,0,0);
+	*/
 
 	// ball information
-	vec3 m_BallPositions[PONG_BALL_COUNT];
+	BallIndex m_BallPositions[PONG_BALL_COUNT];
+	/*
 	u32 m_Ball0;
 	u32 m_Ball1;
 	u32 m_Ball2;
 	vec3 m_BallPosition0 = vec3(2,-2,0);
 	vec3 m_BallPosition1 = vec3(-3,4,0);
 	vec3 m_BallPosition2 = vec3(-4.5f,-7,0);
-	// TODO make this dynamic
+	*/
 };
 
 

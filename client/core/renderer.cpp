@@ -369,6 +369,8 @@ Renderer::Renderer()
 	FragmentShader __LightingPassFragmentShader = FragmentShader("core/shader/pbs.frag");
 	VertexShader __GeometryPassVertexShader = VertexShader("core/shader/gpass.vert");
 	FragmentShader __GeometryPassFragmentShader = FragmentShader("core/shader/gpass.frag");
+	VertexShader __ParticlePassVertexShader = VertexShader("core/shader/ipass.vert");
+	FragmentShader __ParticlePassFragmentShader = FragmentShader("core/shader/ipass.frag");
 
 	// ----------------------------------------------------------------------------------------------------
 	// Sprite Pipeline
@@ -396,8 +398,9 @@ Renderer::Renderer()
 	m_CanvasVertexBuffer.upload_vertices(__CanvasVertices,24);
 	m_CanvasPipeline.map(RENDERER_TEXTURE_FORWARD,&m_CanvasVertexBuffer);
 
-	COMM_LOG("geometry pass pipeline");
+	COMM_LOG("geometry pass pipelines");
 	m_GeometryPassPipeline = register_pipeline(__GeometryPassVertexShader,__GeometryPassFragmentShader);
+	m_ParticlePassPipeline = register_pipeline(__ParticlePassVertexShader,__ParticlePassFragmentShader);
 
 	// ----------------------------------------------------------------------------------------------------
 	// GPU Memory
@@ -714,6 +717,27 @@ lptr<ParticleBatch> Renderer::register_particle_batch(lptr<ShaderPipeline> pipel
 {
 	m_ParticleBatches.push_back({ .shader = pipeline });
 	return std::prev(m_ParticleBatches.end());
+}
+
+/**
+ *	register phyiscal particle batch
+ *	\returns pointer to created physical particle batch
+ */
+lptr<ParticleBatch> Renderer::register_deferred_particle_batch()
+{
+	m_DeferredParticleBatches.push_back({ .shader = m_ParticlePassPipeline });
+	return std::prev(m_DeferredParticleBatches.end());
+}
+
+/**
+ *	register phyiscal particle batch
+ *	\param pipeline: shader pipeline, handling physical pass for newly created batch
+ *	\returns pointer to created physical particle batch
+ */
+lptr<ParticleBatch> Renderer::register_deferred_particle_batch(lptr<ShaderPipeline> pipeline)
+{
+	m_DeferredParticleBatches.push_back({ .shader = pipeline });
+	return std::prev(m_DeferredParticleBatches.end());
 }
 
 /**
