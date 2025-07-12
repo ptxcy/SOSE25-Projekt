@@ -14,6 +14,7 @@ Pong::Pong(Font* font,string name)
 	// geometry
 	Mesh __Sphere = Mesh("./res/low_sphere.obj");
 	Mesh __Cube = Mesh("./res/cube.obj");
+	Mesh __Triangle = Mesh("./res/triangle.obj");
 
 	// textures
 	vector<Texture*> __BallTexture0 = { g_Renderer.register_texture("./res/planets/halfres/sun.jpg") };
@@ -44,8 +45,8 @@ Pong::Pong(Font* font,string name)
 
 	// load player geometry
 	/*
-	m_Player0 = m_PhysicalBatch->add_geometry(__Cube,__GoldTextures);
-	m_Player1 = m_PhysicalBatch->add_geometry(__Cube,__GoldTextures);
+	m_Player0 = m_PhysicalBatch->add_geometry(__Triangle,__GoldTextures);
+	m_Player1 = m_PhysicalBatch->add_geometry(__Triangle,__GoldTextures);
 	*/
 	m_PhysicalBatch->load();
 

@@ -51,12 +51,8 @@ private:
 	PointLight* m_Lights[PONG_LIGHTING_POINTLIGHTS];
 
 	// players
-	/*
 	u32 m_Player0;
 	u32 m_Player1;
-	vec3 m_PlayerPosition0 = vec3(-17,0,0);
-	vec3 m_PlayerPosition1 = vec3(17,0,0);
-	*/
 
 	// ball information
 	BallIndex m_BallIndices[PONG_BALL_COUNT];
