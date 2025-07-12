@@ -125,8 +125,8 @@ void Pong::update()
 	*/
 
 	// get server updates
+	if (!g_Websocket.new_data) return;
 	GameObject gobj = g_Websocket.receive_message();
-	if (!gobj.balls.size()) return;
 
 	// player positions
 	// TODO scaling of premade triangle mesh
@@ -139,7 +139,7 @@ void Pong::update()
 	m_BallBatch->ibo.upload_vertices(m_BallIndices,PONG_BALL_COUNT,GL_DYNAMIC_DRAW);
 
 	// lighting update
-	for (u32 i=0;i<PONG_LIGHTING_POINTLIGHTS;i++) m_Lights[i]->position = m_BallIndices[i].position;
+	for (u32 i=0;i<PONG_LIGHTING_POINTLIGHTS;i++) m_Lights[i]->position = m_BallIndices[i*256].position;
 	g_Renderer.upload_lighting();
 
 	// update scoreboard

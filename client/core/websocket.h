@@ -66,6 +66,15 @@ public:
 	ServerMessage server_state;
 #ifdef PROJECT_PONG
 	GameObject game_objects;
+	char* raw_data;
+	size_t data_size;
+	bool new_data = false;
+	msgpack::unpacker unpacker;
+	msgpack::object_handle oh;
+	msgpack::object_handle ohb;
+	msgpack::zone zone;
+	msgpack::zone zoneb;
+
 #endif
 	bool state_update = false;
 	std::queue<ClientMessage> client_messages;

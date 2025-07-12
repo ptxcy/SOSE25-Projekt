@@ -15,7 +15,7 @@
 constexpr f32 PONG_SCALE_FACTOR = .1f;
 
 // ball constants
-constexpr u32 PONG_BALL_COUNT = 4*4;
+constexpr u32 PONG_BALL_COUNT = 150*150;
 constexpr f32 PONG_BALL_RADIUS = 2.f*PONG_SCALE_FACTOR;
 
 // field constants
@@ -25,7 +25,7 @@ constexpr f32 PONG_FIELD_WIDTH = .15f;
 constexpr f32 PONG_FIELD_DEPTH = PONG_BALL_RADIUS+PONG_FIELD_WIDTH;
 
 // lighting constants
-constexpr u32 PONG_LIGHTING_POINTLIGHTS = 16;
+constexpr u32 PONG_LIGHTING_POINTLIGHTS = 64;
 
 
 struct BallIndex

@@ -34,7 +34,10 @@ pub async fn broadcast(
 	}
 	// remove senders that are closed
 	for i in to_be_removed.iter().rev() {
-		senders.remove(i);
+		sender
+
+
+s.remove(i);
 	}
 }
 
@@ -47,7 +50,7 @@ pub async fn start(
 		HashMap::<String, ServerMessageSenderChannel>::new();
 
 	// initialise game objects
-	let mut game_objects = GameObjects::new(50);
+	let mut game_objects = GameObjects::new(150);
 
 	// delta time init
 	let mut last_time = Instant::now();
