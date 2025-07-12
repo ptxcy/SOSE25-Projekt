@@ -262,10 +262,12 @@ void Websocket::connect(string host, string port_ad, string port_ws, string name
 	username = name;
 
 	// adapter connection
+	/*
 	HTTPAdapter __Adapter = HTTPAdapter(host, port_ad);
 	COMM_ERR_COND(!__Adapter.create_user(name, pass), "user creation did not work");
 	string token = __Adapter.authenticate_on_server(name, pass);
 	lobby_status = __Adapter.open_lobby(lnom, lpass, token, create);
+	*/
 
 	// websocket connection
 	try
@@ -280,9 +282,9 @@ void Websocket::connect(string host, string port_ad, string port_ws, string name
 		// FIXME find out if the ep.port call has merit and if not replace it by predefined parameter
 
 		// start traffic handler
-		m_HandleWebsocketDownload = std::thread(_handle_websocket_download, this);
+		m_HandleWebsocketDownload = std::thread(_handle_websocket_download,this);
 		m_HandleWebsocketDownload.detach();
-		m_HandleWebsocketUpload = std::thread(_handle_websocket_upload, this);
+		m_HandleWebsocketUpload = std::thread(_handle_websocket_upload,this);
 		m_HandleWebsocketUpload.detach();
 		connected = true;
 	}

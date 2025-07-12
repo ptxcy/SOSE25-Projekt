@@ -77,7 +77,7 @@ Pong::Pong(Font* font,string name)
 	m_PhysicalBatch->object[__Floor].texel = PONG_FIELD_TEXEL;
 
 	// lighting
-	g_Renderer.add_sunlight(vec3(75,-50,100),vec3(1,1,1),.2f);
+	g_Renderer.add_sunlight(vec3(75,-50,100),vec3(1,1,1),.01f);
 	for (u32 i=0;i<PONG_LIGHTING_POINTLIGHTS;i++)
 		m_Lights[i] = g_Renderer.add_pointlight(m_BallIndices[i].position,vec3(.8f,.4f,.1f),10.f,1.f,.8f,.24f);
 	/*
