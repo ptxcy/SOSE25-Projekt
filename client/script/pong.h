@@ -11,26 +11,27 @@
 #include "webcomm.h"
 
 
-// field constants
-constexpr vec2 PONG_FIELD_SIZE = vec2(192,108);
-constexpr f32 PONG_FIELD_TEXEL = PONG_FIELD_SIZE.x/4.f;
-constexpr f32 PONG_FIELD_WIDTH = .15f;
+// context constants
+constexpr f32 PONG_SCALE_FACTOR = .1f;
 
 // ball constants
 constexpr u32 PONG_BALL_COUNT = 50*50;
+constexpr f32 PONG_BALL_RADIUS = 2.f*PONG_SCALE_FACTOR;
 
-// pedal constants
-constexpr f32 PONG_PEDAL_ACCELERATION = .4f;
-// FIXME do this through input upload and sync with server
+// field constants
+constexpr vec2 PONG_FIELD_SIZE = vec2(1920,1080)/2.2f*PONG_SCALE_FACTOR;
+constexpr f32 PONG_FIELD_TEXEL = PONG_FIELD_SIZE.x/4.f;
+constexpr f32 PONG_FIELD_WIDTH = .15f;
+constexpr f32 PONG_FIELD_DEPTH = PONG_BALL_RADIUS+PONG_FIELD_WIDTH;
 
-// lightting constants
-constexpr u32 PONG_LIGHTING_POINTLIGHTS = 16;
+// lighting constants
+constexpr u32 PONG_LIGHTING_POINTLIGHTS = 64;
 
 
 struct BallIndex
 {
 	vec3 position = vec3(0);
-	f32 scale = 1.f;
+	f32 scale = PONG_BALL_RADIUS;
 };
 
 class Pong
@@ -48,11 +49,6 @@ private:
 
 	// lighting
 	PointLight* m_Lights[PONG_LIGHTING_POINTLIGHTS];
-	/*
-	PointLight* m_Light0;
-	PointLight* m_Light1;
-	PointLight* m_Light2;
-	*/
 
 	// players
 	/*
@@ -64,14 +60,6 @@ private:
 
 	// ball information
 	BallIndex m_BallIndices[PONG_BALL_COUNT];
-	/*
-	u32 m_Ball0;
-	u32 m_Ball1;
-	u32 m_Ball2;
-	vec3 m_BallPosition0 = vec3(2,-2,0);
-	vec3 m_BallPosition1 = vec3(-3,4,0);
-	vec3 m_BallPosition2 = vec3(-4.5f,-7,0);
-	*/
 
 	// scoreboard
 	lptr<Text> m_Score0;
@@ -80,4 +68,4 @@ private:
 
 
 #endif
-p#endif
+#endif
