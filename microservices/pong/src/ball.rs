@@ -63,10 +63,10 @@ impl Ball {
             let balls = game_objects.chunks.get((my_chunk.0 as i64) + chunk.0, (my_chunk.1 as i64) + chunk.1);
             if let Some(balls) = balls {
                 for ball in balls.iter() {
-                    if self as *const Ball >= *ball {
+                    if self as *const Ball >= ball.0 {
                         continue;
                     }
-                    self.collide_ball(unsafe {&(**ball)}, actions);
+                    self.collide_ball(unsafe {&(*ball.0)}, actions);
                 }
             }
         }

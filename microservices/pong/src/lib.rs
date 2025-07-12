@@ -6,4 +6,5 @@ pub mod ball;
 pub mod player;
 pub mod line;
 pub mod score;
+pub mod threadpool;
 
