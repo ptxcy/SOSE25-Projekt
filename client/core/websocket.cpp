@@ -265,12 +265,10 @@ void Websocket::connect(string host,string port_ad,string port_ws,string name,st
 	username = name;
 
 	// adapter connection
-	/*
-	HTTPAdapter __Adapter = HTTPAdapter(host, port_ad);
-	COMM_ERR_COND(!__Adapter.create_user(name, pass), "user creation did not work");
-	string token = __Adapter.authenticate_on_server(name, pass);
-	lobby_status = __Adapter.open_lobby(lnom, lpass, token, create);
-	*/
+	HTTPAdapter __Adapter = HTTPAdapter(host,port_ad);
+	COMM_ERR_COND(!__Adapter.create_user(name,pass),"user creation did not work");
+	string token = __Adapter.authenticate_on_server(name,pass);
+	lobby_status = __Adapter.open_lobby(lnom,lpass,token,create);
 
 	// websocket connection
 	try

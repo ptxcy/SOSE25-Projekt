@@ -8,7 +8,7 @@ TARGET = build
 INCLUDE = -I/usr/include/freetype2 -I/usr/include/libpng16
 LINKER = -lGL -lGLEW -lSDL2 -lpthread -lfreetype -lcpr -lcurl -lssl -lcrypto -lz
 
-DEBUG_SUFFIX = -pg -g -O0 -DDEBUG
+DEBUG_SUFFIX = -pg -g -O3 -DDEBUG  # please go back to O0 this is only to make msgpack work
 RELEASE_SUFFIX = -O3 -fno-gcse
 
 SRCS_CORE = $(wildcard $(SDST_CORE)*.cpp)
