@@ -34,10 +34,7 @@ pub async fn broadcast(
 	}
 	// remove senders that are closed
 	for i in to_be_removed.iter().rev() {
-		sender
-
-
-s.remove(i);
+		senders.remove(i);
 	}
 }
 

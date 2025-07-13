@@ -128,7 +128,7 @@ LobbyStatus HTTPAdapter::open_lobby(string &lobby_name, string &lobby_password, 
  *	\param c: websocket data
  *	NOTE this is meant to be executed in a subthread, so the queues are filled asynchronously
  */
-void _handle_websocket_download(Websocket *c)
+void _handle_websocket_download(Websocket* c)
 {
 	while (c->running)
 	{
@@ -147,39 +147,6 @@ void _handle_websocket_download(Websocket *c)
 			c->raw_data = static_cast<char*>(data.data());
 			c->data_size = data.size();
 			c->new_data = true;
-
-			// create a msgpack zone for allocation
-			/*
-			msgpack::object_handle oh;
-			msgpack::zone zone;
-			msgpack::unpack(oh,raw_data,data_size,nullptr,&zone);
-			msgpack::object obj = oh.get();
-			//COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<obj).str().c_str());
-
-			// try to convert to our ServerMessage structure
-			ServerMessage message;
-			obj.convert(message);
-
-#ifdef PROJECT_PONG
-			// §subparsing game data
-			vector<u8> gob = vector<u8>(message.request_data.game_objects.size());
-			for (u32 i=0;i<message.request_data.game_objects.size();i++)
-				gob[i] = (u8)message.request_data.game_objects[i];
-			const char* bgob = reinterpret_cast<const char*>(&gob[0]);
-			msgpack::unpack(oh,bgob,gob.size(),nullptr,&zone);
-			msgpack::object kek = oh.get();
-			//COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<kek).str().c_str());
-			GameObject go;
-			kek.convert(go);
-#endif
-
-			// mutual exclusion
-			c->mutex_server_state.lock();
-			c->server_state = message;
-			c->game_objects = go;
-			c->state_update = true;
-			c->mutex_server_state.unlock();
-			*/
 		}
 		catch (const msgpack::insufficient_bytes &e)
 		{
@@ -198,7 +165,7 @@ void _handle_websocket_download(Websocket *c)
  *	\param c: websocket data
  *	NOTE this is meant to be executed in a subthread, so the queues are filled asynchronously
  */
-void _handle_websocket_upload(Websocket *c)
+void _handle_websocket_upload(Websocket* c)
 {
 	while (c->running)
 	{
@@ -219,6 +186,80 @@ void _handle_websocket_upload(Websocket *c)
 		{
 			COMM_ERR("sending upload -> %s", e.what());
 		}
+	}
+}
+
+/**
+ *	function to handle raw download data parsing, because msgpack parser is slow as hell
+ *	\param c: pointer to websocket memory
+ *	NOTE this is meant to be executed in a subthread
+ */
+void _handle_websocket_parsing(Websocket* c)
+{
+	while (true)
+	{
+		c->unpacker.reserve_buffer(c->data_size);
+		memcpy(c->unpacker.buffer(),c->raw_data,c->data_size);
+		c->unpacker.buffer_consumed(c->data_size);
+		ServerMessage message;
+		try
+		{
+			if (!c->unpacker.next(c->oh))
+			{
+				c->unpacker.reset();
+				c->new_data = false;
+				continue;
+			}
+			msgpack::object obj = c->oh.get();
+			//COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<obj).str().c_str());
+			obj.convert(message);
+		}
+		catch (const std::exception &e)
+		{
+			COMM_ERR("server message parsing error %s",e.what());
+			c->new_data = false;
+			c->unpacker.reset();
+		}
+		c->unpacker.reset();
+
+		// §subparsing game data
+#ifdef PROJECT_PONG
+		vector<u8> gob = vector<u8>(message.request_data.game_objects.size());
+		for (u32 i=0;i<message.request_data.game_objects.size();i++)
+			gob[i] = (u8)message.request_data.game_objects[i];
+		const char* bgob = reinterpret_cast<const char*>(&gob[0]);
+		c->unpacker.reserve_buffer(gob.size());
+		memcpy(c->unpacker.buffer(),bgob,gob.size());
+		c->unpacker.buffer_consumed(gob.size());
+		GameObject go;
+		try
+		{
+			if (!c->unpacker.next(c->ohb))
+			{
+				c->unpacker.reset();
+				c->new_data = false;
+				continue;
+			}
+			msgpack::object kek = c->ohb.get();
+			//COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<kek).str().c_str());
+			kek.convert(go);
+		}
+		catch (const std::exception& e)
+		{
+			COMM_ERR("game object parsing error %s",e.what());
+			c->new_data = false;
+			c->unpacker.reset();
+		}
+		c->unpacker.reset();
+#endif
+
+		// excluding relevant memory for writing process
+		c->mutex_server_state.lock();
+		c->server_state = message;
+		c->game_objects = go;
+		c->state_update = true;
+		c->new_data = false;
+		c->mutex_server_state.unlock();
 	}
 }
 
@@ -287,6 +328,8 @@ void Websocket::connect(string host,string port_ad,string port_ws,string name,st
 		m_HandleWebsocketDownload.detach();
 		m_HandleWebsocketUpload = std::thread(_handle_websocket_upload,this);
 		m_HandleWebsocketUpload.detach();
+		m_HandleWebsocketParsing = std::thread(_handle_websocket_parsing,this);
+		m_HandleWebsocketParsing.detach();
 		connected = true;
 	}
 	catch (std::exception const &e)
@@ -308,53 +351,6 @@ ServerMessage
 	Websocket::receive_message()
 {
 	mutex_server_state.lock();
-
-			// create a msgpack zone for allocation
-			//msgpack::object_handle oh;
-			//msgpack::zone zone;
-	unpacker.reserve_buffer(data_size);
-	memcpy(unpacker.buffer(),raw_data,data_size);
-	unpacker.buffer_consumed(data_size);
-	unpacker.next(oh);
-	msgpack::object obj = oh.get();
-	//COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<obj).str().c_str());
-
-			// try to convert to our ServerMessage structure
-	ServerMessage message;
-	obj.convert(message);
-
-#ifdef PROJECT_PONG
-			// §subparsing game data
-			vector<u8> gob = vector<u8>(message.request_data.game_objects.size());
-			for (u32 i=0;i<message.request_data.game_objects.size();i++)
-				gob[i] = (u8)message.request_data.game_objects[i];
-			const char* bgob = reinterpret_cast<const char*>(&gob[0]);
-			unpacker.reserve_buffer(gob.size());
-			memcpy(unpacker.buffer(),bgob,gob.size());
-			unpacker.buffer_consumed(gob.size());
-			unpacker.next(ohb);
-			//msgpack::unpack(ohb,bgob,gob.size(),nullptr,&zoneb);
-			msgpack::object kek = ohb.get();
-			//COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<kek).str().c_str());
-			GameObject go;
-			kek.convert(go);
-#endif
-
-			// mutual exclusion
-			//mutex_server_state.lock();
-			server_state = message;
-			game_objects = go;
-			state_update = true;
-			//mutex_server_state.unlock();
-			/*
-			c->mutex_server_state.lock();
-			c->server_state = message;
-			c->game_objects = go;
-			c->state_update = true;
-			c->mutex_server_state.unlock();
-			*/
-
-	new_data = false;
 
 #ifdef PROJECT_PONG
 	GameObject msg = std::move(game_objects);

@@ -125,7 +125,7 @@ void Pong::update()
 	*/
 
 	// get server updates
-	if (!g_Websocket.new_data) return;
+	if (!g_Websocket.state_update) return;
 	GameObject gobj = g_Websocket.receive_message();
 
 	// player positions

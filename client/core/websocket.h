@@ -84,6 +84,7 @@ public:
 private:
 	std::thread m_HandleWebsocketDownload;
 	std::thread m_HandleWebsocketUpload;
+	std::thread m_HandleWebsocketParsing;
 	bool connected = false;
 };
 
