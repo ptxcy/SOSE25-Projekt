@@ -68,24 +68,23 @@ public:
 	GameObject game_objects;
 	char* raw_data;
 	size_t data_size;
-	bool new_data = false;
-	msgpack::unpacker unpacker;
 	msgpack::object_handle oh;
 	msgpack::object_handle ohb;
 	msgpack::zone zone;
 	msgpack::zone zoneb;
+	ThreadSignal parsing_signal;
 
 #endif
 	bool state_update = false;
 	std::queue<ClientMessage> client_messages;
 	std::mutex mutex_server_state;
 	std::mutex mutex_client_messages;
+	std::mutex mutex_msgdata_raw;
 
 private:
 	std::thread m_HandleWebsocketDownload;
 	std::thread m_HandleWebsocketUpload;
 	std::thread m_HandleWebsocketParsing;
-	bool connected = false;
 };
 
 

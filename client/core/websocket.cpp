@@ -134,29 +134,25 @@ void _handle_websocket_download(Websocket* c)
 	{
 		try
 		{
-			// read buffer
-			boost::beast::flat_buffer response_buffer;
+			// kill when there is no connection
 			if (!c->ws.is_open())
 			{
                 COMM_ERR("WebSocket ist nicht mehr offen!");
                 return;
             }
 
+			// receive raw data
+			boost::beast::flat_buffer response_buffer;
 			c->ws.read(response_buffer);
 			auto data = response_buffer.data();
+			c->mutex_msgdata_raw.lock();
 			c->raw_data = static_cast<char*>(data.data());
 			c->data_size = data.size();
-			c->new_data = true;
+			c->parsing_signal.proceed(true);
+			c->mutex_msgdata_raw.unlock();
 		}
-		catch (const msgpack::insufficient_bytes &e)
-		{
-			COMM_ERR("incomplete data -> %s", e.what());
-		}
-		catch (const std::exception &e)
-		{
-			COMM_ERR("parsing server response -> %s", e.what());
-		}
-		// std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		catch (const msgpack::insufficient_bytes &e) { COMM_ERR("incomplete data -> %s", e.what()); }
+		catch (const std::exception &e) { COMM_ERR("parsing server response -> %s", e.what()); }
 	}
 }
 
@@ -196,61 +192,50 @@ void _handle_websocket_upload(Websocket* c)
  */
 void _handle_websocket_parsing(Websocket* c)
 {
-	while (true)
+	while (c->running)
 	{
-		c->unpacker.reserve_buffer(c->data_size);
-		memcpy(c->unpacker.buffer(),c->raw_data,c->data_size);
-		c->unpacker.buffer_consumed(c->data_size);
+		c->parsing_signal.wait();
+		c->parsing_signal.stall();
+
+		// read raw message data
+		msgpack::unpacker unpacker = msgpack::unpacker();
+		c->mutex_msgdata_raw.lock();
+		unpacker.reserve_buffer(c->data_size);
+		memcpy(unpacker.buffer(),c->raw_data,c->data_size);
+		unpacker.buffer_consumed(c->data_size);
+		c->mutex_msgdata_raw.unlock();
+
+		// parse message data
 		ServerMessage message;
 		try
 		{
-			if (!c->unpacker.next(c->oh))
-			{
-				c->unpacker.reset();
-				c->new_data = false;
-				continue;
-			}
+			if (!unpacker.next(c->oh)) continue;
 			msgpack::object obj = c->oh.get();
 			//COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<obj).str().c_str());
 			obj.convert(message);
 		}
-		catch (const std::exception &e)
-		{
-			COMM_ERR("server message parsing error %s",e.what());
-			c->new_data = false;
-			c->unpacker.reset();
-		}
-		c->unpacker.reset();
+		catch (const std::exception &e) { continue; }
 
-		// §subparsing game data
+		// §shuffle around 64-bit misread into 8-bit format to fit msgpack bitwise
 #ifdef PROJECT_PONG
 		vector<u8> gob = vector<u8>(message.request_data.game_objects.size());
 		for (u32 i=0;i<message.request_data.game_objects.size();i++)
 			gob[i] = (u8)message.request_data.game_objects[i];
 		const char* bgob = reinterpret_cast<const char*>(&gob[0]);
-		c->unpacker.reserve_buffer(gob.size());
-		memcpy(c->unpacker.buffer(),bgob,gob.size());
-		c->unpacker.buffer_consumed(gob.size());
+		unpacker.reserve_buffer(gob.size());
+		memcpy(unpacker.buffer(),bgob,gob.size());
+		unpacker.buffer_consumed(gob.size());
 		GameObject go;
+
+		// §subparsing game data
 		try
 		{
-			if (!c->unpacker.next(c->ohb))
-			{
-				c->unpacker.reset();
-				c->new_data = false;
-				continue;
-			}
+			if (!unpacker.next(c->ohb)) continue;
 			msgpack::object kek = c->ohb.get();
 			//COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<kek).str().c_str());
 			kek.convert(go);
 		}
-		catch (const std::exception& e)
-		{
-			COMM_ERR("game object parsing error %s",e.what());
-			c->new_data = false;
-			c->unpacker.reset();
-		}
-		c->unpacker.reset();
+		catch (const std::exception& e) { continue; }
 #endif
 
 		// excluding relevant memory for writing process
@@ -258,7 +243,6 @@ void _handle_websocket_parsing(Websocket* c)
 		c->server_state = message;
 		c->game_objects = go;
 		c->state_update = true;
-		c->new_data = false;
 		c->mutex_server_state.unlock();
 	}
 }
@@ -324,18 +308,14 @@ void Websocket::connect(string host,string port_ad,string port_ws,string name,st
 		// FIXME find out if the ep.port call has merit and if not replace it by predefined parameter
 
 		// start traffic handler
+		m_HandleWebsocketParsing = std::thread(_handle_websocket_parsing,this);
+		m_HandleWebsocketParsing.detach();
 		m_HandleWebsocketDownload = std::thread(_handle_websocket_download,this);
 		m_HandleWebsocketDownload.detach();
 		m_HandleWebsocketUpload = std::thread(_handle_websocket_upload,this);
 		m_HandleWebsocketUpload.detach();
-		m_HandleWebsocketParsing = std::thread(_handle_websocket_parsing,this);
-		m_HandleWebsocketParsing.detach();
-		connected = true;
 	}
-	catch (std::exception const &e)
-	{
-		COMM_ERR("Connection Error: %s", e.what());
-	}
+	catch (std::exception const &e) { COMM_ERR("Connection Error: %s", e.what()); }
 }
 // FIXME extensive usage of try-catch statements is very slow
 
@@ -381,11 +361,7 @@ void Websocket::send_message(ClientMessage msg)
  */
 void Websocket::exit()
 {
-	if (!connected)
-		return;
 	running = false;
-	// m_HandleWebsocketDownload.join();
-	// m_HandleWebsocketUpload.join();
 }
 
 #endif
