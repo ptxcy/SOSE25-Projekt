@@ -66,9 +66,8 @@ pub async fn start(
 		while let Ok(sender) = server_message_sender_receiver.try_recv() {
 			let username = sender.user_id.clone();
 			log_with_time(format!("getting sender {}", username));
-			let player = Player::new(game_objects.players.len() % 2 == 0);
-			game_objects.players.push(player);
-			let player_ptr = game_objects.players.last_mut().unwrap() as *mut Player;
+			let player_ptr = game_objects.players.get_mut(game_objects.player_count % 2).unwrap() as *mut Player;
+			game_objects.player_count += 1;
 			game_objects.player_map.insert(username.clone(), player_ptr);
 			server_message_senders.insert(username, sender);
 		}
@@ -89,7 +88,7 @@ pub async fn start(
 
 		let (action_sender, action_receiver) = std::sync::mpsc::channel::<ActionWrapper>();
 
-		if game_objects.players.len() == 2 /* || true */ {
+		if game_objects.player_count == 2 /* || true */ {
 			update_balls(action_sender.clone(), &game_objects, delta_seconds);
 		}
 		update_players(action_sender.clone(), &game_objects, delta_seconds);
