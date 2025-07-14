@@ -44,10 +44,8 @@ Pong::Pong(Font* font,string name)
 	u32 __Wall3 = m_PhysicalBatch->add_geometry(__Cube,__ParquetTextures);
 
 	// load player geometry
-	/*
 	m_Player0 = m_PhysicalBatch->add_geometry(__Triangle,__GoldTextures);
 	m_Player1 = m_PhysicalBatch->add_geometry(__Triangle,__GoldTextures);
-	*/
 	m_PhysicalBatch->load();
 
 	// setup surface geometry
@@ -66,12 +64,6 @@ Pong::Pong(Font* font,string name)
 	m_PhysicalBatch->object[__Wall2].transform.translate(vec3(0,PONG_FIELD_SIZE.y,0));
 	m_PhysicalBatch->object[__Wall3].transform.translate(vec3(0,-PONG_FIELD_SIZE.y,0));
 	// TODO add mesh baking feature to reduce this to singular geometry with singluar draw call
-
-	// setup player geometry
-	/*
-	m_PhysicalBatch->object[m_Player0].transform.scale(vec3(.25f,2,1));
-	m_PhysicalBatch->object[m_Player1].transform.scale(vec3(.25f,2,1));
-	*/
 
 	// set texel density
 	m_PhysicalBatch->object[__Floor].texel = PONG_FIELD_TEXEL;
@@ -105,36 +97,35 @@ Pong::Pong(Font* font,string name)
 	g_Wheel.call(UpdateRoutine{ &Pong::_update,(void*)this });
 }
 
+vec3 ctvec(Coordinate& c) { return vec3(c.x,c.y,c.z); }
+
 /**
  *	update pong game
  */
 void Pong::update()
 {
 	// player input
-	/*
-	m_PlayerPosition0.y += (g_Input.keyboard.keys[SDL_SCANCODE_W]-g_Input.keyboard.keys[SDL_SCANCODE_S])
-			*PONG_PEDAL_ACCELERATION;
-	m_PlayerPosition0.y = glm::clamp(m_PlayerPosition0.y,-8.5f,8.5f);
-	*/
-	// TODO upload input to calculation unit instead and receive resulting pedal positions from server update
-
-	// player position
-	/*
-	m_PhysicalBatch->object[m_Player0].transform.translate(m_PlayerPosition0);
-	m_PhysicalBatch->object[m_Player1].transform.translate(m_PlayerPosition1);
-	*/
+	//m_PlayerPosition0.y += (g_Input.keyboard.keys[SDL_SCANCODE_W]-g_Input.keyboard.keys[SDL_SCANCODE_S]);
 
 	// get server updates
 	if (!g_Websocket.state_update) return;
-	GameObject gobj = g_Websocket.receive_message();
+	GameObject __GObj = g_Websocket.receive_message();
 
 	// player positions
-	// TODO scaling of premade triangle mesh
+	Player& p_Player0 = __GObj.players["owen"];
+	Player& p_Player1 = __GObj.players["wilson"];
+	vec3 __PlayerScale = vec3(abs(p_Player0.relative_lines[1].b.x),abs(p_Player0.relative_lines[0].b.y),2)
+			*PONG_SCALE_FACTOR;
+	m_PhysicalBatch->object[m_Player0].transform.scale(__PlayerScale);
+	m_PhysicalBatch->object[m_Player0].transform.translate(ctvec(p_Player0.position)*PONG_SCALE_FACTOR);
+	m_PhysicalBatch->object[m_Player1].transform.scale(__PlayerScale);
+	m_PhysicalBatch->object[m_Player1].transform.translate(ctvec(p_Player1.position)*PONG_SCALE_FACTOR);
+	m_PhysicalBatch->object[m_Player1].transform.rotate_z(180.f);
 
 	// ball positions
-	for (u32 i=0;i<gobj.balls.size();i++)
+	for (u32 i=0;i<__GObj.balls.size();i++)
 		m_BallIndices[i].position
-				= vec3(gobj.balls[i].position.x,gobj.balls[i].position.y,gobj.balls[i].position.z)*.1f;
+				= vec3(__GObj.balls[i].position.x,__GObj.balls[i].position.y,__GObj.balls[i].position.z)*.1f;
 	m_BallBatch->ibo.bind();
 	m_BallBatch->ibo.upload_vertices(m_BallIndices,PONG_BALL_COUNT,GL_DYNAMIC_DRAW);
 
@@ -143,10 +134,10 @@ void Pong::update()
 	g_Renderer.upload_lighting();
 
 	// update scoreboard
-	m_Score0->data = "Score: "+std::to_string(gobj.score.player1);
+	m_Score0->data = "Score: "+std::to_string(__GObj.score.player1);
 	m_Score0->align();
 	m_Score0->load_buffer();
-	m_Score1->data = "Score: "+std::to_string(gobj.score.player2);
+	m_Score1->data = "Score: "+std::to_string(__GObj.score.player2);
 	m_Score1->align();
 	m_Score1->load_buffer();
 }

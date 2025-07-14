@@ -28,6 +28,17 @@ void split_words(vector<string>& words,string& line)
 	while (stream>>word) words.push_back(word);
 }
 
+/**
+ *	calculate halfway vector in-between the two given vectors
+ *	\param a: first vector
+ *	\param b: second vector
+ *	\returns vector pointing to the location halfway in-between the given vectors
+ */
+vec3 halfway(vec3 a,vec3 b)
+{
+	return (a+b)*.5f;
+}
+
 
 // ----------------------------------------------------------------------------------------------------
 // Low-Level Data
