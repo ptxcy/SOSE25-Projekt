@@ -111,7 +111,7 @@ async fn handle_ws_msgpack(
                 let sender_sender = sender_sender.clone();
                 let server_message_tx = server_message_tx.clone();
                 tokio::spawn(async move {
-                    let result = sender_sender
+                    let _result = sender_sender
                         .send(ServerMessageSenderChannel::new(user_id, server_message_tx))
                         .await
                         .logm("failed to send server_message_tx");
