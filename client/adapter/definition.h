@@ -206,7 +206,6 @@ struct ClientMessage
 #ifdef PROJECT_PONG
 
 
-
 struct Ball
 {
 	Coordinate position;
@@ -244,7 +243,7 @@ struct GameObject
 {
 	vector<Ball> balls;
 	vector<Line> lines;
-	std::unordered_map<string,Player> players;
+	vector<Player> players;
 	Score score;
 	MSGPACK_DEFINE(balls,lines,players,score);
 };

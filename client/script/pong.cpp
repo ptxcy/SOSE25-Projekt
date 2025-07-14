@@ -94,13 +94,14 @@ Pong::Pong(Font* font,string name)
 	g_Renderer.upload_lighting();
 
 	// setup text scoreboard
-	m_Score0 = g_Renderer.write_text(font,"",vec3(25,-25,0),15,vec4(1),Alignment{ .align=SCREEN_ALIGN_TOPLEFT });
-	m_Score1 = g_Renderer.write_text(font,"",vec3(-25,-25,0),15,
+	m_Score0 = g_Renderer.write_text(font,"",vec3(250,-25,0),15,vec4(1),
+									 Alignment{ .align=SCREEN_ALIGN_TOPLEFT });
+	m_Score1 = g_Renderer.write_text(font,"",vec3(-250,-25,0),15,
 									 vec4(1),Alignment{ .align=SCREEN_ALIGN_TOPRIGHT });
 
 	// connection to server
 	g_Websocket.connect(NETWORK_HOST,NETWORK_PORT_ADAPTER,NETWORK_PORT_WEBSOCKET,
-						name,"wilson","pong-anaconda","movie",false);
+						name,"wilson","pong-anaconda","movie",!strcmp(name.c_str(),"owen"));
 	Request::connect();
 
 	// setup index buffer object for ball batch
@@ -125,8 +126,8 @@ void Pong::update()
 	GameObject __GObj = g_Websocket.receive_message();
 
 	// player positions
-	Player& p_Player0 = __GObj.players["owen"];
-	Player& p_Player1 = __GObj.players["wilson"];
+	Player& p_Player0 = __GObj.players[1];
+	Player& p_Player1 = __GObj.players[0];
 	vec3 __PlayerScale = vec3(abs(p_Player0.relative_lines[1].b.x),abs(p_Player0.relative_lines[0].b.y),2)
 			*PONG_SCALE_FACTOR;
 	m_PhysicalBatch->object[m_Player0].transform.scale(__PlayerScale);
