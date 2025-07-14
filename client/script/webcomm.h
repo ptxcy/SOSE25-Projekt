@@ -14,6 +14,7 @@ public:
 
 #ifdef PROJECT_PONG
 	static void connect();
+	static void player_movement(s8 dir);
 #endif
 
 #ifdef PROJECT_SPACER

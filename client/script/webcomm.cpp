@@ -25,6 +25,17 @@ void Request::connect()
 	g_Websocket.send_message(__Msg);
 }
 
+/**
+ *	transmit player movement
+ *	\param dir: direction the player pedal moves towards
+ */
+void Request::player_movement(s8 dir)
+{
+	ClientMessage __Msg = _create_message();
+	__Msg.request_data.move_to = dir;
+	g_Websocket.send_message(__Msg);
+}
+
 
 #endif
 #ifdef PROJECT_SPACER

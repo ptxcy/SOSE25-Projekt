@@ -34,9 +34,16 @@ struct BallIndex
 	f32 scale = PONG_BALL_RADIUS;
 };
 
+struct Lightbulb
+{
+	vector<Texture*> texture;
+	vec3 colour;
+};
+
 class Pong
 {
 public:
+
 	Pong(Font* font,string name);
 	static inline void _update(void* rp) { Pong* p = (Pong*)rp; p->update(); }
 	void update();

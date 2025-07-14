@@ -11,15 +11,24 @@ Pong::Pong(Font* font,string name)
 	g_Camera.distance = 100.f;
 	g_Camera.pitch = glm::radians(45.f);
 
+	// shader compile
+	/*
+	VertexShader __BulbVertexShader = VertexShader("core/shader/bulb.vert");
+	FragmentShader __BulbFragmentShader = FragmentShader("core/shader/bulb.frag");
+	ShaderPipeline __BulbShader = g_Renderer.register_pipeline(__BulbVertexShader,__BulbFragmentShader);
+	*/
+
 	// geometry
 	Mesh __Sphere = Mesh("./res/low_sphere.obj");
 	Mesh __Cube = Mesh("./res/cube.obj");
 	Mesh __Triangle = Mesh("./res/triangle.obj");
 
 	// textures
-	vector<Texture*> __BallTexture0 = { g_Renderer.register_texture("./res/planets/halfres/sun.jpg") };
-	vector<Texture*> __BallTexture1 = { g_Renderer.register_texture("./res/planets/halfres/neptune.jpg") };
-	vector<Texture*> __BallTexture2 = { g_Renderer.register_texture("./res/planets/halfres/mars.jpg") };
+	vector<Lightbulb> __LightbulbColour = {
+		{ { g_Renderer.register_texture("./res/planets/halfres/sun.jpg") },vec3(.8f,.4f,.1f) },
+		{ { g_Renderer.register_texture("./res/planets/halfres/mars.jpg") },vec3(.9f,.2f,.1f) },
+		{ { g_Renderer.register_texture("./res/planets/halfres/neptune.jpg") },vec3(.1f,.1f,.8f) },
+	};
 	vector<Texture*> __ParquetTextures = {
 		g_Renderer.register_texture("./res/physical/paquet_colour.png",TEXTURE_FORMAT_SRGB),
 		g_Renderer.register_texture("./res/physical/paquet_normal.png"),
@@ -30,6 +39,12 @@ Pong::Pong(Font* font,string name)
 		g_Renderer.register_texture("./res/physical/gold_normal.png"),
 		g_Renderer.register_texture("./res/physical/gold_material.png"),
 	};
+
+	// bulb particle buffer
+	/*
+	m_BulbBatch = g_Renderer.register_deferred_particle_batch(__BulbShader);
+	m_BulbBatch->load(__Sphere,PONG_LIGHTING_POINTLIGHTS);
+	*/
 
 	// ball particle buffer
 	m_BallBatch = g_Renderer.register_deferred_particle_batch();
@@ -71,11 +86,11 @@ Pong::Pong(Font* font,string name)
 	// lighting
 	g_Renderer.add_sunlight(vec3(75,-50,100),vec3(1,1,1),.01f);
 	for (u32 i=0;i<PONG_LIGHTING_POINTLIGHTS;i++)
-		m_Lights[i] = g_Renderer.add_pointlight(m_BallIndices[i].position,vec3(.8f,.4f,.1f),10.f,1.f,.8f,.24f);
-	/*
-	m_Light1 = g_Renderer.add_pointlight(m_BallPosition1,vec3(.1f,.1f,.8f),10.f,1.f,.8f,.24f);
-	m_Light2 = g_Renderer.add_pointlight(m_BallPosition2,vec3(.9f,.2f,.1f),10.f,1.f,.8f,.24f);
-	*/
+	{
+		m_Lights[i] = g_Renderer.add_pointlight(m_BallIndices[i].position,
+												__LightbulbColour[i%__LightbulbColour.size()].colour,
+												10.f,1.f,.8f,.24f);
+	}
 	g_Renderer.upload_lighting();
 
 	// setup text scoreboard
@@ -84,11 +99,9 @@ Pong::Pong(Font* font,string name)
 									 vec4(1),Alignment{ .align=SCREEN_ALIGN_TOPRIGHT });
 
 	// connection to server
-#ifdef FEAT_MULTIPLAYER
 	g_Websocket.connect(NETWORK_HOST,NETWORK_PORT_ADAPTER,NETWORK_PORT_WEBSOCKET,
 						name,"wilson","pong-anaconda","movie",false);
 	Request::connect();
-#endif
 
 	// setup index buffer object for ball batch
 	m_BallBatch->ibo.bind();
@@ -105,7 +118,7 @@ vec3 ctvec(Coordinate& c) { return vec3(c.x,c.y,c.z); }
 void Pong::update()
 {
 	// player input
-	//m_PlayerPosition0.y += (g_Input.keyboard.keys[SDL_SCANCODE_W]-g_Input.keyboard.keys[SDL_SCANCODE_S]);
+	Request::player_movement(g_Input.keyboard.keys[SDL_SCANCODE_W]-g_Input.keyboard.keys[SDL_SCANCODE_S]);
 
 	// get server updates
 	if (!g_Websocket.state_update) return;
