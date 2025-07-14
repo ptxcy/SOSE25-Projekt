@@ -123,288 +123,38 @@ LobbyStatus HTTPAdapter::open_lobby(string &lobby_name, string &lobby_password, 
 // ----------------------------------------------------------------------------------------------------
 // Websocket Connection
 
-/*
-
-void debugConvertCoordinate(const msgpack::object& obj, const std::string& label = "Coordinate")
-{
-	try {
-		Coordinate c;
-		obj.convert(c);
-		std::cout << "  [OK] " << label << "\n";
-	} catch (const std::exception& e) {
-		std::cerr << "  [FAIL] " << label << ": " << e.what() << "\n";
-	}
-}
-
-void debugConvertSpacestation(const msgpack::object& obj, const std::string& label = "Spacestation")
-{
-	try {
-		Spacestation s;
-		obj.convert(s);
-		std::cout << "  [OK] " << label << "\n";
-	} catch (const std::exception& e) {
-		std::cerr << "  [FAIL] " << label << ": " << e.what() << "\n";
-	}
-}
-
-void debugConvertSpaceship(const msgpack::object& obj, const std::string& label = "Spaceship")
-{
-	try {
-		Spaceship s;
-		obj.convert(s);
-		std::cout << "  [OK] " << label << "\n";
-		debugConvertCoordinate(obj.via.array.ptr[3], label + ".velocity");
-		debugConvertCoordinate(obj.via.array.ptr[4], label + ".position");
-		debugConvertCoordinate(obj.via.array.ptr[5], label + ".target");
-	} catch (const std::exception& e) {
-		std::cerr << "  [FAIL] " << label << ": " << e.what() << "\n";
-	}
-}
-
-void debugConvertSpaceships(const msgpack::object& obj)
-{
-	std::cout << "[Spaceships]\n";
-	try {
-		if (obj.type != msgpack::type::MAP) throw std::runtime_error("not a map");
-
-		for (uint32_t i = 0; i < obj.via.map.size; ++i) {
-			const auto& kv = obj.via.map.ptr[i];
-			std::string key;
-			try {
-				key = kv.key.as<std::string>();
-			} catch (...) {
-				key = "<invalid>";
-			}
-			debugConvertSpaceship(kv.val, "spaceships[" + key + "]");
-		}
-	} catch (const std::exception& e) {
-		std::cerr << "Spaceships deserialization failed: " << e.what() << "\n";
-	}
-}
-
-void debugConvertPlayer(const msgpack::object& obj, const std::string& label)
-{
-	try {
-		Player p;
-		obj.convert(p);
-		std::cout << "  [OK] " << label << "\n";
-	} catch (const std::exception& e) {
-		std::cerr << "  [FAIL] " << label << ": " << e.what() << "\n";
-	}
-}
-
-void debugConvertPlayers(const msgpack::object& obj)
-{
-	std::cout << "[Players]\n";
-	try {
-		for (uint32_t i = 0; i < obj.via.map.size; ++i) {
-			std::string key;
-			try {
-				key = obj.via.map.ptr[i].key.as<std::string>();
-			} catch (...) {
-				key = "<invalid>";
-			}
-			debugConvertPlayer(obj.via.map.ptr[i].val, "players[" + key + "]");
-		}
-	} catch (const std::exception& e) {
-		std::cerr << "Players deserialization failed: " << e.what() << "\n";
-	}
-}
-
-void debugConvertBuildingRegion(const msgpack::object& obj, const std::string& label)
-{
-	try {
-		BuildingRegion b;
-		obj.convert(b);
-		std::cout << "    [OK] " << label << "\n";
-	} catch (const std::exception& e) {
-		std::cerr << "    [FAIL] " << label << ": " << e.what() << "\n";
-	}
-}
-
-void debugConvertPlanet(const msgpack::object& obj, const std::string& label)
-{
-	try {
-		Planet p;
-		obj.convert(p);
-		std::cout << "  [OK] " << label << "\n";
-
-		if (obj.type == msgpack::type::ARRAY && obj.via.array.size >= 4) {
-			const auto& building_regions = obj.via.array.ptr[2];
-			if (building_regions.type == msgpack::type::ARRAY) {
-				for (uint32_t i = 0; i < building_regions.via.array.size; ++i) {
-					debugConvertBuildingRegion(building_regions.via.array.ptr[i], label + ".building_regions[" + std::to_string(i) + "]");
-				}
-			}
-			debugConvertSpacestation(obj.via.array.ptr[4], label + ".spacestation");
-		}
-	} catch (const std::exception& e) {
-		std::cerr << "  [FAIL] " << label << ": " << e.what() << "\n";
-	}
-}
-
-void debugConvertPlanets(const msgpack::object& obj)
-{
-	std::cout << "[Planets]\n";
-	try {
-		for (uint32_t i = 0; i < obj.via.array.size; ++i) {
-			debugConvertPlanet(obj.via.array.ptr[i], "planets[" + std::to_string(i) + "]");
-		}
-	} catch (const std::exception& e) {
-		std::cerr << "Planets deserialization failed: " << e.what() << "\n";
-	}
-}
-
-void debugConvertDummyObject(const msgpack::object& obj, const std::string& label)
-{
-	try {
-		DummyObject d;
-		obj.convert(d);
-		std::cout << "  [OK] " << label << "\n";
-	} catch (const std::exception& e) {
-		std::cerr << "  [FAIL] " << label << ": " << e.what() << "\n";
-	}
-}
-
-void debugConvertDummyObjects(const msgpack::object& obj)
-{
-	std::cout << "[DummyObjects]\n";
-	try {
-		for (uint32_t i = 0; i < obj.via.map.size; ++i) {
-			std::string key;
-			try {
-				key = obj.via.map.ptr[i].key.as<std::string>();
-			} catch (...) {
-				key = "<invalid>";
-			}
-			debugConvertDummyObject(obj.via.map.ptr[i].val, "dummies[" + key + "]");
-		}
-	} catch (const std::exception& e) {
-		std::cerr << "DummyObjects deserialization failed: " << e.what() << "\n";
-	}
-}
-
-void debugConvertGameObjects(const msgpack::object& obj)
-{
-	std::cout << "[GameObjects]\n";
-	try {
-		auto arr = obj.as<std::vector<msgpack::object>>();
-		if (arr.size() != 4) {
-			std::cerr << "GameObjects array size != 4\n";
-			return;
-		}
-		debugConvertDummyObjects(arr[0]);
-		debugConvertPlanets(arr[1]);
-		debugConvertPlayers(arr[2]);
-		debugConvertSpaceships(arr[3]);
-	} catch (const std::exception& e) {
-		std::cerr << "GameObjects deserialization failed: " << e.what() << "\n";
-	}
-}
-
-void debugConvertRequestInfo(const msgpack::object& obj)
-{
-	try {
-		RequestInfo ri;
-		obj.convert(ri);
-		std::cout << "[OK] RequestInfo\n";
-	} catch (const std::exception& e) {
-		std::cerr << "[FAIL] RequestInfo: " << e.what() << "\n";
-	}
-}
-
-void debugConvertObjectData(const msgpack::object& obj)
-{
-	std::cout << "[ObjectData]\n";
-	try {
-		auto arr = obj.as<std::vector<msgpack::object>>();
-		if (arr.size() != 2) {
-			std::cerr << "ObjectData array size != 2\n";
-			return;
-		}
-		try {
-			std::string id = arr[0].as<std::string>();
-			std::cout << "  target_user_id: " << id << "\n";
-		} catch (const std::exception& e) {
-			std::cerr << "  target_user_id failed: " << e.what() << "\n";
-		}
-		debugConvertGameObjects(arr[1]);
-	} catch (const std::exception& e) {
-		std::cerr << "ObjectData deserialization failed: " << e.what() << "\n";
-	}
-}
-
-void debugConvertServerMessage(const msgpack::object& obj)
-{
-	std::cout << "\n==== [ServerMessage] ====\n";
-	try {
-		auto arr = obj.as<std::vector<msgpack::object>>();
-		if (arr.size() != 2) {
-			std::cerr << "ServerMessage array size != 2\n";
-			return;
-		}
-		debugConvertRequestInfo(arr[0]);
-		debugConvertObjectData(arr[1]);
-	} catch (const std::exception& e) {
-		std::cerr << "ServerMessage deserialization failed: " << e.what() << "\n";
-	}
-}
-
-*/
-
-
 /**
  *	function to handle websocket download traffic
  *	\param c: websocket data
  *	NOTE this is meant to be executed in a subthread, so the queues are filled asynchronously
  */
-void _handle_websocket_download(Websocket *c)
+void _handle_websocket_download(Websocket* c)
 {
 	while (c->running)
 	{
 		try
 		{
-		    // read buffer
-			boost::beast::flat_buffer response_buffer;
+			// kill when there is no connection
 			if (!c->ws.is_open())
 			{
                 COMM_ERR("WebSocket ist nicht mehr offen!");
                 return;
             }
 
+			// receive raw data
+			boost::beast::flat_buffer response_buffer;
 			c->ws.read(response_buffer);
 			auto data = response_buffer.data();
-			const char* raw_data = static_cast<const char*>(data.data());
-			size_t data_size = data.size();
-
-			// create a msgpack zone for allocation
-			msgpack::object_handle oh;
-			msgpack::zone zone;
-			msgpack::unpack(oh,raw_data,data_size,nullptr,&zone);
-			msgpack::object obj = oh.get();
-			//COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<obj).str().c_str());
-
-			// try to convert to our ServerMessage structure
-			ServerMessage message;
-			//debugConvertServerMessage(obj);
-			obj.convert(message);
-
-			// mutual exclusion
-			c->mutex_server_state.lock();
-			c->server_state = message;
-			c->state_update = true;
-			c->mutex_server_state.unlock();
+			c->mutex_msgdata_raw.lock();
+			c->raw_data = static_cast<char*>(data.data());
+			c->data_size = data.size();
+			c->parsing_signal.proceed(true);
+			c->mutex_msgdata_raw.unlock();
 		}
-		catch (const msgpack::insufficient_bytes &e)
-		{
-			COMM_ERR("incomplete data -> %s", e.what());
-		}
-		catch (const std::exception &e)
-		{
-			COMM_ERR("parsing server response -> %s", e.what());
-		}
-		// std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		catch (const msgpack::insufficient_bytes &e) { COMM_ERR("incomplete data -> %s", e.what()); }
+		catch (const std::exception &e) { COMM_ERR("parsing server response -> %s", e.what()); }
 	}
+	COMM_MSG(LOG_CYAN,"closing download thread");
 }
 
 /**
@@ -412,15 +162,21 @@ void _handle_websocket_download(Websocket *c)
  *	\param c: websocket data
  *	NOTE this is meant to be executed in a subthread, so the queues are filled asynchronously
  */
-void _handle_websocket_upload(Websocket *c)
+void _handle_websocket_upload(Websocket* c)
 {
 	while (c->running)
 	{
+		// check client message update
+		c->mutex_client_messages.lock();
 		if (!c->client_messages.size())
+		{
+			c->mutex_client_messages.unlock();
 			continue;
+		}
+
+		// upload client message
 		try
 		{
-			c->mutex_client_messages.lock();
 			ClientMessage outMsg = c->client_messages.front();
 			c->client_messages.pop();
 			c->mutex_client_messages.unlock();
@@ -434,6 +190,70 @@ void _handle_websocket_upload(Websocket *c)
 			COMM_ERR("sending upload -> %s", e.what());
 		}
 	}
+	COMM_MSG(LOG_CYAN,"closing upload thread");
+}
+
+/**
+ *	function to handle raw download data parsing, because msgpack parser is slow as hell
+ *	\param c: pointer to websocket memory
+ *	NOTE this is meant to be executed in a subthread
+ */
+void _handle_websocket_parsing(Websocket* c)
+{
+	while (c->running)
+	{
+		c->parsing_signal.wait();
+		c->parsing_signal.stall();
+
+		// read raw message data
+		msgpack::unpacker unpacker = msgpack::unpacker();
+		c->mutex_msgdata_raw.lock();
+		unpacker.reserve_buffer(c->data_size);
+		memcpy(unpacker.buffer(),c->raw_data,c->data_size);
+		unpacker.buffer_consumed(c->data_size);
+		c->mutex_msgdata_raw.unlock();
+
+		// parse message data
+		ServerMessage message;
+		try
+		{
+			if (!unpacker.next(c->oh)) continue;
+			msgpack::object obj = c->oh.get();
+			//COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<obj).str().c_str());
+			obj.convert(message);
+		}
+		catch (const std::exception &e) { continue; }
+
+		// §shuffle around 64-bit misread into 8-bit format to fit msgpack bitwise
+#ifdef PROJECT_PONG
+		vector<u8> gob = vector<u8>(message.request_data.game_objects.size());
+		for (u32 i=0;i<message.request_data.game_objects.size();i++)
+			gob[i] = (u8)message.request_data.game_objects[i];
+		const char* bgob = reinterpret_cast<const char*>(&gob[0]);
+		unpacker.reserve_buffer(gob.size());
+		memcpy(unpacker.buffer(),bgob,gob.size());
+		unpacker.buffer_consumed(gob.size());
+		GameObject go;
+
+		// §subparsing game data
+		try
+		{
+			if (!unpacker.next(c->ohb)) continue;
+			msgpack::object kek = c->ohb.get();
+			//COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<kek).str().c_str());
+			kek.convert(go);
+		}
+		catch (const std::exception& e) { continue; }
+#endif
+
+		// excluding relevant memory for writing process
+		c->mutex_server_state.lock();
+		c->server_state = message;
+		c->game_objects = go;
+		c->state_update = true;
+		c->mutex_server_state.unlock();
+	}
+	COMM_MSG(LOG_CYAN,"closing parsing thread");
 }
 
 /**
@@ -473,16 +293,16 @@ std::string _url_encode(string &value)
  *	\param lpass: lobby password
  *	\param creator: true if connection attempt creates a new lobby, false if user joins a created lobby
  */
-void Websocket::connect(string host, string port_ad, string port_ws, string name, string pass, string lnom,
-						string lpass, bool create)
+void Websocket::connect(string host,string port_ad,string port_ws,string name,string pass,string lnom,
+						string lpass,bool create)
 {
 	username = name;
 
 	// adapter connection
-	HTTPAdapter __Adapter = HTTPAdapter(host, port_ad);
-	COMM_ERR_COND(!__Adapter.create_user(name, pass), "user creation did not work");
-	string token = __Adapter.authenticate_on_server(name, pass);
-	lobby_status = __Adapter.open_lobby(lnom, lpass, token, create);
+	HTTPAdapter __Adapter = HTTPAdapter(host,port_ad);
+	COMM_ERR_COND(!__Adapter.create_user(name,pass),"user creation did not work");
+	string token = __Adapter.authenticate_on_server(name,pass);
+	lobby_status = __Adapter.open_lobby(lnom,lpass,token,create);
 
 	// websocket connection
 	try
@@ -490,22 +310,21 @@ void Websocket::connect(string host, string port_ad, string port_ws, string name
 		COMM_LOG("Connecting to WebSocket server at %s:%s...", host.c_str(), port_ws.c_str());
 		auto results = boost::asio::ip::tcp::resolver{ioc}.resolve(host, port_ws);
 		auto ep = boost::asio::connect(ws.next_layer(), results);
-		ws.handshake(host + ':' + std::to_string(ep.port()), "/calculate?authToken=" + _url_encode(token));
+		//ws.handshake(host + ':' + std::to_string(ep.port()), "/calculate?authToken=" + _url_encode(token));
+		ws.handshake(host + ':' + std::to_string(ep.port()), "/msgpack");
 		ws.binary(true);
 		COMM_SCC("Connected to server successfully!");
 		// FIXME find out if the ep.port call has merit and if not replace it by predefined parameter
 
 		// start traffic handler
-		m_HandleWebsocketDownload = std::thread(_handle_websocket_download, this);
+		m_HandleWebsocketDownload = std::thread(_handle_websocket_download,this);
 		m_HandleWebsocketDownload.detach();
-		m_HandleWebsocketUpload = std::thread(_handle_websocket_upload, this);
+		m_HandleWebsocketUpload = std::thread(_handle_websocket_upload,this);
 		m_HandleWebsocketUpload.detach();
-		connected = true;
+		m_HandleWebsocketParsing = std::thread(_handle_websocket_parsing,this);
+		m_HandleWebsocketParsing.detach();
 	}
-	catch (std::exception const &e)
-	{
-		COMM_ERR("Connection Error: %s", e.what());
-	}
+	catch (std::exception const &e) { COMM_ERR("Connection Error: %s", e.what()); }
 }
 // FIXME extensive usage of try-catch statements is very slow
 
@@ -513,10 +332,21 @@ void Websocket::connect(string host, string port_ad, string port_ws, string name
  *	receive the next server message if possible
  *	\returns next server message
  */
-ServerMessage Websocket::receive_message()
+#ifdef PROJECT_PONG
+GameObject
+#elif
+ServerMessage
+#endif
+	Websocket::receive_message()
 {
 	mutex_server_state.lock();
+
+#ifdef PROJECT_PONG
+	GameObject msg = std::move(game_objects);
+#elif
 	ServerMessage msg = std::move(server_state);
+#endif
+
 	state_update = false;
 	mutex_server_state.unlock();
 	return std::move(msg);
@@ -540,11 +370,7 @@ void Websocket::send_message(ClientMessage msg)
  */
 void Websocket::exit()
 {
-	if (!connected)
-		return;
 	running = false;
-	// m_HandleWebsocketDownload.join();
-	// m_HandleWebsocketUpload.join();
 }
 
 #endif

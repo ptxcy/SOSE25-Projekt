@@ -223,6 +223,7 @@ inline f64 calculate_delta_time(std::chrono::steady_clock::time_point& t)
 {
 	return (std::chrono::steady_clock::now()-t).count()*MATH_CONVERSION_MS;
 }
+vec3 halfway(vec3 a,vec3 b);
 
 
 class BitwiseWords
