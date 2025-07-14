@@ -100,9 +100,10 @@ Pong::Pong(Font* font,string name)
 									 vec4(1),Alignment{ .align=SCREEN_ALIGN_TOPRIGHT });
 
 	// connection to server
+	string lobby_name = "pong-anaconda";
 	g_Websocket.connect(NETWORK_HOST,NETWORK_PORT_ADAPTER,NETWORK_PORT_WEBSOCKET,
-						name,"wilson","pong-anaconda","movie",!strcmp(name.c_str(),"owen"));
-	Request::connect();
+						name,"wilson",lobby_name,"movie",!strcmp(name.c_str(),"owen"));
+	Request::connect(lobby_name);
 
 	// setup index buffer object for ball batch
 	m_BallBatch->ibo.bind();
@@ -119,7 +120,7 @@ vec3 ctvec(Coordinate& c) { return vec3(c.x,c.y,c.z); }
 void Pong::update()
 {
 	// player input
-	Request::player_movement(g_Input.keyboard.keys[SDL_SCANCODE_W]-g_Input.keyboard.keys[SDL_SCANCODE_S]);
+	Request::player_movement(g_Input.keyboard.keys[SDL_SCANCODE_S]-g_Input.keyboard.keys[SDL_SCANCODE_W]);
 
 	// get server updates
 	if (!g_Websocket.state_update) return;

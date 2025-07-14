@@ -18,10 +18,11 @@ ClientMessage _create_message()
 /**
  *	request connection
  */
-void Request::connect()
+void Request::connect(string lobby)
 {
 	ClientMessage __Msg = _create_message();
 	__Msg.request_data.connect = true;
+	__Msg.request_data.lobby = std::optional(lobby);
 	g_Websocket.send_message(__Msg);
 }
 

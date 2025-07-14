@@ -13,7 +13,7 @@ class Request
 public:
 
 #ifdef PROJECT_PONG
-	static void connect();
+	static void connect(string lobby);
 	static void player_movement(s8 dir);
 #endif
 

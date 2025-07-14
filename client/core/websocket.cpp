@@ -154,6 +154,7 @@ void _handle_websocket_download(Websocket* c)
 		catch (const msgpack::insufficient_bytes &e) { COMM_ERR("incomplete data -> %s", e.what()); }
 		catch (const std::exception &e) { COMM_ERR("parsing server response -> %s", e.what()); }
 	}
+	COMM_MSG(LOG_CYAN,"closing download thread");
 }
 
 /**
@@ -165,11 +166,17 @@ void _handle_websocket_upload(Websocket* c)
 {
 	while (c->running)
 	{
+		// check client message update
+		c->mutex_client_messages.lock();
 		if (!c->client_messages.size())
+		{
+			c->mutex_client_messages.unlock();
 			continue;
+		}
+
+		// upload client message
 		try
 		{
-			c->mutex_client_messages.lock();
 			ClientMessage outMsg = c->client_messages.front();
 			c->client_messages.pop();
 			c->mutex_client_messages.unlock();
@@ -183,6 +190,7 @@ void _handle_websocket_upload(Websocket* c)
 			COMM_ERR("sending upload -> %s", e.what());
 		}
 	}
+	COMM_MSG(LOG_CYAN,"closing upload thread");
 }
 
 /**
@@ -245,6 +253,7 @@ void _handle_websocket_parsing(Websocket* c)
 		c->state_update = true;
 		c->mutex_server_state.unlock();
 	}
+	COMM_MSG(LOG_CYAN,"closing parsing thread");
 }
 
 /**
@@ -308,12 +317,12 @@ void Websocket::connect(string host,string port_ad,string port_ws,string name,st
 		// FIXME find out if the ep.port call has merit and if not replace it by predefined parameter
 
 		// start traffic handler
-		m_HandleWebsocketParsing = std::thread(_handle_websocket_parsing,this);
-		m_HandleWebsocketParsing.detach();
 		m_HandleWebsocketDownload = std::thread(_handle_websocket_download,this);
 		m_HandleWebsocketDownload.detach();
 		m_HandleWebsocketUpload = std::thread(_handle_websocket_upload,this);
 		m_HandleWebsocketUpload.detach();
+		m_HandleWebsocketParsing = std::thread(_handle_websocket_parsing,this);
+		m_HandleWebsocketParsing.detach();
 	}
 	catch (std::exception const &e) { COMM_ERR("Connection Error: %s", e.what()); }
 }
