@@ -122,6 +122,7 @@ LobbyStatus HTTPAdapter::open_lobby(string &lobby_name, string &jwt_token, bool 
 // ----------------------------------------------------------------------------------------------------
 // Websocket Connection
 
+/*
 
 void debugConvertCoordinate(const msgpack::object& obj, const std::string& label = "Coordinate")
 {
@@ -348,6 +349,8 @@ void debugConvertServerMessage(const msgpack::object& obj)
 	}
 }
 
+*/
+
 
 /**
  *	function to handle websocket download traffic
@@ -362,20 +365,21 @@ void _handle_websocket_download(Websocket *c)
 		{
 		    // read buffer
 			boost::beast::flat_buffer response_buffer;
-			if (!c->ws.is_open()) {
+			if (!c->ws.is_open())
+			{
                 COMM_ERR("WebSocket ist nicht mehr offen!");
                 return;
             }
 
 			c->ws.read(response_buffer);
 			auto data = response_buffer.data();
-			const char *raw_data = static_cast<const char *>(data.data());
+			const char* raw_data = static_cast<const char*>(data.data());
 			size_t data_size = data.size();
 
 			// create a msgpack zone for allocation
 			msgpack::object_handle oh;
 			msgpack::zone zone;
-			msgpack::unpack(oh, raw_data, data_size, nullptr, &zone);
+			msgpack::unpack(oh,raw_data,data_size,nullptr,&zone);
 			msgpack::object obj = oh.get();
 			//COMM_LOG("received MessagePack Object %s",(std::ostringstream()<<obj).str().c_str());
 

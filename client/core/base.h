@@ -217,7 +217,6 @@ static inline f64 profiler_average(RuntimeProfilerData* data)
 
 #endif
 
-
 bool check_file_exists(const char* path);
 void split_words(vector<string>& words,string& line);
 inline f64 calculate_delta_time(std::chrono::steady_clock::time_point& t)
@@ -311,6 +310,31 @@ struct Rect
 };
 
 
+struct Transform3D
+{
+	// utility
+	void transform(vec3 p,f32 s,vec3 r);
+	void transform(vec3 p,vec3 s,vec3 r);
+	void transform(vec3 p,f32 s,vec3 r,vec3 a);
+	void transform(vec3 p,vec3 s,vec3 r,vec3 a);
+	void translate(vec3 p);
+	void scale(f32 s);
+	void scale(vec3 s);
+	void scale(f32 s,vec3 a);
+	void scale(vec3 s,vec3 a);
+	void rotate_x(f32 x);
+	void rotate_y(f32 y);
+	void rotate_z(f32 z);
+	void rotate(vec3 r);
+	void rotate(vec3 r,vec3 a);
+
+	// data
+	vec3 position = vec3(.0f);
+	vec3 rotation = vec3(.0f);
+	mat4 model = mat4(1.f);
+};
+
+
 class CoordinateSystem2D
 {
 public:
@@ -324,12 +348,17 @@ public:
 inline CoordinateSystem2D g_CoordinateSystem = CoordinateSystem2D(MATH_CARTESIAN_XRANGE,MATH_CARTESIAN_YRANGE);
 
 
+constexpr vec3 COORDINATE_SYSTEM_ORIENTATION = vec3(0,0,1);
+
 class Camera3D
 {
 public:
 	Camera3D(vec3 tgt,f32 dist,f32 p,f32 y,f32 width,f32 height,f32 ifov);
 	void update();
 	void project();
+
+	// camera action
+	void roll(f32 r);
 
 public:
 
@@ -340,6 +369,7 @@ public:
 	// attributes
 	vec3 position;
 	vec3 target;
+	vec3 up = COORDINATE_SYSTEM_ORIENTATION;
 	f32 distance;
 	f32 pitch;
 	f32 yaw;
@@ -352,7 +382,7 @@ private:
 	f32 m_Ratio;
 };
 
-inline Camera3D g_Camera = Camera3D(vec3(0,-.001,0),35.f,0,0,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y,60);
+inline Camera3D g_Camera = Camera3D(vec3(0),1,0,0,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y,60);
 
 
 // ----------------------------------------------------------------------------------------------------

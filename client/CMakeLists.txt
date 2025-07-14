@@ -97,14 +97,44 @@ file(GLOB_RECURSE SRCS_CORE "core/*.cpp")
 file(GLOB_RECURSE SRCS_SCRIPT "script/*.cpp")
 set(SRCS ${SRCS_CORE} ${SRCS_SCRIPT} main.cpp)
 
+# Integration test files - only include websocket-related core files
+set(INTEGRATION_TEST_SRCS
+    core/base.cpp
+    core/websocket.cpp
+    tests/integration_test.cpp
+)
+
+# Simple integration test - minimal dependencies
+set(SIMPLE_INTEGRATION_TEST_SRCS
+    tests/simple_integration_test.cpp
+)
+
 # Erstelle die ausführbare Datei
 add_executable(build_mac ${SRCS})
 
+# Create integration test executable
+add_executable(integration_test ${INTEGRATION_TEST_SRCS})
+
+# Create simple integration test executable
+add_executable(simple_integration_test ${SIMPLE_INTEGRATION_TEST_SRCS})
+
 # Verknüpfe die Bibliotheken ohne -static Flag auf macOS
 target_link_libraries(build_mac ${LIBS})
+target_link_libraries(integration_test cpr::cpr)
+target_link_libraries(simple_integration_test cpr::cpr)
 
 # Set output directory to the Client folder instead of build
 set_target_properties(build_mac
     PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+set_target_properties(integration_test
+    PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests
+)
+
+set_target_properties(simple_integration_test
+    PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests
 )

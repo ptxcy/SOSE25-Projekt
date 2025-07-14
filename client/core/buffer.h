@@ -54,10 +54,18 @@ private:
 // ----------------------------------------------------------------------------------------------------
 // Colour Buffers
 
+enum TextureFormat
+{
+	TEXTURE_FORMAT_RGBA,
+	TEXTURE_FORMAT_SRGB,
+	TEXTURE_FORMAT_MONOCHROME
+};
+
+
 struct TextureData
 {
 public:
-	TextureData(s32 format=GL_RGBA);
+	TextureData(TextureFormat format=TEXTURE_FORMAT_RGBA);
 
 	void load(const char* path);
 	void gpu_upload();
@@ -72,7 +80,7 @@ public:
 	u8* data;
 
 private:
-	s32 m_Format;
+	TextureFormat m_Format;
 	bool m_TextureFlag = false;
 };
 

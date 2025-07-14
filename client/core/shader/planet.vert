@@ -16,6 +16,8 @@ out vec3 Position;
 out vec2 UV;
 out vec3 Normal;
 out mat3 TBN;
+// TODO remove normal pass overuse
+// TODO actually replace this by a particle gpass shader serving the deferred pipeline
 
 uniform mat4 view;
 uniform mat4 proj;
@@ -37,4 +39,5 @@ void main()
 	// gram-schmidt reothogonalization
 	vec3 Tangent = normalize(tangent-dot(tangent,normal)*normal);
 	TBN = mat3(Tangent,cross(normal,Tangent),normal);
+	// FIXME completely unnecessary
 }
