@@ -35,14 +35,12 @@ private:
 	lptr<Text> __TUsr;
 	lptr<Text> __TPsw;
 	lptr<Text> __TLby;
-	// lptr<Text> __TLpw;
 
 	// ui components
 	lptr<UIBatch> conn_batch;
 	lptr<TextField> tfname;
 	lptr<TextField> tfpass;
 	lptr<TextField> tflobby;
-	// lptr<TextField> tflpass;
 	lptr<Button> btjoin;
 	lptr<Button> btcreate;
 };
