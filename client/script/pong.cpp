@@ -84,7 +84,7 @@ Pong::Pong(Font* font,string name)
 	m_PhysicalBatch->object[__Floor].texel = PONG_FIELD_TEXEL;
 
 	// lighting
-	g_Renderer.add_sunlight(vec3(75,-50,100),vec3(1,1,1),.01f);
+	g_Renderer.add_sunlight(vec3(75,-50,100),vec3(1,1,1),.25f);
 	for (u32 i=0;i<PONG_LIGHTING_POINTLIGHTS;i++)
 	{
 		m_Lights[i] = g_Renderer.add_pointlight(m_BallIndices[i].position,
@@ -143,7 +143,7 @@ void Pong::update()
 	m_BallBatch->ibo.upload_vertices(m_BallIndices,PONG_BALL_COUNT,GL_DYNAMIC_DRAW);
 
 	// lighting update
-	for (u32 i=0;i<PONG_LIGHTING_POINTLIGHTS;i++) m_Lights[i]->position = m_BallIndices[i*256].position;
+	for (u32 i=0;i<PONG_LIGHTING_POINTLIGHTS;i++) m_Lights[i]->position = m_BallIndices[i*1].position;
 	g_Renderer.upload_lighting();
 
 	// update scoreboard

@@ -15,7 +15,7 @@
 constexpr f32 PONG_SCALE_FACTOR = .1f;
 
 // ball constants
-constexpr u32 PONG_BALL_COUNT = 150*150;
+constexpr u32 PONG_BALL_COUNT = 25*25;
 constexpr f32 PONG_BALL_RADIUS = 2.f*PONG_SCALE_FACTOR;
 
 // field constants
