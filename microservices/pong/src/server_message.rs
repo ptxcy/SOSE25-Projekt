@@ -83,6 +83,7 @@ pub struct GameObjects {
     pub lines: Vec<Line>,
     pub players: Vec<Player>,
     pub score: Score,
+    pub player_count: usize,
 
     #[serde(skip)]
     pub chunks: Chunks,
@@ -119,13 +120,19 @@ impl GameObjects {
             Line::new(Coordinate::new(-700., -100., 0.), Coordinate::new(-500., 300., 0.))
         ];
 
+        let players = vec![
+			Player::new(false),
+			Player::new(true),
+        ];
+
         Self {
             balls,
             chunks,
             lines,
-            players: Vec::with_capacity(2),
+            players,
             score: Score::default(),
             player_map: HashMap::with_capacity(2),
+            player_count: 0,
         }
     }
 
