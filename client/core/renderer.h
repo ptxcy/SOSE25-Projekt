@@ -18,6 +18,7 @@ enum TextureChannelMap : u16
 	RENDERER_TEXTURE_DEFERRED_NORMAL,
 	RENDERER_TEXTURE_DEFERRED_MATERIAL,
 	RENDERER_TEXTURE_DEFERRED_EMISSION,
+	RENDERER_TEXTURE_SHADOW_MAP,
 	RENDERER_TEXTURE_FORWARD_DEPTH,
 	RENDERER_TEXTURE_DEFERRED_DEPTH,
 	RENDERER_TEXTURE_UNMAPPED
@@ -258,6 +259,7 @@ private:
 	void _update_text();
 	void _update_canvas();
 	static void _update_mesh(list<GeometryBatch>& gb,list<ParticleBatch>& pb);
+	void _update_shadows(list<lptr<GeometryBatch>>& gb,list<lptr<ParticleBatch>>& pb);
 	void _gpu_upload();
 
 	// background procedures
@@ -297,6 +299,7 @@ private:
 
 	Framebuffer m_ForwardFrameBuffer = Framebuffer(1);
 	Framebuffer m_DeferredFrameBuffer = Framebuffer(5);
+	Framebuffer m_ShadowFrameBuffer = Framebuffer(0);
 
 	// ----------------------------------------------------------------------------------------------------
 	// Render Object Information
@@ -324,11 +327,17 @@ private:
 	list<ParticleBatch> m_ParticleBatches;
 	list<GeometryBatch> m_DeferredGeometryBatches;
 	list<ParticleBatch> m_DeferredParticleBatches;
+	list<lptr<GeometryBatch>> m_ShadowGeometryBatches;
+	list<lptr<ParticleBatch>> m_ShadowParticleBatches;
 
 	// lighting
 	lptr<ShaderPipeline> m_GeometryPassPipeline;
 	lptr<ShaderPipeline> m_ParticlePassPipeline;
+	lptr<ShaderPipeline> m_GeometryShadowPipeline;
+	lptr<ShaderPipeline> m_ParticleShadowPipeline;
 	Lighting m_Lighting;
+	Camera3D m_ShadowProjection = Camera3D(vec3(0),vec3(2,2,2),
+										   RENDERER_SHADOW_RESOLUTION,RENDERER_SHADOW_RESOLUTION);
 };
 
 inline Renderer g_Renderer = Renderer();

@@ -306,11 +306,21 @@ CoordinateSystem2D::CoordinateSystem2D(f32 xaxis,f32 yaxis)
  *	\param ifov: field of view in degrees
  *	TODO
  */
-Camera3D::Camera3D(vec3 tgt,f32 dist,f32 p,f32 y,f32 width,f32 height,f32 ifov)
-	: target(tgt),distance(dist),pitch(p),yaw(y),fov(ifov),m_Ratio(width/height)
+Camera3D::Camera3D(vec3 tgt,f32 dist,f32 p,f32 y,f32 w,f32 h,f32 ifov)
+	: target(tgt),distance(dist),pitch(p),yaw(y),fov(ifov),m_Ratio(w/h)
 {
 	update();
 	project();
+}
+
+/**
+ *	TODO
+ */
+Camera3D::Camera3D(vec3 tgt,vec3 dir,u32 w,u32 h)
+	: target(tgt),position(dir),width(w),height(h)
+{
+	update();
+	orthographics();
 }
 
 /**
@@ -328,6 +338,16 @@ void Camera3D::update()
 void Camera3D::project()
 {
 	proj = glm::perspective(glm::radians(fov),m_Ratio,near,far);
+}
+
+/**
+ *	TODO
+ */
+void Camera3D::orthographics()
+{
+	f32 hwidth = width>>1;
+	f32 hheight = height>>1;
+	proj = glm::ortho(-hwidth,hwidth,-hheight,hheight,near,far);
 }
 
 /**

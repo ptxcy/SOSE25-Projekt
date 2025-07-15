@@ -84,6 +84,7 @@ public:
 	void upload(const char* varname,mat4 value);
 	void upload_coordinate_system();
 	void upload_camera();
+	void upload_camera(Camera3D& c);
 
 private:
 	void _define_attribute(ShaderAttribute& attrib);

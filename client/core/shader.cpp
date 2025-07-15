@@ -270,6 +270,15 @@ void ShaderPipeline::upload_camera()
 }
 
 /**
+ *	TODO
+ */
+void ShaderPipeline::upload_camera(Camera3D& c)
+{
+	upload("view",SHADER_UNIFORM_MAT44,glm::value_ptr(c.view));
+	upload("proj",SHADER_UNIFORM_MAT44,glm::value_ptr(c.proj));
+}
+
+/**
  *	point to attribute in vertex buffer raster
  *	\param attrib: shader attribute structure, holding attribute name and dimension
  *	NOTE shader pipeline, vertex array & vertex buffer need to be active to point to attribute

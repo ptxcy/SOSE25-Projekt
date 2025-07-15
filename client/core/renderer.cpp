@@ -371,6 +371,9 @@ Renderer::Renderer()
 	FragmentShader __GeometryPassFragmentShader = FragmentShader("core/shader/gpass.frag");
 	VertexShader __ParticlePassVertexShader = VertexShader("core/shader/ipass.vert");
 	FragmentShader __ParticlePassFragmentShader = FragmentShader("core/shader/ipass.frag");
+	VertexShader __GeometryShadowVertexShader = VertexShader("core/shader/gshadow.vert");
+	VertexShader __ParticleShadowVertexShader = VertexShader("core/shader/ishadow.vert");
+	FragmentShader __ShadowFragmentShader = FragmentShader("core/shader/shadow.frag");
 
 	// ----------------------------------------------------------------------------------------------------
 	// Sprite Pipeline
@@ -401,6 +404,10 @@ Renderer::Renderer()
 	COMM_LOG("geometry pass pipelines");
 	m_GeometryPassPipeline = register_pipeline(__GeometryPassVertexShader,__GeometryPassFragmentShader);
 	m_ParticlePassPipeline = register_pipeline(__ParticlePassVertexShader,__ParticlePassFragmentShader);
+
+	COMM_LOG("shadow projection piplines");
+	m_GeometryShadowPipeline = register_pipeline(__GeometryShadowVertexShader,__ShadowFragmentShader);
+	m_ParticleShadowPipeline = register_pipeline(__ParticleShadowVertexShader,__ShadowFragmentShader);
 
 	// ----------------------------------------------------------------------------------------------------
 	// GPU Memory
@@ -435,6 +442,12 @@ Renderer::Renderer()
 	m_DeferredFrameBuffer.define_colour_component(4,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y);
 	m_DeferredFrameBuffer.define_depth_component(FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y);
 	m_DeferredFrameBuffer.finalize();
+
+	COMM_LOG("creating shadow projection render target");
+	m_ShadowFrameBuffer.start();
+	m_ShadowFrameBuffer.define_depth_component(RENDERER_SHADOW_RESOLUTION,RENDERER_SHADOW_RESOLUTION);
+	Texture::set_texture_parameter_clamp_to_border();
+	Texture::set_texture_parameter_border_colour(vec4(1));
 	Framebuffer::stop();
 
 	// ----------------------------------------------------------------------------------------------------
@@ -458,6 +471,10 @@ Renderer::Renderer()
 void Renderer::update()
 {
 	m_FrameStart = std::chrono::steady_clock::now();
+
+	// shadow projection
+	m_ShadowFrameBuffer.start();
+	_update_shadows(m_ShadowGeometryBatches,m_ShadowParticleBatches);
 
 	// 3D segment
 	m_ForwardFrameBuffer.start();
@@ -886,6 +903,7 @@ void Renderer::_update_canvas()
 	m_DeferredFrameBuffer.bind_colour_component(RENDERER_TEXTURE_DEFERRED_NORMAL,2);
 	m_DeferredFrameBuffer.bind_colour_component(RENDERER_TEXTURE_DEFERRED_MATERIAL,3);
 	m_DeferredFrameBuffer.bind_colour_component(RENDERER_TEXTURE_DEFERRED_EMISSION,4);
+	m_ShadowFrameBuffer.bind_depth_component(RENDERER_TEXTURE_SHADOW_MAP);
 	m_ForwardFrameBuffer.bind_depth_component(RENDERER_TEXTURE_FORWARD_DEPTH);
 	m_DeferredFrameBuffer.bind_depth_component(RENDERER_TEXTURE_DEFERRED_DEPTH);
 	m_CanvasPipeline.upload("camera_position",g_Camera.position);
@@ -929,6 +947,35 @@ void Renderer::_update_mesh(list<GeometryBatch>& gb,list<ParticleBatch>& pb)
 		p_Batch.shader->upload_camera();
 		p_Batch.vao.bind();
 		glDrawArraysInstanced(GL_TRIANGLES,0,p_Batch.vertex_count,p_Batch.active_particles);
+	}
+}
+
+/**
+ *	TODO
+ */
+void Renderer::_update_shadows(list<lptr<GeometryBatch>>& gb,list<lptr<ParticleBatch>>& pb)
+{
+	// iterate static geometry
+	for (lptr<GeometryBatch> p_Batch : gb)
+	{
+		m_GeometryShadowPipeline->enable();  // TODO make this dynamic
+		m_GeometryShadowPipeline->upload_camera(/*m_ShadowProjection*/);
+		p_Batch->vao.bind();
+		for (GeometryTuple& p_Tuple : p_Batch->object)
+		{
+			// TODO geometry uniform upload, this will only be applicable if dynamic shading pipeline is working
+			m_GeometryShadowPipeline->upload("model",p_Tuple.transform.model);
+			glDrawArrays(GL_TRIANGLES,p_Tuple.offset,p_Tuple.vertex_count);
+		}
+	}
+
+	// iterate particle geometry
+	for (lptr<ParticleBatch> p_Batch : pb)
+	{
+		m_ParticleShadowPipeline->enable();  // TODO same here as with m_GeometryShadowPipeline
+		m_ParticleShadowPipeline->upload_camera(/*m_ShadowProjection*/);
+		p_Batch->vao.bind();
+		glDrawArraysInstanced(GL_TRIANGLES,0,p_Batch->vertex_count,p_Batch->active_particles);
 	}
 }
 
