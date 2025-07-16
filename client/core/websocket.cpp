@@ -90,10 +90,9 @@ string HTTPAdapter::authenticate_on_server(string &username, string &password)
  *	\param create: true if new lobby should be created, false if existing lobby should be joined
  *	\returns lobby connection status
  */
-LobbyStatus HTTPAdapter::open_lobby(string &lobby_name, string &lobby_password, string &jwt_token, bool create)
+LobbyStatus HTTPAdapter::open_lobby(string &lobby_name, string &jwt_token, bool create)
 {
 	string body = R"({"lobbyName":")" + lobby_name + R"(")";
-	body += R"(,"lobbyPassword":")" + lobby_password + R"(")";
 	body += "}";
 
 	// create lobby
@@ -290,11 +289,10 @@ std::string _url_encode(string &value)
  *	\param name: username for connection
  *	\param pass: connection password
  *	\param lnom: lobby name
- *	\param lpass: lobby password
  *	\param creator: true if connection attempt creates a new lobby, false if user joins a created lobby
  */
-void Websocket::connect(string host,string port_ad,string port_ws,string name,string pass,string lnom,
-						string lpass,bool create)
+void Websocket::connect(string host,string port_ad,string port_ws,string name,string pass,
+						string lnom,bool create)
 {
 	username = name;
 
@@ -302,7 +300,7 @@ void Websocket::connect(string host,string port_ad,string port_ws,string name,st
 	HTTPAdapter __Adapter = HTTPAdapter(host,port_ad);
 	COMM_ERR_COND(!__Adapter.create_user(name,pass),"user creation did not work");
 	string token = __Adapter.authenticate_on_server(name,pass);
-	lobby_status = __Adapter.open_lobby(lnom,lpass,token,create);
+	lobby_status = __Adapter.open_lobby(lnom,token,create);
 
 	// websocket connection
 	try

@@ -28,7 +28,7 @@ public:
 	HTTPAdapter(string& host,string& port);
 	bool create_user(string& username,string& password);
 	string authenticate_on_server(string& username,string& password);
-	LobbyStatus open_lobby(string& lobby_name,string& lobby_password,string& jwt_token,bool create);
+	LobbyStatus open_lobby(string& lobby_name,string& jwt_token,bool create);
 
 private:
 	string m_Addr;
@@ -39,8 +39,7 @@ class Websocket
 {
 public:
 	Websocket() {  }
-	void connect(string host,string port_ad,string port_ws,string name,string pass,string lnom,
-				 string lpass,bool create);
+	void connect(string host,string port_ad,string port_ws,string name,string pass,string lnom,bool create);
 
 #ifdef PROJECT_PONG
 	GameObject receive_message();

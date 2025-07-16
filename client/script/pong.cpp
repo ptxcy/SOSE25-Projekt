@@ -101,11 +101,12 @@ Pong::Pong(Font* font,string name)
 									 Alignment{ .align=SCREEN_ALIGN_TOPLEFT });
 	m_Score1 = g_Renderer.write_text(font,"",vec3(-250,-25,0),15,
 									 vec4(1),Alignment{ .align=SCREEN_ALIGN_TOPRIGHT });
+	m_FPS = g_Renderer.write_text(font,"",vec3(-10,-10,0),15,vec4(1),Alignment{ .align=SCREEN_ALIGN_TOPRIGHT });
 
 	// connection to server
 	string lobby_name = "pong-anaconda";
 	g_Websocket.connect(NETWORK_HOST,NETWORK_PORT_ADAPTER,NETWORK_PORT_WEBSOCKET,
-						name,"wilson",lobby_name,"movie",!strcmp(name.c_str(),"owen"));
+						name,"wilson",lobby_name,!strcmp(name.c_str(),"owen"));
 
     COMM_LOG("Sleeping for 300ms so socket is ready");
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
@@ -129,7 +130,17 @@ vec3 ctvec(Coordinate& c) { return vec3(c.x,c.y,c.z); }
 void Pong::update()
 {
 	// player input
-	//Request::player_movement(g_Input.keyboard.keys[SDL_SCANCODE_S]-g_Input.keyboard.keys[SDL_SCANCODE_W]);
+	s8 __Movement = g_Input.keyboard.keys[SDL_SCANCODE_S]-g_Input.keyboard.keys[SDL_SCANCODE_W];
+	if ((__Movement&&!m_Moving)||(!__Movement&&m_Moving))
+	{
+		Request::player_movement(__Movement);
+		m_Moving = !m_Moving;
+	}
+
+	// fps display
+	m_FPS->data = "FPS "+std::to_string(g_Frame.fps);
+	m_FPS->align();
+	m_FPS->load_buffer();
 
 	// get server updates
 	if (!g_Websocket.state_update) return;

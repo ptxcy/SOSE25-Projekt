@@ -34,20 +34,17 @@ Menu::Menu(Font* font,CommandCenter* cc)
 										tfsize,{ .align=SCREEN_ALIGN_CENTER });
 	tfpass->hidden = true;
 	tflobby = conn_batch->add_text_field(textbox_idle,textbox_hover,textbox_active,vec3(0,-tfstart,0),
-										 tfsize,{ .align=SCREEN_ALIGN_CENTER });
-	tflpass = conn_batch->add_text_field(textbox_idle,textbox_hover,textbox_active,vec3(0,-tfstart-tfdist,0),
-										 tfsize,{ .align=SCREEN_ALIGN_CENTER });
-	tflpass->hidden = true;
-	btjoin = conn_batch->add_button("Join Lobby",button_idle,button_select,button_hover,
-									vec3(-bteyez,-tfstart-tfdist*2.f,0),btsize,{ .align=SCREEN_ALIGN_CENTER });
-	btcreate = conn_batch->add_button("Create Lobby",button_idle,button_select,button_hover,
-									  vec3(bteyez,-tfstart-tfdist*2.f,0),btsize,{ .align=SCREEN_ALIGN_CENTER });
+										 tfsize,{ .align = SCREEN_ALIGN_CENTER });
+
+	btjoin = conn_batch->add_button("Join Lobby",button_idle,button_hover,button_select,
+									vec3(-bteyez,-tfstart-tfdist,0),btsize,{ .align=SCREEN_ALIGN_CENTER });
+	btcreate = conn_batch->add_button("Create Lobby",button_idle,button_hover,button_select,
+									  vec3(bteyez,-tfstart-tfdist,0),btsize,{ .align=SCREEN_ALIGN_CENTER });
 
 	// setup player communication
 	__TUsr = g_Renderer.write_text(font,"username",tfname->canvas->offset+vec3(0,tftitle,0),ttsize);
 	__TPsw = g_Renderer.write_text(font,"password",tfpass->canvas->offset+vec3(0,tftitle,0),ttsize);
 	__TLby = g_Renderer.write_text(font,"lobby",tflobby->canvas->offset+vec3(0,tftitle,0),ttsize);
-	__TLpw = g_Renderer.write_text(font,"lobby password",tflpass->canvas->offset+vec3(0,tftitle,0),ttsize);
 
 	// register routine
 	ref = g_Wheel.call(UpdateRoutine{ &Menu::_update,(void*)this });
@@ -63,7 +60,7 @@ void Menu::update()
 	{
 #ifdef FEAT_MULTIPLAYER
 		g_Websocket.connect(NETWORK_HOST,NETWORK_PORT_ADAPTER,NETWORK_PORT_WEBSOCKET,
-							tfname->buffer,tfpass->buffer,tflobby->buffer,tflpass->buffer,btcreate->confirm);
+							tfname->buffer,tfpass->buffer,tflobby->buffer,btcreate->confirm);
 		if (g_Websocket.lobby_status!=LOBBY_CONNECTED) return;
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		Request::connect();
@@ -96,7 +93,6 @@ void Menu::close()
 	g_Renderer.delete_text(__TUsr);
 	g_Renderer.delete_text(__TPsw);
 	g_Renderer.delete_text(__TLby);
-	g_Renderer.delete_text(__TLpw);
 
 	// kill menu update routine
 	g_Wheel.routines.erase(ref);
