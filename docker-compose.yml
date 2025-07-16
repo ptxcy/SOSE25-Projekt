@@ -41,8 +41,6 @@ services:
   mongodb:
     image: mongo:latest
     container_name: mongodb-projekt
-    networks:
-      - sose25-projekt
     ports:
       - "27017:27017"
 
