@@ -1,4 +1,8 @@
 name: Deploy to AWS
+concurrency:
+  group: deploy-aws
+  cancel-in-progress: true
+
 on:
   push:
     branches:
