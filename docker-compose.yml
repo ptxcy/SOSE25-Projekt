@@ -21,6 +21,8 @@ services:
     image: 3d-calculation-unit
     environment:
       - SERVICE_PORT=8090
+    networks:
+      - sose25-projekt
     ports:
       - "8090:8090"
 
@@ -31,11 +33,19 @@ services:
     image: pong-calculation-unit
     environment:
       - SERVICE_PORT=8090
+    networks:
+      - sose25-projekt
     ports:
       - "8090:8090"
 
   mongodb:
     image: mongo:latest
     container_name: mongodb-projekt
+    networks:
+      - sose25-projekt
     ports:
       - "27017:27017"
+
+networks:
+  sose25-projekt:
+    driver: bridge
