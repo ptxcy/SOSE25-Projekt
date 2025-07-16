@@ -81,11 +81,14 @@ impl Chunks {
 pub struct GameObjects {
     pub balls: Vec<Ball>,
     pub lines: Vec<Line>,
-    pub players: HashMap<String, Player>,
+    pub players: Vec<Player>,
     pub score: Score,
+    pub player_count: usize,
 
     #[serde(skip)]
     pub chunks: Chunks,
+    #[serde(skip)]
+    pub player_map: HashMap<String, *mut Player>,
 }
 
 unsafe impl Sync for GameObjects {}
@@ -117,12 +120,19 @@ impl GameObjects {
             Line::new(Coordinate::new(-700., -100., 0.), Coordinate::new(-500., 300., 0.))
         ];
 
+        let players = vec![
+			Player::new(false),
+			Player::new(true),
+        ];
+
         Self {
             balls,
             chunks,
             lines,
-            players: HashMap::with_capacity(2),
+            players,
             score: Score::default(),
+            player_map: HashMap::with_capacity(2),
+            player_count: 0,
         }
     }
 

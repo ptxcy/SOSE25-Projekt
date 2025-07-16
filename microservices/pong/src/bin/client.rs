@@ -1,10 +1,10 @@
-use std::{env, sync::Arc};
+use std::{sync::Arc};
 
 use bytes::Bytes;
 use calculation_unit::logger::log_with_time;
 use futures::{lock::{Mutex, MutexGuard}, stream::SplitSink, SinkExt, StreamExt};
 use macroquad::prelude::*;
-use pong::{client_message::{ClientMessage, RequestData}, server_message::{GameObjects, ServerMessage}};
+use pong::{client_message::{ClientMessage}, server_message::{GameObjects, ServerMessage}};
 use tokio::net::TcpStream;
 use tokio_tungstenite::{connect_async, tungstenite::Message, MaybeTlsStream, WebSocketStream};
 
@@ -152,7 +152,7 @@ async fn main() {
 		            Color::new(1., 0., 0., 1.)
 		        );
         	}
-        	for (id, player) in go.players.iter() {
+        	for player in go.players.iter() {
         		for line in player.relative_lines.iter() {
 	        		draw_line(
 			            (player.position + line.0).x as f32 + screen_width() / 2.0,

@@ -2,7 +2,7 @@ use calculation_unit::game::{coordinate::Coordinate};
 use macroquad::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use crate::{action::{ActionWrapper, AddValue, AsRaw, SetValue, SubValue}, line::Line, server_message::{GameObjects, CHUNK_SIZE}};
+use crate::{action::{ActionWrapper, AddValue, AsRaw, SetValue, SubValue}, line::Line, server_message::{GameObjects}};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Ball {
@@ -74,7 +74,7 @@ impl Ball {
         for line in game_objects.lines.iter() {
             self.collide_line(line.clone(), Coordinate::default(), actions);
         }
-        for (id, player) in game_objects.players.iter() {
+        for player in game_objects.players.iter() {
             for line in player.relative_lines.iter() {
                 self.collide_line(Line::new(line.0 + player.position, line.1 + player.position), player.velocity, actions);
             }

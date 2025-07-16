@@ -369,6 +369,11 @@ Renderer::Renderer()
 	FragmentShader __LightingPassFragmentShader = FragmentShader("core/shader/pbs.frag");
 	VertexShader __GeometryPassVertexShader = VertexShader("core/shader/gpass.vert");
 	FragmentShader __GeometryPassFragmentShader = FragmentShader("core/shader/gpass.frag");
+	VertexShader __ParticlePassVertexShader = VertexShader("core/shader/ipass.vert");
+	FragmentShader __ParticlePassFragmentShader = FragmentShader("core/shader/ipass.frag");
+	VertexShader __GeometryShadowVertexShader = VertexShader("core/shader/gshadow.vert");
+	VertexShader __ParticleShadowVertexShader = VertexShader("core/shader/ishadow.vert");
+	FragmentShader __ShadowFragmentShader = FragmentShader("core/shader/shadow.frag");
 
 	// ----------------------------------------------------------------------------------------------------
 	// Sprite Pipeline
@@ -396,8 +401,29 @@ Renderer::Renderer()
 	m_CanvasVertexBuffer.upload_vertices(__CanvasVertices,24);
 	m_CanvasPipeline.map(RENDERER_TEXTURE_FORWARD,&m_CanvasVertexBuffer);
 
-	COMM_LOG("geometry pass pipeline");
+	COMM_LOG("geometry pass pipelines");
 	m_GeometryPassPipeline = register_pipeline(__GeometryPassVertexShader,__GeometryPassFragmentShader);
+	m_ParticlePassPipeline = register_pipeline(__ParticlePassVertexShader,__ParticlePassFragmentShader);
+
+	COMM_LOG("shadow projection piplines");
+	m_GeometryShadowPipeline = register_pipeline(__GeometryShadowVertexShader,__ShadowFragmentShader);
+	m_GeometryShadowPipeline->enable();
+	/*
+	m_GeometryShadowPipeline->_define_attribute({ .dim=3,.name="position" });
+	m_GeometryShadowPipeline->_define_attribute({ .dim=2,.name="edge_coordinates" });
+	m_GeometryShadowPipeline->_define_attribute({ .dim=3,.name="normals" });
+	m_GeometryShadowPipeline->_define_attribute({ .dim=3,.name="tangent" });
+	*/
+	m_ParticleShadowPipeline = register_pipeline(__ParticleShadowVertexShader,__ShadowFragmentShader);
+	m_ParticleShadowPipeline->enable();
+	/*
+	m_ParticleShadowPipeline->_define_attribute({ .dim=3,.name="position" });
+	m_ParticleShadowPipeline->_define_attribute({ .dim=2,.name="edge_coordinates" });
+	m_ParticleShadowPipeline->_define_attribute({ .dim=3,.name="normals" });
+	m_ParticleShadowPipeline->_define_attribute({ .dim=3,.name="tangent" });
+	m_ParticleShadowPipeline->_define_index_attribute({ .dim=3,.name="offset" });
+	m_ParticleShadowPipeline->_define_index_attribute({ .dim=1,.name="scale" });
+	*/
 
 	// ----------------------------------------------------------------------------------------------------
 	// GPU Memory
@@ -432,6 +458,12 @@ Renderer::Renderer()
 	m_DeferredFrameBuffer.define_colour_component(4,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y);
 	m_DeferredFrameBuffer.define_depth_component(FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y);
 	m_DeferredFrameBuffer.finalize();
+
+	COMM_LOG("creating shadow projection render target");
+	m_ShadowFrameBuffer.start();
+	m_ShadowFrameBuffer.define_depth_component(RENDERER_SHADOW_RESOLUTION,RENDERER_SHADOW_RESOLUTION);
+	Texture::set_texture_parameter_clamp_to_border();
+	Texture::set_texture_parameter_border_colour(vec4(1));
 	Framebuffer::stop();
 
 	// ----------------------------------------------------------------------------------------------------
@@ -456,7 +488,20 @@ void Renderer::update()
 {
 	m_FrameStart = std::chrono::steady_clock::now();
 
+	// shadow projection
+	glCullFace(GL_FRONT);
+	glViewport(0,0,RENDERER_SHADOW_RESOLUTION,RENDERER_SHADOW_RESOLUTION);
+	m_ShadowFrameBuffer.start();
+	//_update_shadows(m_ShadowGeometryBatches,m_ShadowParticleBatches);
+	Camera3D __CRestore = g_Camera;
+	g_Camera = m_Lighting.shadow_projection;
+	_update_mesh(m_GeometryBatches,m_ParticleBatches);
+	_update_mesh(m_DeferredGeometryBatches,m_DeferredParticleBatches);
+	glCullFace(GL_BACK);
+	g_Camera = __CRestore;
+
 	// 3D segment
+	glViewport(0,0,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y);
 	m_ForwardFrameBuffer.start();
 	_update_mesh(m_GeometryBatches,m_ParticleBatches);
 	m_DeferredFrameBuffer.start();
@@ -717,6 +762,45 @@ lptr<ParticleBatch> Renderer::register_particle_batch(lptr<ShaderPipeline> pipel
 }
 
 /**
+ *	register phyiscal particle batch
+ *	\returns pointer to created physical particle batch
+ */
+lptr<ParticleBatch> Renderer::register_deferred_particle_batch()
+{
+	m_DeferredParticleBatches.push_back({ .shader = m_ParticlePassPipeline });
+	return std::prev(m_DeferredParticleBatches.end());
+}
+
+/**
+ *	register phyiscal particle batch
+ *	\param pipeline: shader pipeline, handling physical pass for newly created batch
+ *	\returns pointer to created physical particle batch
+ */
+lptr<ParticleBatch> Renderer::register_deferred_particle_batch(lptr<ShaderPipeline> pipeline)
+{
+	m_DeferredParticleBatches.push_back({ .shader = pipeline });
+	return std::prev(m_DeferredParticleBatches.end());
+}
+
+/**
+ *	allow a geometry batch to cast shadows onto the scene
+ *	\param b: pointer to casting geometry batch
+ */
+void Renderer::register_shadow_batch(lptr<GeometryBatch> b)
+{
+	m_ShadowGeometryBatches.push_back(b);
+}
+
+/**
+ *	allow a particle batch to cast shadows onto the scene
+ *	\param b: pointer to casting particle batch
+ */
+void Renderer::register_shadow_batch(lptr<ParticleBatch> b)
+{
+	m_ShadowParticleBatches.push_back(b);
+}
+
+/**
  *	create directional sunlight
  *	\param position: direction to sunlight, inverted direction will be direction of emission
  *	\param colour: colour of the emission
@@ -753,6 +837,18 @@ PointLight* Renderer::add_pointlight(vec3 position,vec3 colour,f32 intensity,f32
 	};
 	return &m_Lighting.pointlights[m_Lighting.pointlights_active++];
 }
+
+/**
+ *	create a shadow projection source
+ *	\param source: position of projection source
+ */
+void Renderer::add_shadow(vec3 source)
+{
+	m_Lighting.shadow_projection = Camera3D(vec3(0),source,RENDERER_SHADOW_RANGE,RENDERER_SHADOW_RANGE,
+											.1f,1000.f);
+}
+// TODO allow for multiple shadows to project at the same time
+// TODO also create support for pointlight shadows
 
 /**
  *	upload all setup lights to gpu lighting simulation processing
@@ -862,16 +958,21 @@ void Renderer::_update_canvas()
 	m_DeferredFrameBuffer.bind_colour_component(RENDERER_TEXTURE_DEFERRED_NORMAL,2);
 	m_DeferredFrameBuffer.bind_colour_component(RENDERER_TEXTURE_DEFERRED_MATERIAL,3);
 	m_DeferredFrameBuffer.bind_colour_component(RENDERER_TEXTURE_DEFERRED_EMISSION,4);
+	m_ShadowFrameBuffer.bind_depth_component(RENDERER_TEXTURE_SHADOW_MAP);
 	m_ForwardFrameBuffer.bind_depth_component(RENDERER_TEXTURE_FORWARD_DEPTH);
 	m_DeferredFrameBuffer.bind_depth_component(RENDERER_TEXTURE_DEFERRED_DEPTH);
 	m_CanvasPipeline.upload("camera_position",g_Camera.position);
+	m_CanvasPipeline.upload("shadow_source",m_Lighting.shadow_projection.position);
+	m_CanvasPipeline.upload("shadow_projection",
+							m_Lighting.shadow_projection.proj*m_Lighting.shadow_projection.view);
+	// TODO do this in upload lighting process later
 	glDrawArrays(GL_TRIANGLES,0,6);
 }
 
 /**
  *	update triangle meshes
- *	\param gb: geometry batch to draw contained geometry from
- *	\param pb: particle batch to draw contained particles geometry from
+ *	\param gb: geometry batches to draw contained geometry from
+ *	\param pb: particle batches to draw contained particles geometry from
  */
 void Renderer::_update_mesh(list<GeometryBatch>& gb,list<ParticleBatch>& pb)
 {
@@ -905,6 +1006,37 @@ void Renderer::_update_mesh(list<GeometryBatch>& gb,list<ParticleBatch>& pb)
 		p_Batch.shader->upload_camera();
 		p_Batch.vao.bind();
 		glDrawArraysInstanced(GL_TRIANGLES,0,p_Batch.vertex_count,p_Batch.active_particles);
+	}
+}
+
+/**
+ *	draw casting geometry simplified for shadow projection
+ *	\param gb: casting geometry batches for shadow projection
+ *	\param pb: casting particle batches for shadow projection
+ */
+void Renderer::_update_shadows(list<lptr<GeometryBatch>>& gb,list<lptr<ParticleBatch>>& pb)
+{
+	// iterate static geometry
+	for (lptr<GeometryBatch> p_Batch : gb)
+	{
+		m_GeometryShadowPipeline->enable();  // TODO make this dynamic
+		m_GeometryShadowPipeline->upload_camera(m_Lighting.shadow_projection);
+		p_Batch->vao.bind();
+		for (GeometryTuple& p_Tuple : p_Batch->object)
+		{
+			// TODO geometry uniform upload, this will only be applicable if dynamic shading pipeline is working
+			m_GeometryShadowPipeline->upload("model",p_Tuple.transform.model);
+			glDrawArrays(GL_TRIANGLES,p_Tuple.offset,p_Tuple.vertex_count);
+		}
+	}
+
+	// iterate particle geometry
+	for (lptr<ParticleBatch> p_Batch : pb)
+	{
+		m_ParticleShadowPipeline->enable();  // TODO same here as with m_GeometryShadowPipeline
+		m_ParticleShadowPipeline->upload_camera(m_Lighting.shadow_projection);
+		p_Batch->vao.bind();
+		glDrawArraysInstanced(GL_TRIANGLES,0,p_Batch->vertex_count,p_Batch->active_particles);
 	}
 }
 

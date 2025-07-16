@@ -1,7 +1,7 @@
 use std::{collections::HashMap, thread::JoinHandle, time::Instant};
 use rayon::prelude::*;
 
-use crate::{action::{ActionWrapper, AsRaw}, client_message::ClientMessage, player::Player, server_message::{GameObjects, ObjectData, ServerMessage, ServerMessageSenderChannel}, threadpool::{Threadpool, UpdateData}};
+use crate::{action::{ActionWrapper, AsRaw}, client_message::ClientMessage, player::Player, server_message::{GameObjects, ObjectData, ServerMessage, ServerMessageSenderChannel}};
 use calculation_unit::{game::{coordinate::Coordinate}, logger::{log_with_time, Loggable}};
 use tokio::sync::mpsc::*;
 
@@ -14,7 +14,7 @@ pub async fn broadcast(
 ) {
 	let mut to_be_removed = Vec::<String>::new();
 	// send messages to all
-	for (i, (username, sender_channel)) in senders.iter_mut().enumerate() {
+	for (username, sender_channel) in senders.iter_mut() {
 		let server_message = ServerMessage {
 			request_data: ObjectData::prepare_for(username, game_objects),
 		};
@@ -47,7 +47,7 @@ pub async fn start(
 		HashMap::<String, ServerMessageSenderChannel>::new();
 
 	// initialise game objects
-	let mut game_objects = GameObjects::new(50);
+	let mut game_objects = GameObjects::new(150);
 
 	// delta time init
 	let mut last_time = Instant::now();
@@ -66,14 +66,15 @@ pub async fn start(
 		while let Ok(sender) = server_message_sender_receiver.try_recv() {
 			let username = sender.user_id.clone();
 			log_with_time(format!("getting sender {}", username));
-			let player = Player::new(game_objects.players.len() % 2 == 0);
-			game_objects.players.insert(username.clone(), player);
+			let player_ptr = game_objects.players.get_mut(game_objects.player_count % 2).unwrap() as *mut Player;
+			game_objects.player_count += 1;
+			game_objects.player_map.insert(username.clone(), player_ptr);
 			server_message_senders.insert(username, sender);
 		}
 
 		while let Ok(client_message) = client_message_receiver.try_recv() {
 			let username = client_message.username;
-			let player = game_objects.players.get_mut(&username).expect("player with username not found");
+			let player = unsafe {&mut **game_objects.player_map.get(&username).expect("player with username not found")};
 			if client_message.request_data.move_to == -1 {
 				player.velocity = Coordinate::new(0., player.speed, 0.);
 			}
@@ -86,16 +87,11 @@ pub async fn start(
 		}
 
 		let (action_sender, action_receiver) = std::sync::mpsc::channel::<ActionWrapper>();
-		let mut threads = Vec::<JoinHandle<()>>::new();
 
-		if game_objects.players.len() == 2 /* || true */ {
-			threads.push(update_balls(action_sender.clone(), game_objects.raw(), delta_seconds));
+		if game_objects.player_count == 2 /* || true */ {
+			update_balls(action_sender.clone(), &game_objects, delta_seconds);
 		}
-		threads.push(update_players(action_sender.clone(), game_objects.raw(), delta_seconds));
-
-		for thread in threads {
-			thread.join().unwrap();
-		}
+		update_players(action_sender.clone(), &game_objects, delta_seconds);
 
 		while let Ok(action) = action_receiver.try_recv() {
 			action.execute(game_objects.raw_mut());
@@ -111,46 +107,36 @@ pub async fn start(
 
 pub fn update_balls(
     sender: std::sync::mpsc::Sender<ActionWrapper>, 
-    go: *const GameObjects, 
+    game_objects: &GameObjects, 
     delta_seconds: f64
-) -> JoinHandle<()> {
-    std::thread::spawn({
-        let game_objects = unsafe { &*go };
-        move || {
-            let actions: Vec<ActionWrapper> = game_objects.chunks.array
-                .par_iter()
-                .enumerate()
-                .filter(|(_, balls)| !balls.is_empty())
-                .flat_map(|(i, balls)| {
-                    let chunk = game_objects.chunks.get_chunk(i);
-                    let mut chunk_actions = Vec::new();
-                    
-                    for ball in balls.iter() {
-                        let ball = unsafe { &*ball.0 };
-                        ball.update(chunk, game_objects, delta_seconds, &mut chunk_actions);
-                    }
-                    
-                    chunk_actions
-                })
-                .collect();
+) {
+    let actions: Vec<ActionWrapper> = game_objects.chunks.array
+        .par_iter()
+        .enumerate()
+        .filter(|(_, balls)| !balls.is_empty())
+        .flat_map(|(i, balls)| {
+            let chunk = game_objects.chunks.get_chunk(i);
+            let mut chunk_actions = Vec::new();
             
-            for action in actions {
-                sender.send(action).unwrap();
+            for ball in balls.iter() {
+                let ball = unsafe { &*ball.0 };
+                ball.update(chunk, game_objects, delta_seconds, &mut chunk_actions);
             }
-        }
-    })
+            
+            chunk_actions
+        })
+        .collect();
+    
+    for action in actions {
+        sender.send(action).unwrap();
+    }
 }
-pub fn update_players(sender: std::sync::mpsc::Sender<ActionWrapper>, go: *const GameObjects, delta_seconds: f64) -> JoinHandle<()> {
-	std::thread::spawn({
-		let game_objects = unsafe {&(*go)};
-		move || {
-			let mut actions = Vec::<ActionWrapper>::with_capacity(game_objects.players.len() * 2);
-			for (id, player) in game_objects.players.iter() {
-				player.update(game_objects, delta_seconds, &mut actions);
-			}
-			for action in actions {
-				sender.send(action).unwrap();
-			}
-		}
-	})
+pub fn update_players(sender: std::sync::mpsc::Sender<ActionWrapper>, game_objects: &GameObjects, delta_seconds: f64) {
+	let mut actions = Vec::<ActionWrapper>::with_capacity(game_objects.players.len() * 2);
+	for player in game_objects.players.iter() {
+		player.update(game_objects, delta_seconds, &mut actions);
+	}
+	for action in actions {
+		sender.send(action).unwrap();
+	}
 }
