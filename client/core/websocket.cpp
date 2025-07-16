@@ -308,8 +308,8 @@ void Websocket::connect(string host,string port_ad,string port_ws,string name,st
 		COMM_LOG("Connecting to WebSocket server at %s:%s...", host.c_str(), port_ws.c_str());
 		auto results = boost::asio::ip::tcp::resolver{ioc}.resolve(host, port_ws);
 		auto ep = boost::asio::connect(ws.next_layer(), results);
-		//ws.handshake(host + ':' + std::to_string(ep.port()), "/calculate?authToken=" + _url_encode(token)); //<------- authproxy docker version
-		ws.handshake(host + ':' + std::to_string(ep.port()), "/msgpack"); //<------ direct for calculation unit
+		ws.handshake(host + ':' + std::to_string(ep.port()), "/calculate?authToken=" + _url_encode(token)); //<------- authproxy docker version
+		//ws.handshake(host + ':' + std::to_string(ep.port()), "/msgpack"); //<------ direct for calculation unit
 		ws.binary(true);
 		COMM_SCC("Connected to server successfully!");
 		// FIXME find out if the ep.port call has merit and if not replace it by predefined parameter
