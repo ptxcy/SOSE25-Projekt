@@ -9,7 +9,7 @@ ls -la /home/runner
 echo "$PRIVATE_KEY" > ~/.ssh/temp_key.pem
 chmod 400 ~/.ssh/temp_key.pem
 
-ssh -o StrictHostKeyChecking=no -i ~/.ssh/temp_key.pem ec2-user@ec2-52-201-231-3.compute-1.amazonaws.com << EOF
+ssh -o StrictHostKeyChecking=no -i ~/.ssh/temp_key.pem ec2-user@ec2-54-83-99-51.compute-1.amazonaws.com << EOF
   echo "Server connected via SSH"
 
   echo "Stopping all running Docker containers, except mongodb-projekt..."
