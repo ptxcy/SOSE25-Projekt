@@ -106,7 +106,13 @@ Pong::Pong(Font* font,string name)
 	string lobby_name = "pong-anaconda";
 	g_Websocket.connect(NETWORK_HOST,NETWORK_PORT_ADAPTER,NETWORK_PORT_WEBSOCKET,
 						name,"wilson",lobby_name,"movie",!strcmp(name.c_str(),"owen"));
+
+    COMM_LOG("Sleeping for 300ms so socket is ready");
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
 	Request::connect(lobby_name);
+	COMM_LOG("Sleeping for 500ms so lobby is registered");
+	std::this_thread::sleep_for(std::chrono::milliseconds(15000));
+	COMM_LOG("SLEEP DONE");
 
 	// setup index buffer object for ball batch
 	m_BallBatch->ibo.bind();
@@ -123,7 +129,7 @@ vec3 ctvec(Coordinate& c) { return vec3(c.x,c.y,c.z); }
 void Pong::update()
 {
 	// player input
-	Request::player_movement(g_Input.keyboard.keys[SDL_SCANCODE_S]-g_Input.keyboard.keys[SDL_SCANCODE_W]);
+	//Request::player_movement(g_Input.keyboard.keys[SDL_SCANCODE_S]-g_Input.keyboard.keys[SDL_SCANCODE_W]);
 
 	// get server updates
 	if (!g_Websocket.state_update) return;

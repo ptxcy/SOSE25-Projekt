@@ -17,6 +17,7 @@ curl -o core/include/stb_image.h https://raw.githubusercontent.com/nothings/stb/
 
 echo "Running CMake build..."
 cd lib/build_mac
+rm -rf CMakeCache.txt CMakeFiles
 cmake -DCMAKE_BUILD_TYPE=Debug ../..
 cmake --build .
 

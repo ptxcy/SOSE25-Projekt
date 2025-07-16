@@ -26,8 +26,8 @@ services:
 
   pong-calculation_unit:
     build:
-      context: ./microservices/pong
-      dockerfile: Dockerfile
+      context: ./microservices
+      dockerfile: pong/Dockerfile
     image: pong-calculation-unit
     environment:
       - SERVICE_PORT=8090

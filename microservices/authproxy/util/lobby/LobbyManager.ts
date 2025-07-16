@@ -4,8 +4,7 @@ import {ILobby} from "./LobbyModel";
 import {deleteLobby, searchLobbyOfMember} from "./LobbyService";
 import {
     decodeToClientMessage,
-    decodeToServerMessage, encodeClientMessage,
-    encodeServerMessage
+    decodeToServerMessage,
 } from "../datatypes/MessagePackDataTypes";
 import {
     CONTAINER_PREFIX,
@@ -112,39 +111,40 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
         ? new Uint8Array(data)
         : new Uint8Array(data as ArrayBuffer);
 
-    console.log("Received ClientMessage: ", uint8Array);
-    const clientRequest: any = await decodeToClientMessage(uint8Array);
-    if (!clientRequest) {
-        console.error("Could not decode message");
-        ws.close();
-        return;
-    }
-
     if (!isWebsocketAlreadyUsedInAnotherLobby(ws)) {
-        // First Time Connection check if a new lobby needs to be registered
+        const clientRequest: any = await decodeToClientMessage(uint8Array);
+        if (!clientRequest) {
+            console.error("Could not decode message does not match Messagepack encoding!");
+            ws.close();
+            return;
+        }
+
         let lobbyName: string = clientRequest[1][7];
-        if(!lobbyName) {
-            //Try 3d- version
+        if (!lobbyName) {
             lobbyName = clientRequest[0][2];
         }
 
         if (!lobbyName) {
             console.error("Asserted lobby connect message but did not found lobbyname: ", lobbyName);
             ws.close();
+        } else {
+            console.log("Parsed Lobby name from first ever received Message: ", lobbyName);
         }
 
-        const userLobby: ILobby | null = await searchLobbyOfMember(lobbyName, userData.username);
+        const userLobby: ILobby | null = await searchLobbyOfMember(userData.username, lobbyName);
         if (!userLobby) {
-            console.error("User is not in a lobby!");
+            console.error("User is not in a databank lobby! lobby name / username", lobbyName, userData.username);
             ws.close();
             return;
         }
 
         let registerLobby: LobbyRegistryEntry | null = isRegistered(userLobby.lobbyName);
         if (registerLobby && !registerLobby.memberSockets.includes(ws)) {
+            console.log("A Lobby instance already exits adding websocket to memberSockets!");
             registerLobby.memberSockets.push(ws);
             registerLobby.members.push(userData);
         } else {
+            console.log("No Lobby exits until now creating registry!");
             const lowestContainerNumber = findLowestPossibleContainerNumber();
             registerLobby = {
                 lobbyName: userLobby.lobbyName,
@@ -156,18 +156,12 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
             addToRegister(registerLobby);
             registerLobby.calculationSocket = await connectToCalculationServer(lowestContainerNumber, registerLobby);
         }
+        console.info("registered websocket in register: ", registerLobby.lobbyName);
     }
 
     const registerLobby: LobbyRegistryEntry | null = findRegisteredLobbyOfWebsocket(ws);
-    if(registerLobby === null) {
+    if (registerLobby === null) {
         console.error("Could not find register lobby!");
-        ws.close();
-        return;
-    }
-
-    const encoded = await encodeClientMessage(clientRequest);
-    if (encoded === null) {
-        console.error("Could not encode message");
         ws.close();
         return;
     }
@@ -179,22 +173,65 @@ export async function handleWebsocketMessage(ws: WebSocket, data: RawData, userD
         return;
     }
 
-    console.log("Waiting for readyState before sending...");
     while (calc_unit_socket.readyState !== WebSocket.OPEN) {
+        console.log("Waiting for readyState before sending...");
         await new Promise(resolve => setTimeout(resolve, 500));
     }
-    console.log("Calculation socket is open, sending data...");
-    console.log("Sending To CalcUnit: ", String(encoded));
-    calc_unit_socket.send(encoded);
+
+    //console.log("Sending To CalcUnit: ", String(encoded)); -<<<<<<<<<<<<<<< debug
+    calc_unit_socket.send(uint8Array);
+}
+
+function extractOptionalString(raw: Uint8Array, index: number): string  | undefined {
+    const tag = raw[index];
+
+    // Null-Wert
+    if (tag === 0xc0) return undefined;
+
+    // fixstr (≤ 31 Bytes)
+    if (tag >= 0xa0 && tag <= 0xbf) {
+        const length = tag - 0xa0;
+        const strBytes = raw.slice(index + 1, index + 1 + length);
+        return new TextDecoder().decode(strBytes);
+    }
+
+    // str8 (≤ 255 Bytes)
+    if (tag === 0xd9) {
+        const length = raw[index + 1];
+        const strBytes = raw.slice(index + 2, index + 2 + length);
+        return new TextDecoder().decode(strBytes);
+    }
+
+    // str16 (≤ 65,535 Bytes)
+    if (tag === 0xda) {
+        const length = (raw[index + 1] << 8) | raw[index + 2];
+        const strBytes = raw.slice(index + 3, index + 3 + length);
+        return new TextDecoder().decode(strBytes);
+    }
+
+    // str32 (≤ ~4GB)
+    if (tag === 0xdb) {
+        const length =
+            (raw[index + 1] << 24) |
+            (raw[index + 2] << 16) |
+            (raw[index + 3] << 8) |
+            raw[index + 4];
+        const strBytes = raw.slice(index + 5, index + 5 + length);
+        return new TextDecoder().decode(strBytes);
+    }
+
+    return undefined;
 }
 
 async function connectToCalculationServer(containerNumber: number, lcomp: LobbyRegistryEntry): Promise<WebSocket> {
     console.log("Connecting to calculation server...");
     if (lcomp.lobbyName.startsWith("3d-")) {
+        console.info("Starting 3D Calculation Unit");
         await startCalculationUnit(containerNumber, 9000 + containerNumber);
-    }else if (lcomp.lobbyName.startsWith("pong-")) {
+    } else if (lcomp.lobbyName.startsWith("pong-")) {
+        console.info("Starting PONG Calculation Unit");
         await startPongCalculationUnit(containerNumber, 9000 + containerNumber);
-    }else {
+    } else {
         await startCalculationUnit(containerNumber, 9000 + containerNumber);
     }
 
@@ -208,17 +245,19 @@ async function connectToCalculationServer(containerNumber: number, lcomp: LobbyR
     };
 
     socket.on("message", async (msg) => {
+        //const startTime = performance.now(); <- Time Tracking
         const uint8Array = msg instanceof Buffer
             ? new Uint8Array(msg)
             : new Uint8Array(msg as ArrayBuffer);
 
-        const serverMessage: any = await decodeToServerMessage(uint8Array);
         let targetUsername: string | undefined = undefined;
         if (lcomp.lobbyName.startsWith("3d-")) {
+            const serverMessage: any = await decodeToServerMessage(uint8Array);
             targetUsername = serverMessage[1][0];
-        }else if (lcomp.lobbyName.startsWith("pong-")) {
-            targetUsername = serverMessage[1];
-        }else {
+        } else if (lcomp.lobbyName.startsWith("pong-")) {
+            targetUsername = extractOptionalString(uint8Array,2);
+        } else {
+            const serverMessage: any = await decodeToServerMessage(uint8Array);
             targetUsername = serverMessage[1][0];
         }
 
@@ -228,16 +267,11 @@ async function connectToCalculationServer(containerNumber: number, lcomp: LobbyR
         }
 
         if (targetUsername === "all") {
-            const sendMessage = await encodeServerMessage(serverMessage);
-            if (!sendMessage) {
-                console.error("ReEncoding Server Message Failed");
-                return;
-            }
-
-            //console.log("sending: ", String(sendMessage));
             lcomp.memberSockets.forEach((ws: WebSocket) => {
-                ws.send(sendMessage)
+                ws.send(uint8Array)
             })
+            //const endTime = performance.now();
+            //console.log(`Broadcast dauerte: ${(endTime - startTime).toFixed(2)} ms`);
             return;
         }
 
@@ -252,13 +286,9 @@ async function connectToCalculationServer(containerNumber: number, lcomp: LobbyR
             return;
         }
 
-        const sendMessage = await encodeServerMessage(serverMessage);
-        if (!sendMessage) {
-            console.error("ReEncoding Server Message Failed");
-            return;
-        }
-
-        userSocket.send(sendMessage);
+        userSocket.send(uint8Array);
+        //const endTime = performance.now();
+        //console.log(`Broadcast dauerte: ${(endTime - startTime).toFixed(2)} ms`);
     })
 
     socket.on('close', () => {
