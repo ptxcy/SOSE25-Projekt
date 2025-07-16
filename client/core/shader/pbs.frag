@@ -29,6 +29,7 @@ uniform sampler2D gbuffer_position;
 uniform sampler2D gbuffer_normal;
 uniform sampler2D gbuffer_material;
 uniform sampler2D gbuffer_emission;
+uniform sampler2D shadow_map;
 uniform sampler2D forward_depth;
 uniform sampler2D gbuffer_depth;
 
@@ -42,6 +43,11 @@ uniform light_sun sunlights[8];
 uniform light_point pointlights[64];
 uniform int sunlights_active = 0;
 uniform int pointlights_active = 0;
+
+// shadows
+uniform vec3 shadow_source;
+uniform mat4 shadow_projection;
+uniform float shadow_intensity = .9;
 
 // constants
 const float PI = 3.141592653;
@@ -95,6 +101,19 @@ void main()
 		final += lumen_sun(position,colour,normal,metalness,roughness,sunlights[i]);
 	for (int i=0;i<pointlights_active;i++)
 		final += lumen_point(position,colour,normal,metalness,roughness,pointlights[i]);
+
+	// process shadows with dynamic bias for sloped surfaces
+	vec3 shadow_dir = normalize(shadow_source);
+	vec4 rltp = shadow_projection*vec4(position,1.);
+	vec3 ltp = (rltp.xyz/rltp.w)*.5+.5;
+	float slut = texture(shadow_map,ltp.xy).r;
+	float obj_depth = ltp.z;
+	float bias = tan(acos(dot(normal,shadow_dir)))*.00001;
+	float pshadow = float(slut<(obj_depth-bias));
+	float gshadow = min(1.-dot(normal,shadow_dir),1.);
+	float shadow = max(pshadow,gshadow);
+	//float shadow = mix(float(texture(shadow_map,ltp.xy).r<(obj_depth-bias)),.0,gshadow);
+	final *= 1.-shadow*shadow_intensity;
 
 	// process sub-geometric occlusion & emission
 	final = final*occlusion;

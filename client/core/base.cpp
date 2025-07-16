@@ -301,16 +301,52 @@ CoordinateSystem2D::CoordinateSystem2D(f32 xaxis,f32 yaxis)
 /**
  *	create 3D camera
  *	\param tgt: starting camera view focus target
- *	\param width: screen resolution width, can also be downscaled to ratio
- *	\param height: screen resolution height, can also be downscaled to ratio
+ *	\param dist: distance from target to camera
+ *	\param p: camera rotation pitch
+ *	\param y: camera rotation yaw
+ *	\param w: screen resolution width, can also be downscaled to ratio
+ *	\param h: screen resolution height, can also be downscaled to ratio
  *	\param ifov: field of view in degrees
- *	TODO
  */
-Camera3D::Camera3D(vec3 tgt,f32 dist,f32 p,f32 y,f32 width,f32 height,f32 ifov)
-	: target(tgt),distance(dist),pitch(p),yaw(y),fov(ifov),m_Ratio(width/height)
+Camera3D::Camera3D(vec3 tgt,f32 dist,f32 p,f32 y,f32 w,f32 h,f32 ifov)
+	: target(tgt),distance(dist),pitch(p),yaw(y),fov(ifov),m_Ratio(w/h)
 {
 	update();
 	project();
+}
+
+/**
+ *	create orthographic 3D camera
+ *	\param tgt: starting camera view focus target
+ *	\param dist: distance from target to camera
+ *	\param p: camera rotation pitch
+ *	\param y: camera rotation yaw
+ *	\param w: screen resolution width, can also be downscaled to ratio
+ *	\param h: screen resolution height, can also be downscaled to ratio
+ *	\param n: near plane distance
+ *	\param f: far plane distance
+ */
+Camera3D::Camera3D(vec3 tgt,f32 dist,f32 p,f32 y,u32 w,u32 h,f32 n,f32 f)
+	: target(tgt),distance(dist),pitch(p),yaw(y),width(w),height(h),near(n),far(f)
+{
+	update();
+	orthographics();
+}
+
+/**
+ *	create orthographic 3D camera
+ *	\param tgt: starting camera view focus target
+ *	\param p: camera position
+ *	\param w: screen resolution width, can also be downscaled to ratio
+ *	\param h: screen resolution height, can also be downscaled to ratio
+ *	\param n: near plane distance
+ *	\param f: far plane distance
+ */
+Camera3D::Camera3D(vec3 tgt,vec3 p,u32 w,u32 h,f32 n,f32 f)
+	: target(tgt),position(p),width(w),height(h),near(n),far(f)
+{
+	force_position();
+	orthographics();
 }
 
 /**
@@ -323,11 +359,29 @@ void Camera3D::update()
 }
 
 /**
+ *	update camera view matrix with forced position vector
+ */
+void Camera3D::force_position()
+{
+	view = glm::lookAt(position,target,up);
+}
+
+/**
  *	update camera projection
  */
 void Camera3D::project()
 {
 	proj = glm::perspective(glm::radians(fov),m_Ratio,near,far);
+}
+
+/**
+ *	calculate camera projection orthographically
+ */
+void Camera3D::orthographics()
+{
+	f32 hwidth = width>>1;
+	f32 hheight = height>>1;
+	proj = glm::ortho(-hwidth,hwidth,-hheight,hheight,near,far);
 }
 
 /**

@@ -84,10 +84,12 @@ public:
 	void upload(const char* varname,mat4 value);
 	void upload_coordinate_system();
 	void upload_camera();
+	void upload_camera(Camera3D& c);
 
+	void _define_attribute(ShaderAttribute attrib);
+	void _define_index_attribute(ShaderAttribute attrib);
+	// TODO change back to references
 private:
-	void _define_attribute(ShaderAttribute& attrib);
-	void _define_index_attribute(ShaderAttribute& attrib);
 	s32 _handle_attribute_location_by_name(const char* varname);
 
 private:

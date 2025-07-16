@@ -18,6 +18,7 @@ enum TextureChannelMap : u16
 	RENDERER_TEXTURE_DEFERRED_NORMAL,
 	RENDERER_TEXTURE_DEFERRED_MATERIAL,
 	RENDERER_TEXTURE_DEFERRED_EMISSION,
+	RENDERER_TEXTURE_SHADOW_MAP,
 	RENDERER_TEXTURE_FORWARD_DEPTH,
 	RENDERER_TEXTURE_DEFERRED_DEPTH,
 	RENDERER_TEXTURE_UNMAPPED
@@ -203,6 +204,7 @@ struct Lighting
 	PointLight pointlights[64];
 	u8 sunlights_active = 0;
 	u8 pointlights_active = 0;
+	Camera3D shadow_projection;
 };
 
 
@@ -242,9 +244,14 @@ public:
 	lptr<ParticleBatch> register_deferred_particle_batch();
 	lptr<ParticleBatch> register_deferred_particle_batch(lptr<ShaderPipeline> pipeline);
 
+	// shadow projection
+	void register_shadow_batch(lptr<GeometryBatch> b);
+	void register_shadow_batch(lptr<ParticleBatch> b);
+
 	// lighting
 	SunLight* add_sunlight(vec3 position,vec3 colour,f32 intensity);
 	PointLight* add_pointlight(vec3 position,vec3 colour,f32 intensity,f32 constant,f32 linear,f32 quadratic);
+	void add_shadow(vec3 source);
 	void upload_lighting();
 	void reset_lighting();
 
@@ -258,6 +265,7 @@ private:
 	void _update_text();
 	void _update_canvas();
 	static void _update_mesh(list<GeometryBatch>& gb,list<ParticleBatch>& pb);
+	void _update_shadows(list<lptr<GeometryBatch>>& gb,list<lptr<ParticleBatch>>& pb);
 	void _gpu_upload();
 
 	// background procedures
@@ -297,6 +305,7 @@ private:
 
 	Framebuffer m_ForwardFrameBuffer = Framebuffer(1);
 	Framebuffer m_DeferredFrameBuffer = Framebuffer(5);
+	Framebuffer m_ShadowFrameBuffer = Framebuffer(0);
 
 	// ----------------------------------------------------------------------------------------------------
 	// Render Object Information
@@ -324,10 +333,14 @@ private:
 	list<ParticleBatch> m_ParticleBatches;
 	list<GeometryBatch> m_DeferredGeometryBatches;
 	list<ParticleBatch> m_DeferredParticleBatches;
+	list<lptr<GeometryBatch>> m_ShadowGeometryBatches;
+	list<lptr<ParticleBatch>> m_ShadowParticleBatches;
 
 	// lighting
 	lptr<ShaderPipeline> m_GeometryPassPipeline;
 	lptr<ShaderPipeline> m_ParticlePassPipeline;
+	lptr<ShaderPipeline> m_GeometryShadowPipeline;
+	lptr<ShaderPipeline> m_ParticleShadowPipeline;
 	Lighting m_Lighting;
 };
 

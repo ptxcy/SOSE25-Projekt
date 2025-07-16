@@ -179,11 +179,10 @@ void _handle_websocket_upload(Websocket* c)
 		{
 			ClientMessage outMsg = c->client_messages.front();
 			c->client_messages.pop();
-			c->mutex_client_messages.unlock();
 			msgpack::sbuffer msg_buffer;
 			msgpack::pack(msg_buffer, outMsg);
-			c->ws.write(boost::asio::buffer(msg_buffer.data(), msg_buffer.size()));
 			c->mutex_client_messages.unlock();
+			c->ws.write(boost::asio::buffer(msg_buffer.data(), msg_buffer.size()));
 		}
 		catch (const std::exception &e)
 		{

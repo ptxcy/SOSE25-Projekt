@@ -48,6 +48,7 @@ Pong::Pong(Font* font,string name)
 
 	// ball particle buffer
 	m_BallBatch = g_Renderer.register_deferred_particle_batch();
+	g_Renderer.register_shadow_batch(m_BallBatch);
 	m_BallBatch->load(__Sphere,PONG_BALL_COUNT);
 
 	// load surface geometry
@@ -61,6 +62,7 @@ Pong::Pong(Font* font,string name)
 	// load player geometry
 	m_Player0 = m_PhysicalBatch->add_geometry(__Triangle,__GoldTextures);
 	m_Player1 = m_PhysicalBatch->add_geometry(__Triangle,__GoldTextures);
+	g_Renderer.register_shadow_batch(m_PhysicalBatch);
 	m_PhysicalBatch->load();
 
 	// setup surface geometry
@@ -91,6 +93,7 @@ Pong::Pong(Font* font,string name)
 												__LightbulbColour[i%__LightbulbColour.size()].colour,
 												10.f,1.f,.8f,.24f);
 	}
+	g_Renderer.add_shadow(vec3(50,-50,50));
 	g_Renderer.upload_lighting();
 
 	// setup text scoreboard
@@ -145,7 +148,8 @@ void Pong::update()
 	m_BallBatch->ibo.upload_vertices(m_BallIndices,PONG_BALL_COUNT,GL_DYNAMIC_DRAW);
 
 	// lighting update
-	for (u32 i=0;i<PONG_LIGHTING_POINTLIGHTS;i++) m_Lights[i]->position = m_BallIndices[i*1].position;
+	for (u32 i=0;i<PONG_LIGHTING_POINTLIGHTS;i++)
+		m_Lights[i]->position = m_BallIndices[i].position;
 	g_Renderer.upload_lighting();
 
 	// update scoreboard
