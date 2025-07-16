@@ -6,6 +6,8 @@ services:
       context: ./microservices/authproxy
       dockerfile: Dockerfile
     image: authproxy
+    networks:
+      - sose25-projekt
     ports:
       - "8080:8080"
       - "8083:8083"
@@ -41,6 +43,8 @@ services:
   mongodb:
     image: mongo:latest
     container_name: mongodb-projekt
+    networks:
+      - sose25-projekt
     ports:
       - "27017:27017"
 
