@@ -13,8 +13,7 @@ export async function startCalculationUnit(instanceNumber: number, exposedPort: 
         Env: [`SERVICE_PORT=${internalPort}`],
         ExposedPorts: {[`${internalPort}/tcp`]: {}},
         HostConfig: {
-            PortBindings: {[`${internalPort}/tcp`]: [{HostPort: `${exposedPort}`}]},
-            NetworkMode: 'sose25-projekt_default'
+            PortBindings: {[`${internalPort}/tcp`]: [{HostPort: `${exposedPort}`}]}
         },
         name: CONTAINER_PREFIX + instanceNumber,
     };
@@ -32,8 +31,7 @@ export async function startPongCalculationUnit(instanceNumber: number, exposedPo
         Env: [`SERVICE_PORT=${internalPort}`],
         ExposedPorts: {[`${internalPort}/tcp`]: {}},
         HostConfig: {
-            PortBindings: {[`${internalPort}/tcp`]: [{HostPort: `${exposedPort}`}]},
-            NetworkMode: 'sose25-projekt_default'
+            PortBindings: {[`${internalPort}/tcp`]: [{HostPort: `${exposedPort}`}]}
         },
         name: CONTAINER_PREFIX + instanceNumber,
     };
