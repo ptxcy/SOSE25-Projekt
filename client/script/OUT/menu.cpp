@@ -28,9 +28,9 @@ Menu::Menu(Font* font,CommandCenter* cc)
 	// setup lobby login ui
 	conn_batch = g_UI.add_batch(font);
 	tfname = conn_batch->add_text_field(textbox_idle,textbox_hover,textbox_active,vec3(0,tfstart+tfdist,0),
-										tfsize,{ .align=SCREEN_ALIGN_CENTER });
+										tfsize,{.align=SCREEN_ALIGN_CENTER});
 	tfpass = conn_batch->add_text_field(textbox_idle,textbox_hover,textbox_active,vec3(0,tfstart,0),
-										tfsize,{ .align=SCREEN_ALIGN_CENTER });
+										tfsize,{.align=SCREEN_ALIGN_CENTER});
 	tfpass->hidden = true;
 	tflobby = conn_batch->add_text_field(textbox_idle, textbox_hover, textbox_active, vec3(0, -tfstart, 0),
 										 tfsize, {.align = SCREEN_ALIGN_CENTER});
@@ -58,8 +58,6 @@ void Menu::update()
 	if (btjoin->confirm||btcreate->confirm)
 	{
 		bool createLobby = btcreate->confirm;
-		btjoin->confirm = false;
-		btcreate->confirm = false;
 
 #ifdef FEAT_MULTIPLAYER
 		g_Websocket.connect(NETWORK_HOST,NETWORK_PORT_ADAPTER,NETWORK_PORT_WEBSOCKET,
