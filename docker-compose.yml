@@ -46,4 +46,4 @@ services:
 
 networks:
   sose25-projekt:
-    driver: bridge
+    external: true
