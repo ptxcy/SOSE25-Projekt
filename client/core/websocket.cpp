@@ -90,10 +90,9 @@ string HTTPAdapter::authenticate_on_server(string &username, string &password)
  *	\param create: true if new lobby should be created, false if existing lobby should be joined
  *	\returns lobby connection status
  */
-LobbyStatus HTTPAdapter::open_lobby(string &lobby_name, string &lobby_password, string &jwt_token, bool create)
+LobbyStatus HTTPAdapter::open_lobby(string &lobby_name, string &jwt_token, bool create)
 {
 	string body = R"({"lobbyName":")" + lobby_name + R"(")";
-	body += R"(,"lobbyPassword":")" + lobby_password + R"(")";
 	body += "}";
 
 	// create lobby

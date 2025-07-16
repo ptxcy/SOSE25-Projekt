@@ -28,7 +28,7 @@ public:
 	HTTPAdapter(string& host,string& port);
 	bool create_user(string& username,string& password);
 	string authenticate_on_server(string& username,string& password);
-	LobbyStatus open_lobby(string& lobby_name,string& lobby_password,string& jwt_token,bool create);
+	LobbyStatus open_lobby(string& lobby_name,string& jwt_token,bool create);
 
 private:
 	string m_Addr;
