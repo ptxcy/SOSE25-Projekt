@@ -88,6 +88,8 @@ pub async fn start(
 
 		let (action_sender, action_receiver) = std::sync::mpsc::channel::<ActionWrapper>();
 
+		fix_balls(&mut game_objects);
+
 		if game_objects.player_count == 2 /* || true */ {
 			update_balls(action_sender.clone(), &game_objects, delta_seconds);
 		}
@@ -138,5 +140,11 @@ pub fn update_players(sender: std::sync::mpsc::Sender<ActionWrapper>, game_objec
 	}
 	for action in actions {
 		sender.send(action).unwrap();
+	}
+}
+
+pub fn fix_balls(game_objects: &mut GameObjects) {
+	for ball in game_objects.balls.iter_mut() {
+		ball.fix_velocity();
 	}
 }

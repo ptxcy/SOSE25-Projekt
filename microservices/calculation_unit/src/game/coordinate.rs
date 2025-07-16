@@ -196,6 +196,14 @@ impl Coordinate {
 		let div = 1. / self.norm() * value;
 		self.scale(div)
 	}
+	pub fn cap(&self, value: f64) -> Self {
+		let mut n = self.c();
+		if self.norm() >= value {
+			n.normalize(value);
+			return n;
+		}
+		n
+	}
 
 	pub fn chunk(&self, chunk_size: u64) -> Self {
 		Self {
