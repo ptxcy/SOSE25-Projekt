@@ -108,7 +108,7 @@ impl GameObjects {
                         x as f64 * dist - offset,
                         y as f64 * dist - offset
                     )
-                    .random_velocity(5.)
+                    .random_velocity(15.)
                 ;
                 balls.push(ball);
             }

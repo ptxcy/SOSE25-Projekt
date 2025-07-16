@@ -74,19 +74,26 @@ pub async fn start(
 
 		while let Ok(client_message) = client_message_receiver.try_recv() {
 			let username = client_message.username;
-			let player = unsafe {&mut **game_objects.player_map.get(&username).expect("player with username not found")};
-			if client_message.request_data.move_to == -1 {
-				player.velocity = Coordinate::new(0., player.speed, 0.);
-			}
-			else if client_message.request_data.move_to == 1 {
-				player.velocity = Coordinate::new(0., -player.speed, 0.);
-			}
-			else if client_message.request_data.move_to == 0 {
-				player.velocity = Coordinate::new(0., 0., 0.);
+			match game_objects.player_map.get(&username) {
+			    Some(player_pointer) => {
+					let player = unsafe {&mut **player_pointer};
+					if client_message.request_data.move_to == -1 {
+						player.velocity = Coordinate::new(0., player.speed, 0.);
+					}
+					else if client_message.request_data.move_to == 1 {
+						player.velocity = Coordinate::new(0., -player.speed, 0.);
+					}
+					else if client_message.request_data.move_to == 0 {
+						player.velocity = Coordinate::new(0., 0., 0.);
+					}
+			    },
+			    None => log_with_time(format!("player with username not found {}", &username)),
 			}
 		}
 
 		let (action_sender, action_receiver) = std::sync::mpsc::channel::<ActionWrapper>();
+
+		fix_balls(&mut game_objects);
 
 		if game_objects.player_count == 2 /* || true */ {
 			update_balls(action_sender.clone(), &game_objects, delta_seconds);
@@ -138,5 +145,11 @@ pub fn update_players(sender: std::sync::mpsc::Sender<ActionWrapper>, game_objec
 	}
 	for action in actions {
 		sender.send(action).unwrap();
+	}
+}
+
+pub fn fix_balls(game_objects: &mut GameObjects) {
+	for ball in game_objects.balls.iter_mut() {
+		ball.fix_velocity();
 	}
 }
