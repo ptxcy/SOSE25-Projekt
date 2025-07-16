@@ -20,6 +20,14 @@ public:
 	void gpu_vsync_on();
 	void gpu_vsync_off();
 
+#ifdef DEBUG
+public:
+	u32 fps;
+private:
+	std::chrono::steady_clock::time_point m_LastFrameUpdate = std::chrono::steady_clock::now();
+	u32 m_LFps;
+#endif
+
 private:
 	SDL_Window* m_Frame;
 	SDL_GLContext m_Context;

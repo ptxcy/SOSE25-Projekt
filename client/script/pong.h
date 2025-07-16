@@ -61,6 +61,7 @@ private:
 	// players
 	u32 m_Player0;
 	u32 m_Player1;
+	bool m_Moving = false;
 
 	// ball information
 	BallIndex m_BallIndices[PONG_BALL_COUNT];
@@ -68,6 +69,9 @@ private:
 	// scoreboard
 	lptr<Text> m_Score0;
 	lptr<Text> m_Score1;
+
+	// measurements
+	lptr<Text> m_FPS;
 };
 
 

@@ -39,8 +39,7 @@ class Websocket
 {
 public:
 	Websocket() {  }
-	void connect(string host,string port_ad,string port_ws,string name,string pass,string lnom,
-				 string lpass,bool create);
+	void connect(string host,string port_ad,string port_ws,string name,string pass,string lnom,bool create);
 
 #ifdef PROJECT_PONG
 	GameObject receive_message();

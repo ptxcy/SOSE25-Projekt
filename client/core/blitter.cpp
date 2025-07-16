@@ -89,6 +89,16 @@ void Frame::clear()
 void Frame::update()
 {
 	SDL_GL_SwapWindow(m_Frame);
+#ifdef DEBUG
+	f64 __LFrameUpdate = (std::chrono::steady_clock::now()-m_LastFrameUpdate).count()*MATH_CONVERSION_MS;
+	if (__LFrameUpdate>1000)
+	{
+		fps = m_LFps;
+		m_LFps = 0;
+		m_LastFrameUpdate = std::chrono::steady_clock::now();
+	}
+	else m_LFps++;
+#endif
 }
 
 /**

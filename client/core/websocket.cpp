@@ -288,11 +288,10 @@ std::string _url_encode(string &value)
  *	\param name: username for connection
  *	\param pass: connection password
  *	\param lnom: lobby name
- *	\param lpass: lobby password
  *	\param creator: true if connection attempt creates a new lobby, false if user joins a created lobby
  */
-void Websocket::connect(string host,string port_ad,string port_ws,string name,string pass,string lnom,
-						string lpass,bool create)
+void Websocket::connect(string host,string port_ad,string port_ws,string name,string pass,
+						string lnom,bool create)
 {
 	username = name;
 
@@ -300,7 +299,7 @@ void Websocket::connect(string host,string port_ad,string port_ws,string name,st
 	HTTPAdapter __Adapter = HTTPAdapter(host,port_ad);
 	COMM_ERR_COND(!__Adapter.create_user(name,pass),"user creation did not work");
 	string token = __Adapter.authenticate_on_server(name,pass);
-	lobby_status = __Adapter.open_lobby(lnom,lpass,token,create);
+	lobby_status = __Adapter.open_lobby(lnom,token,create);
 
 	// websocket connection
 	try
