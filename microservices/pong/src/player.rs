@@ -42,4 +42,11 @@ impl Player {
         add.scale(delta_seconds);
         actions.push(AddValue::new(self.position.raw_mut(), add));
 	}
+	pub fn get_triangle(&self) -> (Coordinate, Coordinate, Coordinate) {
+		(
+			self.position + self.relative_lines[0].0,
+			self.position + self.relative_lines[0].1,
+			self.position + self.relative_lines[1].1
+		)
+	}
 }

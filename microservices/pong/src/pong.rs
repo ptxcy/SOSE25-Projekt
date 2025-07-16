@@ -47,7 +47,7 @@ pub async fn start(
 		HashMap::<String, ServerMessageSenderChannel>::new();
 
 	// initialise game objects
-	let mut game_objects = GameObjects::new(50);
+	let mut game_objects = GameObjects::new(/* 1 */50);
 
 	// delta time init
 	let mut last_time = Instant::now();
@@ -129,7 +129,6 @@ pub fn update_balls(
                 let ball = unsafe { &*ball.0 };
                 ball.update(chunk, game_objects, delta_seconds, &mut chunk_actions);
             }
-            
             chunk_actions
         })
         .collect();

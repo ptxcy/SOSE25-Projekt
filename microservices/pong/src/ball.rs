@@ -43,7 +43,7 @@ impl Ball {
         self
     }
     pub fn fix_velocity(&mut self) {
-        self.velocity = self.velocity.cap(50.);
+        self.velocity = self.velocity.cap(100.);
     }
     pub fn update(&self, my_chunk: (usize, usize), game_objects: &GameObjects, delta_seconds: f64, actions: &mut Vec<ActionWrapper>) {
         let mut add = self.velocity.c();
@@ -78,6 +78,9 @@ impl Ball {
             self.collide_line(line.clone(), Coordinate::default(), actions);
         }
         for player in game_objects.players.iter() {
+            // push out of triangle
+            self.push_ball_out_of_triangle(player.get_triangle(), actions);
+            // line collisions
             for line in player.relative_lines.iter() {
                 self.collide_line(Line::new(line.0 + player.position, line.1 + player.position), player.velocity, actions);
             }
@@ -208,5 +211,77 @@ impl Ball {
             actions.push(SetValue::new(self.position.raw_mut(), new_pos));
         }
     }
+    pub fn push_ball_out_of_triangle(
+        self: &Ball,
+        triangle: (Coordinate, Coordinate, Coordinate),
+        actions: &mut Vec<ActionWrapper>,
+    ) {
+        use std::f64::EPSILON;
+
+        let p = self.position;
+        let r = self.radius * -2.;
+
+        let [a, b, c] = [triangle.0, triangle.1, triangle.2];
+
+        if !point_in_triangle_2d(&p, a, b, c) {
+            return; // nothing to do
+        }
+
+        // Find closest edge and push direction
+        let edges = [(a, b), (b, c), (c, a)];
+        let mut min_dist = f64::MAX;
+        let mut push_vec = Coordinate::default();
+
+        for &(start, end) in &edges {
+            let proj = project_on_segment_2d(p, start, end);
+            let diff = p - proj;
+            let dist = diff.norm();
+            if dist < min_dist && dist > EPSILON {
+                min_dist = dist;
+                push_vec = diff / dist;
+            }
+        }
+
+        // push out just enough to clear radius
+        let correction = push_vec * (r - min_dist + 0.001);
+        actions.push(SetValue::new(self.position.raw_mut(), self.position + correction));
+        // self.position = self.position + correction;
+
+        // bounce velocity if we actually moved
+        if correction.norm_squared() > EPSILON {
+            let normal = push_vec;
+            let dot = self.velocity.dot(&normal);
+            let reflect = self.velocity - normal * (2.0 * dot);
+            // self.velocity = reflect * self.bounciness;
+            actions.push(SetValue::new(self.velocity.raw_mut(), reflect * self.bounciness));
+        }
+    }
 }
 
+fn point_in_triangle_2d(p: &Coordinate, a: Coordinate, b: Coordinate, c: Coordinate) -> bool {
+    let ab = b - a;
+    let bc = c - b;
+    let ca = a - c;
+    let ap = *p - a;
+    let bp = *p - b;
+    let cp = *p - c;
+
+    let cross1 = ab.perp_dot(&ap);
+    let cross2 = bc.perp_dot(&bp);
+    let cross3 = ca.perp_dot(&cp);
+
+    (cross1 >= 0.0 && cross2 >= 0.0 && cross3 >= 0.0) ||
+    (cross1 <= 0.0 && cross2 <= 0.0 && cross3 <= 0.0)
+}
+fn project_on_segment_2d(p: Coordinate, a: Coordinate, b: Coordinate) -> Coordinate {
+    let ab = b - a;
+    let ap = p - a;
+    let t = ap.dot(&ab) / ab.norm_squared();
+    if t <= 0.0 {
+        a
+    } else if t >= 1.0 {
+        b
+    } else {
+        a + ab * t
+    }
+}
