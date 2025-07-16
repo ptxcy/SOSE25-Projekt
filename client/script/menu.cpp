@@ -29,17 +29,17 @@ Menu::Menu(Font* font,CommandCenter* cc)
 	// setup lobby login ui
 	conn_batch = g_UI.add_batch(font);
 	tfname = conn_batch->add_text_field(textbox_idle,textbox_hover,textbox_active,vec3(0,tfstart+tfdist,0),
-										tfsize,{.align=SCREEN_ALIGN_CENTER});
+										tfsize,{ .align=SCREEN_ALIGN_CENTER });
 	tfpass = conn_batch->add_text_field(textbox_idle,textbox_hover,textbox_active,vec3(0,tfstart,0),
-										tfsize,{.align=SCREEN_ALIGN_CENTER});
+										tfsize,{ .align=SCREEN_ALIGN_CENTER });
 	tfpass->hidden = true;
-	tflobby = conn_batch->add_text_field(textbox_idle, textbox_hover, textbox_active, vec3(0, -tfstart, 0),
-										 tfsize,{.align = SCREEN_ALIGN_CENTER});
+	tflobby = conn_batch->add_text_field(textbox_idle,textbox_hover,textbox_active,vec3(0,-tfstart,0),
+										 tfsize,{ .align = SCREEN_ALIGN_CENTER });
 
 	btjoin = conn_batch->add_button("Join Lobby",button_idle,button_hover,button_select,
-									vec3(-bteyez,-tfstart-tfdist,0),btsize,{.align=SCREEN_ALIGN_CENTER});
+									vec3(-bteyez,-tfstart-tfdist,0),btsize,{ .align=SCREEN_ALIGN_CENTER });
 	btcreate = conn_batch->add_button("Create Lobby",button_idle,button_hover,button_select,
-									  vec3(bteyez,-tfstart-tfdist,0),btsize,{.align=SCREEN_ALIGN_CENTER});
+									  vec3(bteyez,-tfstart-tfdist,0),btsize,{ .align=SCREEN_ALIGN_CENTER });
 
 	// setup player communication
 	__TUsr = g_Renderer.write_text(font,"username",tfname->canvas->offset+vec3(0,tftitle,0),ttsize);
