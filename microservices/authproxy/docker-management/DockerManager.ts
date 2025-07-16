@@ -9,7 +9,7 @@ export async function startCalculationUnit(instanceNumber: number, exposedPort: 
     const internalPort = exposedPort;
 
     const containerConfig: ContainerCreateOptions = {
-        Image: '3d-calculation_unit',
+        Image: '3d-calculation-unit',
         Env: [`SERVICE_PORT=${internalPort}`],
         ExposedPorts: {[`${internalPort}/tcp`]: {}},
         HostConfig: {
@@ -28,7 +28,7 @@ export async function startPongCalculationUnit(instanceNumber: number, exposedPo
     const internalPort = exposedPort;
 
     const containerConfig: ContainerCreateOptions = {
-        Image: '3d-calculation_unit',
+        Image: 'pong-calculation-unit',
         Env: [`SERVICE_PORT=${internalPort}`],
         ExposedPorts: {[`${internalPort}/tcp`]: {}},
         HostConfig: {

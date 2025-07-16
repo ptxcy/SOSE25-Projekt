@@ -7,7 +7,7 @@ import {handleWebsocketMessage} from "../../util/lobby/LobbyManager";
 const wss = new WebSocketServer({ port: 8083 });
 
 wss.on("connection", async (ws: WebSocket, req) => {
-    console.log("Somebody is trying to connect to the websocket");
+    console.log("Somebody is trying to Handshake the websocket");
     const path = req.url?.split("?")[0];
     if (path !== "/calculate") {
         console.error("Somebody tried to connect to the wrong websocket route");
@@ -32,10 +32,11 @@ wss.on("connection", async (ws: WebSocket, req) => {
     }
 
     ws.on("message", async (message: RawData) => {
-        console.log("Received message", message);
         if (valid.userData) {
-            console.log("Try to handle message with user data: ", valid.userData.username);
+            // console.log("Try to handle message with user data: ", valid.userData.username); <<<<< debug
             await handleWebsocketMessage(ws, message, valid.userData);
+        }else {
+            console.error("User Data was invalid in sending this print is a duplicate only printed when a race condition happens!")
         }
     })
 

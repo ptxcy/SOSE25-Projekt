@@ -130,14 +130,6 @@ export async function decodeToServerMessage(msg: RawData) {
     return decode(uint8Array);
 }
 
-export async function encodeServerMessage(msg: any) {
-    return encode(msg);
-}
-
-export async function encodeClientMessage(msg: any){
-    return encode(msg);
-}
-
 export async function decodeToClientMessage(msg: RawData) {
     const uint8Array = msg instanceof Buffer
         ? new Uint8Array(msg)
