@@ -204,6 +204,7 @@ struct Lighting
 	PointLight pointlights[64];
 	u8 sunlights_active = 0;
 	u8 pointlights_active = 0;
+	Camera3D shadow_projection;
 };
 
 
@@ -250,6 +251,7 @@ public:
 	// lighting
 	SunLight* add_sunlight(vec3 position,vec3 colour,f32 intensity);
 	PointLight* add_pointlight(vec3 position,vec3 colour,f32 intensity,f32 constant,f32 linear,f32 quadratic);
+	void add_shadow(vec3 source);
 	void upload_lighting();
 	void reset_lighting();
 
@@ -340,8 +342,6 @@ private:
 	lptr<ShaderPipeline> m_GeometryShadowPipeline;
 	lptr<ShaderPipeline> m_ParticleShadowPipeline;
 	Lighting m_Lighting;
-	Camera3D m_ShadowProjection = Camera3D(vec3(0),vec3(20,-20,20),RENDERER_SHADOW_RANGE,RENDERER_SHADOW_RANGE,
-										   1.f,100.f);
 };
 
 inline Renderer g_Renderer = Renderer();

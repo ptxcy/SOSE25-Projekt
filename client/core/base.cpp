@@ -301,10 +301,12 @@ CoordinateSystem2D::CoordinateSystem2D(f32 xaxis,f32 yaxis)
 /**
  *	create 3D camera
  *	\param tgt: starting camera view focus target
- *	\param width: screen resolution width, can also be downscaled to ratio
- *	\param height: screen resolution height, can also be downscaled to ratio
+ *	\param dist: distance from target to camera
+ *	\param p: camera rotation pitch
+ *	\param y: camera rotation yaw
+ *	\param w: screen resolution width, can also be downscaled to ratio
+ *	\param h: screen resolution height, can also be downscaled to ratio
  *	\param ifov: field of view in degrees
- *	TODO
  */
 Camera3D::Camera3D(vec3 tgt,f32 dist,f32 p,f32 y,f32 w,f32 h,f32 ifov)
 	: target(tgt),distance(dist),pitch(p),yaw(y),fov(ifov),m_Ratio(w/h)
@@ -314,7 +316,15 @@ Camera3D::Camera3D(vec3 tgt,f32 dist,f32 p,f32 y,f32 w,f32 h,f32 ifov)
 }
 
 /**
- *	TODO
+ *	create orthographic 3D camera
+ *	\param tgt: starting camera view focus target
+ *	\param dist: distance from target to camera
+ *	\param p: camera rotation pitch
+ *	\param y: camera rotation yaw
+ *	\param w: screen resolution width, can also be downscaled to ratio
+ *	\param h: screen resolution height, can also be downscaled to ratio
+ *	\param n: near plane distance
+ *	\param f: far plane distance
  */
 Camera3D::Camera3D(vec3 tgt,f32 dist,f32 p,f32 y,u32 w,u32 h,f32 n,f32 f)
 	: target(tgt),distance(dist),pitch(p),yaw(y),width(w),height(h),near(n),far(f)
@@ -324,7 +334,13 @@ Camera3D::Camera3D(vec3 tgt,f32 dist,f32 p,f32 y,u32 w,u32 h,f32 n,f32 f)
 }
 
 /**
- *	TODO
+ *	create orthographic 3D camera
+ *	\param tgt: starting camera view focus target
+ *	\param p: camera position
+ *	\param w: screen resolution width, can also be downscaled to ratio
+ *	\param h: screen resolution height, can also be downscaled to ratio
+ *	\param n: near plane distance
+ *	\param f: far plane distance
  */
 Camera3D::Camera3D(vec3 tgt,vec3 p,u32 w,u32 h,f32 n,f32 f)
 	: target(tgt),position(p),width(w),height(h),near(n),far(f)
@@ -343,7 +359,7 @@ void Camera3D::update()
 }
 
 /**
- *	TODO
+ *	update camera view matrix with forced position vector
  */
 void Camera3D::force_position()
 {
@@ -359,7 +375,7 @@ void Camera3D::project()
 }
 
 /**
- *	TODO
+ *	calculate camera projection orthographically
  */
 void Camera3D::orthographics()
 {

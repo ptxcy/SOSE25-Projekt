@@ -270,7 +270,8 @@ void ShaderPipeline::upload_camera()
 }
 
 /**
- *	TODO
+ *	upload the given 3D camera to the shader
+ *	\param c: camera to upload
  */
 void ShaderPipeline::upload_camera(Camera3D& c)
 {
@@ -283,7 +284,7 @@ void ShaderPipeline::upload_camera(Camera3D& c)
  *	\param attrib: shader attribute structure, holding attribute name and dimension
  *	NOTE shader pipeline, vertex array & vertex buffer need to be active to point to attribute
  */
-void ShaderPipeline::_define_attribute(ShaderAttribute& attrib)
+void ShaderPipeline::_define_attribute(ShaderAttribute attrib)
 {
 	COMM_ERR_COND(m_VertexCursor+attrib.dim*SHADER_UPLOAD_VALUE_SIZE>m_VertexShader.vbo_width,
 				  "attribute dimension violates upload width");
@@ -299,7 +300,7 @@ void ShaderPipeline::_define_attribute(ShaderAttribute& attrib)
  *	\param attrib: shader attribute structure, holding attribute name and dimension
  *	NOTE shader pipeline, vertex array & index buffer need to be active to point to attribute
  */
-void ShaderPipeline::_define_index_attribute(ShaderAttribute& attrib)
+void ShaderPipeline::_define_index_attribute(ShaderAttribute attrib)
 {
 	COMM_ERR_COND(m_IndexCursor+attrib.dim*SHADER_UPLOAD_VALUE_SIZE>m_VertexShader.ibo_width,
 				  "index dimension violates upload width");
