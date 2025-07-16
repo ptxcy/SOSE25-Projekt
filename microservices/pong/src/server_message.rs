@@ -117,7 +117,7 @@ impl GameObjects {
         chunks.update(&balls);
 
         let lines = vec![
-            Line::new(Coordinate::new(-700., -100., 0.), Coordinate::new(-500., 300., 0.))
+            // Line::new(Coordinate::new(-700., -100., 0.), Coordinate::new(-500., 300., 0.))
         ];
 
         let players = vec![
