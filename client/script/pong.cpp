@@ -107,7 +107,13 @@ Pong::Pong(Font* font,string name)
 	string lobby_name = "pong-anaconda";
 	g_Websocket.connect(NETWORK_HOST,NETWORK_PORT_ADAPTER,NETWORK_PORT_WEBSOCKET,
 						name,"wilson",lobby_name,!strcmp(name.c_str(),"owen"));
-	Request::connect(lobby_name);
+
+	COMM_LOG("Sleeping for 300ms so socket is ready");
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    Request::connect(lobby_name);
+    COMM_LOG("Sleeping for 500ms so lobby is registered");
+    std::this_thread::sleep_for(std::chrono::milliseconds(15000));
+    COMM_LOG("SLEEP DONE");
 
 	// setup index buffer object for ball batch
 	m_BallBatch->ibo.bind();
