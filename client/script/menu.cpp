@@ -34,7 +34,7 @@ Menu::Menu(Font* font,CommandCenter* cc)
 										tfsize,{.align=SCREEN_ALIGN_CENTER});
 	tfpass->hidden = true;
 	tflobby = conn_batch->add_text_field(textbox_idle, textbox_hover, textbox_active, vec3(0, -tfstart, 0),
-										 tfsize, {.align = SCREEN_ALIGN_CENTER});
+										 tfsize,{.align = SCREEN_ALIGN_CENTER});
 
 	btjoin = conn_batch->add_button("Join Lobby",button_idle,button_hover,button_select,
 									vec3(-bteyez,-tfstart-tfdist,0),btsize,{.align=SCREEN_ALIGN_CENTER});
@@ -58,11 +58,9 @@ void Menu::update()
 	// react to confirmation
 	if (btjoin->confirm||btcreate->confirm)
 	{
-		bool createLobby = btcreate->confirm;
-
 #ifdef FEAT_MULTIPLAYER
 		g_Websocket.connect(NETWORK_HOST,NETWORK_PORT_ADAPTER,NETWORK_PORT_WEBSOCKET,
-							tfname->buffer,tfpass->buffer,tflobby->buffer,createLobby);
+							tfname->buffer,tfpass->buffer,tflobby->buffer,btcreate->confirm);
 		if (g_Websocket.lobby_status!=LOBBY_CONNECTED) return;
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		Request::connect();
