@@ -316,10 +316,20 @@ Camera3D::Camera3D(vec3 tgt,f32 dist,f32 p,f32 y,f32 w,f32 h,f32 ifov)
 /**
  *	TODO
  */
-Camera3D::Camera3D(vec3 tgt,vec3 dir,u32 w,u32 h)
-	: target(tgt),position(dir),width(w),height(h)
+Camera3D::Camera3D(vec3 tgt,f32 dist,f32 p,f32 y,u32 w,u32 h,f32 n,f32 f)
+	: target(tgt),distance(dist),pitch(p),yaw(y),width(w),height(h),near(n),far(f)
 {
 	update();
+	orthographics();
+}
+
+/**
+ *	TODO
+ */
+Camera3D::Camera3D(vec3 tgt,vec3 p,u32 w,u32 h,f32 n,f32 f)
+	: target(tgt),position(p),width(w),height(h),near(n),far(f)
+{
+	force_position();
 	orthographics();
 }
 
@@ -329,6 +339,14 @@ Camera3D::Camera3D(vec3 tgt,vec3 dir,u32 w,u32 h)
 void Camera3D::update()
 {
 	position = vec3(-cos(pitch)*sin(yaw),-cos(pitch)*cos(yaw),sin(pitch))*distance+target;
+	view = glm::lookAt(position,target,up);
+}
+
+/**
+ *	TODO
+ */
+void Camera3D::force_position()
+{
 	view = glm::lookAt(position,target,up);
 }
 

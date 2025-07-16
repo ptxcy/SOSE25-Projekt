@@ -473,10 +473,19 @@ void Renderer::update()
 	m_FrameStart = std::chrono::steady_clock::now();
 
 	// shadow projection
+	glCullFace(GL_FRONT);
+	glViewport(0,0,RENDERER_SHADOW_RESOLUTION,RENDERER_SHADOW_RESOLUTION);
 	m_ShadowFrameBuffer.start();
-	_update_shadows(m_ShadowGeometryBatches,m_ShadowParticleBatches);
+	//_update_shadows(m_ShadowGeometryBatches,m_ShadowParticleBatches);
+	Camera3D __CRestore = g_Camera;
+	g_Camera = m_ShadowProjection;
+	_update_mesh(m_GeometryBatches,m_ParticleBatches);
+	_update_mesh(m_DeferredGeometryBatches,m_DeferredParticleBatches);
+	glCullFace(GL_BACK);
+	g_Camera = __CRestore;
 
 	// 3D segment
+	glViewport(0,0,FRAME_RESOLUTION_X,FRAME_RESOLUTION_Y);
 	m_ForwardFrameBuffer.start();
 	_update_mesh(m_GeometryBatches,m_ParticleBatches);
 	m_DeferredFrameBuffer.start();
@@ -758,6 +767,22 @@ lptr<ParticleBatch> Renderer::register_deferred_particle_batch(lptr<ShaderPipeli
 }
 
 /**
+ *	TODO
+ */
+void Renderer::register_shadow_batch(lptr<GeometryBatch> b)
+{
+	m_ShadowGeometryBatches.push_back(b);
+}
+
+/**
+ *	TODO
+ */
+void Renderer::register_shadow_batch(lptr<ParticleBatch> b)
+{
+	m_ShadowParticleBatches.push_back(b);
+}
+
+/**
  *	create directional sunlight
  *	\param position: direction to sunlight, inverted direction will be direction of emission
  *	\param colour: colour of the emission
@@ -907,6 +932,8 @@ void Renderer::_update_canvas()
 	m_ForwardFrameBuffer.bind_depth_component(RENDERER_TEXTURE_FORWARD_DEPTH);
 	m_DeferredFrameBuffer.bind_depth_component(RENDERER_TEXTURE_DEFERRED_DEPTH);
 	m_CanvasPipeline.upload("camera_position",g_Camera.position);
+	m_CanvasPipeline.upload("shadow_source",m_ShadowProjection.position);
+	m_CanvasPipeline.upload("shadow_projection",m_ShadowProjection.proj*m_ShadowProjection.view);
 	glDrawArrays(GL_TRIANGLES,0,6);
 }
 
@@ -959,7 +986,7 @@ void Renderer::_update_shadows(list<lptr<GeometryBatch>>& gb,list<lptr<ParticleB
 	for (lptr<GeometryBatch> p_Batch : gb)
 	{
 		m_GeometryShadowPipeline->enable();  // TODO make this dynamic
-		m_GeometryShadowPipeline->upload_camera(/*m_ShadowProjection*/);
+		m_GeometryShadowPipeline->upload_camera(m_ShadowProjection);
 		p_Batch->vao.bind();
 		for (GeometryTuple& p_Tuple : p_Batch->object)
 		{
@@ -973,7 +1000,7 @@ void Renderer::_update_shadows(list<lptr<GeometryBatch>>& gb,list<lptr<ParticleB
 	for (lptr<ParticleBatch> p_Batch : pb)
 	{
 		m_ParticleShadowPipeline->enable();  // TODO same here as with m_GeometryShadowPipeline
-		m_ParticleShadowPipeline->upload_camera(/*m_ShadowProjection*/);
+		m_ParticleShadowPipeline->upload_camera(m_ShadowProjection);
 		p_Batch->vao.bind();
 		glDrawArraysInstanced(GL_TRIANGLES,0,p_Batch->vertex_count,p_Batch->active_particles);
 	}

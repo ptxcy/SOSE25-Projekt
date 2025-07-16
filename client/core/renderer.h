@@ -243,6 +243,10 @@ public:
 	lptr<ParticleBatch> register_deferred_particle_batch();
 	lptr<ParticleBatch> register_deferred_particle_batch(lptr<ShaderPipeline> pipeline);
 
+	// shadow projection
+	void register_shadow_batch(lptr<GeometryBatch> b);
+	void register_shadow_batch(lptr<ParticleBatch> b);
+
 	// lighting
 	SunLight* add_sunlight(vec3 position,vec3 colour,f32 intensity);
 	PointLight* add_pointlight(vec3 position,vec3 colour,f32 intensity,f32 constant,f32 linear,f32 quadratic);
@@ -336,8 +340,8 @@ private:
 	lptr<ShaderPipeline> m_GeometryShadowPipeline;
 	lptr<ShaderPipeline> m_ParticleShadowPipeline;
 	Lighting m_Lighting;
-	Camera3D m_ShadowProjection = Camera3D(vec3(0),vec3(2,2,2),
-										   RENDERER_SHADOW_RESOLUTION,RENDERER_SHADOW_RESOLUTION);
+	Camera3D m_ShadowProjection = Camera3D(vec3(0),vec3(20,-20,20),RENDERER_SHADOW_RANGE,RENDERER_SHADOW_RANGE,
+										   1.f,100.f);
 };
 
 inline Renderer g_Renderer = Renderer();
