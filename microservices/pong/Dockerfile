@@ -3,7 +3,6 @@ FROM rust:latest
 WORKDIR /app
 
 COPY . .
-COPY ../calculation_unit ./calculation_unit
 WORKDIR /app/pong
 RUN cargo build --release
 ARG SERVICE_PORT
