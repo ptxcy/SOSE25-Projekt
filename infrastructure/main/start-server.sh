@@ -13,7 +13,8 @@ ssh -o StrictHostKeyChecking=no -i ~/.ssh/temp_key.pem ec2-user@ec2-34-226-195-1
 
   # Starte den Server mit Docker Compose
   echo "Starting Docker Compose with profile 'deploy'..."
-  docker-compose up -d --build
+  chmod +x start-backend.sh
+  ./start-backend.sh
 
   echo "Server successfully started!"
 EOF
