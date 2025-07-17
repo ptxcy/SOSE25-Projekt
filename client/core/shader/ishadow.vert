@@ -9,6 +9,11 @@ in vec3 tangent;
 // engine: ibo
 in vec3 offset;
 in float scale;
+in vec3 colour;
+
+out vec3 Position;
+out vec3 Normal;
+out vec3 Colour;
 
 uniform mat4 view;
 uniform mat4 proj;
@@ -16,5 +21,8 @@ uniform mat4 proj;
 
 void main()
 {
-	gl_Position = proj*view*vec4(position*scale+offset,1.);
+	Position = position*scale+offset;
+	Normal = normal;
+	Colour = colour;
+	gl_Position = proj*view*vec4(Position,1.);
 }
