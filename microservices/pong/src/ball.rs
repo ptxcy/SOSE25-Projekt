@@ -43,7 +43,7 @@ impl Ball {
         self
     }
     pub fn fix_velocity(&mut self) {
-        self.velocity = self.velocity.cap(50.);
+        self.velocity = self.velocity.cap(150.);
     }
     pub fn update(&self, my_chunk: (usize, usize), game_objects: &GameObjects, delta_seconds: f64, actions: &mut Vec<ActionWrapper>) {
         let mut add = self.velocity.c();
