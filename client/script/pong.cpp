@@ -12,23 +12,27 @@ Pong::Pong(Font* font,string name)
 	g_Camera.pitch = glm::radians(45.f);
 
 	// shader compile
-	/*
 	VertexShader __BulbVertexShader = VertexShader("core/shader/bulb.vert");
 	FragmentShader __BulbFragmentShader = FragmentShader("core/shader/bulb.frag");
-	ShaderPipeline __BulbShader = g_Renderer.register_pipeline(__BulbVertexShader,__BulbFragmentShader);
-	*/
+	lptr<ShaderPipeline> __BulbShader = g_Renderer.register_pipeline(__BulbVertexShader,__BulbFragmentShader);
 
 	// geometry
 	Mesh __Sphere = Mesh("./res/low_sphere.obj");
 	Mesh __Cube = Mesh("./res/cube.obj");
 	Mesh __Triangle = Mesh("./res/triangle.obj");
 
-	// textures
-	vector<Lightbulb> __LightbulbColour = {
-		{ { g_Renderer.register_texture("./res/planets/halfres/sun.jpg") },vec3(.8f,.4f,.1f) },
-		{ { g_Renderer.register_texture("./res/planets/halfres/mars.jpg") },vec3(.9f,.2f,.1f) },
-		{ { g_Renderer.register_texture("./res/planets/halfres/neptune.jpg") },vec3(.1f,.1f,.8f) },
+	// colours
+	vector<vec3> __BallColour = {
+		vec3(.7f,0,0),vec3(.7f,.7f,0),vec3(.7f,0,.7f),vec3(0,.7f,0),vec3(0,.7f,.7f),vec3(0,0,.7f),
+		vec3(.25f,.7f,0),vec3(.7f,.25f,0),vec3(.7f,0,.25f),vec3(.25f,0,.7f),vec3(0,.7f,.25f),vec3(0,.25f,.7f),
 	};
+	vector<vec3> __LightbulbColour = {
+		vec3(.8f,.4f,.1f),
+		vec3(.9f,.2f,.1f),
+		vec3(.1f,.1f,.8f)
+	};
+
+	// textures
 	vector<Texture*> __ParquetTextures = {
 		g_Renderer.register_texture("./res/physical/paquet_colour.png",TEXTURE_FORMAT_SRGB),
 		g_Renderer.register_texture("./res/physical/paquet_normal.png"),
@@ -41,15 +45,13 @@ Pong::Pong(Font* font,string name)
 	};
 
 	// bulb particle buffer
-	/*
 	m_BulbBatch = g_Renderer.register_deferred_particle_batch(__BulbShader);
 	m_BulbBatch->load(__Sphere,PONG_LIGHTING_POINTLIGHTS);
-	*/
 
 	// ball particle buffer
 	m_BallBatch = g_Renderer.register_deferred_particle_batch();
 	g_Renderer.register_shadow_batch(m_BallBatch);
-	m_BallBatch->load(__Sphere,PONG_BALL_COUNT);
+	m_BallBatch->load(__Sphere,PONG_BALL_PHYSICAL_COUNT);
 
 	// load surface geometry
 	m_PhysicalBatch = g_Renderer.register_deferred_geometry_batch();
@@ -85,16 +87,25 @@ Pong::Pong(Font* font,string name)
 	// set texel density
 	m_PhysicalBatch->object[__Floor].texel = PONG_FIELD_TEXEL;
 
+	// setup index buffer object for ball batches
+	for (u32 i=0;i<PONG_BALL_PHYSICAL_COUNT;i++) m_BallIndices[i].colour = __BallColour[i%__BallColour.size()];
+	m_BallBatch->ibo.bind();
+	m_BallBatch->ibo.upload_vertices(m_BallIndices,PONG_BALL_PHYSICAL_COUNT,GL_DYNAMIC_DRAW);
+
 	// lighting
 	g_Renderer.add_sunlight(vec3(75,-50,100),vec3(1,1,1),.25f);
 	for (u32 i=0;i<PONG_LIGHTING_POINTLIGHTS;i++)
 	{
-		m_Lights[i] = g_Renderer.add_pointlight(m_BallIndices[i].position,
-												__LightbulbColour[i%__LightbulbColour.size()].colour,
-												10.f,1.f,.8f,.24f);
+		vec3 __BulbColour = __LightbulbColour[i%__LightbulbColour.size()];
+		m_BulbIndices[i].colour = __BulbColour;
+		m_Lights[i] = g_Renderer.add_pointlight(m_BallIndices[i].position,__BulbColour,10.f,1.f,.8f,.24f);
 	}
-	g_Renderer.add_shadow(vec3(50,-50,50));
+	g_Renderer.add_shadow(vec3(75,-50,100));
 	g_Renderer.upload_lighting();
+
+	// light geometry buffer
+	m_BulbBatch->ibo.bind();
+	m_BallBatch->ibo.upload_vertices(m_BallIndices,PONG_LIGHTING_POINTLIGHTS,GL_DYNAMIC_DRAW);
 
 	// setup text scoreboard
 	m_Score0 = g_Renderer.write_text(font,"",vec3(250,-25,0),15,vec4(1),
@@ -108,16 +119,12 @@ Pong::Pong(Font* font,string name)
 	g_Websocket.connect(NETWORK_HOST,NETWORK_PORT_ADAPTER,NETWORK_PORT_WEBSOCKET,
 						name,"wilson",lobby_name,!strcmp(name.c_str(),"owen"));
 
-	COMM_LOG("Sleeping for 300ms so socket is ready");
-    std::this_thread::sleep_for(std::chrono::milliseconds(300));
-    Request::connect(lobby_name);
-    COMM_LOG("Sleeping for 500ms so lobby is registered");
-    std::this_thread::sleep_for(std::chrono::milliseconds(15000));
-    COMM_LOG("SLEEP DONE");
-
-	// setup index buffer object for ball batch
-	m_BallBatch->ibo.bind();
-	m_BallBatch->ibo.upload_vertices(m_BallIndices,PONG_BALL_COUNT,GL_DYNAMIC_DRAW);
+	COMM_LOG("sleeping for 300ms so socket is ready");
+	std::this_thread::sleep_for(std::chrono::milliseconds(300));
+	Request::connect(lobby_name);
+	COMM_AWT("sleeping so lobby is registered");
+	std::this_thread::sleep_for(std::chrono::milliseconds(NETWORK_CONNECTION_STALL));
+	COMM_CNF();
 
 	g_Wheel.call(UpdateRoutine{ &Pong::_update,(void*)this });
 }
@@ -130,7 +137,7 @@ vec3 ctvec(Coordinate& c) { return vec3(c.x,c.y,c.z); }
 void Pong::update()
 {
 	// player input
-	s8 __Movement = g_Input.keyboard.keys[SDL_SCANCODE_S]-g_Input.keyboard.keys[SDL_SCANCODE_W];
+	s8 __Movement = g_Input.keyboard.keys[SDL_SCANCODE_DOWN]-g_Input.keyboard.keys[SDL_SCANCODE_UP];
 	if ((__Movement&&!m_Moving)||(!__Movement&&m_Moving))
 	{
 		Request::player_movement(__Movement);
@@ -158,15 +165,20 @@ void Pong::update()
 	m_PhysicalBatch->object[m_Player1].transform.rotate_z(180.f);
 
 	// ball positions
-	for (u32 i=0;i<__GObj.balls.size();i++)
-		m_BallIndices[i].position
-				= vec3(__GObj.balls[i].position.x,__GObj.balls[i].position.y,__GObj.balls[i].position.z)*.1f;
+	for (u32 i=0;i<PONG_BALL_PHYSICAL_COUNT;i++)
+		m_BallIndices[i].position = ctvec(__GObj.balls[i].position)*PONG_SCALE_FACTOR;
 	m_BallBatch->ibo.bind();
-	m_BallBatch->ibo.upload_vertices(m_BallIndices,PONG_BALL_COUNT,GL_DYNAMIC_DRAW);
+	m_BallBatch->ibo.upload_vertices(m_BallIndices,PONG_BALL_PHYSICAL_COUNT,GL_DYNAMIC_DRAW);
 
-	// lighting update
+	// lighting update & bulb positions
 	for (u32 i=0;i<PONG_LIGHTING_POINTLIGHTS;i++)
-		m_Lights[i]->position = m_BallIndices[i].position;
+	{
+		vec3 __LightPosition = ctvec(__GObj.balls[PONG_BALL_PHYSICAL_COUNT+i].position)*PONG_SCALE_FACTOR;
+		m_BulbIndices[i].position = __LightPosition;
+		m_Lights[i]->position = __LightPosition;
+	}
+	m_BulbBatch->ibo.bind();
+	m_BulbBatch->ibo.upload_vertices(m_BulbIndices,PONG_LIGHTING_POINTLIGHTS);
 	g_Renderer.upload_lighting();
 
 	// update scoreboard

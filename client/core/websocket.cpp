@@ -177,7 +177,6 @@ void _handle_websocket_upload(Websocket* c)
 		try
 		{
 			ClientMessage outMsg = c->client_messages.front();
-		    COMM_LOG("%i %i %s, %s",outMsg.request_data.connect,outMsg.request_data.move_to,outMsg.request_data.lobby.value_or("null").c_str(),outMsg.username.c_str());
 			c->client_messages.pop();
 			msgpack::sbuffer msg_buffer;
 			msgpack::pack(msg_buffer, outMsg);

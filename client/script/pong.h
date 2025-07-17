@@ -14,9 +14,13 @@
 // context constants
 constexpr f32 PONG_SCALE_FACTOR = .1f;
 
+// lighting constants
+constexpr u32 PONG_LIGHTING_POINTLIGHTS = 64;
+
 // ball constants
 constexpr u32 PONG_BALL_COLUMN = 150;
 constexpr u32 PONG_BALL_COUNT = PONG_BALL_COLUMN*PONG_BALL_COLUMN;
+constexpr u32 PONG_BALL_PHYSICAL_COUNT = PONG_BALL_COUNT-PONG_LIGHTING_POINTLIGHTS;
 constexpr f32 PONG_BALL_RADIUS = 2.f*PONG_SCALE_FACTOR;
 
 // field constants
@@ -25,20 +29,12 @@ constexpr f32 PONG_FIELD_TEXEL = PONG_FIELD_SIZE.x/4.f;
 constexpr f32 PONG_FIELD_WIDTH = .15f;
 constexpr f32 PONG_FIELD_DEPTH = PONG_BALL_RADIUS+PONG_FIELD_WIDTH;
 
-// lighting constants
-constexpr u32 PONG_LIGHTING_POINTLIGHTS = 64;
-
 
 struct BallIndex
 {
 	vec3 position = vec3(0);
 	f32 scale = PONG_BALL_RADIUS;
-};
-
-struct Lightbulb
-{
-	vector<Texture*> texture;
-	vec3 colour;
+	vec3 colour = vec3(1);
 };
 
 class Pong
@@ -54,6 +50,7 @@ private:
 	// renderer
 	lptr<GeometryBatch> m_PhysicalBatch;
 	lptr<ParticleBatch> m_BallBatch;
+	lptr<ParticleBatch> m_BulbBatch;
 
 	// lighting
 	PointLight* m_Lights[PONG_LIGHTING_POINTLIGHTS];
@@ -65,6 +62,7 @@ private:
 
 	// ball information
 	BallIndex m_BallIndices[PONG_BALL_COUNT];
+	BallIndex m_BulbIndices[PONG_LIGHTING_POINTLIGHTS];
 
 	// scoreboard
 	lptr<Text> m_Score0;

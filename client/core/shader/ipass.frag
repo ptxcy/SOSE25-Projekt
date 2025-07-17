@@ -3,6 +3,7 @@
 
 in vec3 Position;
 in vec3 Normal;
+in vec3 Colour;
 
 layout(location = 0) out vec4 gbuffer_colour;
 layout(location = 1) out vec4 gbuffer_position;
@@ -13,7 +14,7 @@ layout(location = 4) out vec4 gbuffer_emission;
 
 void main()
 {
-	gbuffer_colour = vec4(1,0,0,1);
+	gbuffer_colour = vec4(Colour,1);
 	gbuffer_position = vec4(Position,1);
 	gbuffer_normals = vec4(Normal,1);
 	gbuffer_materials = vec4(0,.4,1,1);

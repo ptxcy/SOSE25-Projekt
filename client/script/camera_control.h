@@ -6,6 +6,10 @@
 #include "../core/wheel.h"
 
 
+// movement
+constexpr f32 CAMCNTR_MVMT_ACCEL = .15f;
+constexpr f32 CAMCNTR_MVMT_FLOATFACTOR = .8f;
+
 // zoom
 constexpr f32 CAMCNTR_ZOOM_ACCELLERATION = -.15f;
 constexpr f32 CAMCNTR_ZOOM_FLOATFACTOR = .9f;
@@ -28,6 +32,7 @@ public:
 
 private:
 
+	vec3 m_CameraMomentum = vec3(0);
 	f32 m_ZoomMomentum = .3f;
 	vec2 m_RotMomentum = vec2(.0f);
 };

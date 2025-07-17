@@ -17,8 +17,10 @@ void CameraController::update()
 	// zoom input & boundaries
 	m_ZoomMomentum += g_Input.mouse.wheel*CAMCNTR_ZOOM_ACCELLERATION;
 	f32 __Pred = g_Camera.distance+m_ZoomMomentum;
+	/*
 	m_ZoomMomentum *= ((__Pred<CAMCNTR_ZOOM_MINDIST&&m_ZoomMomentum<.0f)
 					   ||(__Pred>CAMCNTR_ZOOM_MAXDIST&&m_ZoomMomentum>.0f)) ? CAMCNTR_ZOOM_EASE : 1.f;
+	*/
 
 	// camera rotational orbit
 	m_RotMomentum.x += (g_Input.keyboard.keys[SDL_SCANCODE_E]-g_Input.keyboard.keys[SDL_SCANCODE_Q])
@@ -28,7 +30,17 @@ void CameraController::update()
 	g_Camera.pitch += glm::radians(m_RotMomentum.y);
 
 	// update camera position
+	vec3 __Attitude = glm::normalize(vec3(g_Camera.target.x-g_Camera.position.x,
+										  g_Camera.target.y-g_Camera.position.y,0));
+	vec3 __OrthoAttitude = vec3(-__Attitude.y,__Attitude.x,0);
+	m_CameraMomentum += (vec3(g_Input.keyboard.keys[SDL_SCANCODE_W]
+							  - g_Input.keyboard.keys[SDL_SCANCODE_S])*__Attitude
+						 + vec3(g_Input.keyboard.keys[SDL_SCANCODE_A]
+							   - g_Input.keyboard.keys[SDL_SCANCODE_D])*__OrthoAttitude)
+			* CAMCNTR_MVMT_ACCEL;
+	g_Camera.target += m_CameraMomentum;
 	g_Camera.distance += m_ZoomMomentum;
+	m_CameraMomentum *= CAMCNTR_MVMT_FLOATFACTOR;
 
 	// haptic attenuation
 	m_ZoomMomentum *= CAMCNTR_ZOOM_FLOATFACTOR;
