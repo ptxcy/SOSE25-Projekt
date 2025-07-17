@@ -4,8 +4,9 @@
 /**
  *	setup origin camera projection
  */
-CameraController::CameraController()
+CameraController::CameraController(Font* font)
 {
+	m_FPS = g_Renderer.write_text(font,"",vec3(-10,-10,0),15,vec4(1),Alignment{ .align=SCREEN_ALIGN_TOPRIGHT });
 	g_Wheel.call(UpdateRoutine{ &CameraController::_update,(void*)this });
 }
 
@@ -45,4 +46,9 @@ void CameraController::update()
 	// haptic attenuation
 	m_ZoomMomentum *= CAMCNTR_ZOOM_FLOATFACTOR;
 	m_RotMomentum *= CAMCNTR_ROT_FLOATFACTOR;
+
+	// fps display
+	m_FPS->data = "FPS "+std::to_string(g_Frame.fps);
+	m_FPS->align();
+	m_FPS->load_buffer();
 }

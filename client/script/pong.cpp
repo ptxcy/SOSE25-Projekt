@@ -17,9 +17,9 @@ Pong::Pong(Font* font,string name)
 	lptr<ShaderPipeline> __BulbShader = g_Renderer.register_pipeline(__BulbVertexShader,__BulbFragmentShader);
 
 	// geometry
-	Mesh __Sphere = Mesh("./res/low_sphere.obj");
-	Mesh __Cube = Mesh("./res/cube.obj");
-	Mesh __Triangle = Mesh("./res/triangle.obj");
+	Mesh __Sphere = Mesh::sphere();
+	Mesh __Cube = Mesh::cube();
+	Mesh __Triangle = Mesh::triangle();
 
 	// colours
 	vector<vec3> __BallColour = {
@@ -27,9 +27,9 @@ Pong::Pong(Font* font,string name)
 		vec3(.25f,.7f,0),vec3(.7f,.25f,0),vec3(.7f,0,.25f),vec3(.25f,0,.7f),vec3(0,.7f,.25f),vec3(0,.25f,.7f),
 	};
 	vector<vec3> __LightbulbColour = {
-		vec3(.8f,.4f,.1f),
-		vec3(.9f,.2f,.1f),
-		vec3(.1f,.1f,.8f)
+		vec3(1,0,0),vec3(0,1,0),vec3(0,0,1),
+		vec3(.5f,.5f,0),vec3(.5f,0,.5f),vec3(0,.5f,.5f),
+		//vec3(.8f,.4f,.1f),vec3(.9f,.2f,.1f),vec3(.1f,.1f,.8f)
 	};
 
 	// textures
@@ -50,8 +50,8 @@ Pong::Pong(Font* font,string name)
 
 	// ball particle buffer
 	m_BallBatch = g_Renderer.register_deferred_particle_batch();
-	g_Renderer.register_shadow_batch(m_BallBatch);
 	m_BallBatch->load(__Sphere,PONG_BALL_PHYSICAL_COUNT);
+	g_Renderer.register_shadow_batch(m_BallBatch);
 
 	// load surface geometry
 	m_PhysicalBatch = g_Renderer.register_deferred_geometry_batch();
@@ -64,8 +64,8 @@ Pong::Pong(Font* font,string name)
 	// load player geometry
 	m_Player0 = m_PhysicalBatch->add_geometry(__Triangle,__GoldTextures);
 	m_Player1 = m_PhysicalBatch->add_geometry(__Triangle,__GoldTextures);
-	g_Renderer.register_shadow_batch(m_PhysicalBatch);
 	m_PhysicalBatch->load();
+	g_Renderer.register_shadow_batch(m_PhysicalBatch);
 
 	// setup surface geometry
 	m_PhysicalBatch->object[__Floor].transform.scale(vec3(PONG_FIELD_SIZE.x,PONG_FIELD_SIZE.y,PONG_FIELD_WIDTH));
@@ -112,7 +112,6 @@ Pong::Pong(Font* font,string name)
 									 Alignment{ .align=SCREEN_ALIGN_TOPLEFT });
 	m_Score1 = g_Renderer.write_text(font,"",vec3(-250,-25,0),15,
 									 vec4(1),Alignment{ .align=SCREEN_ALIGN_TOPRIGHT });
-	m_FPS = g_Renderer.write_text(font,"",vec3(-10,-10,0),15,vec4(1),Alignment{ .align=SCREEN_ALIGN_TOPRIGHT });
 
 	// connection to server
 	string lobby_name = "pong-anaconda";
@@ -144,11 +143,6 @@ void Pong::update()
 		m_Moving = !m_Moving;
 	}
 
-	// fps display
-	m_FPS->data = "FPS "+std::to_string(g_Frame.fps);
-	m_FPS->align();
-	m_FPS->load_buffer();
-
 	// get server updates
 	if (!g_Websocket.state_update) return;
 	GameObject __GObj = g_Websocket.receive_message();
@@ -165,15 +159,15 @@ void Pong::update()
 	m_PhysicalBatch->object[m_Player1].transform.rotate_z(180.f);
 
 	// ball positions
-	for (u32 i=0;i<PONG_BALL_PHYSICAL_COUNT;i++)
-		m_BallIndices[i].position = ctvec(__GObj.balls[i].position)*PONG_SCALE_FACTOR;
+	for (u32 i=1;i<PONG_BALL_PHYSICAL_COUNT-1;i++)
+		m_BallIndices[i].position = ctvec(__GObj.balls[i+(i-1)*PONG_DIST_JUMP_INV].position)*PONG_SCALE_FACTOR;
 	m_BallBatch->ibo.bind();
 	m_BallBatch->ibo.upload_vertices(m_BallIndices,PONG_BALL_PHYSICAL_COUNT,GL_DYNAMIC_DRAW);
 
 	// lighting update & bulb positions
 	for (u32 i=0;i<PONG_LIGHTING_POINTLIGHTS;i++)
 	{
-		vec3 __LightPosition = ctvec(__GObj.balls[PONG_BALL_PHYSICAL_COUNT+i].position)*PONG_SCALE_FACTOR;
+		vec3 __LightPosition = ctvec(__GObj.balls[i*PONG_DIST_JUMP].position)*PONG_SCALE_FACTOR;
 		m_BulbIndices[i].position = __LightPosition;
 		m_Lights[i]->position = __LightPosition;
 	}

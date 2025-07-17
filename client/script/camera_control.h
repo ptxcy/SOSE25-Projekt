@@ -2,6 +2,8 @@
 #define SCRIPT_CAMERA_CONTROL_HEADER
 
 
+#include "../core/blitter.h"
+#include "../core/renderer.h"
 #include "../core/input.h"
 #include "../core/wheel.h"
 
@@ -26,7 +28,7 @@ constexpr f32 CAMCNTR_ROT_FLOATFACTOR = .8f;
 class CameraController
 {
 public:
-	CameraController();
+	CameraController(Font* font);
 	static inline void _update(void* cc) { CameraController* p = (CameraController*)cc; p->update(); }
 	void update();
 
@@ -35,6 +37,9 @@ private:
 	vec3 m_CameraMomentum = vec3(0);
 	f32 m_ZoomMomentum = .3f;
 	vec2 m_RotMomentum = vec2(.0f);
+
+	// measurements
+	lptr<Text> m_FPS;
 };
 
 

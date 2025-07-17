@@ -407,22 +407,23 @@ Renderer::Renderer()
 
 	COMM_LOG("shadow projection piplines");
 	m_GeometryShadowPipeline = register_pipeline(__GeometryShadowVertexShader,__ShadowFragmentShader);
-	m_GeometryShadowPipeline->enable();
 	/*
+	m_GeometryShadowPipeline->enable();
 	m_GeometryShadowPipeline->_define_attribute({ .dim=3,.name="position" });
 	m_GeometryShadowPipeline->_define_attribute({ .dim=2,.name="edge_coordinates" });
 	m_GeometryShadowPipeline->_define_attribute({ .dim=3,.name="normals" });
 	m_GeometryShadowPipeline->_define_attribute({ .dim=3,.name="tangent" });
 	*/
 	m_ParticleShadowPipeline = register_pipeline(__ParticleShadowVertexShader,__ShadowFragmentShader);
-	m_ParticleShadowPipeline->enable();
 	/*
+	m_ParticleShadowPipeline->enable();
 	m_ParticleShadowPipeline->_define_attribute({ .dim=3,.name="position" });
 	m_ParticleShadowPipeline->_define_attribute({ .dim=2,.name="edge_coordinates" });
 	m_ParticleShadowPipeline->_define_attribute({ .dim=3,.name="normals" });
 	m_ParticleShadowPipeline->_define_attribute({ .dim=3,.name="tangent" });
 	m_ParticleShadowPipeline->_define_index_attribute({ .dim=3,.name="offset" });
 	m_ParticleShadowPipeline->_define_index_attribute({ .dim=1,.name="scale" });
+	m_ParticleShadowPipeline->_define_index_attribute({ .dim=3,.name="colour" });
 	*/
 
 	// ----------------------------------------------------------------------------------------------------
@@ -789,6 +790,11 @@ lptr<ParticleBatch> Renderer::register_deferred_particle_batch(lptr<ShaderPipeli
 void Renderer::register_shadow_batch(lptr<GeometryBatch> b)
 {
 	m_ShadowGeometryBatches.push_back(b);
+	/*
+	b->vao.bind();
+	b->vbo.bind();
+	m_GeometryShadowPipeline->map(RENDERER_TEXTURE_UNMAPPED,&b->vbo);
+	*/
 }
 
 /**
@@ -798,6 +804,11 @@ void Renderer::register_shadow_batch(lptr<GeometryBatch> b)
 void Renderer::register_shadow_batch(lptr<ParticleBatch> b)
 {
 	m_ShadowParticleBatches.push_back(b);
+	/*
+	b->vao.bind();
+	b->vbo.bind();
+	m_ParticleShadowPipeline->map(RENDERER_TEXTURE_UNMAPPED,&b->vbo,&b->ibo);
+	*/
 }
 
 /**
@@ -1020,7 +1031,7 @@ void Renderer::_update_shadows(list<lptr<GeometryBatch>>& gb,list<lptr<ParticleB
 	for (lptr<GeometryBatch> p_Batch : gb)
 	{
 		m_GeometryShadowPipeline->enable();  // TODO make this dynamic
-		m_GeometryShadowPipeline->upload_camera(m_Lighting.shadow_projection);
+		m_GeometryShadowPipeline->upload_camera(/*m_Lighting.shadow_projection*/);
 		p_Batch->vao.bind();
 		for (GeometryTuple& p_Tuple : p_Batch->object)
 		{
@@ -1034,7 +1045,7 @@ void Renderer::_update_shadows(list<lptr<GeometryBatch>>& gb,list<lptr<ParticleB
 	for (lptr<ParticleBatch> p_Batch : pb)
 	{
 		m_ParticleShadowPipeline->enable();  // TODO same here as with m_GeometryShadowPipeline
-		m_ParticleShadowPipeline->upload_camera(m_Lighting.shadow_projection);
+		m_ParticleShadowPipeline->upload_camera(/*m_Lighting.shadow_projection*/);
 		p_Batch->vao.bind();
 		glDrawArraysInstanced(GL_TRIANGLES,0,p_Batch->vertex_count,p_Batch->active_particles);
 	}

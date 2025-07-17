@@ -96,11 +96,12 @@ void main()
 	SchlickOut = schlick_beckmann_approx(LightOut,roughness);
 
 	// processing simulated light sources
-	vec3 final = vec3(0);
+	vec3 sdw_component = vec3(0);
+	vec3 lgt_component = vec3(0);
 	for (int i=0;i<sunlights_active;i++)
-		final += lumen_sun(position,colour,normal,metalness,roughness,sunlights[i]);
+		sdw_component += lumen_sun(position,colour,normal,metalness,roughness,sunlights[i]);
 	for (int i=0;i<pointlights_active;i++)
-		final += lumen_point(position,colour,normal,metalness,roughness,pointlights[i]);
+		lgt_component += lumen_point(position,colour,normal,metalness,roughness,pointlights[i]);
 
 	// process shadows with dynamic bias for sloped surfaces
 	vec3 shadow_dir = normalize(shadow_source);
@@ -113,7 +114,8 @@ void main()
 	float gshadow = min(1.-dot(normal,shadow_dir),1.);
 	float shadow = max(pshadow,gshadow);
 	//float shadow = mix(float(texture(shadow_map,ltp.xy).r<(obj_depth-bias)),.0,gshadow);
-	final *= 1.-shadow*shadow_intensity;
+	vec3 final = vec3(0);
+	final = sdw_component*(1.-shadow*shadow_intensity)+lgt_component;
 
 	// process sub-geometric occlusion & emission
 	final = final*occlusion;
