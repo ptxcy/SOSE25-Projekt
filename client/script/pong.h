@@ -39,6 +39,7 @@ struct BallIndex
 	vec3 position = vec3(0);
 	f32 scale = PONG_BALL_RADIUS;
 	vec3 colour = vec3(1);
+	vec2 material = vec2(0,.4f);
 };
 
 class Pong

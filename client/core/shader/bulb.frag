@@ -4,6 +4,7 @@
 in vec3 Position;
 in vec3 Normal;
 in vec3 Colour;
+in vec2 Material;
 
 layout(location = 0) out vec4 gbuffer_colour;
 layout(location = 1) out vec4 gbuffer_position;

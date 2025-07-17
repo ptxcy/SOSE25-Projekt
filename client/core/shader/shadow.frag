@@ -3,6 +3,7 @@
 in vec3 Position;
 in vec3 Normal;
 in vec3 Colour;
+in vec2 Material;
 
 
 void main()
