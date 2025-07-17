@@ -43,6 +43,11 @@ Pong::Pong(Font* font,string name)
 		g_Renderer.register_texture("./res/physical/gold_normal.png"),
 		g_Renderer.register_texture("./res/physical/gold_material.png"),
 	};
+	vector<Texture*> __ParquetTextures = {
+		g_Renderer.register_texture("./res/physical/fabric_colour.png",TEXTURE_FORMAT_SRGB),
+		g_Renderer.register_texture("./res/physical/fabric_normal.png"),
+		g_Renderer.register_texture("./res/physical/fabric_material.png"),
+	};
 
 	// bulb particle buffer
 	m_BulbBatch = g_Renderer.register_deferred_particle_batch(__BulbShader);
@@ -88,7 +93,12 @@ Pong::Pong(Font* font,string name)
 	m_PhysicalBatch->object[__Floor].texel = PONG_FIELD_TEXEL;
 
 	// setup index buffer object for ball batches
-	for (u32 i=0;i<PONG_BALL_PHYSICAL_COUNT;i++) m_BallIndices[i].colour = __BallColour[i%__BallColour.size()];
+	for (u32 i=0;i<PONG_BALL_PHYSICAL_COUNT;i++)
+	{
+		m_BallIndices[i].colour = __BallColour[i%__BallColour.size()];
+		m_BallIndices[i].material = vec2((i%PONG_BALL_HALF_COUNT)*PONG_BALL_HALF_COUNT_INV,
+										 (i%PONG_BALL_PHYSICAL_COUNT)*PONG_BALL_PHYSICAL_COUNT_INV);
+	}
 	m_BallBatch->ibo.bind();
 	m_BallBatch->ibo.upload_vertices(m_BallIndices,PONG_BALL_PHYSICAL_COUNT,GL_DYNAMIC_DRAW);
 
@@ -159,7 +169,7 @@ void Pong::update()
 	m_PhysicalBatch->object[m_Player1].transform.rotate_z(180.f);
 
 	// ball positions
-	for (u32 i=1;i<PONG_BALL_PHYSICAL_COUNT-1;i++)
+	for (u32 i=1;i<PONG_BALL_PHYSICAL_COUNT;i++)
 		m_BallIndices[i].position = ctvec(__GObj.balls[i+(i-1)*PONG_DIST_JUMP_INV].position)*PONG_SCALE_FACTOR;
 	m_BallBatch->ibo.bind();
 	m_BallBatch->ibo.upload_vertices(m_BallIndices,PONG_BALL_PHYSICAL_COUNT,GL_DYNAMIC_DRAW);

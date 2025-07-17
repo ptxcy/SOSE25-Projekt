@@ -18,7 +18,7 @@ impl Default for Ball {
             position: Default::default(),
             velocity: Default::default(),
             radius: 2.,
-            bounciness: 1.,
+            bounciness: 0.95,
         }
     }
 }

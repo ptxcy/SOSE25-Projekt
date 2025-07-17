@@ -48,7 +48,7 @@ void CameraController::update()
 	m_RotMomentum *= CAMCNTR_ROT_FLOATFACTOR;
 
 	// fps display
-	m_FPS->data = "FPS "+std::to_string(g_Frame.fps);
+	m_FPS->data = "FPS "+std::to_string(g_Frame.fps*2);
 	m_FPS->align();
 	m_FPS->load_buffer();
 }
