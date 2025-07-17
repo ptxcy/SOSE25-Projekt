@@ -17,9 +17,9 @@ Pong::Pong(Font* font,string name)
 	lptr<ShaderPipeline> __BulbShader = g_Renderer.register_pipeline(__BulbVertexShader,__BulbFragmentShader);
 
 	// geometry
-	Mesh __Sphere = Mesh::sphere();
 	Mesh __Cube = Mesh::cube();
 	Mesh __Triangle = Mesh::triangle();
+	Mesh __Sphere = Mesh::sphere();
 
 	// colours
 	vector<vec3> __BallColour = {
@@ -33,25 +33,16 @@ Pong::Pong(Font* font,string name)
 	};
 
 	// textures
-	vector<Texture*> __ParquetTextures = {
-		g_Renderer.register_texture("./res/physical/paquet_colour.png",TEXTURE_FORMAT_SRGB),
-		g_Renderer.register_texture("./res/physical/paquet_normal.png"),
-		g_Renderer.register_texture("./res/physical/paquet_material.png"),
+	vector<Texture*> __FloorTextures = {
+		g_Renderer.register_texture("./res/pong/floor_colour.png",TEXTURE_FORMAT_SRGB),
+		g_Renderer.register_texture("./res/pong/floor_normal.png"),
+		g_Renderer.register_texture("./res/pong/floor_material.png"),
 	};
-	vector<Texture*> __GoldTextures = {
-		g_Renderer.register_texture("./res/physical/gold_colour.png",TEXTURE_FORMAT_SRGB),
-		g_Renderer.register_texture("./res/physical/gold_normal.png"),
-		g_Renderer.register_texture("./res/physical/gold_material.png"),
+	vector<Texture*> __PedalTextures = {
+		g_Renderer.register_texture("./res/pong/pedal_colour.png",TEXTURE_FORMAT_SRGB),
+		g_Renderer.register_texture("./res/pong/pedal_normal.png"),
+		g_Renderer.register_texture("./res/pong/pedal_material.png"),
 	};
-	vector<Texture*> __ParquetTextures = {
-		g_Renderer.register_texture("./res/physical/fabric_colour.png",TEXTURE_FORMAT_SRGB),
-		g_Renderer.register_texture("./res/physical/fabric_normal.png"),
-		g_Renderer.register_texture("./res/physical/fabric_material.png"),
-	};
-
-	// bulb particle buffer
-	m_BulbBatch = g_Renderer.register_deferred_particle_batch(__BulbShader);
-	m_BulbBatch->load(__Sphere,PONG_LIGHTING_POINTLIGHTS);
 
 	// ball particle buffer
 	m_BallBatch = g_Renderer.register_deferred_particle_batch();
@@ -60,15 +51,15 @@ Pong::Pong(Font* font,string name)
 
 	// load surface geometry
 	m_PhysicalBatch = g_Renderer.register_deferred_geometry_batch();
-	u32 __Floor = m_PhysicalBatch->add_geometry(__Cube,__ParquetTextures);
-	u32 __Wall0 = m_PhysicalBatch->add_geometry(__Cube,__ParquetTextures);
-	u32 __Wall1 = m_PhysicalBatch->add_geometry(__Cube,__ParquetTextures);
-	u32 __Wall2 = m_PhysicalBatch->add_geometry(__Cube,__ParquetTextures);
-	u32 __Wall3 = m_PhysicalBatch->add_geometry(__Cube,__ParquetTextures);
+	u32 __Floor = m_PhysicalBatch->add_geometry(__Cube,__FloorTextures);
+	u32 __Wall0 = m_PhysicalBatch->add_geometry(__Cube,__FloorTextures);
+	u32 __Wall1 = m_PhysicalBatch->add_geometry(__Cube,__FloorTextures);
+	u32 __Wall2 = m_PhysicalBatch->add_geometry(__Cube,__FloorTextures);
+	u32 __Wall3 = m_PhysicalBatch->add_geometry(__Cube,__FloorTextures);
 
 	// load player geometry
-	m_Player0 = m_PhysicalBatch->add_geometry(__Triangle,__GoldTextures);
-	m_Player1 = m_PhysicalBatch->add_geometry(__Triangle,__GoldTextures);
+	m_Player0 = m_PhysicalBatch->add_geometry(__Triangle,__PedalTextures);
+	m_Player1 = m_PhysicalBatch->add_geometry(__Triangle,__PedalTextures);
 	m_PhysicalBatch->load();
 	g_Renderer.register_shadow_batch(m_PhysicalBatch);
 
@@ -87,10 +78,11 @@ Pong::Pong(Font* font,string name)
 	m_PhysicalBatch->object[__Wall1].transform.translate(vec3(-PONG_FIELD_SIZE.x,0,0));
 	m_PhysicalBatch->object[__Wall2].transform.translate(vec3(0,PONG_FIELD_SIZE.y,0));
 	m_PhysicalBatch->object[__Wall3].transform.translate(vec3(0,-PONG_FIELD_SIZE.y,0));
-	// TODO add mesh baking feature to reduce this to singular geometry with singluar draw call
 
 	// set texel density
 	m_PhysicalBatch->object[__Floor].texel = PONG_FIELD_TEXEL;
+	m_PhysicalBatch->object[m_Player0].texel = PONG_FIELD_TEXEL*.25f;
+	m_PhysicalBatch->object[m_Player1].texel = PONG_FIELD_TEXEL*.25f;
 
 	// setup index buffer object for ball batches
 	for (u32 i=0;i<PONG_BALL_PHYSICAL_COUNT;i++)
@@ -101,6 +93,10 @@ Pong::Pong(Font* font,string name)
 	}
 	m_BallBatch->ibo.bind();
 	m_BallBatch->ibo.upload_vertices(m_BallIndices,PONG_BALL_PHYSICAL_COUNT,GL_DYNAMIC_DRAW);
+
+	// bulb particle buffer
+	m_BulbBatch = g_Renderer.register_deferred_particle_batch(__BulbShader);
+	m_BulbBatch->load(__Sphere,PONG_LIGHTING_POINTLIGHTS);
 
 	// lighting
 	g_Renderer.add_sunlight(vec3(75,-50,100),vec3(1,1,1),.25f);
@@ -154,14 +150,19 @@ void Pong::update()
 	}
 
 	// get server updates
-	if (!g_Websocket.state_update) return;
+	if (!g_Websocket.state_update)
+	{
+		for (u32 i=1;i<PONG_BALL_PHYSICAL_COUNT;i++) m_BallIndices[i].position += m_BallMomentum[i];
+		for (u32 i=0;i<PONG_LIGHTING_POINTLIGHTS;i++) m_BulbIndices[i].position += m_BulbMomentum[i];
+		return;
+	}
 	GameObject __GObj = g_Websocket.receive_message();
 
 	// player positions
 	Player& p_Player0 = __GObj.players[1];
 	Player& p_Player1 = __GObj.players[0];
 	vec3 __PlayerScale = vec3(abs(p_Player0.relative_lines[1].b.x),abs(p_Player0.relative_lines[0].b.y),2)
-			*PONG_SCALE_FACTOR;
+		*PONG_SCALE_FACTOR;
 	m_PhysicalBatch->object[m_Player0].transform.scale(__PlayerScale);
 	m_PhysicalBatch->object[m_Player0].transform.translate(ctvec(p_Player0.position)*PONG_SCALE_FACTOR);
 	m_PhysicalBatch->object[m_Player1].transform.scale(__PlayerScale);
@@ -170,7 +171,11 @@ void Pong::update()
 
 	// ball positions
 	for (u32 i=1;i<PONG_BALL_PHYSICAL_COUNT;i++)
-		m_BallIndices[i].position = ctvec(__GObj.balls[i+(i-1)*PONG_DIST_JUMP_INV].position)*PONG_SCALE_FACTOR;
+	{
+		u32 j = i+(i-1)*PONG_DIST_JUMP_INV;
+		m_BallIndices[i].position = ctvec(__GObj.balls[j].position)*PONG_SCALE_FACTOR;
+		m_BallMomentum[i] = ctvec(__GObj.balls[j].velocity)*PONG_SCALE_FACTOR;
+	}
 	m_BallBatch->ibo.bind();
 	m_BallBatch->ibo.upload_vertices(m_BallIndices,PONG_BALL_PHYSICAL_COUNT,GL_DYNAMIC_DRAW);
 
@@ -179,6 +184,7 @@ void Pong::update()
 	{
 		vec3 __LightPosition = ctvec(__GObj.balls[i*PONG_DIST_JUMP].position)*PONG_SCALE_FACTOR;
 		m_BulbIndices[i].position = __LightPosition;
+		m_BulbMomentum[i] = ctvec(__GObj.balls[i*PONG_DIST_JUMP].velocity)*PONG_SCALE_FACTOR;
 		m_Lights[i]->position = __LightPosition;
 	}
 	m_BulbBatch->ibo.bind();

@@ -71,6 +71,8 @@ private:
 	// ball information
 	BallIndex m_BallIndices[PONG_BALL_COUNT];
 	BallIndex m_BulbIndices[PONG_LIGHTING_POINTLIGHTS];
+	vec3 m_BallMomentum[PONG_BALL_COUNT];
+	vec3 m_BulbMomentum[PONG_LIGHTING_POINTLIGHTS];
 
 	// scoreboard
 	lptr<Text> m_Score0;

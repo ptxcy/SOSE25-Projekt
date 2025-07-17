@@ -22,7 +22,7 @@ void CameraController::update()
 	m_ZoomMomentum *= ((__Pred<CAMCNTR_ZOOM_MINDIST&&m_ZoomMomentum<.0f)
 					   ||(__Pred>CAMCNTR_ZOOM_MAXDIST&&m_ZoomMomentum>.0f)) ? CAMCNTR_ZOOM_EASE : 1.f;
 	*/
-
+	
 	// camera rotational orbit
 	m_RotMomentum.x += (g_Input.keyboard.keys[SDL_SCANCODE_E]-g_Input.keyboard.keys[SDL_SCANCODE_Q])
 			*CAMCNTR_ROT_KEYACC;
