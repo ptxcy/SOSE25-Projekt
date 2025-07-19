@@ -21,8 +21,8 @@
 #define RENDERER_SHADOW_RANGE 150
 
 // network
-//#define NETWORK_HOST "ec2-18-196-124-42.eu-central-1.compute.amazonaws.com"
-#define NETWORK_HOST "127.0.0.1"
+#define NETWORK_HOST "ec2-18-196-124-42.eu-central-1.compute.amazonaws.com"
+//#define NETWORK_HOST "127.0.0.1"
 #define NETWORK_PORT_ADAPTER "8080"
 //#define NETWORK_PORT_WEBSOCKET "9000"
 #define NETWORK_PORT_WEBSOCKET "8083"
