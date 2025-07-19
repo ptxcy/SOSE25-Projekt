@@ -30,6 +30,9 @@ jobs:
       - name: Clean Docker and Pull Repository
         run: ./infrastructure/main/clean-docker-and-pull-repository.sh "${{ secrets.AWS_SSH_KEY }}"
 
+      - name: Change Access Rights for cardodoc.sh
+        run: chmod +x ./infrastructure/main/cargodoc.sh
+
       - name: cargodoc
         run: ./infrastructure/main/cargodoc.sh "${{ secrets.AWS_SSH_KEY }}"
 
