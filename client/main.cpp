@@ -29,7 +29,7 @@ s32 main(s32 argc,char** argv)
 	Menu __Menu = Menu(__Ubuntu,&__CCenter);
 	*/
 
-	CameraController __CamControl = CameraController();
+	CameraController __CamControl = CameraController(__Ubuntu);
 	Pong __Pong = Pong(__Ubuntu,argv[1]);
 	//TestScene __TestScene = TestScene();
 	//PlanetFocus __PlanetFocus = PlanetFocus(__Ubuntu);

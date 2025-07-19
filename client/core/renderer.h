@@ -106,6 +106,10 @@ class Mesh
 {
 public:
 	Mesh(const char* path);
+	static inline Mesh sphere() { return Mesh("./res/low_sphere.obj"); }
+	static inline Mesh sphere_high_resolution() { return Mesh("./res/sphere.obj"); };
+	static inline Mesh cube() { return Mesh("./res/cube.obj"); }
+	static inline Mesh triangle() { return Mesh("./res/triangle.obj"); }
 
 public:
 	vector<Vertex> vertices;
