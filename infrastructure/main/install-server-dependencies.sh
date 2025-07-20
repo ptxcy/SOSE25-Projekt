@@ -54,7 +54,7 @@ ssh -o StrictHostKeyChecking=no -i ~/.ssh/temp_key.pem ec2-user@ec2-18-196-124-4
   sudo dnf install fontconfig-devel
 
   # Zusätzliche Einzelpakete
-  sudo dnf install -y gcc cmake make openssl-devel pkgconf curl file
+  sudo dnf install -y gcc make automake autoconf libtool
 
   sudo usermod -aG docker ec2-user
   # Docker Compose Installation prüfen und ggf. installieren
