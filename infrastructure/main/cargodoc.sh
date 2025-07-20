@@ -11,8 +11,8 @@ chmod 400 ~/.ssh/temp_key.pem
 
 ssh -o StrictHostKeyChecking=no -i ~/.ssh/temp_key.pem ec2-user@ec2-18-196-124-42.eu-central-1.compute.amazonaws.com << EOF
   cd /home/ec2-user/SOSE25-Projekt
-  cd ./microservices/calculation_unit && cargo doc && cd ..
-  cd ./pong && cargo doc
+  cd microservices/calculation_unit && cargo doc && cd ..
+  cd pong && cargo doc
 EOF
 
 rm -f ~/.ssh/temp_key.pem
