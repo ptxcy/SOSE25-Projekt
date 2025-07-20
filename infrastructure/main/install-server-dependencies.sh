@@ -51,7 +51,7 @@ ssh -o StrictHostKeyChecking=no -i ~/.ssh/temp_key.pem ec2-user@ec2-18-196-124-4
   sudo dnf groupinstall -y "Development Tools"
 
   # Font Shit
-  sudo dnf install fontconfig-devel
+  sudo dnf install -y fontconfig-devel
 
   # Zusätzliche Einzelpakete
   sudo dnf install -y gcc make automake autoconf libtool
