@@ -16,7 +16,7 @@ server {
     server_name localhost;
 
     location /doxygen/ {
-        root /home/ec2-user/client/doc/;
+        root /home/ec2-user/SOSE25-Projekt/client/doc/doxygen-doc/html;
         index index.html;
         try_files \$uri \$uri/ =404;
     }
@@ -24,8 +24,11 @@ server {
 NGINXCONF
 
   # Zugriffsrechte sicherstellen
-  sudo chmod o+x /home/ec2-user
-  sudo chmod -R o+rX /home/ec2-user/client/doc/doxygen-doc
+  sudo chmod o+x /home/ec2-user/SOSE25-Projekt
+  sudo chmod -R o+rX /home/ec2-user/SOSE25-Projekt/client/doc/doxygen-doc/html
+
+  # nginx starten, falls nicht aktiv
+  sudo systemctl is-active nginx || sudo systemctl start nginx
 
   # nginx testen und neu laden
   sudo nginx -t && sudo systemctl reload nginx
