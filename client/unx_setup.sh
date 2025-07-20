@@ -1,11 +1,17 @@
+# check for input
+if [ -z "$1" ]; then
+	echo "please specify package manager"
+	exit 1
+fi
+
 # libs
-apt install cmake
-apt install libcurl4-openssl-dev
-apt install libglew-dev
-apt install libsdl2-dev
-apt install libglm-dev
-apt install libfreetype-dev
-apt install libmsgpack-dev
+$1 install cmake
+$1 install libcurl4-openssl-dev
+$1 install libglew-dev
+$1 install libsdl2-dev
+$1 install libglm-dev
+$1 install libfreetype-dev
+$1 install libmsgpack-dev
 
 # gain excluded include files
 mkdir -p core/include
