@@ -22,9 +22,9 @@ server {
     }
 
     location /pong/ {
-        alias /home/ec2-user/SOSE25-Projekt/microservices/pong/target/doc/;
-        index pong/index.html;
-        try_files \$uri \$uri/ =404;
+        root /home/ec2-user/SOSE25-Projekt/microservices/;
+        index pong/target/doc/pong/index.html;
+        try_files $uri $uri/ =404;
     }
 }
 NGINXCONF
