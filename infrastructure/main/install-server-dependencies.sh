@@ -50,6 +50,9 @@ ssh -o StrictHostKeyChecking=no -i ~/.ssh/temp_key.pem ec2-user@ec2-18-196-124-4
   # Entwickler-Toolset installieren
   sudo dnf groupinstall -y "Development Tools"
 
+  # Font Shit
+  sudo dnf install fontconfig-devel
+
   # Zusätzliche Einzelpakete
   sudo dnf install -y gcc cmake make openssl-devel pkgconf curl file
 

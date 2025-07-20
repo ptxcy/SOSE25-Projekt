@@ -9,14 +9,14 @@ chmod 400 ~/.ssh/temp_key.pem
 ssh -o StrictHostKeyChecking=no -i ~/.ssh/temp_key.pem ec2-user@ec2-18-196-124-42.eu-central-1.compute.amazonaws.com << EOF
   echo "Server connected via SSH"
 
-  # Nginx-Konfiguration anlegen
+  # Nginx-Konfiguration anlegen (mit alias!)
   sudo tee /etc/nginx/conf.d/doxygen.conf > /dev/null << 'NGINXCONF'
 server {
     listen 80;
     server_name localhost;
 
     location /doxygen/ {
-        root /home/ec2-user/SOSE25-Projekt/client/doc/doxygen-doc/html;
+        alias /home/ec2-user/SOSE25-Projekt/client/doc/doxygen-doc/html/;
         index index.html;
         try_files \$uri \$uri/ =404;
     }
