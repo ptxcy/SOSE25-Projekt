@@ -42,35 +42,8 @@ jobs:
       - name: Generate Client Documentation
         run: ./client/generate-client-doc.sh "${{ secrets.AWS_SSH_KEY }}"
 
-      - name: Deploy Doxygen HTML to Nginx directory
-        run: |
-          echo "${{ secrets.AWS_SSH_KEY }}" > ~/.ssh/temp_key.pem
-          chmod 400 ~/.ssh/temp_key.pem
-          
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/temp_key.pem ec2-user@ec2-18-196-124-42.eu-central-1.compute.amazonaws.com << 'EOF'
-            echo "✅ Doxygen-Dokumentation wird für nginx bereitgestellt..."
-          
-            # Zielverzeichnis für nginx
-            TARGET_DIR="/usr/share/nginx/html/doxygen"
-            SOURCE_DIR="/home/ec2-user/client/doc/doxygen-doc/html"
-          
-            # Sicherstellen, dass Quelle existiert
-            if [ -d "$SOURCE_DIR" ]; then
-              sudo mkdir -p "$TARGET_DIR"
-              sudo cp -r "$SOURCE_DIR"/* "$TARGET_DIR"/
-              sudo chown -R nginx:nginx "$TARGET_DIR"
-              sudo restorecon -R "$TARGET_DIR" 2>/dev/null || true
-              echo "✅ HTML erfolgreich bereitgestellt unter $TARGET_DIR"
-            else
-              echo "❌ Quellverzeichnis $SOURCE_DIR nicht gefunden!"
-              exit 1
-            fi
-          
-            # Nginx reload für den Fall neuer Dateien
-            sudo nginx -t && sudo systemctl reload nginx
-          EOF
-          
-          rm -f ~/.ssh/temp_key.pem
+      - name: Make Documentation Public per nginx
+        run: ./infrastructure/main/make-doc-public.sh "${{ secrets.AWS_SSH_KEY }}"
 
       - name: Change Access Rights for start-server.sh
         run: chmod +x ./infrastructure/main/start-server.sh
