@@ -22,18 +22,9 @@ server {
     }
 
     location /pong/ {
-        alias /home/ec2-user/SOSE25-Projekt/microservices/pong/target/doc/pong/;
+        alias /home/ec2-user/SOSE25-Projekt/microservices/pong/target/doc/;
         index index.html;
         try_files \$uri \$uri/ =404;
-    }
-
-    location /static.files/ {
-        alias /home/ec2-user/SOSE25-Projekt/microservices/pong/target/doc/static.files/;
-        try_files \$uri \$uri/ =404;
-    }
-
-    location /crates.js {
-        alias /home/ec2-user/SOSE25-Projekt/microservices/pong/target/doc/crates.js;
     }
 }
 NGINXCONF
