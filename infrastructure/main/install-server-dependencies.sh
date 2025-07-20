@@ -53,15 +53,6 @@ ssh -o StrictHostKeyChecking=no -i ~/.ssh/temp_key.pem ec2-user@ec2-18-196-124-4
   # Zusätzliche Einzelpakete
   sudo dnf install -y gcc cmake make openssl-devel pkgconf curl file
 
-  # Rust-spezifische Werkzeuge
-  if ! command -v cargo &> /dev/null; then
-    echo "Rust & Cargo nicht gefunden, Installation beginnt..."
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-    source "$HOME/.cargo/env"
-  else
-    echo "Rust & Cargo sind bereits installiert!"
-  fi
-
   sudo usermod -aG docker ec2-user
   # Docker Compose Installation prüfen und ggf. installieren
   if ! command -v docker-compose &> /dev/null; then
