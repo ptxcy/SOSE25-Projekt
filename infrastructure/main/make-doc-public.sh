@@ -9,7 +9,7 @@ chmod 400 ~/.ssh/temp_key.pem
 ssh -o StrictHostKeyChecking=no -i ~/.ssh/temp_key.pem ec2-user@ec2-18-196-124-42.eu-central-1.compute.amazonaws.com << EOF
   echo "Server connected via SSH"
 
-  # Nginx-Konfiguration mit zwei Aliases
+  # Nginx-Konfiguration mit mehreren Aliases
   sudo tee /etc/nginx/conf.d/doxygen.conf > /dev/null << 'NGINXCONF'
 server {
     listen 80;
@@ -24,12 +24,12 @@ server {
     location /pong-doc/ {
         alias /home/ec2-user/SOSE25-Projekt/microservices/pong/target/doc/pong/;
         index index.html;
-        try_files $uri $uri/ =404;
+        try_files \$uri \$uri/ =404;
     }
 
     location /static.files/ {
         alias /home/ec2-user/SOSE25-Projekt/microservices/pong/target/doc/pong/static.files/;
-        try_files $uri $uri/ =404;
+        try_files \$uri \$uri/ =404;
     }
 
     location /crates.js {
