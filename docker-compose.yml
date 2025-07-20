@@ -1,15 +1,6 @@
 version: '3.8'
 
 services:
-  info-service:
-    build:
-      context: ./
-      dockerfile: microservices/info-site/Dockerfile
-    image: authproxy
-    networks:
-      - sose25-projekt
-    ports:
-      - "80:80"
 
   authproxy:
     build:

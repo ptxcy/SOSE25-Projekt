@@ -63,6 +63,15 @@ ssh -o StrictHostKeyChecking=no -i ~/.ssh/temp_key.pem ec2-user@ec2-18-196-124-4
     echo "Docker Compose ist bereits installiert!"
   fi
 
+  if ! command -v nginx &> /dev/null; then
+    echo "Nginx nicht gefunden, Installation beginnt..."
+    sudo yum install -y nginx
+    sudo systemctl enable nginx
+    sudo systemctl start nginx
+  else
+    echo "Nginx ist bereits installiert!"
+  fi
+
   echo "Server finished install server dependencies check"
 EOF
 
