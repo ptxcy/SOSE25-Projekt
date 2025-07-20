@@ -15,18 +15,32 @@ server {
     listen 80;
     server_name localhost;
 
-    location /doxygen/ {
-        alias /home/ec2-user/SOSE25-Projekt/client/doc/doxygen-doc/html/;
+    location / {
+        root /home/ec2-user/SOSE25-Projekt/client/doc/doxygen-doc/html;
         index index.html;
-        try_files \$uri \$uri/ =404;
-    }
-
-    location /pong/ {
-        root /home/ec2-user/SOSE25-Projekt/microservices/;
-        index pong/target/doc/pong/index.html;
-        try_files $uri $uri/ =404;
     }
 }
+
+server {
+    listen 81;
+    server_name localhost;
+
+    location / {
+        root /home/ec2-user/SOSE25-Projekt/microservices/pong/target/doc;
+        index index.html;
+    }
+}
+
+server {
+    listen 82;
+    server_name localhost;
+
+    location / {
+        root /home/ec2-user/SOSE25-Projekt/microservices/calculation_unit/target/doc;
+        index index.html;
+    }
+}
+
 NGINXCONF
 
   # Zugriffsrechte für alle Verzeichnisse sicherstellen
