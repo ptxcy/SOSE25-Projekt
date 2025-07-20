@@ -24,6 +24,7 @@ server {
     location /pong-doc/ {
         alias /home/ec2-user/SOSE25-Projekt/microservices/pong/target/doc/pong/;
         index index.html;
+        autoindex on;
         try_files \$uri \$uri/ =404;
     }
 }
