@@ -48,13 +48,7 @@ ssh -o StrictHostKeyChecking=no -i ~/.ssh/temp_key.pem ec2-user@ec2-18-196-124-4
   fi
 
   # Entwickler-Toolset installieren
-  sudo dnf groupinstall -y "Development Tools"
-
-  # Font Shit
-  sudo dnf install -y fontconfig-devel
-
-  # Zusätzliche Einzelpakete
-  sudo dnf install -y gcc make automake autoconf libtool
+  sudo dnf install -y gcc gcc-c++ make automake autoconf libtool pkgconf rpm-build patch fontconfig-devel
 
   sudo usermod -aG docker ec2-user
   # Docker Compose Installation prüfen und ggf. installieren
