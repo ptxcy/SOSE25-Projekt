@@ -42,6 +42,9 @@ jobs:
       - name: Generate Client Documentation
         run: ./client/generate-client-doc.sh "${{ secrets.AWS_SSH_KEY }}"
 
+      - name: Change Access Rights for make-doc-public.sh
+        run: chmod +x ./infrastructure/main/make-doc-public.sh
+
       - name: Make Documentation Public per nginx
         run: ./infrastructure/main/make-doc-public.sh "${{ secrets.AWS_SSH_KEY }}"
 
