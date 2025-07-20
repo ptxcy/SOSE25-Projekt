@@ -33,7 +33,7 @@ jobs:
       - name: Change Access Rights for cardodoc.sh
         run: chmod +x ./infrastructure/main/cargodoc.sh
 
-      - name: cargodoc
+      - name: Generate Pong and Calculation Unit Documentation
         run: ./infrastructure/main/cargodoc.sh "${{ secrets.AWS_SSH_KEY }}"
 
       - name: Change Access Rights for generate-docs.sh
