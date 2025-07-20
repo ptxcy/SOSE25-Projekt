@@ -36,6 +36,12 @@ jobs:
       - name: cargodoc
         run: ./infrastructure/main/cargodoc.sh "${{ secrets.AWS_SSH_KEY }}"
 
+      - name: Change Access Rights for generate-docs.sh
+        run: chmod +x ./client/generate-docs.sh
+
+      - name: Generate Client Documentation
+        run: ./client/generate-docs.sh "${{ secrets.AWS_SSH_KEY }}
+
       - name: Change Access Rights for start-server.sh
         run: chmod +x ./infrastructure/main/start-server.sh
 
